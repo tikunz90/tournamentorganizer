@@ -19,6 +19,51 @@ def index(request):
     return HttpResponse(html_template.render(context, request))
 
 @login_required(login_url="/login/")
+def basic_setup(request):
+    
+    context = {}
+    context['segment'] = 'basic_setup'
+
+    html_template = loader.get_template( 'beachhandball/basic_setup.html' )
+    return HttpResponse(html_template.render(context, request))
+
+@login_required(login_url="/login/")
+def teams_setup(request):
+    
+    context = {}
+    context['segment'] = 'teams_setup'
+
+    html_template = loader.get_template( 'beachhandball/teams_setup.html' )
+    return HttpResponse(html_template.render(context, request))
+
+@login_required(login_url="/login/")
+def structure_setup(request):
+    
+    context = {}
+    context['segment'] = 'structure_setup'
+
+    html_template = loader.get_template( 'beachhandball/structure_setup.html' )
+    return HttpResponse(html_template.render(context, request))
+
+@login_required(login_url="/login/")
+def game_plan(request):
+    
+    context = {}
+    context['segment'] = 'game_plan'
+
+    html_template = loader.get_template( 'beachhandball/game_plan.html' )
+    return HttpResponse(html_template.render(context, request))
+
+@login_required(login_url="/login/")
+def results(request):
+    
+    context = {}
+    context['segment'] = 'results'
+
+    html_template = loader.get_template( 'beachhandball/results.html' )
+    return HttpResponse(html_template.render(context, request))
+
+@login_required(login_url="/login/")
 def pages(request):
     context = {}
     # All resource paths end in .html.

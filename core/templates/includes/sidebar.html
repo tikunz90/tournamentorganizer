@@ -6,14 +6,7 @@
         Tip 2: you can also add an image using data-image tag
     -->
       <div class="logo">
-           <a target="_blank" rel="noopener noreferrer"
-              href="https://appseed.us/admin-dashboards/django-dashboard-material-pro" class="simple-text logo-mini">
-          PI
-        </a>
-        <a target="_blank" rel="noopener noreferrer"
-           href="https://appseed.us/admin-dashboards/django-dashboard-material-pro" class="simple-text logo-normal">
-          Product Info
-        </a></div>
+      </div>
       <div class="sidebar-wrapper">
         <div class="user">
           <div class="photo">
@@ -48,7 +41,43 @@
           <li class="nav-item {% if 'index' in segment %} active {% endif %}">
             <a class="nav-link" href="/">
               <i class="material-icons">dashboard</i>
-              <p> Dashboard </p>
+              <p> Overview </p>
+            </a>
+          </li>
+          <li class="nav-item {% if 'basic_setup' in segment %} active {% endif %}">
+            <a class="nav-link" href="{% url 'basic_setup' %}">
+              <i class="material-icons">settings</i>
+              <p> Basic Setup </p>
+            </a>
+          </li>
+          <li class="nav-item {% if 'teams_setup' in segment %} active {% endif %}">
+            <a class="nav-link" href="{% url 'teams_setup' %}">
+              <i class="material-icons">groups</i>
+              <p> Teams Setup </p>
+            </a>
+          </li>
+          <li class="nav-item {% if 'structure_setup' in segment %} active {% endif %}">
+            <a class="nav-link" href="{% url 'structure_setup' %}">
+              <i class="material-icons">line_style</i>
+              <p> Structure Setup </p>
+            </a>
+          </li>
+          <li class="nav-item {% if 'game_plan' in segment %} active {% endif %}">
+            <a class="nav-link" href="{% url 'game_plan' %}">
+              <i class="material-icons">table_chart</i>
+              <p> Game Plan </p>
+            </a>
+          </li>
+          <li class="nav-item {% if 'results' in segment %} active {% endif %}">
+            <a class="nav-link" href="{% url 'results' %}">
+              <i class="material-icons">emoji_events</i>
+              <p> Results </p>
+            </a>
+          </li>
+
+          <!--li class="nav-item active">
+            <a class="nav-link" href="/">
+              <p>  </p>
             </a>
           </li>
           <li class="nav-item {% if 'page-' in segment %} active {% endif %}">
@@ -303,7 +332,7 @@
               <i class="material-icons">directions_run</i>
               <p> Logout </p>
             </a>
-          </li>
+          </li-->
 
         </ul>
       </div>

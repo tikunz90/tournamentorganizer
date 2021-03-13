@@ -1,0 +1,89 @@
+{% extends "layouts/base.html" %}
+
+{% block title %} Basic Setup {% endblock title %}
+
+<!-- Specific Page CSS goes HERE  -->
+{% block stylesheets %}{% endblock stylesheets %}
+
+{% block content %}
+<h2>Basic Setup</h2>
+
+<div class="col-md-12">
+    <div class="card ">
+      <div class="card-header ">
+        <h4 class="card-title">Navigation Pills -
+          <small class="description">Horizontal Tabs</small>
+        </h4>
+      </div>
+      <div class="card-body ">
+        <ul class="nav nav-pills nav-pills-icons" role="tablist">
+          <li class="nav-item">
+            <a class="nav-link active" data-toggle="tab" href="#link1" role="tablist">
+                <i class="material-icons">dashboard</i> Courts
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" data-toggle="tab" href="#link2" role="tablist">
+                <i class="material-icons">error</i> not used..
+            </a>
+          </li>
+        </ul>
+        <div class="tab-content tab-space">
+          <div class="tab-pane active" id="link1">
+              <h4>Add and edit courts for Tournament Events</h4>
+              <div class="row">
+                  <div class="col-md-4">
+                    <button class="btn btn-primary btn-lg" onclick="myFunction()">
+                        <i class="material-icons">add_box</i> Add Court
+                      </button>
+                  </div>
+              </div>
+            <div class="row" id="court_table">
+            </div>
+          </div>
+          <div class="tab-pane" id="link2">
+            Efficiently unleash cross-media information without cross-media value. Quickly maximize timely deliverables for real-time schemas.
+            <br />
+            <br />Dramatically maintain clicks-and-mortar solutions without functional solutions.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="card card-stats" id="templateCourt">
+    <div class="card-header card-header-warning card-header-icon">
+    <div class="card-icon">
+        <i class="material-icons">emoji_events</i>
+    </div>
+    <p class="card-category">Court</p>
+    <h3 class="card-title" data-name="name"></h3>
+    </div>
+    <div class="card-footer">
+    <div class="stats">
+        <i class="material-icons text-danger">warning</i>
+        <a href="#"></a>
+    </div>
+   </div>
+</div>
+{% endblock content %}
+
+{% block javascripts %}
+
+<script>
+  $(document).ready(function() {
+    var templateCourt = $("#templateCourt");
+    var clone = templateCourt.clone();
+    console.log(templateCourt);
+    console.log(clone);
+    var court_table = document.getElementById("court_table");
+    templateCourt.data("title", "CENTER");
+    court_table.append(templateCourt);
+    tournament_service.getCourts().forEach(element => {console.log(element.name)});
+  });
+
+  function myFunction() {
+        console.log(JSON.stringify( tournament_service.getCourts()));
+      }
+</script>
+
+{% endblock javascripts %}
