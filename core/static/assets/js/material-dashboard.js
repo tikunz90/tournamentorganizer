@@ -268,7 +268,25 @@ md = {
 
     }, {
       type: type[color],
-      timer: 3000,
+      timer: 1000,
+      placement: {
+        from: from,
+        align: align
+      }
+    });
+  },
+
+  showNotification: function(from, align, message, type) {
+    //type = ['', 'info', 'danger', 'success', 'warning', 'rose', 'primary'];
+
+    $.notify({
+      icon: "add_alert",
+      message: message
+
+    }, {
+      type: type,
+      timer: 1000,
+      delay: 750,
       placement: {
         from: from,
         align: align

@@ -31,15 +31,108 @@
         <div class="tab-content tab-space">
           <div class="tab-pane active" id="link1">
               <h4>Add and edit courts for Tournament Events</h4>
-              <div class="row">
+              
+            
+            <div class="row" id="court_table">
+              <div class="col-md-3">
+                    <div class="card card-stats">
+                      <div class="card-header card-header-warning card-header-icon">
+                        <div class="card-icon">
+                          <i class="material-icons">weekend</i>
+                        </div>
+                        <p class="card-category">Bookings</p>
+                        <h3 class="card-title">184</h3>
+                      </div>
+                      <div class="card-footer">
+                        <div class="stats">
+                          <i class="material-icons text-danger">warning</i>
+                          <a href="#pablo">Get More Space...</a>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="col-md-3">
+                    <div class="card card-stats">
+                      <div class="card-header card-header-warning card-header-icon">
+                        <div class="card-icon">
+                          <i class="material-icons">weekend</i>
+                        </div>
+                        <p class="card-category">Bookings</p>
+                        <h3 class="card-title">184</h3>
+                      </div>
+                      <div class="card-footer">
+                        <div class="stats">
+                          <i class="material-icons text-danger">warning</i>
+                          <a href="#pablo">Get More Space...</a>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="col-md-3">
+                    <div class="card card-stats">
+                      <div class="card-header card-header-warning card-header-icon">
+                        <div class="card-icon">
+                          <i class="material-icons">weekend</i>
+                        </div>
+                        <p class="card-category">Bookings</p>
+                        <h3 class="card-title">184</h3>
+                      </div>
+                      <div class="card-footer">
+                        <div class="stats">
+                          <i class="material-icons text-danger">warning</i>
+                          <a href="#pablo">Get More Space...</a>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="col-md-3">
+                    <div class="card card-stats">
+                      <div class="card-header card-header-warning card-header-icon">
+                        <div class="card-icon">
+                          <i class="material-icons">weekend</i>
+                        </div>
+                        <p class="card-category">Bookings</p>
+                        <h3 class="card-title">184</h3>
+                      </div>
+                      <div class="card-footer">
+                        <div class="stats">
+                          <i class="material-icons text-danger">warning</i>
+                          <a href="#pablo">Get More Space...</a>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="col-md-3">
+                    <div class="card card-stats">
+                      <div class="card-header card-header-warning card-header-icon">
+                        <div class="card-icon">
+                          <i class="material-icons">weekend</i>
+                        </div>
+                        <p class="card-category">Bookings</p>
+                        <h3 class="card-title">184</h3>
+                      </div>
+                      <div class="card-footer">
+                        <div class="stats">
+                          <i class="material-icons text-danger">warning</i>
+                          <a href="#pablo">Get More Space...</a>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+            </div>
+
+            <div class="row">
                   <div class="col-md-4">
                     <button class="btn btn-primary btn-lg" onclick="myFunction()">
                         <i class="material-icons">add_box</i> Add Court
                       </button>
                   </div>
               </div>
-            <div class="row" id="court_table">
-            </div>
+
           </div>
           <div class="tab-pane" id="link2">
             Efficiently unleash cross-media information without cross-media value. Quickly maximize timely deliverables for real-time schemas.
@@ -50,20 +143,6 @@
       </div>
     </div>
   </div>
-  <div class="card card-stats" id="templateCourt">
-    <div class="card-header card-header-warning card-header-icon">
-    <div class="card-icon">
-        <i class="material-icons">emoji_events</i>
-    </div>
-    <p class="card-category">Court</p>
-    <h3 class="card-title" data-name="name"></h3>
-    </div>
-    <div class="card-footer">
-    <div class="stats">
-        <i class="material-icons text-danger">warning</i>
-        <a href="#"></a>
-    </div>
-   </div>
 </div>
 {% endblock content %}
 
@@ -71,18 +150,56 @@
 
 <script>
   $(document).ready(function() {
-    var templateCourt = $("#templateCourt");
-    var clone = templateCourt.clone();
-    console.log(templateCourt);
-    console.log(clone);
-    var court_table = document.getElementById("court_table");
-    templateCourt.data("title", "CENTER");
-    court_table.append(templateCourt);
-    tournament_service.getCourts().forEach(element => {console.log(element.name)});
+
+    
   });
 
   function myFunction() {
-        console.log(JSON.stringify( tournament_service.getCourts()));
+        //console.log(JSON.stringify( tournament_service.getCourts()));
+        console.log("Basic Setup loaded...");
+    var title = "My Super title";
+    var category = "Court";
+    var court_table = document.getElementById("court_table");
+    var d = document.createElement('div');
+    var card = document.createElement('div');
+    var card_header = document.createElement('div');
+    var card_icon = document.createElement('div');
+    var card_footer = document.createElement('div');
+    $(d).addClass("col-md-3");   
+    $(card).addClass("card card-stats");
+
+    //Header
+    $(card_header).addClass("card-header card-header-warning card-header-icon");
+    $(card_icon).addClass("card-icon").html('<i class="material-icons">weekend</i>');
+    
+    var card_cat = document.createElement('p');
+    $(card_cat).addClass("card-category");
+    card_cat.innerHTML = category;
+    var card_title = document.createElement('h3');
+    $(card_title).addClass("card-title");
+    card_title.innerHTML = title;
+
+    card_header.appendChild(card_icon);
+    card_header.appendChild(card_cat);
+    card_header.appendChild(card_title);
+
+    // footer
+    $(card_footer).addClass("card-footer");
+    var card_footer_stats = document.createElement('div');
+    $(card_footer_stats).addClass("stats").html('<i class="material-icons">weekend</i><a href="#pablo">Get More Space...</a>');
+    card_footer.appendChild(card_footer_stats);
+
+    // add child
+
+    card.appendChild(card_header);
+    card.appendChild(card_footer);
+    d.appendChild(card);
+    court_table.appendChild(d);
+    //var newdiv = document.createElement("div");
+    //court_table.append(document.parseHTML("<div id='dynamic'>HUHU</div>"));
+
+    tournament_service.getCourts().forEach(element => {console.log(element.name)});
+    md.showNotification('bottom','center', "Court created", 'success');
       }
 </script>
 
