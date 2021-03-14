@@ -6,15 +6,17 @@
 {% block stylesheets %}{% endblock stylesheets %}
 
 {% block content %}
-<h2>Basic Setup</h2>
+<h2>Basic Setup - 
+  <small class="description">create courts, manage teams,...</small>
+</h2>
 
 <div class="col-md-12">
     <div class="card ">
-      <div class="card-header ">
+      <!--div class="card-header ">
         <h4 class="card-title">Navigation Pills -
           <small class="description">Horizontal Tabs</small>
         </h4>
-      </div>
+      </div-->
       <div class="card-body ">
         <ul class="nav nav-pills nav-pills-icons" role="tablist">
           <li class="nav-item">
@@ -35,78 +37,6 @@
             
             <div class="row" id="court_table">
               <div class="col-md-3">
-                    <div class="card card-stats">
-                      <div class="card-header card-header-warning card-header-icon">
-                        <div class="card-icon">
-                          <i class="material-icons">weekend</i>
-                        </div>
-                        <p class="card-category">Bookings</p>
-                        <h3 class="card-title">184</h3>
-                      </div>
-                      <div class="card-footer">
-                        <div class="stats">
-                          <i class="material-icons text-danger">warning</i>
-                          <a href="#pablo">Get More Space...</a>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div class="col-md-3">
-                    <div class="card card-stats">
-                      <div class="card-header card-header-warning card-header-icon">
-                        <div class="card-icon">
-                          <i class="material-icons">weekend</i>
-                        </div>
-                        <p class="card-category">Bookings</p>
-                        <h3 class="card-title">184</h3>
-                      </div>
-                      <div class="card-footer">
-                        <div class="stats">
-                          <i class="material-icons text-danger">warning</i>
-                          <a href="#pablo">Get More Space...</a>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div class="col-md-3">
-                    <div class="card card-stats">
-                      <div class="card-header card-header-warning card-header-icon">
-                        <div class="card-icon">
-                          <i class="material-icons">weekend</i>
-                        </div>
-                        <p class="card-category">Bookings</p>
-                        <h3 class="card-title">184</h3>
-                      </div>
-                      <div class="card-footer">
-                        <div class="stats">
-                          <i class="material-icons text-danger">warning</i>
-                          <a href="#pablo">Get More Space...</a>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div class="col-md-3">
-                    <div class="card card-stats">
-                      <div class="card-header card-header-warning card-header-icon">
-                        <div class="card-icon">
-                          <i class="material-icons">weekend</i>
-                        </div>
-                        <p class="card-category">Bookings</p>
-                        <h3 class="card-title">184</h3>
-                      </div>
-                      <div class="card-footer">
-                        <div class="stats">
-                          <i class="material-icons text-danger">warning</i>
-                          <a href="#pablo">Get More Space...</a>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div class="col-md-3">
                     <div class="card card-stats">
                       <div class="card-header card-header-warning card-header-icon">
                         <div class="card-icon">
@@ -150,7 +80,7 @@
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
-        <h4 class="modal-title">Add Court</h4>
+        <h4 class="modal-title"></h4>
         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
           <i class="material-icons">clear</i>
         </button>
@@ -161,7 +91,7 @@
               <div class="card ">
                 <div class="card-header card-header-rose card-header-text">
                   <div class="card-text">
-                    <h4 class="card-title">Add Court</h4>
+                    <h4 class="card-title">Create new Court</h4>
                   </div>
                 </div>
                 <div class="card-body ">
@@ -183,14 +113,14 @@
                   </div>
                 </div>
                 <div class="card-footer ml-auto mr-auto">
-                  <button  class="btn btn-success" onclick="click_addCourt()">Add Court</button>
+                  <!--button  class="btn btn-success" onclick="click_addCourt()">Add Court</button-->
                 </div>
               </div>
             </form>
           </div>
       </div>
       <div class="modal-footer">
-        <button id="bhAddCourtForm_OK" type="button" class="btn btn-link" onclick="click_addCourt()">OK</button>
+        <button id="bhAddCourtForm_OK" type="button" class="btn btn-success">Add Court</button>
       </div>
     </div>
   </div>
@@ -206,32 +136,7 @@
     
   });
 
-  function click_addCourt() {
-    console.log("addCourt");
-    
-    var form = document.getElementById("bhAddCourtForm");
-    
-    console.debug(form.checkValidity());
-    console.debug($(form).serialize());
-
-    console.debug($(form).serializeJSON());
-    var data = $(form).serializeJSON();
-
-    console.debug(data);
-    console.debug(data.name);
-    console.debug(data.number);
-    if(form.checkValidity())
-    {
-      console.log("Close Modal");
-      bh.addCourtHTML(data);
-      var modal = document.getElementById("bhAddCourtModal");
-      $(modal).modal('toggle');
-    }
-    else {
-      var validator = $(form).validate();
-      validator.form();
-    }
-  }
+  
   function myFunction() {
     bh.addCourtHTML();
   }

@@ -60,6 +60,7 @@ var seq2 = 0,
   durations2 = 500;
 
 $(document).ready(function() {
+  console.log("md doc ready");
   $sidebar = $('.sidebar');
   window_width = $(window).width();
 
