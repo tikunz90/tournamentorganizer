@@ -398,7 +398,10 @@
       md.initDashboardPageCharts();
 
       md.initVectorMap();
-
+      if (localStorage.getItem("mockData") === null) {
+        tournament_service.saveMockData();
+      }
+      
     });
   </script>
 
