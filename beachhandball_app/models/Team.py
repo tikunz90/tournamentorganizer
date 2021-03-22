@@ -1,0 +1,121 @@
+from django.db import models
+from django.utils import timezone
+from datetime import datetime
+
+from django_unixdatetimefield import UnixDateTimeField
+
+from .choices import NATIONALITY_CHOICES
+
+
+class Team(models.Model):
+    """ Model representing a Team.
+    """
+    created_at = UnixDateTimeField(editable=False, default=timezone.now)
+
+    tournament = models.ForeignKey('TournamentEvent', blank=True, null=True, related_name='+', on_delete=models.CASCADE)
+    tournamentstate = models.ForeignKey('TournamentState', null=True, on_delete=models.CASCADE)
+    name = models.CharField(db_column='name', max_length=50)
+    category = models.ForeignKey('TournamentCategory', null=True, related_name='+', on_delete=models.CASCADE)
+    location = models.CharField(db_column='location', max_length=50, null=True, default='')
+    nationality = models.CharField(db_column='nationality', max_length=50,
+                                   choices=NATIONALITY_CHOICES, default=NATIONALITY_CHOICES[0])
+    is_dummy = models.BooleanField(null=True, default=False)
+
+    def __unicode__(self):
+        return self.name
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        # managed = False
+        db_table = 'bh_team'
+
+
+class TeamStats(models.Model):
+    """ TeamStats are holding the results of a team within one TournamentState.
+
+    For example TeamA plays games in GroupA. There will be one TeamStats object created.
+    All gameresults from this team will be applied to the TeamStat. TeamStats are then used to
+    rank the TournamentState.
+
+    After all games are played in a TournamentState. Teams will transit to the next state and get a new 
+    TeamStats object.
+
+    """
+    created_at = UnixDateTimeField(editable=False, default=timezone.now)
+
+    tournament = models.ForeignKey('Tournament', null=True, related_name='+', on_delete=models.CASCADE)
+    team = models.ForeignKey(Team, null=True, on_delete=models.CASCADE, blank=True)
+    tournamentstate = models.ForeignKey('TournamentState', null=True, on_delete=models.CASCADE)
+    number_of_played_games = models.SmallIntegerField(blank=True, null=True, default=0)
+    game_points = models.SmallIntegerField(blank=True, null=True, default=0)
+    game_points_bonus = models.SmallIntegerField(blank=True, null=True, default=0)
+    sets_win = models.SmallIntegerField( blank=True, null=True, default=0)
+    sets_loose = models.SmallIntegerField(blank=True, null=True, default=0)
+    points_made = models.SmallIntegerField(blank=True, null=True, default=0)
+    points_received = models.SmallIntegerField( blank=True, null=True, default=0)
+    rank_initial = models.SmallIntegerField(blank=True, null=True, default=0)
+    rank = models.SmallIntegerField(blank=True, null=True, default=0)
+    name_table = models.CharField(db_column='name_table', max_length=50, null=True, default='No team')
+
+    @property
+    def stats(self):
+        return "{} {}:{} {}:{} {} {} ".format(self.number_of_played_games,
+                                              self.sets_win,
+                                              self.sets_loose,
+                                              self.points_made,
+                                              self.points_received,
+                                              self.game_points,
+                                              self.game_points_bonus)
+
+    def __unicode__(self):
+        if self.team is None:
+            name = 'No team'
+        else:
+            name = self.team.name
+        return "{}: ({}) {} {}:{} {}:{} ".format(name,
+                                                 self.tournamentstate.tournament_state,
+                                                 self.number_of_played_games,
+                                                 self.sets_win,
+                                                 self.sets_loose,
+                                                 self.points_made,
+                                                 self.points_received)
+
+    def __str__(self):
+        if self.team is None:
+            name = self.name_table
+        else:
+            name = self.team.name
+        return name
+
+    @classmethod
+    def create(cls, tournament, tournament_state, init_rnk):
+        teamstat = cls(tournament=tournament, tournamentstate=tournament_state, rank_initial=init_rnk)
+        return teamstat
+
+    class Meta:
+        # managed = False
+        db_table = 'bh_team_stats'
+
+
+class TeamTournamentResult(models.Model):
+    """TeamTournamentResult (TTR) defines the final result of a 
+    team who played the specified tournament in a season.
+
+    The rank defines the final placement reached on this tournament and
+    points are the received amount of points for this placement. The amount
+    is specified by the value of the played tournament.
+    """
+    created_at = UnixDateTimeField(editable=False, default=timezone.now)
+
+    season = models.ForeignKey('Season', null=True, related_name='+', on_delete=models.CASCADE)
+    series = models.ForeignKey('Series', null=True, related_name='+', on_delete=models.CASCADE)
+    tournament = models.ForeignKey('Tournament', null=True, related_name='+', on_delete=models.CASCADE)
+    team = models.ForeignKey('Team', null=True, related_name='+', on_delete=models.CASCADE)
+
+    rank = models.SmallIntegerField(default=0)
+    points = models.SmallIntegerField(default=0)
+
+    class Meta:
+        db_table = 'bh_team_tourn_result'

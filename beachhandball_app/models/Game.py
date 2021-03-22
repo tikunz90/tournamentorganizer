@@ -1,0 +1,141 @@
+from django.db import models
+from django.utils import timezone
+from datetime import datetime
+
+from django_unixdatetimefield import UnixDateTimeField
+
+from .choices import COURT_CHOICES, GAMESTATE_CHOICES, GAMESTATE_SCOUTING_CHOICES
+
+
+class Game(models.Model):
+    """ Model for representing a beachhandball game.
+    """
+    created_at = UnixDateTimeField(editable=False, default=timezone.now)
+
+    GAMINGSTATE_CHOICES = (
+        ('Ready', 'Ready',),
+        ('1.HT', '1.HT', ),
+        ('Halftime Break', 'Halftime Break',),
+        ('2.HT', '2.HT'),
+        ('Penalty', 'Penalty',),
+        ('Paused', 'Paused',),
+        ('Finished', 'Finished'),
+        ('SignRequired', 'SignRequired',),
+    )
+
+    tournament = models.ForeignKey('Tournament', null=True, related_name='+', on_delete=models.CASCADE)
+    team_a = models.ForeignKey('Team', null=True, related_name='+', on_delete=models.CASCADE)
+    team_b = models.ForeignKey('Team', null=True, on_delete=models.CASCADE)
+    team_st_a = models.ForeignKey('TeamStats', null=True, related_name='+', on_delete=models.CASCADE)
+    team_st_b = models.ForeignKey('TeamStats', null=True, related_name='+', on_delete=models.CASCADE)
+    tournament_state = models.ForeignKey('TournamentState', null=True, on_delete=models.CASCADE)
+    starttime = UnixDateTimeField(db_column='start_ts', default=timezone.now)
+    duration_of_halftime = models.IntegerField(default=600)
+    number_of_penalty_tries = models.SmallIntegerField(default=5)
+    court = models.SmallIntegerField(choices=COURT_CHOICES)
+    score_team_a_halftime_1 = models.SmallIntegerField(default=0, blank=True, null=True)
+    score_team_a_halftime_1 = models.SmallIntegerField(default=0, blank=True, null=True)
+    score_team_a_halftime_2 = models.SmallIntegerField(default=0, blank=True, null=True)
+    score_team_a_penalty = models.SmallIntegerField(default=0, blank=True, null=True)
+    score_team_b_halftime_1 = models.SmallIntegerField(default=0, blank=True, null=True)
+    score_team_b_halftime_2 = models.SmallIntegerField(default=0, blank=True, null=True)
+    score_team_b_penalty = models.SmallIntegerField(default=0, blank=True, null=True)
+    winner_halftime_1 = models.IntegerField(blank=True, null=True)
+    winner_halftime_2 = models.IntegerField(blank=True, null=True)
+    winner_penalty = models.IntegerField( blank=True, null=True)
+    gamestate = models.CharField(max_length=9, blank=True, null=True, choices=GAMESTATE_CHOICES)
+    act_time = models.IntegerField(blank=True, null=True)
+    gamingstate = models.CharField(
+        max_length=14,
+        blank=True,
+        null=True,
+        choices=GAMINGSTATE_CHOICES
+    )
+    scouting_state = models.CharField(max_length=9, blank=True, null=True, choices=GAMESTATE_SCOUTING_CHOICES)
+
+    def __unicode__(self):
+        return '{}: {} - {} um {}'.format(self.tournament_state, self.team_a, self.team_b, self.starttime)
+
+    def __str__(self):
+        return '{}: {} - {} um {}'.format(self.tournament_state, self.team_a, self.team_b, self.starttime)
+
+    def calc_winner(self):
+        try:
+            if self.gamestate == 'FINISHED':
+                sc_ta_ht1 = self.score_team_a_halftime_1
+                sc_tb_ht1 = self.score_team_b_halftime_1
+                sc_ta_ht2 = self.score_team_a_halftime_2
+                sc_tb_ht2 = self.score_team_b_halftime_2
+                sc_ta_htp = self.score_team_a_penalty
+                sc_tb_htp = self.score_team_b_penalty
+                self.winner_halftime_1 = 0
+                self.winner_halftime_2 = 0
+                self.winner_penalty = 0
+                if sc_ta_ht1 > sc_tb_ht1:
+                    self.winner_halftime_1 = self.team_a.id
+                else:
+                    self.winner_halftime_1 = self.team_b.id
+                if sc_ta_ht2 > sc_tb_ht2:
+                    self.winner_halftime_2 = self.team_a.id
+                else:
+                    self.winner_halftime_2 = self.team_b.id
+                if self.winner_halftime_1 is not self.winner_halftime_2:
+                    if sc_ta_htp > sc_tb_htp:
+                        self.winner_penalty = self.team_a.id
+                    else:
+                        self.winner_penalty = self.team_b.id
+        except Exception as ex:
+            return ex
+        finally:
+            return True
+
+    class Meta:
+        db_table = 'bh_game'
+
+
+class GameAction(models.Model):
+    """ Model for representing actions in a game.
+
+    While a running game scouts are tracking all actions happening in a game.
+    This creates the history report of the game and player statistics.
+    """
+    created_at = UnixDateTimeField(editable=False, default=timezone.now)
+
+    PERIOD_CHOICES = (
+        ('HT1', 'HT1'),
+        ('HT2', 'HT2'),
+        ('P', 'P'),
+    )
+
+    ACTION_CHOICES = (
+        ('KEMPA', 'KEMPA'),
+        ('SPIN', 'SPIN'),
+        ('SHOOTER', 'SHOOTER'),
+        ('ONE', 'ONE'),
+        ('SUSPENSION', 'SUSPENSION'),
+        ('REDCARD', 'REDCARD'),
+        ('CORRECTION', 'CORRECTION'),
+    )
+
+    tournament = models.ForeignKey('Tournament', null=True, related_name='+', on_delete=models.CASCADE)
+    timestamp = models.DateTimeField(db_column='TimeStamp')
+    gametime = models.TimeField(db_column='GameTime')
+    period = models.CharField(db_column='Period', max_length=3, choices=PERIOD_CHOICES)
+    game = models.ForeignKey(Game, null=True, on_delete=models.CASCADE)
+    player = models.ForeignKey('Player', null=True, on_delete=models.CASCADE)
+    team = models.ForeignKey('Team', null=True, on_delete=models.CASCADE)
+    action = models.CharField(db_column='Action', max_length=10, choices=ACTION_CHOICES)
+    action_result = models.CharField(db_column='ActionResult', max_length=7)
+    score_team_a = models.SmallIntegerField(default=0, blank=True, null=True)
+    score_team_b = models.SmallIntegerField(default=0, blank=True, null=True)
+    time_min = models.SmallIntegerField(default=0, blank=True, null=True)
+    time_sec = models.SmallIntegerField(default=0, blank=True, null=True)
+
+    def __unicode__(self):
+        return 'Gameaction ID: {}'.format(self.id)
+
+    def __str__(self):
+        return 'Gameaction ID: {}'.format(self.id)
+
+    class Meta:
+        db_table = 'bh_gameaction'

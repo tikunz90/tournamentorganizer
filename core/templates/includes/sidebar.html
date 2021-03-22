@@ -8,34 +8,7 @@
       <div class="logo">
       </div>
       <div class="sidebar-wrapper">
-        <div class="user">
-          <div class="photo">
-            <img src="/static/assets/img/faces/avatar.jpg" />
-          </div>
-          <div class="user-info">
-            <a data-toggle="collapse" href="#collapseExample" class="username">
-              <span>
-                {{ request.user.username }}
-                <b class="caret"></b>
-              </span>
-            </a>
-            <div class="collapse" id="collapseExample">
-              <ul class="nav">
-                <li class="nav-item">
-                  <a class="nav-link" href="/page-user.html">
-                    <span class="sidebar-mini"> MP </span>
-                    <span class="sidebar-normal"> My Profile </span>
-                  </a>
-                </li>
-                <li class="nav-item">
-                  <a class="nav-link" href="{% url 'logout' %}">
-                    <span class="sidebar-mini"> LO </span>
-                    <span class="sidebar-normal"> Logout </span>
-                  </a>
-                </li>
-              </ul>
-            </div>
-          </div>
+        <div class="user">  
         </div>
         <ul class="nav">
           <li class="nav-item {% if 'index' in segment %} active {% endif %}">
@@ -51,17 +24,60 @@
             </a>
           </li>
           <li class="nav-item {% if 'teams_setup' in segment %} active {% endif %}">
-            <a class="nav-link" href="{% url 'teams_setup' %}">
-              <i class="material-icons">groups</i>
-              <p> Teams Setup </p>
+            <a data-toggle="collapse" href="#collapseTeamsSetup" class="nav-link">
+              <div>
+                <i class="material-icons">groups</i>
+                <p>Teams Setup<b class="caret"></b></p>
+              </div>
             </a>
+            <div class="collapse" id="collapseTeamsSetup">
+            {% if events %}
+              <ul class="nav">
+              {% for tevent in events %}
+                <li class="nav-item">
+                  <a class="nav-link" href="{% url 'teams_setup.detail' pk=tevent.id %}">
+                    <!--span class="sidebar-mini"> 1234 </!--span-->
+                    <span class="sidebar-normal"> {{ tevent.name_short }}</span>
+                  </a>
+                </li>
+              {% endfor %}
+              </ul>
+            {% else %}
+              <p>No Events!</p>
+            {% endif %}
+            </div>
           </li>
+
+
+
+
+
           <li class="nav-item {% if 'structure_setup' in segment %} active {% endif %}">
-            <a class="nav-link" href="{% url 'structure_setup' %}">
-              <i class="material-icons">line_style</i>
-              <p> Structure Setup </p>
+            <a data-toggle="collapse" href="#collapseStructureSetup" class="nav-link">
+              <div>
+                <i class="material-icons">line_style</i>
+                <p>Structure Setup<b class="caret"></b></p>
+              </div>
             </a>
+            <div class="collapse" id="collapseStructureSetup">
+            {% if events %}
+              <ul class="nav">
+              {% for tevent in events %}
+                <li class="nav-item">
+                  <a class="nav-link" href="{% url 'structure_setup' %}">
+                    <!--span class="sidebar-mini"> 1234 </!--span-->
+                    <span class="sidebar-normal"> {{ tevent.name_short }}</span>
+                  </a>
+                </li>
+              {% endfor %}
+              </ul>
+            {% else %}
+              <p>No Events!</p>
+            {% endif %}
+            </div>
           </li>
+
+
           <li class="nav-item {% if 'game_plan' in segment %} active {% endif %}">
             <a class="nav-link" href="{% url 'game_plan' %}">
               <i class="material-icons">table_chart</i>
