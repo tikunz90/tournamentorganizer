@@ -13,6 +13,8 @@ urlpatterns = [
 
     # The home page
     path('', static_views.index, name='index'),
+    #re_path(r'^.*\.*', static_views.pages, name='pages'),
+
     path('basic_setup/', static_views.basic_setup, name='basic_setup'),
 
     path('teams_setup/', static_views.teams_setup, name='teams_setup'),

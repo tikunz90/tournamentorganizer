@@ -9,13 +9,20 @@ from django.template import loader
 from django.http import HttpResponse
 from django import template
 
+from authentication.models import GBOUser
 from .models.Tournament import Tournament, TournamentEvent
 from .models.Series import Season
 
 @login_required(login_url="/login/")
 def index(request):
-    
     context = {}
+
+    guser = GBOUser.objects.filter(user=request.user)
+    
+    if guser is None:
+        context['gbo_user'] = 'None'
+    else:
+        context['gbo_user'] = guser
     context['segment'] = 'index'
     context['segment_title'] = 'Overview'
     context['act_season'] = Season.objects.filter(is_actual=True).first()
@@ -105,7 +112,7 @@ def pages(request):
         
         load_template      = request.path.split('/')[-1]
         context['segment'] = load_template
-        
+        context['segment_title'] = load_template.split('.')[0]
         html_template = loader.get_template( load_template )
         return HttpResponse(html_template.render(context, request))
         
@@ -114,7 +121,8 @@ def pages(request):
         html_template = loader.get_template( 'page-404.html' )
         return HttpResponse(html_template.render(context, request))
 
-    except:
+    except Exception as e:
+        print(e)
     
         html_template = loader.get_template( 'page-500.html' )
         return HttpResponse(html_template.render(context, request))

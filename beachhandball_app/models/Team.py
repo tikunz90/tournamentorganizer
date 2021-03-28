@@ -4,7 +4,7 @@ from datetime import datetime
 
 from django_unixdatetimefield import UnixDateTimeField
 
-from .choices import NATIONALITY_CHOICES
+from .choices import NATIONALITY_CHOICES, TEAM_TOURNAMENT_REG
 
 
 class Team(models.Model):
@@ -119,3 +119,26 @@ class TeamTournamentResult(models.Model):
 
     class Meta:
         db_table = 'bh_team_tourn_result'
+
+
+class TeamTournamentRegistration(models.Model):
+    """TeamTournamentRegistration defines a registration request of
+    a team to a tournamentevent.
+
+    Request has to be accepted by TO.
+    """
+    created_at = UnixDateTimeField(editable=False, default=timezone.now)
+
+    season = models.ForeignKey('Season', null=True, related_name='+', on_delete=models.CASCADE)
+    series = models.ForeignKey('Series', null=True, related_name='+', on_delete=models.CASCADE)
+    tournament_event = models.ForeignKey('TournamentEvent', null=True, related_name='+', on_delete=models.CASCADE)
+    team = models.ForeignKey('Team', null=True, related_name='+', on_delete=models.CASCADE)
+
+    registration_state = models.CharField(db_column='registration_state', max_length=50,
+                                   choices=TEAM_TOURNAMENT_REG, default=TEAM_TOURNAMENT_REG[0])
+
+    def __str__(self):
+        return '{} {}'.format(self.team.name, self.registration_state)
+
+    class Meta:
+        db_table = 'bh_team_tournanment_registration'

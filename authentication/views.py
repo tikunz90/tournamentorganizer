@@ -4,14 +4,19 @@ Copyright (c) 2019 - present AppSeed.us
 """
 
 from django.shortcuts import render
+from datetime import datetime
 
 # Create your views here.
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group
+from authentication.models import GBOUser
 from django.forms.utils import ErrorList
 from django.http import HttpResponse
 from .forms import LoginForm, SignUpForm
+from django.views.generic import TemplateView
+
+from beachhandball_app.services import services as s
 
 def login_view(request):
     form = LoginForm(request.POST or None)
@@ -21,14 +26,30 @@ def login_view(request):
     if request.method == "POST":
 
         if form.is_valid():
+            # get token from gbo
+            print()
             username = form.cleaned_data.get("username")
             password = form.cleaned_data.get("password")
-            user = authenticate(username=username, password=password)
-            if user is not None:
-                login(request, user)
-                return redirect("/")
-            else:    
-                msg = 'Invalid credentials'    
+            result = s.SWS.create_session(username, password)
+            if result['isError'] is not True:
+                if User.objects.filter(username=username).count() == 0:
+                    user = User.objects.create_user(username, result['message']['user']['email'], password)
+                    user.first_name = result['message']['user']['name']
+                    user.last_name = result['message']['user']['family_name']
+                    user.save()
+                    guser = GBOUser(user=user,
+                    gbo_user=result['message']['user']['email'],
+                    token = result['message']['token'].split(' ')[1],
+                    validUntil = datetime.utcfromtimestamp(result['message']['expiresIn'] / 1000))
+                    guser.save()
+                    to_group = Group.objects.get(name='tournament_organizer')
+                    to_group.user_set.add(user)
+                user = authenticate(username=username, password=password)
+                if user is not None:
+                    login(request, user)
+                    return redirect("/")
+                else:    
+                    msg = 'Invalid credentials'    
         else:
             msg = 'Error validating the form'    
 
@@ -58,3 +79,12 @@ def register_user(request):
         form = SignUpForm()
 
     return render(request, "accounts/register.html", {"form": form, "msg" : msg, "success" : success })
+
+class ProfileView(TemplateView):
+    template_name = 'page-user.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(ProfileView, self).get_context_data(**kwargs)
+        context['segment'] = 'profile'
+        context['gbo_user'] = GBOUser.objects.filter(user=self.request.user)
+        return context

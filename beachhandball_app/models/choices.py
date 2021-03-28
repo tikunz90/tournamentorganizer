@@ -36,6 +36,12 @@ TOURNAMENT_STATE_TYPE_CHOICES = (
         ('FINAL', 'FINAL'),
     )
 
+TEAM_TOURNAMENT_REG = (
+    ('PENDING', 'PENDING',),
+    ('ACCEPTED', 'ACCEPTED',),
+    ('REJECTED', 'REJECTED',),
+)
+
 NATIONALITY_CHOICES = (
     ('DEU', 'Germany'),
     ('NLD', 'Netherlands'),
