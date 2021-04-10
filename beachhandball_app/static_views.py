@@ -13,16 +13,20 @@ from authentication.models import GBOUser
 from .models.Tournament import Tournament, TournamentEvent
 from .models.Series import Season
 
+from .services.services import SWS
+
 @login_required(login_url="/login/")
 def index(request):
     context = {}
 
-    guser = GBOUser.objects.filter(user=request.user)
+    guser = GBOUser.objects.filter(user=request.user).first()
     
     if guser is None:
         context['gbo_user'] = 'None'
     else:
         context['gbo_user'] = guser
+        context['season_active'] = SWS.getSeasonActive(guser)
+    context['token'] = guser.token
     context['segment'] = 'index'
     context['segment_title'] = 'Overview'
     context['act_season'] = Season.objects.filter(is_actual=True).first()

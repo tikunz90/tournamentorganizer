@@ -26,3 +26,17 @@ class SWS():
     @staticmethod
     def getCupTournaments(gbo_user):
         return 0
+    
+    @staticmethod
+    def getSeasonActive(gbo_user):
+        endpoint = '/gbo/seasons/active'
+        headers = SWS.headers
+        headers['Authorization'] = 'Bearer {}'.format(gbo_user.token)
+        response = requests.get(SWS.base_url + endpoint, headers=headers)
+        act_season = ''
+        if response.json()['isError'] is not True:
+            data = response.json()['message']
+            act_season = data[0]['name']
+        else:
+            act_season = 'error'
+        return act_season
