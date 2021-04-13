@@ -12,13 +12,12 @@ class Team(models.Model):
     """
     created_at = UnixDateTimeField(editable=False, default=timezone.now)
 
-    tournament = models.ForeignKey('TournamentEvent', blank=True, null=True, related_name='+', on_delete=models.CASCADE)
-    tournamentstate = models.ForeignKey('TournamentState', null=True, on_delete=models.CASCADE)
+    tournament_event = models.ForeignKey('TournamentEvent', blank=True, null=True, related_name='+', on_delete=models.CASCADE)
+    tournamentstate = models.ForeignKey('TournamentState', blank=True, null=True, on_delete=models.CASCADE)
     name = models.CharField(db_column='name', max_length=50)
+    gbo_team = models.IntegerField(null=True)
+    
     category = models.ForeignKey('TournamentCategory', null=True, related_name='+', on_delete=models.CASCADE)
-    location = models.CharField(db_column='location', max_length=50, null=True, default='')
-    nationality = models.CharField(db_column='nationality', max_length=50,
-                                   choices=NATIONALITY_CHOICES, default=NATIONALITY_CHOICES[0])
     is_dummy = models.BooleanField(null=True, default=False)
 
     def __unicode__(self):
@@ -45,7 +44,7 @@ class TeamStats(models.Model):
     """
     created_at = UnixDateTimeField(editable=False, default=timezone.now)
 
-    tournament = models.ForeignKey('Tournament', null=True, related_name='+', on_delete=models.CASCADE)
+    tournament_event = models.ForeignKey('TournamentEvent', null=True, related_name='+', on_delete=models.CASCADE)
     team = models.ForeignKey(Team, null=True, on_delete=models.CASCADE, blank=True)
     tournamentstate = models.ForeignKey('TournamentState', null=True, on_delete=models.CASCADE)
     number_of_played_games = models.SmallIntegerField(blank=True, null=True, default=0)
@@ -111,7 +110,7 @@ class TeamTournamentResult(models.Model):
 
     season = models.ForeignKey('Season', null=True, related_name='+', on_delete=models.CASCADE)
     series = models.ForeignKey('Series', null=True, related_name='+', on_delete=models.CASCADE)
-    tournament = models.ForeignKey('Tournament', null=True, related_name='+', on_delete=models.CASCADE)
+    tournament_event = models.ForeignKey('TournamentEvent', null=True, related_name='+', on_delete=models.CASCADE)
     team = models.ForeignKey('Team', null=True, related_name='+', on_delete=models.CASCADE)
 
     rank = models.SmallIntegerField(default=0)

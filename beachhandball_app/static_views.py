@@ -15,24 +15,39 @@ from .models.Series import Season
 
 from .services.services import SWS
 
-@login_required(login_url="/login/")
-def index(request):
+def getContext(request):
     context = {}
 
     guser = GBOUser.objects.filter(user=request.user).first()
     
     if guser is None:
         context['gbo_user'] = 'None'
+        context['token'] = ''
     else:
         context['gbo_user'] = guser
         context['season_active'] = SWS.getSeasonActive(guser)
-    context['token'] = guser.token
-    context['segment'] = 'index'
-    context['segment_title'] = 'Overview'
-    context['act_season'] = Season.objects.filter(is_actual=True).first()
+        context['token'] = guser.token
+    
     t = Tournament.objects.get(id=1)
     context['tourn'] = t
     context['events'] = TournamentEvent.objects.filter(tournament=t)
+
+    context['teams_dummy'] = ["DreamTeam"
+    ,"The Beachers"
+    ,"Superstars"
+    ,"Beach Gods"
+    ,"Lucky Beach"
+    ,"Ballers"
+    ,"Ultimate Team"
+    ,"Thunder Beach"]
+    return context
+
+@login_required(login_url="/login/")
+def index(request):
+    context = getContext(request)
+
+    context['segment'] = 'index'
+    context['segment_title'] = 'Overview'
 
     html_template = loader.get_template( 'index.html' )
     return HttpResponse(html_template.render(context, request))
@@ -40,13 +55,10 @@ def index(request):
 @login_required(login_url="/login/")
 def basic_setup(request):
     
-    context = {}
+    context = getContext(request)
+
     context['segment'] = 'basic_setup'
     context['segment_title'] = 'Basic Setup'
-    context['act_season'] = Season.objects.filter(is_actual=True).first()
-    t = Tournament.objects.get(id=1)
-    context['tourn'] = t
-    context['events'] = TournamentEvent.objects.filter(tournament=t)
 
     html_template = loader.get_template( 'beachhandball/basic_setup.html' )
     return HttpResponse(html_template.render(context, request))
@@ -54,13 +66,10 @@ def basic_setup(request):
 @login_required(login_url="/login/")
 def teams_setup(request):
     
-    context = {}
+    context = getContext(request)
+
     context['segment'] = 'teams_setup'
     context['segment_title'] = 'Teams Setup'
-    context['act_season'] = Season.objects.filter(is_actual=True).first()
-    t = Tournament.objects.get(id=1)
-    context['tourn'] = t
-    context['events'] = TournamentEvent.objects.filter(tournament=t)
 
     html_template = loader.get_template( 'beachhandball/teams_setup.html' )
     return HttpResponse(html_template.render(context, request))
@@ -68,13 +77,10 @@ def teams_setup(request):
 @login_required(login_url="/login/")
 def structure_setup(request):
     
-    context = {}
+    context = getContext(request)
+
     context['segment'] = 'structure_setup'
     context['segment_title'] = 'Structure Setup'
-    context['act_season'] = Season.objects.filter(is_actual=True).first()
-    t = Tournament.objects.get(id=1)
-    context['tourn'] = t
-    context['events'] = TournamentEvent.objects.filter(tournament=t)
 
     html_template = loader.get_template( 'beachhandball/structure_setup.html' )
     return HttpResponse(html_template.render(context, request))
@@ -82,13 +88,10 @@ def structure_setup(request):
 @login_required(login_url="/login/")
 def game_plan(request):
     
-    context = {}
+    context = getContext(request)
+
     context['segment'] = 'game_plan'
     context['segment_title'] = 'Game Plan'
-    context['act_season'] = Season.objects.filter(is_actual=True).first()
-    t = Tournament.objects.get(id=1)
-    context['tourn'] = t
-    context['events'] = TournamentEvent.objects.filter(tournament=t)
 
     html_template = loader.get_template( 'beachhandball/game_plan.html' )
     return HttpResponse(html_template.render(context, request))
@@ -96,13 +99,10 @@ def game_plan(request):
 @login_required(login_url="/login/")
 def results(request):
     
-    context = {}
+    context = getContext(request)
+
     context['segment'] = 'results'
     context['segment_title'] = 'Results'
-    context['act_season'] = Season.objects.filter(is_actual=True).first()
-    t = Tournament.objects.get(id=1)
-    context['tourn'] = t
-    context['events'] = TournamentEvent.objects.filter(tournament=t)
 
     html_template = loader.get_template( 'beachhandball/results.html' )
     return HttpResponse(html_template.render(context, request))

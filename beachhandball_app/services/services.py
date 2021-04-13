@@ -24,6 +24,18 @@ class SWS():
         return response.json()
 
     @staticmethod
+    def getGBOUserId(gbo_user):
+        endpoint = '/gbo/subjects/email/{}'.format(gbo_user.gbo_user)
+        headers = SWS.headers
+        headers['Authorization'] = 'Bearer {}'.format(gbo_user.token)
+        response = requests.get(SWS.base_url + endpoint, headers=headers)
+        subject_id = -1
+        if response.json()['isError'] is not True:
+            data = response.json()['message']
+            subject_id = data[0]['id']
+        return subject_id
+
+    @staticmethod
     def getCupTournaments(gbo_user):
         return 0
     

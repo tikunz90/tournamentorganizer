@@ -27,7 +27,7 @@
             <a data-toggle="collapse" href="#collapseTeamsSetup" class="nav-link">
               <div>
                 <i class="material-icons">groups</i>
-                <p>Teams Setup<b class="caret"></b></p>
+                <p>Teams<b class="caret"></b></p>
               </div>
             </a>
             <div class="collapse" id="collapseTeamsSetup">
@@ -64,7 +64,7 @@
               <ul class="nav">
               {% for tevent in events %}
                 <li class="nav-item">
-                  <a class="nav-link" href="{% url 'structure_setup' %}">
+                  <a class="nav-link" href="{% url 'structure_setup.detail' pk=tevent.id %}">
                     <!--span class="sidebar-mini"> 1234 </!--span-->
                     <span class="sidebar-normal"> {{ tevent.name_short }}</span>
                   </a>

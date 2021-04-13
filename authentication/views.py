@@ -41,12 +41,22 @@ def login_view(request):
                     gbo_user=result['message']['user']['email'],
                     token = result['message']['token'].split(' ')[1],
                     validUntil = datetime.utcfromtimestamp(result['message']['expiresIn'] / 1000))
+                    guser.subject_id = s.SWS.getGBOUserId(guser)
                     guser.save()
                     to_group = Group.objects.get(name='tournament_organizer')
                     to_group.user_set.add(user)
+                
                 user = authenticate(username=username, password=password)
                 if user is not None:
                     login(request, user)
+                    if user.is_superuser is True:
+                        if GBOUser.objects.filter(user=user).count() == 0:
+                            guser = GBOUser(user=user,
+                            gbo_user=result['message']['user']['email'],
+                            token = result['message']['token'].split(' ')[1],
+                            validUntil = datetime.utcfromtimestamp(result['message']['expiresIn'] / 1000))
+                            guser.subject_id = s.SWS.getGBOUserId(guser)
+                            guser.save()
                     return redirect("/")
                 else:    
                     msg = 'Invalid credentials'    

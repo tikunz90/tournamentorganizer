@@ -6,6 +6,7 @@ Copyright (c) 2019 - present AppSeed.us
 from django.urls import path, re_path
 from beachhandball_app import static_views
 from beachhandball_app.views.teams_setup import TeamsSetupDetail
+from beachhandball_app.views.structure_setup import StructureSetupDetail
 
 from django.views.generic import TemplateView
 
@@ -21,6 +22,8 @@ urlpatterns = [
     path('teams_setup/<int:pk>/', TeamsSetupDetail.as_view(), name='teams_setup.detail'),
 
     path('structure_setup/', static_views.structure_setup, name='structure_setup'),
+    path('structure_setup/<int:pk>/', StructureSetupDetail.as_view(), name='structure_setup.detail'),
+    
     path('game_plan/', static_views.game_plan, name='game_plan'),
     path('results/', static_views.results, name='results'),
 

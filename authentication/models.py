@@ -12,8 +12,9 @@ from django_unixdatetimefield import UnixDateTimeField
 class GBOUser(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     gbo_user = models.CharField(max_length=100)
-    token = models.CharField(max_length=256)
+    token = models.TextField(max_length=512)
     validUntil = UnixDateTimeField(null=False, default=0)
+    subject_id = models.IntegerField(null=True)
 
     def __str__(self):
         return '{} {}, {} {}'.format(self.user.id, self.user.last_name, self.user.first_name, self.user.email)

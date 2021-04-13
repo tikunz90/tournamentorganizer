@@ -2,7 +2,9 @@ from django.db import models
 from django.utils import timezone
 from datetime import datetime
 
-from .choices import TOURNAMENT_STATE_CHOICES, TOURNAMENT_STATE_TYPE_CHOICES
+from colorfield.fields import ColorField
+
+from .choices import TOURNAMENT_STATE_CHOICES, TOURNAMENT_STATE_TYPE_CHOICES, COLOR_CHOICES
 
 from django_unixdatetimefield import UnixDateTimeField
 
@@ -16,27 +18,19 @@ class Tournament(models.Model):
 
     organizer = models.SmallIntegerField(default=0)
     name = models.CharField(db_column='name', max_length=50)
-    
-    category = models.ForeignKey('TournamentCategory', null=True, related_name='+', on_delete=models.CASCADE)
-
-    start_ts = UnixDateTimeField(null=False, default=timezone.now)
-    end_ts = UnixDateTimeField(null=False, default=timezone.now)
-
-    max_number_teams = models.SmallIntegerField(default=0)
-    is_in_configuration = models.BooleanField(default=False)
 
     #address = AddressField(related_name='+', blank=True, null=True, on_delete=models.CASCADE)
     
 
     @property
     def name_short(self):
-        return '{} {}'.format(self.name, self.category)
+        return '{}'.format(self.name)
 
     def __unicode__(self):
-        return '{} - {}  von {} - {}'.format(self.name, self.category, self.start_ts, self.end_ts)
+        return '{}'.format(self.name)
 
     def __str__(self):
-        return '{} - {}  von {} - {}'.format(self.name, self.category, self.start_ts, self.end_ts)
+        return '{}'.format(self.name)
 
     class Meta:
         db_table = 'bh_tournament'
@@ -50,7 +44,7 @@ class TournamentEvent(models.Model):
     created_at = UnixDateTimeField(editable=False, default=timezone.now)
 
     tournament = models.ForeignKey('Tournament', null=True, related_name='+', on_delete=models.CASCADE)
-    season = models.ForeignKey('Season', null=True, related_name='+', on_delete=models.SET_NULL)
+    #season = models.ForeignKey('Season', null=True, related_name='+', on_delete=models.SET_NULL)
     category = models.ForeignKey('TournamentCategory', null=True, related_name='+', on_delete=models.CASCADE)
 
     name = models.CharField(db_column='name', max_length=50)
@@ -60,6 +54,8 @@ class TournamentEvent(models.Model):
 
     max_number_teams = models.SmallIntegerField(default=0)
     is_in_configuration = models.BooleanField(default=False)
+
+    season_tournament_id = models.IntegerField(null=True)
 
     @property
     def name_short(self):
@@ -107,7 +103,7 @@ class TournamentState(models.Model):
     """
     created_at = UnixDateTimeField(editable=False, default=timezone.now)
 
-    tournament = models.ForeignKey('Tournament', null=True, related_name='+', on_delete=models.CASCADE)
+    tournament_event = models.ForeignKey('TournamentEvent', null=True, related_name='+', on_delete=models.CASCADE)
     tournament_state = models.CharField(max_length=20, choices=TOURNAMENT_STATE_CHOICES, blank=True)
     tournament_state_type = models.CharField(max_length=20, choices=TOURNAMENT_STATE_TYPE_CHOICES, blank=True)
     name = models.CharField(db_column='name', max_length=50)
@@ -121,6 +117,8 @@ class TournamentState(models.Model):
     is_final = models.BooleanField(default=False)
     comment = models.CharField(max_length=50, blank=True)
 
+    color = ColorField(default='#FF0000', choices=COLOR_CHOICES)
+
     @property
     def name_com(self):
         return "{}: {}".format(self.name,
@@ -129,7 +127,7 @@ class TournamentState(models.Model):
     @property
     def name_gender(self):
         return "{}: {}".format(self.name,
-                               self.tournament.category,
+                               self.tournament_event.category,
                                self.comment)
 
     def __unicode__(self):
@@ -138,7 +136,7 @@ class TournamentState(models.Model):
                                  self.comment)
 
     def __str__(self):
-        return "{} {}: {} {}".format(self.tournament.category,
+        return "{} {}: {} {}".format(self.tournament_event.category,
                                      self.tournament_state,
                                      self.name,
                                      self.comment)
@@ -155,6 +153,19 @@ class TournamentState(models.Model):
         db_table = 'bh_tournament_states'
 
 
+class TournamentStateType(models.Model):
+    """ Defines Type of TS. E.g if it is a GroupStagec, KnockOut Phase
+    """
+    created_at = UnixDateTimeField(editable=False, default=timezone.now)
+
+    tournament_event = models.ForeignKey('TournamentEvent', null=True, related_name='+', on_delete=models.CASCADE)
+    name = models.CharField( max_length=50)
+    order = models.SmallIntegerField(default=0)
+
+    class Meta:
+        # managed = False
+        db_table = 'bh_tournament_state_type'
+
 class TournamentTeamTransition(models.Model):
     """ Defines the transistion from a TournamentState to the next.
 
@@ -166,7 +177,7 @@ class TournamentTeamTransition(models.Model):
     """
     created_at = UnixDateTimeField(editable=False, default=timezone.now)
 
-    tournament = models.ForeignKey('Tournament', null=True, related_name='+', on_delete=models.CASCADE)
+    tournament_event = models.ForeignKey('TournamentEvent', null=True, related_name='+', on_delete=models.CASCADE)
     origin_ts_id = models.ForeignKey('TournamentState', null=True, related_name='+', on_delete=models.CASCADE)
     origin_rank = models.SmallIntegerField(default=0)
     target_ts_id = models.ForeignKey('TournamentState', null=True, related_name='+', on_delete=models.CASCADE)
@@ -207,13 +218,13 @@ class TournamentFinalRanking(models.Model):
     """ obsolete because of use of TeamTournamentResult
     """
     series = models.ForeignKey('Series', null=True, related_name='+', on_delete=models.CASCADE)
-    tournament = models.ForeignKey('Tournament', null=True, related_name='+', on_delete=models.CASCADE)
+    tournament_event = models.ForeignKey('TournamentEvent', null=True, related_name='+', on_delete=models.CASCADE)
     rank = models.SmallIntegerField(default=0)
     points = models.SmallIntegerField(default=0)
 
     def __str__(self):
         return "{} {}: {} {}".format(self.series,
-                                     self.tournament.name_short,
+                                     self.tournament_event.name_short,
                                      self.rank,
                                      self.points)
 

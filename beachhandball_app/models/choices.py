@@ -28,6 +28,14 @@ TOURNAMENT_STATE_CHOICES = (
         ('FINAL_RANKING', 'FINAL_RANKING'),
     )
 
+COLOR_CHOICES = [
+        ("#FFFFFF", "white"),
+        ("#000000", "black"),
+        ("#2a25be", "Persian Blue"),
+        ("#ff0005", "red"),
+        ("#fff200", "yellow")
+    ]
+
 TOURNAMENT_STATE_TYPE_CHOICES = (
         ('GROUP_STAGE', 'GROUP_STAGE'),
         ('MAIN_ROUND', 'MAIN_ROUND'),

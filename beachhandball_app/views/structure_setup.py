@@ -1,27 +1,27 @@
 from django.views.generic.detail import DetailView
 from django.contrib.auth.mixins import LoginRequiredMixin
 
-from ..models.Tournament import Tournament, TournamentEvent
+from ..models.Tournament import Tournament, TournamentEvent, TournamentStateType
 from ..models.Series import Season
 from ..models.Team import Team
 
 from beachhandball_app import static_views
 
 
-class TeamsSetupDetail(LoginRequiredMixin, DetailView):
+class StructureSetupDetail(LoginRequiredMixin, DetailView):
     model = TournamentEvent
-    template_name = 'beachhandball/tournamentevent/teams_setup.html'
+    template_name = 'beachhandball/tournamentevent/structure_setup.html'
     login_url = '/login/'
-    redirect_field_name = 'teams_setup'
+    redirect_field_name = 'structure_setup'
 
     def get_context_data(self, **kwargs):
         tevent = kwargs["object"]
         kwargs = static_views.getContext(self.request)
         kwargs['tournaments_active'] = 'active_detail'
-        kwargs['segment'] = 'teams_setup'
-        kwargs['segment_title'] = 'Teams Setup \ ' + tevent.name_short
+        kwargs['segment'] = 'structure_setup'
+        kwargs['segment_title'] = 'Structure Setup \ ' + tevent.name_short
 
-        kwargs['teams_accepted'] = []#Team.objects.filter(tournament=tevent)
+        kwargs['ts_types'] = TournamentStateType.objects.filter(tournament_event=tevent)
         kwargs['teams_appending'] = []#Team.objects.filter(tournament=tevent)
 
-        return super(TeamsSetupDetail, self).get_context_data(**kwargs)
+        return super(StructureSetupDetail, self).get_context_data(**kwargs)

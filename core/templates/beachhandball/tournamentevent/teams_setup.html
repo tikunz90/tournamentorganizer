@@ -1,6 +1,6 @@
 {% extends "layouts/base.html" %}
 
-{% block title %} Teams Setup {% endblock title %}
+{% block title %} Teams {% endblock title %}
 
 <!-- Specific Page CSS goes HERE  -->
 {% block stylesheets %}{% endblock stylesheets %}
@@ -23,25 +23,13 @@
                 <tr>
                   <th>Name</th>
                   <th>Nationality</th>
-                  <th></th>
                 </tr>
               </thead>
               <tbody>
-              {% for team in teams_accepted %}
+              {% for team in teams_dummy %}
                 <tr>
-                  <td class="text-center">{{team.name}}</td>
-                  <td>{{team.nationality}}</td>
-                  <td class="td-actions text-right">
-                    <button type="button" rel="tooltip" class="btn btn-info">
-                      <i class="material-icons">person</i>
-                    </button>
-                    <button type="button" rel="tooltip" class="btn btn-success">
-                      <i class="material-icons">edit</i>
-                    </button>
-                    <button type="button" rel="tooltip" class="btn btn-danger">
-                      <i class="material-icons">close</i>
-                    </button>
-                  </td>
+                  <td class="text-center">{{team}}</td>
+                  <td>GER</td>
                 </tr>
               {% endfor %}
               </tbody>
