@@ -1,0 +1,53 @@
+<div class="modal fade" id="bhCreateStageModal" tabindex="-1" role="dialog" aria-labelledby="CreateStageModal" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title"></h4>
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+          <i class="material-icons">clear</i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="col-md-12">
+            <form id="bhCreateStageForm" class="form-horizontal" action="{% url 'structure_setup.create_tstage' pk=1 %}" method="post">
+                {% csrf_token %}
+              <div class="card ">
+                <div class="card-header card-header-rose card-header-text">
+                  <div class="card-text">
+                    <h4 class="card-title">Create new Stage</h4>
+                  </div>
+                </div>
+                <div class="card-body ">
+                  <div class="row">
+                    <label class="col-sm-2 col-form-label">Name</label>
+                    <div class="col-sm-7">
+                      <div class="form-group">
+                        <input id="bhAddStageForm_Name" class="form-control" type="text" name="name" required="true" />
+                      </div>
+                    </div>
+                  </div>
+                  <div class="row">
+                    <label class="col-sm-2 col-form-label">Number</label>
+                    <div class="col-sm-7">
+                      <div class="form-group">
+                        <input class="form-control" type="number" name="number" min="1" required="true" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="card-footer ml-auto mr-auto">
+                  <!--button  class="btn btn-success" onclick="click_addCourt()">Add Court</button-->
+                  <button type="submit" class="btn btn-success">
+                        Create
+                    </button>
+                </div>
+              </div>
+            </form>
+          </div>
+      </div>
+      <div class="modal-footer">
+        <button id="bhCreateStageForm_OK" type="button" class="btn btn-success">Create</button>
+      </div>
+    </div>
+  </div>
+</div>

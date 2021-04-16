@@ -6,11 +6,12 @@ Copyright (c) 2019 - present AppSeed.us
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, get_object_or_404, redirect
 from django.template import loader
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django import template
 
 from authentication.models import GBOUser
-from .models.Tournament import Tournament, TournamentEvent
+from .models.Tournament import Tournament, TournamentEvent, TournamentState
+from .models.Team import Team, TeamStats
 from .models.Series import Season
 
 from .services.services import SWS
@@ -31,16 +32,37 @@ def getContext(request):
     t = Tournament.objects.get(id=1)
     context['tourn'] = t
     context['events'] = TournamentEvent.objects.filter(tournament=t)
+    tevent = TournamentEvent.objects.filter(tournament=t).first();
 
-    context['teams_dummy'] = ["DreamTeam"
-    ,"The Beachers"
-    ,"Superstars"
-    ,"Beach Gods"
-    ,"Lucky Beach"
-    ,"Ballers"
-    ,"Ultimate Team"
-    ,"Thunder Beach"]
+    #context['teams_dummy'] = ["DreamTeam"
+    #,"The Beachers"
+    #,"Superstars"
+    #,"Beach Gods"
+    #,"Lucky Beach"
+    #,"Ballers"
+    #,"Ultimate Team"
+    #,"Thunder Beach"]
+    context['teams_dummy'] = Team.objects.all().filter(tournament_event=tevent)
     return context
+
+def getData(request):
+    t = Tournament.objects.get(id=1)
+    tevent = TournamentEvent.objects.filter(tournament=t).first();
+    tstates = list(TournamentState.objects.filter(tournament_event=tevent).values())
+
+    for ts in tstates:
+        tstats = TeamStats.objects.filter(tournamentstate=ts['id'])
+        ts['tstats'] = list(tstats.values())
+        for stat in ts['tstats']:
+            team = Team.objects.filter(id=stat['team_id']).first()
+            stat['team_name'] = team.name
+    data = {
+        'teams': list(Team.objects.all().filter(tournament_event=tevent).values()),
+        'tstates': tstates
+    }
+    
+
+    return JsonResponse(data)
 
 @login_required(login_url="/login/")
 def index(request):

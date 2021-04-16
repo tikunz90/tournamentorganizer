@@ -30,8 +30,9 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    
+
     'colorfield',
+    'widget_tweaks',
 
     'authentication',
     'beachhandball_app'  # Enable the inner app 

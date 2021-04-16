@@ -1,0 +1,269 @@
+<div id="templateTState" class="col-lg-6 col-md-6 col-sm-6" obj_id="-1" hidden>
+    <div class="card card-stats">
+        <div class="card-header card-header-success card-header-icon">
+        <div class="card-icon">
+            <i class="material-icons">table_rows</i>
+        </div>
+        <p id="templateTState_cat" class="card-category"></p>
+        <h3 id="templateTState_name" class="card-title"></h3>
+        </div>
+        <div class="card-body">
+        <div class="page-categories">
+        <br />
+        <ul class="nav nav-pills nav-pills-warning justify-content-center" role="tablist">
+            <li class="nav-item">
+            <a class="nav-link active" data-toggle="tab" id="templateTState_tab_overview" href="#templateTState_link_overview" role="tablist">
+                Overview
+            </a>
+            </li>
+            <li class="nav-item">
+            <a class="nav-link" data-toggle="tab" id="templateTState_tab_teams" href="#templateTState_link_teams" role="tablist">
+                Team Setup
+            </a>
+            </li>
+            <li class="nav-item">
+            <a class="nav-link" data-toggle="tab" id="templateTState_tab_trans" href="#templateTState_link_trans" role="tablist">
+                Transitions
+            </a>
+            </li>
+            <li class="nav-item">
+            <a class="nav-link" data-toggle="tab" id="templateTState_tab_basic" href="#templateTState_link_basic" role="tablist">
+                Basic
+            </a>
+            </li>
+        </ul>
+        <div class="tab-content tab-space tab-subcategories">
+            <div class="tab-pane active" id="templateTState_link_overview">
+                <div class="card">
+                    <div class="card-header">
+                    <h4 class="card-title">Games</h4>
+                    <p class="card-category">
+                        Define games
+                    </p>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <h4>Ranking</h4>
+                            <div class="table-responsive">
+                                <table class="table table-striped" id="templateTState_table_overview">
+                                <thead>
+                                    <tr>
+                                    <th>Rank</th>
+                                    <th class="text-center">Team</th>
+                                    <th>#Games</th>
+                                    <th>Pts</th>
+                                    <th>SetsW</th>
+                                    <th>SetsL</th>
+                                    </tr>
+                                </thead>
+                                <tbody >
+                                </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <h4>Games</h4>
+                            <div class="table-responsive">
+                                <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                    <th class="text-center">Time</th>
+                                    <th>TeamA</th>
+                                    <th>TeamB</th>
+                                    <th>Result</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                    <td>20.05. 10:15</td>
+                                    <td>DreamTeam</td>
+                                    <td>Beach Gods</td>
+                                    <td>0:0 0:0</td>
+                                    </tr>
+                                </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="tab-pane" id="templateTState_link_teams">
+                <div class="card">
+                    <div class="card-header">
+                    <h4 class="card-title">Team Setup</h4>
+                    <p class="card-category">
+                        Define starting place of a Team in TournamentState
+                    </p>
+                    </div>
+                    <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped" id="templateTState_table_teams">
+                        <thead>
+                            <tr>
+                            <th class="text-center">Rank</th>
+                            <th class="text-center">Team</th>
+                            </tr>
+                        </thead>
+                        <tbody >
+                        </tbody>
+                        </table>
+                    </div>
+                    </div>
+                </div>
+            </div>
+            <div class="tab-pane" id="templateTState_link_trans">
+                <div class="card">
+                    <div class="card-header">
+                    <h4 class="card-title">Setup Transition of Teams</h4>
+                    <p class="card-category">
+                        Define where a Team will play in next Tournament Stage
+                    </p>
+                    </div>
+                    <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                        <thead>
+                            <tr>
+                            <th class="text-center">Rank</th>
+                            <th>State</th>
+                            <th>Place</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                            <td class="text-center">1</td>
+                            <td>
+                                <select class="" data-style="select-with-transition" title="Choose State" data-size="2">
+                                    <option selected="selected" value="1">Intermediate 1</option>
+                                    <option value="2">Intermediate 2</option>
+                                    <option value="3">Semi-Final 1</option>
+                                    <option value="4">Semi-Final 2</option>
+                                    <option value="5">Small-Final</option>
+                                    <option value="6">Final</option>
+                                    <option value="7">Ranking</option>
+                                </select>
+                            </td>
+                            <td><input type="number" name="quantity" min="1" max="5" value="3"></td>
+                            </tr>
+                            <tr>
+                            <td class="text-center">2</td>
+                            <td>
+                                <select class="" data-style="select-with-transition" title="Choose State" data-size="2">
+                                <option selected="selected" value="1">Intermediate 1</option>
+                                <option value="2">Intermediate 2</option>
+                                <option value="3">Semi-Final 1</option>
+                                <option value="4">Semi-Final 2</option>
+                                <option value="5">Small-Final</option>
+                                <option value="6">Final</option>
+                                <option value="7">Ranking</option>
+                                </select>
+                            </td>
+                            <td><input type="number" name="quantity" min="1" max="5" value="4"></td>
+                            </tr>
+                            <tr>
+                            <td class="text-center">3</td>
+                            <td>
+                                <select class="" data-style="select-with-transition" title="Choose State" data-size="2">
+                                <option value="1">Intermediate 1</option>
+                                <option value="2">Intermediate 2</option>
+                                <option value="3">Semi-Final 1</option>
+                                <option value="4">Semi-Final 2</option>
+                                <option value="5">Small-Final</option>
+                                <option value="6">Final</option>
+                                <option selected="selected" value="7">Ranking</option>
+                                </select>
+                            </td>
+                            <td><input type="number" name="quantity" min="1" max="5" value="5"></td>
+                            </tr>
+                            <tr>
+                            <td class="text-center">4</td>
+                            <td>
+                                <select class="" data-style="select-with-transition" title="Choose State" data-size="2">
+                                <option value="1">Intermediate 1</option>
+                                <option value="2">Intermediate 2</option>
+                                <option value="3">Semi-Final 1</option>
+                                <option value="4">Semi-Final 2</option>
+                                <option value="5">Small-Final</option>
+                                <option value="6">Final</option>
+                                <option selected="selected" value="7">Ranking</option>
+                                </select>
+                            </td>
+                            <td><input type="number" name="quantity" min="1" max="5" value="6"></td>
+                            </tr>
+                        </tbody>
+                        </table>
+                    </div>
+                    </div>
+                </div>
+            </div>
+            <div class="tab-pane" id="templateTState_link_basic">
+                <div class="card">
+                    <div class="card-header">
+                    <h4 class="card-title">Group Stage Basic Setup</h4>
+                    <p class="card-category">
+                        Define basic info, transitions and assign teams
+                    </p>
+                    </div>
+                    <div class="card-body">
+                    <form method="get" action="/" class="form-horizontal">
+                        <div class="row">
+                        <label class="col-sm-2 col-form-label">Name:</label>
+                        <div class="col-sm-10">
+                            <div class="form-group">
+                            <input type="text" class="form-control" value="Group A" disabled>
+                            <span class="bmd-help">Enter Name. Use only letters or numbers.</span>
+                            </div>
+                        </div>
+                        </div>
+                        <div class="row">
+                        <label class="col-sm-2 col-form-label"># of Teams:</label>
+                        <div class="col-sm-10">
+                            <div class="form-group">
+                            <input type="number" class="form-control" value="4" min="1" max="32">
+                            </div>
+                        </div>
+                        </div>
+                        <div class="row">
+                            <div class="togglebutton">
+                            <label>
+                                <input type="checkbox">
+                                <span class="toggle"></span>
+                                Direct Compare
+                            </label>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="togglebutton">
+                            <label>
+                                <input type="checkbox">
+                                <span class="toggle"></span>
+                                Keep Points
+                            </label>
+                            </div>
+                        </div>
+                    </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        </div>
+        </div>
+        <div class="card-footer">
+        <div class="stats">
+            <i class="material-icons text-danger" hidden>warning</i>
+            <button type="button" rel="tooltip" class="btn btn-success">
+            <i class="material-icons">save</i>
+            </button>
+            <div class="dropdown">
+              <button class="dropdown-toggle btn btn-default btn-round btn-block" type="button" id="multiDropdownMenu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <i class="material-icons">settings</i>
+              </button>
+              <div class="dropdown-menu" aria-labelledby="multiDropdownMenu">
+                <a class="dropdown-item" href="#">Add Game</a>
+                <a class="dropdown-item" href="#">Create Dummy Games</a>
+              </div>
+            </div>
+        </div>
+        </div>
+    </div>
+</div>

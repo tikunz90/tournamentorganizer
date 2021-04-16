@@ -7,7 +7,7 @@ from django.contrib import admin
  
 from .models.General import TournamentCategory
 from .models.Tournament import Tournament, TournamentEvent, TournamentFinalRanking, TournamentTeamTransition, Court
-from .models.Tournament import TournamentStateType, TournamentState
+from .models.Tournament import TournamentStage, TournamentState
 from .models.Team import Team, TeamStats
 from .models.Player import Player, PlayerStats
 from .models.Game import Game, GameAction
@@ -16,7 +16,7 @@ from .models.Series import Series, Season
 admin.site.register(Tournament)
 admin.site.register(TournamentEvent)
 admin.site.register(TournamentCategory)
-admin.site.register(TournamentStateType)
+admin.site.register(TournamentStage)
 admin.site.register(TournamentTeamTransition)
 admin.site.register(Team)
 admin.site.register(TeamStats)

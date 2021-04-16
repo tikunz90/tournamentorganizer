@@ -7,1001 +7,128 @@
 
 {% block content %}
 <h2>Structure Setup - 
-  <small class="description">create Structure with Tournament phases and states...</small>
+  <small class="description">create Structure with Tournament Stages and States...</small>
 </h2>
-<div class="col-md-12">
 <div class="row">
-    <div class="col-md-12 ml-auto mr-auto">
-      <div class="page-categories">
-        <h3 class="title text-center">Stage Setup</h3>
-        <br />
-        <ul class="nav nav-pills nav-pills-warning nav-pills-icons justify-content-center" role="tablist">
-          <li class="nav-item">
-            <a class="nav-link active" data-toggle="tab" href="#link7" role="tablist">
-              <i class="material-icons">groups</i> Group Stage
-            </a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" data-toggle="tab" href="#link8" role="tablist">
-              <i class="material-icons">switch_left</i> Intermediate Round
-            </a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" data-toggle="tab" href="#link9" role="tablist">
-              <i class="material-icons">emoji_events</i> Knock-Out Stage
-            </a>
-          </li>
-        </ul>
-        <div class="tab-content tab-space tab-subcategories">
-          <div class="tab-pane active" id="link7">
-            <div class="card">
-              <div class="card-header">
-                <h4 class="card-title">Group Stage</h4>
-                <p class="card-category">
-                  More information here
-                </p>
+  <div class="col-md-12 ml-auto mr-auto">
+    <div class="page-categories">
+      <div class="row">
+        <div class="col-lg-3 col-md-3 col-sm-3 offset-4">
+            <h3 class="title text-center">Stage Setup</h3>
+          </div>
+          <div class="col-lg-1 col-md-1 col-sm-1 align-self-center">
+            <div class="dropdown">
+              <button class="dropdown-toggle btn btn-default btn-round btn-block" type="button" id="multiDropdownMenu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <i class="material-icons">settings</i>
+              </button>
+              <div class="dropdown-menu" aria-labelledby="multiDropdownMenu">
+                <a class="dropdown-item" href="{% url 'structure_setup.create_tstage' pk=tevent.id %}">Add Stage</a>
+                <a class="dropdown-item" href="#">Change Stage Order</a>
               </div>
-              <div class="card-body">
-                <div class="row">
+            </div>
+          </div>
+      </div>
+      <hr />
+    </div>
+    <ul class="nav nav-pills nav-pills-warning nav-pills-icons justify-content-center" role="tablist">
+      {% for stage in tevent.tournamentstage_set.all %}
+        {% with stage.name|slugify as link_name %}
+        <li class="nav-item">
+          {% if forloop.counter == 1 %}
+            <a class="nav-link active" data-toggle="tab" href="{{ '#'|add:link_name }}" role="tablist">
+          {% else %}
+            <a class="nav-link" data-toggle="tab" href="{{ '#'|add:link_name }}" role="tablist">
+          {% endif %}
+          
+            {% if stage.tournament_stage == "GROUP_STAGE" %}
+              <i class="material-icons">groups</i> {{stage.name}}
+            {% elif stage.tournament_stage == "MAIN_ROUND" %}
+              <i class="material-icons">shuffle</i> {{stage.name}}
+            {% elif stage.tournament_stage == "KNOCKOUT_STAGE" %}
+              <i class="material-icons">sports_mma</i> {{stage.name}}
+            {% elif stage.tournament_stage == "PLAYOFF_STAGE" %}
+              <i class="material-icons">thumb_down</i> {{stage.name}}
+            {% elif stage.tournament_stage == "FINAL" %}
+              <i class="material-icons">emoji_events</i> {{stage.name}}
+            {% else %}
+              <i class="material-icons">groups</i> {{stage.name}}
+            {% endif %}
+          </a>
+        </li>
+        {% endwith %}
+      {% empty %}
+        <li>No Stages defined. Please add</li>
+      {% endfor %}
+    </ul>
+    <div class="tab-content tab-space tab-subcategories">
 
-                  <div class="col-lg-6 col-md-6 col-sm-6">
-                    <div class="card card-stats">
-                      <div class="card-header card-header-success card-header-icon">
-                        <div class="card-icon">
-                          <i class="material-icons">table_rows</i>
-                        </div>
-                        <p class="card-category"></p>
-                        <h3 class="card-title">Group A</h3>
-                      </div>
-                      <div class="card-body">
-                      <div class="page-categories">
-                        <br />
-                        <ul class="nav nav-pills nav-pills-warning justify-content-center" role="tablist">
-                          <li class="nav-item">
-                            <a class="nav-link active" data-toggle="tab" href="#link10" role="tablist">
-                              Basic
-                            </a>
-                          </li>
-                          <li class="nav-item">
-                            <a class="nav-link" data-toggle="tab" href="#link12" role="tablist">
-                              Team Setup
-                            </a>
-                          </li>
-                          <li class="nav-item">
-                            <a class="nav-link" data-toggle="tab" href="#link11" role="tablist">
-                              Transitions
-                            </a>
-                          </li>
-                        </ul>
-                        <div class="tab-content tab-space tab-subcategories">
-                          <div class="tab-pane active" id="link10">
-                            <div class="card">
-                              <div class="card-header">
-                                <h4 class="card-title">Group Stage Basic Setup</h4>
-                                <p class="card-category">
-                                  Define basic info, transitions and assign teams
-                                </p>
-                              </div>
-                              <div class="card-body">
-                                <form method="get" action="/" class="form-horizontal">
-                                  <div class="row">
-                                    <label class="col-sm-2 col-form-label">Name:</label>
-                                    <div class="col-sm-10">
-                                      <div class="form-group">
-                                        <input type="text" class="form-control" value="Group A" disabled>
-                                        <span class="bmd-help">Enter Name. Use only letters or numbers.</span>
-                                      </div>
-                                    </div>
-                                  </div>
-                                  <div class="row">
-                                    <label class="col-sm-2 col-form-label"># of Teams:</label>
-                                    <div class="col-sm-10">
-                                      <div class="form-group">
-                                        <input type="number" class="form-control" value="4" min="1" max="32">
-                                      </div>
-                                    </div>
-                                  </div>
-                                  <div class="row">
-                                      <div class="togglebutton">
-                                        <label>
-                                          <input type="checkbox">
-                                          <span class="toggle"></span>
-                                          Direct Compare
-                                        </label>
-                                      </div>
-                                  </div>
-                                  <div class="row">
-                                      <div class="togglebutton">
-                                        <label>
-                                          <input type="checkbox">
-                                          <span class="toggle"></span>
-                                          Keep Points
-                                        </label>
-                                      </div>
-                                  </div>
-                                </form>
-                              </div>
-                            </div>
-                          </div>
-                          <div class="tab-pane" id="link12">
-                            <div class="card">
-                              <div class="card-header">
-                                <h4 class="card-title">Team Setup</h4>
-                                <p class="card-category">
-                                  Define starting place of a Team in TournamentState
-                                </p>
-                              </div>
-                              <div class="card-body">
-                                <div class="table-responsive">
-                                  <table class="table table-striped">
-                                    <thead>
-                                      <tr>
-                                        <th class="text-center">Rank</th>
-                                        <th class="text-center">Team</th>
-                                      </tr>
-                                    </thead>
-                                    <tbody>
-                                      <tr>
-                                        <td class="text-center">1</td>
-                                        <td>
-                                          <select class="selectpicker" data-style="select-with-transition" title="Choose Team" data-size="7">
-                                            <option selected="selected" value="1">DreamTeam</option>
-                                            <option value="2">The Beachers</option>
-                                            <option value="3">Superstars</option>
-                                            <option value="4">Beach Gods</option>
-                                            <option value="5">Lucky Beach</option>
-                                            <option value="6">Ballers</option>
-                                            <option value="7">Ultimate Team</option>
-                                            <option value="8">Thunder Beach</option>
-                                          </select>
-                                        </td>
-                                      </tr>
-                                      <tr>
-                                        <td class="text-center">2</td>
-                                        <td>
-                                          <select class="selectpicker" data-style="select-with-transition" title="Choose Team" data-size="7">
-                                            <option value="1">DreamTeam</option>
-                                            <option selected="selected" value="2">The Beachers</option>
-                                            <option value="3">Superstars</option>
-                                            <option value="4">Beach Gods</option>
-                                            <option value="5">Lucky Beach</option>
-                                            <option value="6">Ballers</option>
-                                            <option value="7">Ultimate Team</option>
-                                            <option value="8">Thunder Beach</option>
-                                          </select>
-                                        </td>
-                                      </tr>
-                                      <tr>
-                                        <td class="text-center">3</td>
-                                        <td>
-                                          <select class="selectpicker" data-style="select-with-transition" title="Choose Team" data-size="7">
-                                            <option value="1">DreamTeam</option>
-                                            <option value="2">The Beachers</option>
-                                            <option selected="selected" value="3">Superstars</option>
-                                            <option value="4">Beach Gods</option>
-                                            <option value="5">Lucky Beach</option>
-                                            <option value="6">Ballers</option>
-                                            <option value="7">Ultimate Team</option>
-                                            <option value="8">Thunder Beach</option>
-                                          </select>
-                                        </td>
-                                      </tr>
-                                      <tr>
-                                        <td class="text-center">4</td>
-                                        <td>
-                                          <select class="selectpicker" data-style="select-with-transition" title="Choose Team" data-size="7">
-                                            <option value="1">DreamTeam</option>
-                                            <option value="2">The Beachers</option>
-                                            <option value="3">Superstars</option>
-                                            <option selected="selected" value="4">Beach Gods</option>
-                                            <option value="5">Lucky Beach</option>
-                                            <option value="6">Ballers</option>
-                                            <option value="7">Ultimate Team</option>
-                                            <option value="8">Thunder Beach</option>
-                                          </select>
-                                        </td>
-                                      </tr>
-                                    </tbody>
-                                  </table>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                          <div class="tab-pane" id="link11">
-                            <div class="card">
-                              <div class="card-header">
-                                <h4 class="card-title">Setup Transition of Teams</h4>
-                                <p class="card-category">
-                                  Define where a Team will play in next Tournament Stage
-                                </p>
-                              </div>
-                              <div class="card-body">
-                                <div class="table-responsive">
-                                  <table class="table table-striped">
-                                    <thead>
-                                      <tr>
-                                        <th class="text-center">Rank</th>
-                                        <th>State</th>
-                                        <th>Place</th>
-                                      </tr>
-                                    </thead>
-                                    <tbody>
-                                      <tr>
-                                        <td class="text-center">1</td>
-                                        <td>
-                                          <select class="selectpicker" data-style="select-with-transition" title="Choose State" data-size="2">
-                                            <option selected="selected" value="1">Intermediate 1</option>
-                                            <option value="2">Intermediate 2</option>
-                                            <option value="3">Semi-Final 1</option>
-                                            <option value="4">Semi-Final 2</option>
-                                            <option value="5">Small-Final</option>
-                                            <option value="6">Final</option>
-                                            <option value="7">Ranking</option>
-                                          </select>
-                                        </td>
-                                        <td><input type="number" name="quantity" min="1" max="5" value="3"></td>
-                                      </tr>
-                                      <tr>
-                                        <td class="text-center">2</td>
-                                        <td>
-                                          <select class="selectpicker" data-style="select-with-transition" title="Choose State" data-size="2">
-                                            <option selected="selected" value="1">Intermediate 1</option>
-                                            <option value="2">Intermediate 2</option>
-                                            <option value="3">Semi-Final 1</option>
-                                            <option value="4">Semi-Final 2</option>
-                                            <option value="5">Small-Final</option>
-                                            <option value="6">Final</option>
-                                            <option value="7">Ranking</option>
-                                          </select>
-                                        </td>
-                                        <td><input type="number" name="quantity" min="1" max="5" value="4"></td>
-                                      </tr>
-                                      <tr>
-                                        <td class="text-center">3</td>
-                                        <td>
-                                          <select class="selectpicker" data-style="select-with-transition" title="Choose State" data-size="2">
-                                            <option value="1">Intermediate 1</option>
-                                            <option value="2">Intermediate 2</option>
-                                            <option value="3">Semi-Final 1</option>
-                                            <option value="4">Semi-Final 2</option>
-                                            <option value="5">Small-Final</option>
-                                            <option value="6">Final</option>
-                                            <option selected="selected" value="7">Ranking</option>
-                                          </select>
-                                        </td>
-                                        <td><input type="number" name="quantity" min="1" max="5" value="5"></td>
-                                      </tr>
-                                      <tr>
-                                        <td class="text-center">4</td>
-                                        <td>
-                                          <select class="selectpicker" data-style="select-with-transition" title="Choose State" data-size="2">
-                                            <option value="1">Intermediate 1</option>
-                                            <option value="2">Intermediate 2</option>
-                                            <option value="3">Semi-Final 1</option>
-                                            <option value="4">Semi-Final 2</option>
-                                            <option value="5">Small-Final</option>
-                                            <option value="6">Final</option>
-                                            <option selected="selected" value="7">Ranking</option>
-                                          </select>
-                                        </td>
-                                        <td><input type="number" name="quantity" min="1" max="5" value="6"></td>
-                                      </tr>
-                                    </tbody>
-                                  </table>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                      </div>
-                      <div class="card-footer">
-                        <div class="stats">
-                          <i class="material-icons text-danger" hidden>warning</i>
-                          <button type="button" rel="tooltip" class="btn btn-success">
-                            <i class="material-icons">save</i>
-                          </button>
-                        </div>
+      {% for stage in tevent.tournamentstage_set.all %}
+        {% with stage.name|slugify as link_name %}
+        {% if forloop.counter == 1 %}
+          <div class="tab-pane active" id={{link_name}}>
+        {% else %}
+          <div class="tab-pane" id={{link_name}}>
+        {% endif %}      
+          <div class="card">
+            <div class="card-body">
+              <div class="row">
+                {% for tstate in stage.tournamentstate_set.all %}
+                  <div class="col-md-6">
+                    <div class="card">
+                      <div class="card-header">
+                        <h4 class="card-title">{{tstate.name}}</h4>
+                        <p class="card-category">
+                          More information here
+                        </p>
                       </div>
                     </div>
                   </div>
+                {% empty %}
+                <h3>No states exists!</h3>
+                {% endfor %}
+              </div>
+            </div>
+          </div>
+        </div>
+        {% endwith %}
+      {% empty %}
+      {% endfor %}
 
-                  <div class="col-lg-6 col-md-6 col-sm-6">
-                    <div class="card card-stats">
-                      <div class="card-header card-header-success card-header-icon">
-                        <div class="card-icon">
-                          <i class="material-icons">table_rows</i>
-                        </div>
-                        <p class="card-category"></p>
-                        <h3 class="card-title">Group B</h3>
-                      </div>
-                      <div class="card-body">
-                        <div class="page-categories">
-                          <br />
-                          <ul class="nav nav-pills nav-pills-warning justify-content-center" role="tablist">
-                            <li class="nav-item">
-                              <a class="nav-link active" data-toggle="tab" href="#link13" role="tablist">
-                                Basic
-                              </a>
-                            </li>
-                            <li class="nav-item">
-                              <a class="nav-link" data-toggle="tab" href="#link14" role="tablist">
-                                Team Setup
-                              </a>
-                            </li>
-                            <li class="nav-item">
-                              <a class="nav-link" data-toggle="tab" href="#link15" role="tablist">
-                                Transitions
-                              </a>
-                            </li>
-                          </ul>
-                          <div class="tab-content tab-space tab-subcategories">
-                            <div class="tab-pane active" id="link13">
-                              <div class="card">
-                                <div class="card-header">
-                                  <h4 class="card-title">Group Stage Basic Setup</h4>
-                                  <p class="card-category">
-                                    Define basic info, transitions and assign teams
-                                  </p>
-                                </div>
-                                <div class="card-body">
-                                  <form method="get" action="/" class="form-horizontal">
-                                    <div class="row">
-                                      <label class="col-sm-2 col-form-label">Name:</label>
-                                      <div class="col-sm-10">
-                                        <div class="form-group">
-                                          <input type="text" class="form-control" value="Group B" disabled>
-                                          <span class="bmd-help">Enter Name. Use only letters or numbers.</span>
-                                        </div>
-                                      </div>
-                                    </div>
-                                    <div class="row">
-                                      <label class="col-sm-2 col-form-label"># of Teams:</label>
-                                      <div class="col-sm-10">
-                                        <div class="form-group">
-                                          <input type="number" class="form-control" value="4" min="1" max="32">
-                                        </div>
-                                      </div>
-                                    </div>
-                                    <div class="row">
-                                        <div class="togglebutton">
-                                          <label>
-                                            <input type="checkbox">
-                                            <span class="toggle"></span>
-                                            Direct Compare
-                                          </label>
-                                        </div>
-                                    </div>
-                                    <div class="row">
-                                      <div class="togglebutton">
-                                        <label>
-                                          <input type="checkbox">
-                                          <span class="toggle"></span>
-                                          Keep Points
-                                        </label>
-                                      </div>
-                                  </div>
-                                  </form>
-                                </div>
-                              </div>
-                            </div>
-                            <div class="tab-pane" id="link14">
-                              <div class="card">
-                                <div class="card-header">
-                                  <h4 class="card-title">Team Setup</h4>
-                                  <p class="card-category">
-                                    Define starting place of a Team in TournamentState
-                                  </p>
-                                </div>
-                                <div class="card-body">
-                                  <div class="table-responsive">
-                                    <table class="table table-striped">
-                                      <thead>
-                                        <tr>
-                                          <th class="text-center">Rank</th>
-                                          <th class="text-center">Team</th>
-                                        </tr>
-                                      </thead>
-                                      <tbody>
-                                        <tr>
-                                          <td class="text-center">1</td>
-                                          <td>
-                                            <select class="selectpicker" data-style="select-with-transition" title="Choose Team" data-size="7">
-                                              <option value="1">DreamTeam</option>
-                                              <option value="2">The Beachers</option>
-                                              <option value="3">Superstars</option>
-                                              <option value="4">Beach Gods</option>
-                                              <option selected="selected" value="5">Lucky Beach</option>
-                                              <option value="6">Ballers</option>
-                                              <option value="7">Ultimate Team</option>
-                                              <option value="8">Thunder Beach</option>
-                                            </select>
-                                          </td>
-                                        </tr>
-                                        <tr>
-                                          <td class="text-center">2</td>
-                                          <td>
-                                            <select class="selectpicker" data-style="select-with-transition" title="Choose Team" data-size="7">
-                                              <option value="1">DreamTeam</option>
-                                              <option value="2">The Beachers</option>
-                                              <option value="3">Superstars</option>
-                                              <option value="4">Beach Gods</option>
-                                              <option value="5">Lucky Beach</option>
-                                              <option selected="selected" value="6">Ballers</option>
-                                              <option value="7">Ultimate Team</option>
-                                              <option value="8">Thunder Beach</option>
-                                            </select>
-                                          </td>
-                                        </tr>
-                                        <tr>
-                                          <td class="text-center">3</td>
-                                          <td>
-                                            <select class="selectpicker" data-style="select-with-transition" title="Choose Team" data-size="7">
-                                              <option value="1">DreamTeam</option>
-                                              <option value="2">The Beachers</option>
-                                              <option value="3">Superstars</option>
-                                              <option value="4">Beach Gods</option>
-                                              <option value="5">Lucky Beach</option>
-                                              <option value="6">Ballers</option>
-                                              <option selected="selected" value="7">Ultimate Team</option>
-                                              <option value="8">Thunder Beach</option>
-                                            </select>
-                                          </td>
-                                        </tr>
-                                        <tr>
-                                          <td class="text-center">4</td>
-                                          <td>
-                                            <select class="selectpicker" data-style="select-with-transition" title="Choose Team" data-size="7">
-                                              <option value="1">DreamTeam</option>
-                                              <option value="2">The Beachers</option>
-                                              <option value="3">Superstars</option>
-                                              <option value="4">Beach Gods</option>
-                                              <option value="5">Lucky Beach</option>
-                                              <option value="6">Ballers</option>
-                                              <option value="7">Ultimate Team</option>
-                                              <option selected="selected" value="8">Thunder Beach</option>
-                                            </select>
-                                          </td>
-                                        </tr>
-                                      </tbody>
-                                    </table>
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-                            <div class="tab-pane" id="link15">
-                              <div class="card">
-                                <div class="card-header">
-                                  <h4 class="card-title">Setup Transition of Teams</h4>
-                                  <p class="card-category">
-                                    Define where a Team will play in next Tournament Stage
-                                  </p>
-                                </div>
-                                <div class="card-body">
-                                  <div class="table-responsive">
-                                    <table class="table table-striped">
-                                      <thead>
-                                        <tr>
-                                          <th class="text-center">Rank</th>
-                                          <th>State</th>
-                                          <th>Place</th>
-                                        </tr>
-                                      </thead>
-                                      <tbody>
-                                        <tr>
-                                          <td class="text-center">1</td>
-                                          <td>
-                                            <select class="selectpicker" data-style="select-with-transition" title="Choose State" data-size="2">
-                                              <option selected="selected" value="1">Intermediate 1</option>
-                                              <option value="2">Intermediate 2</option>
-                                              <option value="3">Semi-Final 1</option>
-                                              <option value="4">Semi-Final 2</option>
-                                              <option value="5">Small-Final</option>
-                                              <option value="6">Final</option>
-                                              <option value="7">Ranking</option>
-                                            </select>
-                                          </td>
-                                          <td><input type="number" name="quantity" min="1" max="5" value="1"></td>
-                                        </tr>
-                                        <tr>
-                                          <td class="text-center">2</td>
-                                          <td>
-                                            <select class="selectpicker" data-style="select-with-transition" title="Choose State" data-size="2">
-                                              <option selected="selected" value="1">Intermediate 1</option>
-                                              <option value="2">Intermediate 2</option>
-                                              <option value="3">Semi-Final 1</option>
-                                              <option value="4">Semi-Final 2</option>
-                                              <option value="5">Small-Final</option>
-                                              <option value="6">Final</option>
-                                              <option value="7">Ranking</option>
-                                            </select>
-                                          </td>
-                                          <td><input type="number" name="quantity" min="1" max="5" value="2"></td>
-                                        </tr>
-                                        <tr>
-                                          <td class="text-center">3</td>
-                                          <td>
-                                            <select class="selectpicker" data-style="select-with-transition" title="Choose State" data-size="2">
-                                              <option value="1">Intermediate 1</option>
-                                              <option value="2">Intermediate 2</option>
-                                              <option value="3">Semi-Final 1</option>
-                                              <option value="4">Semi-Final 2</option>
-                                              <option value="5">Small-Final</option>
-                                              <option value="6">Final</option>
-                                              <option selected="selected" value="7">Ranking</option>
-                                            </select>
-                                          </td>
-                                          <td><input type="number" name="quantity" min="1" max="5" value="7"></td>
-                                        </tr>
-                                        <tr>
-                                          <td class="text-center">4</td>
-                                          <td>
-                                            <select class="selectpicker" data-style="select-with-transition" title="Choose State" data-size="2">
-                                              <option value="1">Intermediate 1</option>
-                                              <option value="2">Intermediate 2</option>
-                                              <option value="3">Semi-Final 1</option>
-                                              <option value="4">Semi-Final 2</option>
-                                              <option value="5">Small-Final</option>
-                                              <option value="6">Final</option>
-                                              <option selected="selected" value="7">Ranking</option>
-                                            </select>
-                                          </td>
-                                          <td><input type="number" name="quantity" min="1" max="5" value="8"></td>
-                                        </tr>
-                                      </tbody>
-                                    </table>
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                      <div class="card-footer">
-                        <div class="stats">
-                          <i class="material-icons text-danger" hidden>warning</i>
-                          <button type="button" rel="tooltip" class="btn btn-success">
-                            <i class="material-icons">save</i>
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="tab-pane" id="link8">
-            <div class="card">
-              <div class="card-header">
-                <h4 class="card-title">Intermediate Round</h4>
-                <p class="card-category">
-                  Stage before finals
-                </p>
-              </div>
-              <div class="card-body">
-                <div class="col-lg-6 col-md-6 col-sm-6">
-                    <div class="card card-stats">
-                      <div class="card-header card-header-success card-header-icon">
-                        <div class="card-icon">
-                          <i class="material-icons">table_rows</i>
-                        </div>
-                        <p class="card-category"></p>
-                        <h3 class="card-title">Intermediate 1</h3>
-                      </div>
-                      <div class="card-body">
-                        <div class="page-categories">
-                          <br />
-                          <ul class="nav nav-pills nav-pills-warning justify-content-center" role="tablist">
-                            <li class="nav-item">
-                              <a class="nav-link active" data-toggle="tab" href="#link13" role="tablist">
-                                Basic
-                              </a>
-                            </li>
-                            <li class="nav-item">
-                              <a class="nav-link" data-toggle="tab" href="#link14" role="tablist">
-                                Team Setup
-                              </a>
-                            </li>
-                            <li class="nav-item">
-                              <a class="nav-link" data-toggle="tab" href="#link15" role="tablist">
-                                Transitions
-                              </a>
-                            </li>
-                          </ul>
-                          <div class="tab-content tab-space tab-subcategories">
-                            <div class="tab-pane active" id="link13">
-                              <div class="card">
-                                <div class="card-header">
-                                  <h4 class="card-title">Intermediate Round Basic Setup</h4>
-                                  <p class="card-category">
-                                    Define basic info, transitions and assign teams
-                                  </p>
-                                </div>
-                                <div class="card-body">
-                                  <form method="get" action="/" class="form-horizontal">
-                                    <div class="row">
-                                      <label class="col-sm-2 col-form-label">Name:</label>
-                                      <div class="col-sm-10">
-                                        <div class="form-group">
-                                          <input type="text" class="form-control" value="Group B" disabled>
-                                          <span class="bmd-help">Enter Name. Use only letters or numbers.</span>
-                                        </div>
-                                      </div>
-                                    </div>
-                                    <div class="row">
-                                      <label class="col-sm-2 col-form-label"># of Teams:</label>
-                                      <div class="col-sm-10">
-                                        <div class="form-group">
-                                          <input type="number" class="form-control" value="4" min="1" max="32">
-                                        </div>
-                                      </div>
-                                    </div>
-                                    <div class="row">
-                                        <div class="togglebutton">
-                                          <label>
-                                            <input type="checkbox">
-                                            <span class="toggle"></span>
-                                            Direct Compare
-                                          </label>
-                                        </div>
-                                    </div>
-                                    <div class="row">
-                                      <div class="togglebutton">
-                                        <label>
-                                          <input type="checkbox">
-                                          <span class="toggle"></span>
-                                          Keep Points
-                                        </label>
-                                      </div>
-                                  </div>
-                                  </form>
-                                </div>
-                              </div>
-                            </div>
-                            <div class="tab-pane" id="link14">
-                              <div class="card">
-                                <div class="card-header">
-                                  <h4 class="card-title">Team Setup</h4>
-                                  <p class="card-category">
-                                    Define starting place of a Team in TournamentState
-                                  </p>
-                                </div>
-                                <div class="card-body">
-                                  <div class="table-responsive">
-                                    <table class="table table-striped">
-                                      <thead>
-                                        <tr>
-                                          <th class="text-center">Rank</th>
-                                          <th class="text-center">Team</th>
-                                        </tr>
-                                      </thead>
-                                      <tbody>
-                                        <tr>
-                                          <td class="text-center">1</td>
-                                          <td>
-                                            <p>1. Group A</p>
-                                          </td>
-                                        </tr>
-                                        <tr>
-                                          <td class="text-center">2</td>
-                                          <td>
-                                            <p>2. Group A</p>
-                                          </td>
-                                        </tr>
-                                        <tr>
-                                          <td class="text-center">3</td>
-                                          <td>
-                                            <p>1. Group B</p>
-                                          </td>
-                                        </tr>
-                                        <tr>
-                                          <td class="text-center">4</td>
-                                          <td>
-                                            <p>2. Group B</p>
-                                          </td>
-                                        </tr>
-                                      </tbody>
-                                    </table>
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-                            <div class="tab-pane" id="link15">
-                              <div class="card">
-                                <div class="card-header">
-                                  <h4 class="card-title">Setup Transition of Teams</h4>
-                                  <p class="card-category">
-                                    Define where a Team will play in next Tournament Stage
-                                  </p>
-                                </div>
-                                <div class="card-body">
-                                  <div class="table-responsive">
-                                    <table class="table table-striped">
-                                      <thead>
-                                        <tr>
-                                          <th class="text-center">Rank</th>
-                                          <th>State</th>
-                                          <th>Place</th>
-                                        </tr>
-                                      </thead>
-                                      <tbody>
-                                        <tr>
-                                          <td class="text-center">1</td>
-                                          <td>
-                                            <select class="selectpicker" data-style="select-with-transition" title="Choose State" data-size="2">
-                                              <option value="1">Intermediate 1</option>
-                                              <option value="2">Intermediate 2</option>
-                                              <option value="3">Semi-Final 1</option>
-                                              <option value="4">Semi-Final 2</option>
-                                              <option value="5">Small-Final</option>
-                                              <option selected="selected" value="6">Final</option>
-                                              <option value="7">Ranking</option>
-                                            </select>
-                                          </td>
-                                          <td><input type="number" name="quantity" min="1" max="5" value="1"></td>
-                                        </tr>
-                                        <tr>
-                                          <td class="text-center">2</td>
-                                          <td>
-                                            <select class="selectpicker" data-style="select-with-transition" title="Choose State" data-size="2">
-                                              <option value="1">Intermediate 1</option>
-                                              <option value="2">Intermediate 2</option>
-                                              <option value="3">Semi-Final 1</option>
-                                              <option value="4">Semi-Final 2</option>
-                                              <option value="5">Small-Final</option>
-                                              <option selected="selected" value="6">Final</option>
-                                              <option value="7">Ranking</option>
-                                            </select>
-                                          </td>
-                                          <td><input type="number" name="quantity" min="1" max="5" value="2"></td>
-                                        </tr>
-                                        <tr>
-                                          <td class="text-center">3</td>
-                                          <td>
-                                            <select class="selectpicker" data-style="select-with-transition" title="Choose State" data-size="2">
-                                              <option value="1">Intermediate 1</option>
-                                              <option value="2">Intermediate 2</option>
-                                              <option value="3">Semi-Final 1</option>
-                                              <option value="4">Semi-Final 2</option>
-                                              <option value="5">Small-Final</option>
-                                              <option value="6">Final</option>
-                                              <option selected="selected" value="7">Ranking</option>
-                                            </select>
-                                          </td>
-                                          <td><input type="number" name="quantity" min="1" max="5" value="3"></td>
-                                        </tr>
-                                        <tr>
-                                          <td class="text-center">4</td>
-                                          <td>
-                                            <select class="selectpicker" data-style="select-with-transition" title="Choose State" data-size="2">
-                                              <option value="1">Intermediate 1</option>
-                                              <option value="2">Intermediate 2</option>
-                                              <option value="3">Semi-Final 1</option>
-                                              <option value="4">Semi-Final 2</option>
-                                              <option value="5">Small-Final</option>
-                                              <option value="6">Final</option>
-                                              <option selected="selected" value="7">Ranking</option>
-                                            </select>
-                                          </td>
-                                          <td><input type="number" name="quantity" min="1" max="5" value="4"></td>
-                                        </tr>
-                                      </tbody>
-                                    </table>
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                      <div class="card-footer">
-                        <div class="stats">
-                          <i class="material-icons text-danger" hidden>warning</i>
-                          <button type="button" rel="tooltip" class="btn btn-success">
-                            <i class="material-icons">save</i>
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-              </div>
-            </div>
-          </div>
-          <div class="tab-pane" id="link9">
-            <div class="card">
-              <div class="card-header">
-                <h4 class="card-title">Legal info of the product</h4>
-                <p class="card-category">
-                  More information here
-                </p>
-              </div>
-              <div class="card-body">
-                Completely synergize resource taxing relationships via premier niche markets. Professionally cultivate one-to-one customer service with robust ideas.
-                <br>
-                <br>Dynamically innovate resource-leveling customer service for state of the art customer service.
-              </div>
-            </div>
-          </div>
-          <div class="tab-pane" id="link10">
-            <div class="card">
-              <div class="card-header">
-                <h4 class="card-title">Help center</h4>
-                <p class="card-category">
-                  More information here
-                </p>
-              </div>
-              <div class="card-body">
-                From the seamless transition of glass and metal to the streamlined profile, every detail was carefully considered to enhance your experience. So while its display is larger, the phone feels just right.
-                <br>
-                <br> Another Text. The first thing you notice when you hold the phone is how great it feels in your hand. The cover glass curves down around the sides to meet the anodized aluminum enclosure in a remarkable, simplified design.
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-<div class="row">
-  <div class="col-lg-6 col-md-6 col-sm-6 mr-auto">
-    <div class="card card-stats justify-content-center">
-      <div class="card-header card-header-warning card-header-icon">
-        <div class="card-icon">
-          <i class="material-icons">sports_score</i>
-        </div>
-        <p class="card-category">Final Ranking</p>
-        <h3 class="card-title"></h3>
-      </div>
-      <div class="card-body">
-        <div class="table-responsive">
-          <table class="table">
-            <thead class=" text-primary">
-              <th>
-                Rank
-              </th>
-              <th>
-                Team
-              </th>
-              <th>
-                GBO Points
-              </th>
-              <th>
-                EBT Points
-              </th>
-            </thead>
-            <tbody>
-            <tr><td>1</td><td>Winner Final</td><td>100</td><td>0</td></tr>
-            <tr><td>2</td><td>Loser Final</td><td>80</td><td>0</td></tr>
-            <tr><td>3</td><td>Winner Small-Final</td><td>60</td><td>0</td></tr>
-            <tr><td>4</td><td>Looser Small-Final</td><td>50</td><td>0</td></tr>
-            <tr><td>5</td><td>3. Group A</td><td>0</td><td>0</td></tr>
-            <tr><td>6</td><td>4. Group A</td><td>0</td><td>0</td></tr>
-            <tr><td>7</td><td>3. Group B</td><td>0</td><td>0</td></tr>
-            <tr><td>8</td><td>4. Group B</td><td>0</td><td>0</td></tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-      <div class="card-footer">
-        <div class="stats">
-          <i class="material-icons text-danger">warning</i>
-          <a href="#"></a>
-        </div>
-      </div>
     </div>
   </div>
 </div>
-</div>
-{% if ts_types.count > 0 %}
-<div class="col-md-12" hidden>
-    <div class="card ">
-      <!--div class="card-header ">
-        <h4 class="card-title">Navigation Pills -
-          <small class="description">Horizontal Tabs</small>
-        </h4>
-      </div-->
-      <div class="card-body ">
-        <ul class="nav nav-pills nav-pills-icons" role="tablist">
-          {% for type in ts_types %}
-          {% with "#"|add:type.name as link_name %}          
-          <li class="nav-item">
-            <a class="nav-link active" data-toggle="tab" href={{link_name}} role="tablist">
-                <i class="material-icons">dashboard</i>
-                <p>{{ type.name }}</p>
-            </a>
-          </li>
-          {% endwith %}
-          {% endfor %}
-        </ul>
-        <div class="tab-content tab-space">
-        <div class="card ">
-        {% for type in ts_types %}
-        <div class="card-body">
-          <div class="tab-pane" id={{type.name}}>
-              <h3>Add and edit courts for Tournament Events</h3>
-              
-            
-            <div class="row" id="court_table">
-              
-            </div>
+<ul>
+{% for tst in tevent.tournamentstage_set.all %}
+    <li>{{ tst.name }} {{ tst.order }}</li>
+{% empty %}
+    <li>No Stages defined. Please add</li>
+{% endfor %}
+</ul>
+<h3>From View</h3>
+<ul>
+{% for tst in tst_view %}
+    <li>{{ tst.name }}</li>
+{% empty %}
+    <li>Sorry, no StateTypes in this list.</li>
+{% endfor %}
+</ul>
 
-            <div class="row">
-                  <div class="col-md-6 col-lg-6">
-                    <button class="btn btn-primary btn-lg" data-toggle="modal" data-target="#bhAddCourtModal">
-                        <i class="material-icons">add_box</i> Add Court
-                      </button>
-                  </div>
-              </div>
+{% include "beachhandball/tournamentevent/create_state_type_form.html" %}
 
-          </div>
-        </div>
-        {% endfor %}
-      </div>
-    </div>
-  </div>
-</div>
-
-  <div class="row">
-    <div class="col-md-8 ml-auto mr-auto">
-      <div class="page-categories">
-        <h3 class="title text-center">Page Subcategories</h3>
-        <br />
-        <ul class="nav nav-pills nav-pills-warning nav-pills-icons justify-content-center" role="tablist">
-          {% for type in ts_types %}
-          {% with "#"|add:type.name as link_name %} 
-          <li class="nav-item">
-            <a class="nav-link" data-toggle="tab" href={{link_name}} role="tablist">
-              <i class="material-icons">info</i> {{ type.name }}
-            </a>
-          </li>
-          {% endwith %}
-          {% endfor %}
-        </ul>
-        <div class="tab-content tab-space tab-subcategories">
-          {% for type in ts_types %}
-          <div class="tab-pane active" id={{ type.name }}>
-            <div class="card">
-              <div class="card-header">
-                <h4 class="card-title">{{ type.name }}</h4>
-                <p class="card-category">
-                  More information here
-                </p>
-              </div>
-              <div class="card-body">
-                Collaboratively administrate empowered markets via plug-and-play networks. Dynamically procrastinate B2C users after installed base benefits.
-                <br>
-                <br> Dramatically visualize customer directed convergence without revolutionary ROI.
-              </div>
-            </div>
-          </div>
-          {% endfor %}
-        </div>
-      </div>
-    </div>
-  </div>
-{% else %}
-<h3>No Structure exists</h3>
-<button type="button" rel="tooltip" class="btn btn-success">
-  <i class="material-icons">auto_fix_high</i>
-  Start Wizard
-</button>
-<p></p>
-<h4>Edit manual</h4>
-<button type="button" rel="tooltip" class="btn btn-default">
-  <i class="material-icons">add_circle</i>
-  Add Phase
-</button>
-{% endif %}
-<div class="row">
-<div class="row">
 {% endblock content %}
+
 
 {% block javascripts %}
 
 <script>
   $(document).ready(function() {
-    
+    //var tdata = tournament_service.getData();
+    //$.when(tournament_service.getData()).done(function(result){
+    //  console.debug(JSON.stringify(result));
+    //  result.tstates.forEach(function(item, index){
+    //    bh.addTournamentStateHTML(item, result.teams);
+    //  });
+    //});
   });
 
   

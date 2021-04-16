@@ -93,4 +93,63 @@ bh = {
             }
           })
     },
+
+    addTournamentStateHTML: function(tsData, teams) {
+        var templateTState = $("#templateTState").clone();
+        $(templateTState).attr("id", 'tstate_' + tsData.id);
+        $(templateTState).attr('obj_id', tsData.id);
+        $(templateTState).attr('data-obj', JSON.stringify(tsData));
+        $(templateTState).removeAttr('hidden');
+        var ch = $(templateTState).find('#templateTState_link_games').val();
+        
+        $(templateTState).find("#templateTState_link_games").attr("id", 'templateTState_link_games_' + tsData.id);
+        $(templateTState).find("#templateTState_link_teams").attr("id", 'templateTState_link_teams_' + tsData.id);
+        $(templateTState).find("#templateTState_link_trans").attr("id", 'templateTState_link_trans_' + tsData.id);
+        $(templateTState).find("#templateTState_link_basic").attr("id", 'templateTState_link_basic_' + tsData.id);
+
+        $(templateTState).find("#templateTState_tab_overview").attr("href", '#templateTState_link_overview_' + tsData.id);
+        $(templateTState).find("#templateTState_tab_teams").attr("href", '#templateTState_link_teams_' + tsData.id);
+        $(templateTState).find("#templateTState_tab_trans").attr("href", '#templateTState_link_trans_' + tsData.id);
+        $(templateTState).find("#templateTState_tab_basic").attr("href", '#templateTState_link_basic_' + tsData.id);
+        //$(templateTState).find("#templateTState_btnUpdate").click(function(){ bh.updateCourt_Click($(this)); });
+        //$(templateTState).find("#templateTState_btnRemove").click(function(){ bh.removeCourt_Click($(this)); });
+        //$(templateTState).find(".card-category").text(tsData.number);
+        
+        $(templateTState).find("#templateTState_table_overview").attr("id", 'templateTState_table_overview_' + tsData.id);
+        $(templateTState).find("#templateTState_table_teams").attr("id", 'templateTState_table_teams_' + tsData.id);
+        
+        
+
+        for ( var i = 0, l = tsData.tstats.length; i < l; i++ ) {
+            var tstat = tsData.tstats[ i ];
+            var listitems = '';
+            $.each(teams, function(key, value){
+                if(tstat.team_name === value.name)
+                {listitems += '<option selected="selected" value=' + key + '>' + value.name + '</option>';}
+                else
+                {listitems += '<option value=' + key + '>' + value.name + '</option>';}
+            });
+            markup = '<tr><td class="text-center">' + tstat.rank + '</td><td>' + tstat.team_name + "</td></tr>";
+            //markup = '<tr><td class="text-center">' + tstat.rank + '</td><td><select class="selectpicker" data-style="select-with-transition" title="Choose Team" data-size="7">' + listitems + "</select></td></tr>";
+            $(templateTState).find("#templateTState_table_teams_"  + tsData.id).append(markup);
+            markup_overview = '<tr><td class="text-center">' + tstat.rank + '</td><td>' + tstat.team_name + "</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>";
+            $(templateTState).find("#templateTState_table_overview_"  + tsData.id).append(markup_overview);
+        }
+
+        $(templateTState).find(".card-title").text(tsData.name);
+        if(tsData.tournament_state_type  === "GROUP_STAGE")
+        {
+            $("#tstate_table_gs").append(templateTState);
+        }
+        else if (tsData.tournament_state_type  === "MAIN_ROUND")
+        {
+            $("#tstate_table_int").append(templateTState);
+        }
+        else if (tsData.tournament_state_type  === "FINAL")
+        {
+            $("#tstate_table_final").append(templateTState);
+        }
+        
+        return;
+    },
 }

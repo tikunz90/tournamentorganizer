@@ -4,7 +4,7 @@ from datetime import datetime
 
 from colorfield.fields import ColorField
 
-from .choices import TOURNAMENT_STATE_CHOICES, TOURNAMENT_STATE_TYPE_CHOICES, COLOR_CHOICES
+from .choices import TOURNAMENT_STATE_CHOICES, TOURNAMENT_STAGE_TYPE_CHOICES, COLOR_CHOICES
 
 from django_unixdatetimefield import UnixDateTimeField
 
@@ -105,7 +105,7 @@ class TournamentState(models.Model):
 
     tournament_event = models.ForeignKey('TournamentEvent', null=True, related_name='+', on_delete=models.CASCADE)
     tournament_state = models.CharField(max_length=20, choices=TOURNAMENT_STATE_CHOICES, blank=True)
-    tournament_state_type = models.CharField(max_length=20, choices=TOURNAMENT_STATE_TYPE_CHOICES, blank=True)
+    tournament_stage = models.ForeignKey('TournamentStage', null=True, on_delete=models.CASCADE)
     name = models.CharField(db_column='name', max_length=50)
     max_number_teams = models.SmallIntegerField(default=0)
     min_number_teams = models.SmallIntegerField(default=0)
@@ -153,18 +153,23 @@ class TournamentState(models.Model):
         db_table = 'bh_tournament_states'
 
 
-class TournamentStateType(models.Model):
+class TournamentStage(models.Model):
     """ Defines Type of TS. E.g if it is a GroupStagec, KnockOut Phase
     """
     created_at = UnixDateTimeField(editable=False, default=timezone.now)
 
-    tournament_event = models.ForeignKey('TournamentEvent', null=True, related_name='+', on_delete=models.CASCADE)
-    name = models.CharField( max_length=50)
+    tournament_event = models.ForeignKey('TournamentEvent', null=True, on_delete=models.CASCADE)
+    name = models.CharField( max_length=50, default="")
+    short_name = models.CharField( max_length=5, default="", help_text="You have 5 characters to describe this stage")
+    tournament_stage = models.CharField(max_length=20, choices=TOURNAMENT_STAGE_TYPE_CHOICES, blank=True)
     order = models.SmallIntegerField(default=0)
+
+    def __str__(self):
+        return '{} ({})'.format(self. name, self.tournament_event.name)
 
     class Meta:
         # managed = False
-        db_table = 'bh_tournament_state_type'
+        db_table = 'bh_tournament_stage'
 
 class TournamentTeamTransition(models.Model):
     """ Defines the transistion from a TournamentState to the next.

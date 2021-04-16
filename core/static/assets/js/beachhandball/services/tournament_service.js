@@ -125,4 +125,19 @@ tournament_service =
             return response;
           }
       },
+
+      getData: function() {
+        return $.ajax({
+            type: 'GET',
+            url: "/ajax/data/",
+            async: false,
+            dataType: 'json',
+            done: function (data) {
+              if (data) {
+                console.debug(JSON.stringify(data));
+                return data;
+              }
+            }
+          });
+      },
 }
