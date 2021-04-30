@@ -31,9 +31,9 @@ TOURNAMENT_STATE_CHOICES = (
 COLOR_CHOICES = [
         ("#FFFFFF", "white"),
         ("#000000", "black"),
-        ("#2a25be", "Persian Blue"),
-        ("#ff0005", "red"),
-        ("#fff200", "yellow")
+        ("#2A25BE", "Persian Blue"),
+        ("#FF0005", "red"),
+        ("#FFF200", "yellow")
     ]
 
 TOURNAMENT_STAGE_TYPE_CHOICES = (

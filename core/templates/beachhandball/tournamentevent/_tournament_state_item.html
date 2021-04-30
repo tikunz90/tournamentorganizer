@@ -1,0 +1,177 @@
+{% load widget_tweaks %}
+
+<div class="col-md-6">
+    <div class="card">
+        <div class="card-header card-header-icon">
+            <div class="card-icon" style="background: {{ tstate.color }}">
+                <i class="material-icons">table_rows</i>
+            </div>
+            <h4 class="card-title">{{tstate.name}}</h4>
+        </div>
+        <div class="card-body">
+            <div class="page-categories">
+                <br />
+                <ul class="nav nav-pills nav-pills-warning justify-content-center" role="tablist">
+                    <li class="nav-item">
+                    {% if request.GET.tab_tstate is not None %}
+                        {% if request.GET.tab_tstate == '0' %}
+                        <a class="nav-link active" data-toggle="tab" href="#{{ tstate.name|slugify }}_{{tstate.id}}_ov" role="tablist">Overview</a>
+                        {% else %}
+                        <a class="nav-link" data-toggle="tab" href="#{{ tstate.name|slugify }}_{{tstate.id}}_ov" role="tablist">Overview</a>
+                        {% endif %}
+                    {% else %}
+                        <a class="nav-link active" data-toggle="tab" href="#{{ tstate.name|slugify }}_{{tstate.id}}_ov" role="tablist">Overview</a>
+                    {% endif %}
+                    </li>
+                    <li class="nav-item">
+                    {% if request.GET.tab_tstate is not None %}
+                        {% if request.GET.tab_tstate == '1' %}
+                        <a class="nav-link active" data-toggle="tab" href="#{{ tstate.name|slugify }}_{{tstate.id}}_ts" role="tablist">Team Setup</a>
+                        {% else %}
+                        <a class="nav-link" data-toggle="tab" href="#{{ tstate.name|slugify }}_{{tstate.id}}_ts" role="tablist">Team Setup</a>
+                        {% endif %}
+                    {% else %}
+                        <a class="nav-link" data-toggle="tab" href="#{{ tstate.name|slugify }}_{{tstate.id}}_ts" role="tablist">Team Setup</a>
+                    {% endif %}
+                    </li>
+                    <li class="nav-item">
+                    {% if request.GET.tab_tstate is not None %}
+                        {% if request.GET.tab_tstate == '2' %}
+                        <a class="nav-link active" data-toggle="tab" href="#{{ tstate.name|slugify }}_{{tstate.id}}_tr" role="tablist">Transitions</a>
+                        {% else %}
+                        <a class="nav-link" data-toggle="tab" href="#{{ tstate.name|slugify }}_{{tstate.id}}_tr" role="tablist">Transitions</a>
+                        {% endif %}
+                    {% else %}
+                        <a class="nav-link" data-toggle="tab" href="#{{ tstate.name|slugify }}_{{tstate.id}}_tr" role="tablist">Transitions</a>
+                    {% endif %}
+                    </li>
+                </ul>
+                <div class="tab-content tab-space tab-subcategories">
+                    {% if request.GET.tab_tstate is not None %}
+                        {% if request.GET.tab_tstate == '0' %}
+                        <div class="tab-pane active" id="{{ tstate.name|slugify }}_{{tstate.id}}_ov">
+                        {% else %}
+                        <div class="tab-pane" id="{{ tstate.name|slugify }}_{{tstate.id}}_ov">
+                        {% endif %}
+                    {% else %}
+                        <div class="tab-pane active" id="{{ tstate.name|slugify }}_{{tstate.id}}_ov">
+                    {% endif %}
+                        <div class="card">
+                            <div class="card-header">
+                            <h4 class="card-title">Overview</h4>
+                            <p class="card-category">
+                                Overview ranking, game plan, editing game result
+                            </p>
+                            </div>
+                            <div class="card-body">
+                                {% include "beachhandball/tournamentevent/_tournament_state_overview.html" %}
+                            </div>
+                        </div>
+                    </div>
+                    {% if request.GET.tab_tstate is not None %}
+                        {% if request.GET.tab_tstate == '1' %}
+                        <div class="tab-pane active" id="{{ tstate.name|slugify }}_{{tstate.id}}_ts">
+                        {% else %}
+                        <div class="tab-pane" id="{{ tstate.name|slugify }}_{{tstate.id}}_ts">
+                        {% endif %}
+                    {% else %}
+                        <div class="tab-pane" id="{{ tstate.name|slugify }}_{{tstate.id}}_ts">
+                    {% endif %}
+                        <div class="card">
+                            <div class="card-header">
+                            <h4 class="card-title">Initial Team Setup</h4>
+                            <p class="card-category">
+                                Define starting place of a Team in TournamentState
+                            </p>
+                            </div>
+                            <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                    <th class="text-center">Rank</th>
+                                    <th>Team</th>
+                                    <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for tstat in tstate.teamstats_set.all %}
+                                        <tr>
+                                        <td class="text-center">{{forloop.counter}}</td>
+                                        <td>
+                                            {{ tstat.team.name }}
+                                        </td>
+                                        <td>
+                                            <button type="button" class="update_teamstatsteam btn btn-sm btn-primary" data-form-url="{% url 'structure_setup.update_teamstatsteam' pk_tevent=tevent.id pk_tstage=stage.id pk=tstat.id %}">
+                                                <span class="fa fa-pencil"></span>
+                                            </button>
+                                        </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                                </table>
+                            </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    {% if request.GET.tab_tstate is not None %}
+                        {% if request.GET.tab_tstate == '2' %}
+                        <div class="tab-pane active" id="{{ tstate.name|slugify }}_{{tstate.id}}_tr">
+                        {% else %}
+                        <div class="tab-pane" id="{{ tstate.name|slugify }}_{{tstate.id}}_tr">
+                        {% endif %}
+                    {% else %}
+                        <div class="tab-pane" id="{{ tstate.name|slugify }}_{{tstate.id}}_tr">
+                    {% endif %}
+                        <div class="card">
+                            <div class="card-header">
+                            <h4 class="card-title">Setup Transition of Teams</h4>
+                            <p class="card-category">
+                                Define where a Team will play in next Tournament Stage
+                            </p>
+                            </div>
+                            <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                    <th class="text-center">Rank</th>
+                                    <th>State</th>
+                                    <th>Place</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for ttt in tstate.ttt_origin.all %}
+                                        <tr>
+                                        <td class="text-center">{{ ttt.origin_rank }}</td>
+                                        <td>
+                                            {{ ttt.target_ts_id.name }}
+                                        </td>
+                                        <td>{{ ttt.target_rank }}</td>
+                                        <td>
+                                            <button type="button" class="update_tttransition btn btn-sm btn-primary" data-form-url="{% url 'structure_setup.update_tttransition' pk_tevent=tevent.id pk_tstage=stage.id pk=ttt.id %}">
+                                                <span class="fa fa-pencil"></span>
+                                            </button>
+                                        </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                                </table>
+                            </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                </div>
+        </div>
+        <div class="card-footer">
+            <button type="button" class="update-tstate btn btn-sm btn-primary" data-form-url="{% url 'structure_setup.update_tstate' pk_tevent=tevent.id pk_tstage=stage.id pk=tstate.id %}">
+                <span class="fa fa-pencil"></span>
+            </button>
+            <button type="button" class="delete-tstate btn btn-sm btn-danger" data-form-url="{% url 'structure_setup.delete_tstate' pk_tevent=tevent.id pk_tstage=stage.id pk=tstate.id %}">
+                <span class="fa fa-trash"></span>
+            </button>
+        </div>
+    </div>
+</div>

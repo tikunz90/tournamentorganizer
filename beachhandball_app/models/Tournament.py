@@ -117,7 +117,8 @@ class TournamentState(models.Model):
     is_final = models.BooleanField(default=False)
     comment = models.CharField(max_length=50, blank=True)
 
-    color = ColorField(default='#FF0000', choices=COLOR_CHOICES)
+    #color = ColorField(default='#FF0000', choices=COLOR_CHOICES)
+    color = models.CharField(max_length=7, default='#FF0000', blank=True)
 
     @property
     def name_com(self):
@@ -183,9 +184,9 @@ class TournamentTeamTransition(models.Model):
     created_at = UnixDateTimeField(editable=False, default=timezone.now)
 
     tournament_event = models.ForeignKey('TournamentEvent', null=True, related_name='+', on_delete=models.CASCADE)
-    origin_ts_id = models.ForeignKey('TournamentState', null=True, related_name='+', on_delete=models.CASCADE)
+    origin_ts_id = models.ForeignKey('TournamentState', null=True, related_name='ttt_origin', on_delete=models.CASCADE)
     origin_rank = models.SmallIntegerField(default=0)
-    target_ts_id = models.ForeignKey('TournamentState', null=True, related_name='+', on_delete=models.CASCADE)
+    target_ts_id = models.ForeignKey('TournamentState', null=True, related_name='ttt_target', on_delete=models.CASCADE)
     target_rank = models.SmallIntegerField(default=0)
     keep_stats = models.BooleanField(default=False)
     comment = models.CharField( max_length=50)
@@ -217,6 +218,7 @@ class TournamentTeamTransition(models.Model):
     class Meta:
         # managed = False
         db_table = 'bh_tournament_team_transition'
+        ordering = ['origin_rank']
 
 
 class TournamentFinalRanking(models.Model):

@@ -33,6 +33,7 @@ INSTALLED_APPS = [
 
     'colorfield',
     'widget_tweaks',
+    'bootstrap_modal_forms',
 
     'authentication',
     'beachhandball_app'  # Enable the inner app 

@@ -1,0 +1,57 @@
+<div class="row">
+    <div class="table-responsive">
+        <table class="table table-striped">
+        <thead>
+            <tr>
+            <th class="text-center">Rank</th>
+            <th>Team</th>
+            <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for tstat in tstate.teamstats_set.all %}
+                <tr>
+                <td class="text-center">{{forloop.counter}}</td>
+                <td>{{ tstat.team.name }}</td>
+                <td>
+                    <button type="button" class="update_teamstatsteam btn btn-sm btn-primary" data-form-url="{% url 'structure_setup.update_teamstatsteam' pk_tevent=tevent.id pk_tstage=stage.id pk=tstat.id %}">
+                        <span class="fa fa-pencil"></span>
+                    </button>
+                </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+        </table>
+    </div>
+</div>
+<h4>Games</h4>
+<div class="row">
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <thead>
+            <tr>
+                <th>Startzeit</th>
+                <th>ID</th>
+                <th>Team a</th>
+                <th>Team b</th>
+                <th>Court</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            {% for game in tstate.game_set.all %}
+            <tr>
+                <td>{{ game.starttime|date:"H:i (d.m.Y)" }}</td>
+                <td>{{ game.id }}</td>
+                <td>{{ game.team_a.name }}</td>
+                <td>{{ game.team_b.name }}</td>
+                <td>{{ game.court }}</td>
+                <td>
+                    <a href="" class="btn btn-primary btn-sm">
+                        Details
+                    </a>
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+</div>

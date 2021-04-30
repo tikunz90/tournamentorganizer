@@ -1,0 +1,35 @@
+{% with stage.name|slugify as link_name %}
+{% if request.GET.tab is not None %}
+    {% if request.GET.tab == stage.id|stringformat:"i" %}
+        <div class="tab-pane active" id={{link_name}}>
+    {% else %}
+        <div class="tab-pane" id={{link_name}}>
+    {% endif %}
+    {% else %}
+    {% if forloop.counter == 1 %}
+        <div class="tab-pane active" id={{link_name}}>
+    {% else %}
+        <div class="tab-pane" id={{link_name}}>
+    {% endif %}
+{% endif %} 
+    <div class="card">
+    <div class="card-body">
+        <div class="row">
+        {% for tstate in stage.tournamentstate_set.all %}
+            {% include "beachhandball/tournamentevent/_tournament_state_item.html" %}
+        {% empty %}
+        <h3>{{ stage.name }}No states exists!</h3>
+        {% endfor %}
+        </div>
+    </div>
+    <div class="card-footer">
+        <button type="button" class="create-tstate btn btn-sm btn-primary" data-form-url="{% url 'structure_setup.create_tstate' pk_tevent=tevent.id pk_tstage=stage.id %}">
+            <span class="fa fa-plus mr-2"></span> Create State
+        </button> 
+        <button type="button" class="delete-tstage btn btn-sm btn-danger" data-form-url="{% url 'structure_setup.delete_tstage' pk_tevent=tevent.id pk=stage.id %}">
+            <span class="fa fa-trash"></span>
+        </button>   
+    </div>
+    </div>
+</div>
+{% endwith %}

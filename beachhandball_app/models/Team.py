@@ -12,7 +12,7 @@ class Team(models.Model):
     """
     created_at = UnixDateTimeField(editable=False, default=timezone.now)
 
-    tournament_event = models.ForeignKey('TournamentEvent', blank=True, null=True, related_name='+', on_delete=models.CASCADE)
+    tournament_event = models.ForeignKey('TournamentEvent', blank=True, null=True, on_delete=models.CASCADE)
     tournamentstate = models.ForeignKey('TournamentState', blank=True, null=True, on_delete=models.CASCADE)
     name = models.CharField(db_column='name', max_length=50)
     gbo_team = models.IntegerField(null=True)

@@ -6,6 +6,9 @@
 {% block stylesheets %}{% endblock stylesheets %}
 
 {% block content %}
+
+{% include "beachhandball/templates/_modal.html" %}
+
 <h2>Structure Setup - 
   <small class="description">create Structure with Tournament Stages and States...</small>
 </h2>
@@ -22,22 +25,51 @@
                 <i class="material-icons">settings</i>
               </button>
               <div class="dropdown-menu" aria-labelledby="multiDropdownMenu">
-                <a class="dropdown-item" href="{% url 'structure_setup.create_tstage' pk=tevent.id %}">Add Stage</a>
-                <a class="dropdown-item" href="#">Change Stage Order</a>
+                <a class="dropdown-item dropdown-toggle" href=""><i class="material-icons">line_style</i> Stage</a>
+                <div class="dropdown-menu" id="Stage-Menu">
+                  <a id="create-stage-sync" class="dropdown-item">
+                    <i class="material-icons">add_circle</i> Create Stage
+                  </a>
+                  <a id="" class="dropdown-item">
+                    <i class="material-icons">swap_horiz</i> Change Order
+                  </a>
+                </div>
+                <a class="dropdown-item dropdown-toggle" href=""><i class="material-icons">format_list_numbered</i> State</a>
+                <div class="dropdown-menu" id="Stage-Menu">
+                  <a id="create-state-sync" class="dropdown-item">
+                    <i class="material-icons">add_circle</i> Create State
+                  </a>
+                  <a id="" class="dropdown-item">
+                    <i class="material-icons">swap_horiz</i> Change Order
+                  </a>
+                </div>
+                
+                
               </div>
             </div>
           </div>
       </div>
       <hr />
     </div>
+    <p>
+    
+    </p>
     <ul class="nav nav-pills nav-pills-warning nav-pills-icons justify-content-center" role="tablist">
       {% for stage in tevent.tournamentstage_set.all %}
         {% with stage.name|slugify as link_name %}
         <li class="nav-item">
-          {% if forloop.counter == 1 %}
-            <a class="nav-link active" data-toggle="tab" href="{{ '#'|add:link_name }}" role="tablist">
+          {% if request.GET.tab is not None %}
+            {% if request.GET.tab == stage.id|stringformat:"i" %}
+              <a class="nav-link active" data-toggle="tab" href="{{ '#'|add:link_name }}" role="tablist">
+            {% else %}
+              <a class="nav-link" data-toggle="tab" href="{{ '#'|add:link_name }}" role="tablist">
+            {% endif %}
           {% else %}
-            <a class="nav-link" data-toggle="tab" href="{{ '#'|add:link_name }}" role="tablist">
+            {% if forloop.counter == 1 %}
+              <a class="nav-link active" data-toggle="tab" href="{{ '#'|add:link_name }}" role="tablist">
+            {% else %}
+              <a class="nav-link" data-toggle="tab" href="{{ '#'|add:link_name }}" role="tablist">
+            {% endif %}
           {% endif %}
           
             {% if stage.tournament_stage == "GROUP_STAGE" %}
@@ -63,34 +95,7 @@
     <div class="tab-content tab-space tab-subcategories">
 
       {% for stage in tevent.tournamentstage_set.all %}
-        {% with stage.name|slugify as link_name %}
-        {% if forloop.counter == 1 %}
-          <div class="tab-pane active" id={{link_name}}>
-        {% else %}
-          <div class="tab-pane" id={{link_name}}>
-        {% endif %}      
-          <div class="card">
-            <div class="card-body">
-              <div class="row">
-                {% for tstate in stage.tournamentstate_set.all %}
-                  <div class="col-md-6">
-                    <div class="card">
-                      <div class="card-header">
-                        <h4 class="card-title">{{tstate.name}}</h4>
-                        <p class="card-category">
-                          More information here
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                {% empty %}
-                <h3>No states exists!</h3>
-                {% endfor %}
-              </div>
-            </div>
-          </div>
-        </div>
-        {% endwith %}
+        {% include "beachhandball/tournamentevent/_tournament_stage_item.html" %}
       {% empty %}
       {% endfor %}
 
@@ -113,8 +118,6 @@
 {% endfor %}
 </ul>
 
-{% include "beachhandball/tournamentevent/create_state_type_form.html" %}
-
 {% endblock content %}
 
 
@@ -129,7 +132,75 @@
     //    bh.addTournamentStateHTML(item, result.teams);
     //  });
     //});
-  });
+    });
+  
+      $(function () {
+
+          // Create tstage synchronous
+          function createStageSyncModalForm() {
+            $("#create-stage-sync").modalForm({
+                formURL: "{% url 'structure_setup.create_tstage' pk=tevent.id %}",
+                modalID: "#create-modal"
+            });
+          }
+          createStageSyncModalForm();
+
+          function deleteStageModalForm() {
+            $(".delete-tstage").each(function () {
+                $(this).modalForm({formURL: $(this).data("form-url"), isDeleteForm: true});
+            });
+          }
+          deleteStageModalForm();
+          
+          // Create tstate synchronous
+          function createStateSyncModalForm() {
+            $(".create-tstate").each(function () {
+                $(this).modalForm({formURL: $(this).data("form-url")});
+            });
+          }
+          createStateSyncModalForm();
+
+          function deleteStateModalForm() {
+            $(".delete-tstate").each(function () {
+                $(this).modalForm({formURL: $(this).data("form-url"), isDeleteForm: true});
+            });
+          }
+          deleteStateModalForm();
+
+          function updateStateModalForm() {
+            $(".update-tstate").each(function () {
+                $(this).modalForm({formURL: $(this).data("form-url"), isDeleteForm: false});
+            });
+          }
+          updateStateModalForm();
+
+          function updateTeamStatsTeamModalForm() {
+            $(".update_teamstatsteam").each(function () {
+                $(this).modalForm({formURL: $(this).data("form-url"), isDeleteForm: false});
+            });
+          }
+          updateTeamStatsTeamModalForm();
+
+          function updateTTTModalForm() {
+            $(".update_tttransition").each(function () {
+                $(this).modalForm({formURL: $(this).data("form-url"), isDeleteForm: false});
+            });
+          }
+          updateTTTModalForm();
+
+          function reinstantiateModalForms() {
+            deleteStageModalForm();
+            createStateSyncModalForm();
+            deleteStateModalForm();
+          }
+
+            
+          // Hide message
+          $(".alert").fadeTo(2000, 500).slideUp(500, function () {
+              $(".alert").slideUp(500);
+          });
+      });
+      
 
   
 </script>
