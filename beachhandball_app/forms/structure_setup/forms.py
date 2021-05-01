@@ -1,3 +1,4 @@
+from beachhandball_app.models.Game import Game
 from beachhandball_app.models.Team import TeamStats
 from django import forms
 from django.forms import ModelForm
@@ -55,7 +56,6 @@ class TournamentStateForm(BSModalModelForm):
         return cleaned_data
     
     
-
     class Meta:
         model = TournamentState
         exclude = ['tournament_event', 'tournament_state','grid_row', 'grid_col']
@@ -72,6 +72,9 @@ class TournamentStateUpdateForm(BSModalModelForm):
     class Meta:
         model = TournamentState
         fields = ('name', 'max_number_teams', 'color')
+        widgets = {
+           'color': forms.widgets.TextInput(attrs={'type': 'color'}),
+        }
 
 
 class TeamStatsUpdateTeamForm(BSModalModelForm):
@@ -82,7 +85,7 @@ class TeamStatsUpdateTeamForm(BSModalModelForm):
         return cleaned_data
     class Meta:
         model = TeamStats
-        fields = ['team']
+        fields = ['team', 'rank_initial']
 
 
 class TTTUpdateForm(BSModalModelForm):
@@ -94,3 +97,13 @@ class TTTUpdateForm(BSModalModelForm):
     class Meta:
         model = TournamentTeamTransition
         fields = ['target_ts_id', 'target_rank']
+
+
+class GameUpdateForm(BSModalModelForm):
+
+    def clean(self):
+        cleaned_data = super(GameUpdateForm, self).clean()
+        return cleaned_data
+    class Meta:
+        model = Game
+        fields = '__all__'

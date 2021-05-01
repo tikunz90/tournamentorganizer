@@ -95,12 +95,13 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {% for tstat in tstate.teamstats_set.all %}
+                                    {% for tstat in tstate.teamstats_set.all|dictsort:"rank_initial" %}
                                         <tr>
-                                        <td class="text-center">{{forloop.counter}}</td>
+                                        <td class="text-center">{{ tstat.rank_initial }}</td>
                                         <td>
-                                            {{ tstat.team.name }}
+                                            {{ tstat.team.name }} ({{ tstat.team.abbreviation}})
                                         </td>
+                                        
                                         <td>
                                             <button type="button" class="update_teamstatsteam btn btn-sm btn-primary" data-form-url="{% url 'structure_setup.update_teamstatsteam' pk_tevent=tevent.id pk_tstage=stage.id pk=tstat.id %}">
                                                 <span class="fa fa-pencil"></span>

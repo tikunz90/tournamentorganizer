@@ -23,7 +23,7 @@ class Game(models.Model):
         ('SignRequired', 'SignRequired',),
     )
 
-    tournament = models.ForeignKey('Tournament', null=True, related_name='+', on_delete=models.CASCADE)
+    tournament = models.ForeignKey('TournamentEvent', null=True, related_name='+', on_delete=models.CASCADE)
     team_a = models.ForeignKey('Team', null=True, related_name='+', on_delete=models.CASCADE)
     team_b = models.ForeignKey('Team', null=True, on_delete=models.CASCADE)
     team_st_a = models.ForeignKey('TeamStats', null=True, related_name='+', on_delete=models.CASCADE)
@@ -32,8 +32,7 @@ class Game(models.Model):
     starttime = UnixDateTimeField(db_column='start_ts', default=timezone.now)
     duration_of_halftime = models.IntegerField(default=600)
     number_of_penalty_tries = models.SmallIntegerField(default=5)
-    court = models.SmallIntegerField(choices=COURT_CHOICES)
-    score_team_a_halftime_1 = models.SmallIntegerField(default=0, blank=True, null=True)
+    court = models.ForeignKey('Court', null=True, on_delete=models.SET_NULL)
     score_team_a_halftime_1 = models.SmallIntegerField(default=0, blank=True, null=True)
     score_team_a_halftime_2 = models.SmallIntegerField(default=0, blank=True, null=True)
     score_team_a_penalty = models.SmallIntegerField(default=0, blank=True, null=True)

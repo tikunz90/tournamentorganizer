@@ -31,9 +31,9 @@
               </div>
             </a>
             <div class="collapse" id="collapseTeamsSetup">
-            {% if events %}
+            {% if tourn.tournamentevent_set.count > 0 %}
               <ul class="nav">
-              {% for tevent in events %}
+              {% for tevent in tourn.tournamentevent_set.all %}
                 <li class="nav-item">
                   <a class="nav-link" href="{% url 'teams_setup.detail' pk=tevent.id %}">
                     <!--span class="sidebar-mini"> 1234 </!--span-->
@@ -60,9 +60,9 @@
               </div>
             </a>
             <div class="collapse" id="collapseStructureSetup">
-            {% if events %}
+            {% if tourn.tournamentevent_set.count > 0 %}
               <ul class="nav">
-              {% for tevent in events %}
+              {% for tevent in tourn.tournamentevent_set.all %}
                 <li class="nav-item">
                   <a class="nav-link" href="{% url 'structure_setup.detail' pk=tevent.id %}">
                     <!--span class="sidebar-mini"> 1234 </!--span-->

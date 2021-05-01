@@ -43,7 +43,7 @@ class TournamentEvent(models.Model):
     """
     created_at = UnixDateTimeField(editable=False, default=timezone.now)
 
-    tournament = models.ForeignKey('Tournament', null=True, related_name='+', on_delete=models.CASCADE)
+    tournament = models.ForeignKey('Tournament', null=True, on_delete=models.CASCADE)
     #season = models.ForeignKey('Season', null=True, related_name='+', on_delete=models.SET_NULL)
     category = models.ForeignKey('TournamentCategory', null=True, related_name='+', on_delete=models.CASCADE)
 
@@ -107,6 +107,7 @@ class TournamentState(models.Model):
     tournament_state = models.CharField(max_length=20, choices=TOURNAMENT_STATE_CHOICES, blank=True)
     tournament_stage = models.ForeignKey('TournamentStage', null=True, on_delete=models.CASCADE)
     name = models.CharField(db_column='name', max_length=50)
+    abbreviation = models.CharField(max_length=3, null=True)
     max_number_teams = models.SmallIntegerField(default=0)
     min_number_teams = models.SmallIntegerField(default=0)
     hierarchy = models.SmallIntegerField(default=0)

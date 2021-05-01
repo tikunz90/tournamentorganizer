@@ -6,7 +6,7 @@ Copyright (c) 2019 - present AppSeed.us
 from django.urls import path, re_path
 from beachhandball_app import static_views
 from beachhandball_app.views.teams_setup import TeamsSetupDetail
-from beachhandball_app.views.structure_setup import StructureSetupDetail, StageCreateView, StageDeleteView, StateCreateView, StateDeleteView, StateUpdateView, TTTUpdateView, TeamStatsUpdateTeamView
+from beachhandball_app.views.structure_setup import GameUpGameView, StructureSetupDetail, StageCreateView, StageDeleteView, StateCreateView, StateDeleteView, StateUpdateView, TTTUpdateView, TeamStatsUpdateTeamView
 
 from django.views.generic import TemplateView
 
@@ -32,6 +32,7 @@ urlpatterns = [
     path('structure_setup/<int:pk_tevent>/<int:pk_tstage>/update_tstate/<int:pk>/', StateUpdateView.as_view(), name='structure_setup.update_tstate'),
     path('structure_setup/<int:pk_tevent>/<int:pk_tstage>/update_teamstatsteam/<int:pk>/', TeamStatsUpdateTeamView.as_view(), name='structure_setup.update_teamstatsteam'),
     path('structure_setup/<int:pk_tevent>/<int:pk_tstage>/update_tttransition/<int:pk>/', TTTUpdateView.as_view(), name='structure_setup.update_tttransition'),
+    path('structure_setup/<int:pk_tevent>/<int:pk_tstage>/update_game/<int:pk>/', GameUpGameView.as_view(), name='structure_setup.update_game'),
     
 
     path('game_plan/', static_views.game_plan, name='game_plan'),

@@ -188,6 +188,13 @@
           }
           updateTTTModalForm();
 
+          function updateGameModalForm() {
+            $(".update_game").each(function () {
+                $(this).modalForm({formURL: $(this).data("form-url"), isDeleteForm: false});
+            });
+          }
+          updateGameModalForm();
+
           function reinstantiateModalForms() {
             deleteStageModalForm();
             createStateSyncModalForm();
