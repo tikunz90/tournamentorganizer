@@ -21,6 +21,7 @@ class TeamsSetupDetail(LoginRequiredMixin, DetailView):
         kwargs['segment'] = 'teams_setup'
         kwargs['segment_title'] = 'Teams Setup \ ' + tevent.name_short
 
+        kwargs["tevent"] = tevent
         kwargs['teams_accepted'] = []#Team.objects.filter(tournament=tevent)
         kwargs['teams_appending'] = []#Team.objects.filter(tournament=tevent)
 

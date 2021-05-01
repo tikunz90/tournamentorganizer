@@ -8,7 +8,6 @@
         <th class="text-center">Sets</th>
         <th class="text-center">Goals</th>
         <th class="text-center">Pts.</th>
-        <th>Actions</th>
         </tr>
     </thead>
     <tbody>
@@ -20,11 +19,6 @@
             <td class="text-center">{{ tstat.sets_win }}:{{ tstat.sets_loose }}</td>
             <td class="text-center">{{ tstat.points_made }}:{{ tstat.points_received }}</td>
             <td class="text-center"><b>{{ tstat.game_points }}</b></td>
-            <td>
-                <button type="button" class="update_teamstatsteam btn btn-sm btn-primary" data-form-url="{% url 'structure_setup.update_teamstatsteam' pk_tevent=tevent.id pk_tstage=stage.id pk=tstat.id %}">
-                    <span class="fa fa-pencil"></span>
-                </button>
-            </td>
             </tr>
         {% endfor %}
     </tbody>

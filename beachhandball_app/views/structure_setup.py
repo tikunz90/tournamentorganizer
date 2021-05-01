@@ -138,7 +138,7 @@ class StateUpdateView(BSModalUpdateView):
 
 class TeamStatsUpdateTeamView(BSModalUpdateView):
     model = TeamStats
-    template_name = 'beachhandball/templates/update_form.html'
+    template_name = 'beachhandball/templates/update_teamstat_form.html'
     form_class = TeamStatsUpdateTeamForm
     success_message = 'Success: TeamStat was updated.'
     

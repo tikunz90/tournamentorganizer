@@ -1,5 +1,5 @@
 from beachhandball_app.models.Game import Game
-from beachhandball_app.models.Team import TeamStats
+from beachhandball_app.models.Team import Team, TeamStats
 from django import forms
 from django.forms import ModelForm
 from ...models.Tournament import TournamentState, TournamentStage, TournamentTeamTransition
@@ -86,6 +86,10 @@ class TeamStatsUpdateTeamForm(BSModalModelForm):
     class Meta:
         model = TeamStats
         fields = ['team', 'rank_initial']
+
+    def __init__(self, *args, **kwargs):
+        super(TeamStatsUpdateTeamForm, self).__init__(*args, **kwargs)
+        self.fields['team'].queryset = Team.objects.filter(is_dummy=False)
 
 
 class TTTUpdateForm(BSModalModelForm):

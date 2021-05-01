@@ -26,11 +26,13 @@
                 </tr>
               </thead>
               <tbody>
-              {% for team in teams_dummy %}
+              {% for team in tevent.team_set.all %}
+                {% if team.is_dummy is False %}
                 <tr>
                   <td class="text-center">{{team.name}}</td>
                   <td>GER</td>
                 </tr>
+                {% endif %}
               {% endfor %}
               </tbody>
             </table>
