@@ -33,6 +33,8 @@ urlpatterns = [
     path('structure_setup/<int:pk_tevent>/<int:pk_tstage>/update_teamstatsteam/<int:pk>/', TeamStatsUpdateTeamView.as_view(), name='structure_setup.update_teamstatsteam'),
     path('structure_setup/<int:pk_tevent>/<int:pk_tstage>/update_tttransition/<int:pk>/', TTTUpdateView.as_view(), name='structure_setup.update_tttransition'),
     path('structure_setup/<int:pk_tevent>/<int:pk_tstage>/update_game/<int:pk>/', GameUpGameView.as_view(), name='structure_setup.update_game'),
+    path('structure_setup/<int:pk_tstate>/games/', static_views.game_update, name='game_update_async'),
+    path('update_game/<int:pk_tevent>/<int:pk_tstage>/<int:pk>', GameUpGameView.as_view(), name='update_game'),
     
 
     path('game_plan/', static_views.game_plan, name='game_plan'),

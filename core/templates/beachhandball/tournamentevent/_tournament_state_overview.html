@@ -26,42 +26,5 @@
 </div>
 <h4>Games</h4>
 <div class="table-responsive">
-    <table class="table table-striped">
-        <thead>
-        <tr>
-            <th>Startzeit</th>
-            <th>ID</th>
-            <th>Team A</th>
-            <th>Team B</th>
-            <th class="text-center">Court</th>
-            <th class="text-center">HT1</th>
-            <th class="text-center">HT2</th>
-            <th class="text-center">P</th>
-            <th>Actions</th>
-        </tr>
-        </thead>
-        {% for game in tstate.game_set.all %}
-        <tr>
-            <td>{{ game.starttime|date:"H:i (d.m.Y)" }}</td>
-            <td>{{ game.id }}</td>
-            <td>{{ game.team_st_a.team.abbreviation }}</td>
-            <td>{{ game.team_st_b.team.abbreviation }}</td>
-            <td class="text-center">{{ game.court.name }}</td>
-            <td class="text-center">{{ game.score_team_a_halftime_1 }}:{{ game.score_team_b_halftime_1 }}</td>
-            <td class="text-center">{{ game.score_team_a_halftime_2 }}:{{ game.score_team_b_halftime_2 }}</td>
-            <td class="text-center">{{ game.score_team_a_penalty }}:{{ game.score_team_b_penalty }}</td>
-            <td class="td-actions text-right">
-                <button type="button" class="update_game btn btn-success btn-link" data-form-url="{% url 'structure_setup.update_game' pk_tevent=tevent.id pk_tstage=stage.id pk=game.id %}">
-                    <i class="material-icons">edit</i>
-                </button>
-                <button type="button" rel="tooltip" class="btn btn-info btn-link">
-                    <i class="material-icons">person</i>
-                </button>
-                <button type="button" rel="tooltip" class="btn btn-danger btn-link">
-                    <i class="material-icons">close</i>
-                </button>
-            </td>
-        </tr>
-        {% endfor %}
-    </table>
+    {% include "beachhandball/tournamentevent/_games_table.html" %}
 </div>

@@ -188,9 +188,32 @@
           }
           updateTTTModalForm();
 
+          var asyncSuccessMessage = [
+            "<div ",
+            "style='position:fixed;top:0;z-index:10000;width:100%;border-radius:0;' ",
+            "class='alert alert-icon alert-success alert-dismissible fade show mb-0' role='alert'>",
+            "Success: Game was updated.",
+            "<button type='button' class='close' data-dismiss='alert' aria-label='Close'>",
+            "<span aria-hidden='true'>&times;</span>",
+            "</button>",
+            "</div>",
+            "<script>",
+            "<\/script>"
+          ].join();
           function updateGameModalForm() {
             $(".update_game").each(function () {
-                $(this).modalForm({formURL: $(this).data("form-url"), isDeleteForm: false});
+              console.debug('#' + $(this).closest('table')[0].id);
+                $(this).modalForm({formURL: $(this).data("form-url"),
+                 asyncUpdate: true,
+                 asyncSettings: {
+                    closeOnSubmit: true,
+                    successMessage: asyncSuccessMessage,
+                    dataUrl: $(this).data("list-url"),
+                    dataElementId: '#' + $(this).closest('table')[0].id,
+                    dataKey: "table",
+                    addModalFormFunction: updateGameModalForm
+                  }
+              });
             });
           }
           updateGameModalForm();
