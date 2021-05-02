@@ -1,7 +1,7 @@
 [client]
-database = beachhandball2021
-host = 62.75.141.167
-user = tim
+database = bh
+host = 127.0.0.1
+user = root
 password = qs12fhw5
 default-character-set = utf8
 #host = 62.75.170.12
