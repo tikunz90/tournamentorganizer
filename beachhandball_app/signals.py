@@ -45,16 +45,12 @@ def create_new_tournamentstate(sender, instance, created, **kwargs):
                                                 tournamentstate=instance,
                                                 name=tstat.first().name_table,
                                                 is_dummy=True,
-                                                category=instance.tournament_event.category,
-                                                location='dummmy',
-                                                nationality='GER')
+                                                category=instance.tournament_event.category)
             team_b, cr = Team.objects.get_or_create(tournament_event=instance.tournament_event,
                                                 tournamentstate=instance,
                                                 name=tstat.last().name_table,
                                                 is_dummy=True,
-                                                category=instance.tournament_event.category,
-                                                location='dummmy',
-                                                nationality='GER')
+                                                category=instance.tournament_event.category)
             team_a.save()
             team_b.save()
             g, cr = Game.objects.get_or_create(tournament=instance.tournament_event,
@@ -79,9 +75,7 @@ def create_new_tournamentstate(sender, instance, created, **kwargs):
                                                             tournamentstate=instance,
                                                             name=act_team_stat.name_table,
                                                             is_dummy=True,
-                                                            category=instance.tournament_event.category,
-                                                            location='dummmy',
-                                                            nationality='GER')
+                                                            category=instance.tournament_event.category)
                 else:
                     team_a = act_team_stat.team
                 team_a.save()
@@ -91,9 +85,7 @@ def create_new_tournamentstate(sender, instance, created, **kwargs):
                                                                 tournamentstate=instance,
                                                                 name=team_stat_b.name_table,
                                                                 is_dummy=True,
-                                                                category=instance.tournament_event.category,
-                                                                location='dummmy',
-                                                                nationality='GER')
+                                                                category=instance.tournament_event.category)
                         team_b.save()
                     else:
                         team_b = team_stat_b.team
