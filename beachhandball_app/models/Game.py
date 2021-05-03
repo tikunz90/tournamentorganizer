@@ -32,7 +32,7 @@ class Game(models.Model):
     starttime = UnixDateTimeField(db_column='start_ts', default=timezone.now)
     duration_of_halftime = models.IntegerField(default=600)
     number_of_penalty_tries = models.SmallIntegerField(default=5)
-    court = models.ForeignKey('Court', null=True, on_delete=models.SET_NULL)
+    court = models.ForeignKey('Court', blank=True, null=True, on_delete=models.SET_NULL)
     score_team_a_halftime_1 = models.SmallIntegerField(default=0, blank=True, null=True)
     score_team_a_halftime_2 = models.SmallIntegerField(default=0, blank=True, null=True)
     score_team_a_penalty = models.SmallIntegerField(default=0, blank=True, null=True)

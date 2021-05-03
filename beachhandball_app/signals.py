@@ -3,7 +3,7 @@ from datetime import datetime
 from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
 
-from .models.Tournament import Tournament, TournamentState, TournamentTeamTransition
+from .models.Tournament import Tournament, TournamentState, TournamentTeamTransition, Court
 from .models.Team import Team, TeamStats
 from .models.Game import Game
 
@@ -39,16 +39,16 @@ def create_new_tournamentstate(sender, instance, created, **kwargs):
         
         # Create dummy games
         tstat = TeamStats.objects.all().filter(tournamentstate=instance)
-
+        court = Court.objects.filter(tournament=instance.tournament_event.tournament).first()
         if tstat.count() == 2:
-            team_a, cr = Team.objects.get_or_create(tournament=instance.tournament,
+            team_a, cr = Team.objects.get_or_create(tournament_event=instance.tournament_event,
                                                 tournamentstate=instance,
                                                 name=tstat.first().name_table,
                                                 is_dummy=True,
                                                 category=instance.tournament_event.category,
                                                 location='dummmy',
                                                 nationality='GER')
-            team_b, cr = Team.objects.get_or_create(tournament=instance.tournament,
+            team_b, cr = Team.objects.get_or_create(tournament_event=instance.tournament_event,
                                                 tournamentstate=instance,
                                                 name=tstat.last().name_table,
                                                 is_dummy=True,
@@ -63,6 +63,7 @@ def create_new_tournamentstate(sender, instance, created, **kwargs):
                                                 team_b=team_b,
                                                 team_st_b=tstat.last(),
                                                 tournament_state=instance,
+                                                court=court,
                                                 gamestate='APPENDING',
                                                 gamingstate='Ready')
             g.save()
@@ -74,7 +75,7 @@ def create_new_tournamentstate(sender, instance, created, **kwargs):
             while len(teams) > 1:
                 act_team_stat = teams.pop(0)
                 if act_team_stat.team is None:
-                    team_a, cr = Team.objects.get_or_create(tournament=instance.tournament,
+                    team_a, cr = Team.objects.get_or_create(tournament_event=instance.tournament_event,
                                                             tournamentstate=instance,
                                                             name=act_team_stat.name_table,
                                                             is_dummy=True,
@@ -86,7 +87,7 @@ def create_new_tournamentstate(sender, instance, created, **kwargs):
                 team_a.save()
                 for team_stat_b in teams:
                     if team_stat_b.team is None:
-                        team_b, cr = Team.objects.get_or_create(tournament=instance.tournament,
+                        team_b, cr = Team.objects.get_or_create(tournament_event=instance.tournament_event,
                                                                 tournamentstate=instance,
                                                                 name=team_stat_b.name_table,
                                                                 is_dummy=True,
@@ -103,6 +104,7 @@ def create_new_tournamentstate(sender, instance, created, **kwargs):
                                                         team_b=team_b,
                                                         team_st_b=team_stat_b,
                                                         tournament_state=instance,
+                                                        court=court,
                                                         gamestate='APPENDING',
                                                         gamingstate='Ready')
                     g.save()
