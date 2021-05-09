@@ -51,6 +51,7 @@ class TeamStats(models.Model):
     number_of_played_games = models.SmallIntegerField(blank=True, null=True, default=0)
     game_points = models.SmallIntegerField(blank=True, null=True, default=0)
     game_points_bonus = models.SmallIntegerField(blank=True, null=True, default=0)
+    ranking_points = models.SmallIntegerField(blank=True, null=True, default=0)
     sets_win = models.SmallIntegerField( blank=True, null=True, default=0)
     sets_loose = models.SmallIntegerField(blank=True, null=True, default=0)
     points_made = models.SmallIntegerField(blank=True, null=True, default=0)
@@ -97,6 +98,7 @@ class TeamStats(models.Model):
     class Meta:
         # managed = False
         db_table = 'bh_team_stats'
+        ordering = ['ranking_points']
 
 
 class TeamTournamentResult(models.Model):

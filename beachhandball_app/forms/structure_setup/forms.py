@@ -1,12 +1,18 @@
+from django.shortcuts import get_object_or_404
 from beachhandball_app.models.Game import Game
 from beachhandball_app.models.Team import Team, TeamStats
 from django import forms
 from django.forms import ModelForm
-from ...models.Tournament import TournamentState, TournamentStage, TournamentTeamTransition
+from ...models.Tournament import TournamentEvent, TournamentState, TournamentStage, TournamentTeamTransition
 
 from colorfield.widgets import ColorWidget
 from bootstrap_modal_forms.forms import BSModalModelForm
 
+"""
+
+Tournament Stage Forms
+
+"""
 class TournamentStageForm(BSModalModelForm):
 
     def clean(self):
@@ -38,6 +44,12 @@ class TournamentStageForm(BSModalModelForm):
         #        else:
         #            visible.field.widget.attrs['class'] = 'form-control'
 
+
+"""
+
+Tournament State Forms
+
+"""
 
 class TournamentStateForm(BSModalModelForm):
 
@@ -77,6 +89,12 @@ class TournamentStateUpdateForm(BSModalModelForm):
         }
 
 
+"""
+
+Team Stats Forms
+
+"""
+
 class TeamStatsUpdateTeamForm(BSModalModelForm):
 
     def clean(self):
@@ -92,6 +110,12 @@ class TeamStatsUpdateTeamForm(BSModalModelForm):
         self.fields['team'].queryset = Team.objects.filter(is_dummy=False)
 
 
+"""
+
+Tournament Team Transisiton Forms
+
+"""
+
 class TTTUpdateForm(BSModalModelForm):
 
     def clean(self):
@@ -102,12 +126,58 @@ class TTTUpdateForm(BSModalModelForm):
         model = TournamentTeamTransition
         fields = ['target_ts_id', 'target_rank']
 
+"""
 
+Game Forms
+
+"""
 class GameUpdateForm(BSModalModelForm):
+    disabled_fields = ('tournament_state',)
 
     def clean(self):
         cleaned_data = super(GameUpdateForm, self).clean()
         return cleaned_data
     class Meta:
         model = Game
-        fields = '__all__'
+        fields = ('team_st_a', 'team_st_b', 'tournament_state', 'starttime', 'court', 'gamestate', 'gamingstate', 'scouting_state')
+        labels = {
+            'team_st_a': 'Team A:',
+            'team_st_b': 'Team B:',
+        }
+
+    def __init__(self, *args, **kwargs):
+        super(GameUpdateForm, self).__init__(*args, **kwargs)
+        for field in self.disabled_fields:
+            self.fields[field].disabled = True
+        
+class GameUpdateResultForm(BSModalModelForm):
+
+    def clean(self):
+        cleaned_data = super(GameUpdateResultForm, self).clean()
+        return cleaned_data
+    class Meta:
+        model = Game
+        fields = ('score_team_a_halftime_1', 'score_team_a_halftime_2', 'score_team_a_penalty', 'score_team_b_halftime_1', 'score_team_b_halftime_2', 'score_team_b_penalty')
+        labels = {
+            'score_team_a_halftime_1': 'Score',
+        }
+
+
+class GameForm(BSModalModelForm):
+
+    def clean(self):
+        print('Clean Game')
+        cleaned_data = super(GameForm, self).clean()
+       
+        #if TournamentState.objects.filter(name = name, tournament_stage=tstage).exists():
+        #    self.add_error('name', 'Already exists!')
+        
+
+        # Always return a value to use as the new cleaned data, even if
+        # this method didn't change it.
+        return cleaned_data
+    
+    
+    class Meta:
+        model = Game
+        exclude = []

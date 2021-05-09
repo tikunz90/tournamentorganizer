@@ -9,6 +9,8 @@ https://github.com/trco/django-bootstrap-modal-forms
 
     // Open modal & load the form at formURL to the modalContent element
     var modalForm = function (settings) {
+        console.debug($(settings.modalID));
+        console.debug($(settings.modalID).find(settings.modalContent));
         $(settings.modalID).find(settings.modalContent).load(settings.formURL, function () {
             $(settings.modalID).modal("show");
             $(settings.modalForm).attr("action", settings.formURL);
@@ -82,7 +84,7 @@ https://github.com/trco/django-bootstrap-modal-forms
                         if (body.length === 0) {
                             console.error("django-bootstrap-modal-forms: <body> element missing in your html.");
                         }
-                        body.prepend(asyncSettings.successMessage);
+                        //body.prepend(asyncSettings.successMessage);
     
                         // Update page without refresh
                         $.ajax({

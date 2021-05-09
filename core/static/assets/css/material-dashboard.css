@@ -4001,6 +4001,19 @@ button.close {
   box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.5);
   outline: 0; }
 
+.modal-content-game {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 150%;
+  pointer-events: auto;
+  background-color: #ffffff;
+  background-clip: padding-box;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  border-radius: 0.3rem;
+  box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.5);
+  outline: 0; }
+
 .modal-backdrop {
   position: fixed;
   top: 0;
@@ -4055,12 +4068,14 @@ button.close {
 
 @media (min-width: 576px) {
   .modal-dialog {
-    max-width: 500px;
+    max-width: 750px;
     margin: 1.75rem auto; }
   .modal-dialog-centered {
     min-height: calc(100% - (1.75rem * 2)); }
   .modal-content {
     box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.5); }
+  .modal-content-game {
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.5); }  
   .modal-sm {
     max-width: 300px; } }
 
@@ -9870,13 +9885,13 @@ h2.title {
   line-height: 1.4;
   color: #555; }
 
-.modal-dialog .modal-content {
+.modal-dialog .modal-content .modal-content-game {
   box-shadow: 0 27px 24px 0 rgba(0, 0, 0, 0.2), 0 40px 77px 0 rgba(0, 0, 0, 0.22);
   border-radius: 6px;
   border: none; }
-  .modal-dialog .modal-content .card-signup {
+  .modal-dialog .modal-content .modal-content-game .card-signup {
     margin: 0; }
-    .modal-dialog .modal-content .card-signup .modal-header {
+    .modal-dialog .modal-content .modal-content-game .card-signup .modal-header {
       padding-top: 0; }
 
 .modal-dialog .close:focus {
@@ -9972,7 +9987,7 @@ h2.title {
 .modal-notice .picture {
   max-width: 150px; }
 
-.modal-notice .modal-content .btn-raised {
+.modal-notice .modal-content .modal-content-game .btn-raised {
   margin-bottom: 15px; }
 
 .modal-small {

@@ -1,0 +1,146 @@
+{% load widget_tweaks %}
+
+<form method="post" action="">
+  {% csrf_token %}
+
+  <div class="modal-header justify-content-center">
+  <div class="container">
+    <div class="row">
+      <div class="col-md">
+        <h3><b>Team A</b></h3>
+      </div>
+      <div class="col-md">
+        <h3 class="modal-title"><b>{{ object.team_st_a.team.name }} vs. {{ object.team_st_b.team.name }}</b></h3>
+      </div>
+      <div class="col-md text-right">
+        <h3><b>Team B</b></h3>
+      </div>
+      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+    <hr>
+    <div class="container">
+      <div class="row">
+        <div class="col-md">
+          <h4>{{ game.starttime|date:"H:i (d.m.Y)" }}</h4>
+        </div>
+        <div class="col-md">
+          <h4>{{ object.tournament_state }}</h4>
+        </div>
+        <div class="col-md">
+          <h4>Court: {{ object.court }}</h4>
+        </div>
+      </div>
+      <hr>
+      <div class="row">
+        <div class="col-md">
+          <h4>Status: {{ game.gamestate }}</h4>
+        </div>
+        <div class="col-md">
+          <h4></h4>
+        </div>
+        <div class="col-md">
+          <h4>Scouting: {{ object.scouting_state }}</h4>
+        </div>
+      </div>
+      <hr>
+    </div>
+  </div>
+  </div>
+
+  <div class="modal-body">
+    <div class="{% if form.non_field_errors %}invalid{% endif %} mb-2">
+      {% for error in form.non_field_errors %}
+        {{ error }}
+      {% endfor %}
+    </div>
+    <div class="container">
+      <div class="row">
+        <div class="col-sm">
+          <div class="card">
+            <div class="card-header">
+              <h4><b>1. Halftime Scores</b></h4>
+            </div>
+            <div class="card-body">
+              <div class="row">
+                <div class="col-md align-self-center">Team A:</div>
+                <div class="col-md">
+                  <div class="form-group">
+                      {% render_field form.score_team_a_halftime_1 class="form-control" %}
+                  </div>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-md align-self-center">Team B:</div>
+                <div class="col-md">
+                  <div class="form-group">
+                      {% render_field form.score_team_b_halftime_1 class="form-control" %}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-sm">
+          <div class="card">
+            <div class="card-header">
+              <h4><b>2. Halftime Scores</b></h4>
+            </div>
+            <div class="card-body">
+              <div class="row">
+                <div class="col-md align-self-center">Team A:</div>
+                <div class="col-md">
+                  <div class="form-group">
+                      {% render_field form.score_team_a_halftime_2 class="form-control" %}
+                  </div>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-md align-self-center">Team B:</div>
+                <div class="col-md">
+                  <div class="form-group">
+                      {% render_field form.score_team_b_halftime_2 class="form-control" %}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-sm">
+          <div class="card">
+            <div class="card-header">
+              <h4><b>Penalty Scores</b></h4>
+            </div>
+            <div class="card-body">
+              <div class="row">
+                <div class="col-md align-self-center">Team A:</div>
+                <div class="col-md">
+                  <div class="form-group">
+                      {% render_field form.score_team_a_penalty class="form-control" %}
+                  </div>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-md align-self-center">Team B:</div>
+                <div class="col-md">
+                  <div class="form-group">
+                      {% render_field form.score_team_b_penalty class="form-control" %}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    
+
+  </div>
+
+  <div class="modal-footer">
+    <button type="submit" class="btn btn-primary">Update</button>
+  </div>
+
+</form>

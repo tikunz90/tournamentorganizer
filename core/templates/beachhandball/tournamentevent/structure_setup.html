@@ -202,7 +202,6 @@
           ].join();
           function updateGameModalForm() {
             $(".update_game").each(function () {
-              console.debug('#' + $(this).closest('table')[0].id);
                 $(this).modalForm({formURL: $(this).data("form-url"),
                  asyncUpdate: true,
                  asyncSettings: {
@@ -218,10 +217,56 @@
           }
           updateGameModalForm();
 
+          var asyncSuccessMessage2 = [
+            "<div>",
+            "</div>",
+            "<script>",
+            "<\/script>"
+          ].join();
+
+          function updateGameResultModalForm() {
+            $(".update-game-result").each(function () {
+              console.debug('#' + $(this).closest('table')[0].id);
+                $(this).modalForm({
+                  modalID: "#game-modal",
+                  formURL: $(this).data("form-url"),
+                 asyncUpdate: true,
+                 asyncSettings: {
+                    closeOnSubmit: true,
+                    successMessage: asyncSuccessMessage2,
+                    dataUrl: $(this).data("list-url"),
+                    dataElementId: '#' + $(this).closest('table')[0].id,
+                    dataKey: "table",
+                    addModalFormFunction: reinstantiateModalForms
+                  }
+              });
+            });
+          }
+          updateGameResultModalForm();
+
+          function deleteGameModalForm() {
+            $(".delete-game").each(function () {
+                $(this).modalForm({formURL: $(this).data("form-url"), isDeleteForm: true});
+            });
+          }
+          deleteGameModalForm();
+
+          // Create tstate synchronous
+          function createGameSyncModalForm() {
+            $(".create-game").each(function () {
+                $(this).modalForm({formURL: $(this).data("form-url")});
+            });
+          }
+          createGameSyncModalForm();
+
           function reinstantiateModalForms() {
             deleteStageModalForm();
             createStateSyncModalForm();
             deleteStateModalForm();
+            deleteGameModalForm();
+            createGameSyncModalForm();
+            updateGameModalForm();
+            updateGameResultModalForm();
           }
 
             

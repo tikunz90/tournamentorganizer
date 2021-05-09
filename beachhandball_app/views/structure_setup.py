@@ -11,8 +11,7 @@ from django.urls import reverse_lazy
 from django.http import JsonResponse
 from django.template.loader import render_to_string
 from django.contrib.messages.views import SuccessMessageMixin
-
-from beachhandball_app.helper import reverse_querystring
+from beachhandball_app.helper import reverse_querystring, calculate_tstate
 
 from bootstrap_modal_forms.generic import BSModalCreateView, BSModalDeleteView, BSModalUpdateView
 
@@ -20,7 +19,7 @@ from ..models.Tournament import Tournament, TournamentEvent, TournamentStage, To
 from ..models.Series import Season
 from ..models.Team import Team, TeamStats
 
-from beachhandball_app.forms.structure_setup.forms import GameUpdateForm, TTTUpdateForm, TournamentStageForm, TournamentStateForm, TournamentStateUpdateForm, TeamStatsUpdateTeamForm
+from beachhandball_app.forms.structure_setup.forms import GameUpdateForm, GameUpdateResultForm, TTTUpdateForm, TournamentStageForm, TournamentStateForm, TournamentStateUpdateForm, TeamStatsUpdateTeamForm, GameForm
 
 from beachhandball_app import static_views
 
@@ -178,9 +177,26 @@ class TTTUpdateView(BSModalUpdateView):
 
 class GameUpGameView(BSModalUpdateView):
     model = Game
-    template_name = 'beachhandball/templates/update_form.html'
+    template_name = 'beachhandball/templates/update_game_form.html'
     form_class = GameUpdateForm
     success_message = 'Success: Game was updated.'
+
+    def dispatch(self, request, *args, **kwargs):
+        # here you can make your custom validation for any particular user
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        game = self.object
+        context = super(GameUpGameView, self).get_context_data(**kwargs)
+        
+        tstate = game.tournament_state
+        qTeamStats = TeamStats.objects.filter(tournamentstate=tstate)
+        qTeams = Team.objects.filter(is_dummy=False)
+        context['form'].fields['team_st_a'].queryset = qTeamStats
+        context['form'].fields['team_st_b'].queryset = qTeamStats
+        #context['form'].fields['team_a'].queryset = qTeams
+        #context['form'].fields['team_b'].queryset = qTeams
+        return context
     
     def form_valid(self, form):
         # This method is called when valid form data has been POSTed.
@@ -194,3 +210,60 @@ class GameUpGameView(BSModalUpdateView):
     def get_success_url(self):
            pk = self.kwargs["pk_tevent"]
            return reverse_querystring("structure_setup.detail", kwargs={"pk": pk}, query_kwargs={'tab': self.kwargs["pk_tstage"], 'tab_tstate': 0})
+
+
+class GameResultGameView(BSModalUpdateView):
+    model = Game
+    template_name = 'beachhandball/templates/update_game_result_form.html'
+    form_class = GameUpdateResultForm
+    success_message = 'Success: GameResult was updated.'
+    
+    def form_valid(self, form):
+        # This method is called when valid form data has been POSTed.
+        # It should return an HttpResponse.
+        tevent = get_object_or_404(TournamentEvent, id=self.kwargs.get('pk_tevent'))
+        tstage = get_object_or_404(TournamentStage, id=self.kwargs.get('pk_tstage'))
+        form.instance.tournament_event = tevent
+        form.instance.tournament_stage = tstage
+        #calculate_tstate(self.object.tournament_state)
+        return super().form_valid(form)
+
+    def get_success_url(self):
+           pk = self.kwargs["pk_tevent"]
+           return reverse_querystring("structure_setup.detail", kwargs={"pk": pk}, query_kwargs={'tab': self.kwargs["pk_tstage"], 'tab_tstate': 0})
+
+class GameDeleteView(BSModalDeleteView):
+    model = Game
+    template_name = 'beachhandball/tournamentevent/delete_game.html'
+    success_message = 'Success: Game was deleted.'
+
+    def get_success_url(self):
+           pk = self.kwargs["pk_tevent"]
+           return reverse_querystring("structure_setup.detail", kwargs={"pk": pk}, query_kwargs={'tab': self.kwargs["pk_tstage"], 'tab_tstate': 0})
+
+
+class GameCreateView(BSModalCreateView):
+    template_name = 'beachhandball/templates/create_form.html'
+    form_class = GameForm
+    success_message = 'Success: State was created.'
+
+    def get_initial(self):
+        tevent = get_object_or_404(TournamentEvent, id=self.kwargs.get('pk_tevent'))
+        tstage = get_object_or_404(TournamentStage, id=self.kwargs.get('pk_tstage'))
+        return {
+            'tournament_event':tevent,
+            'tournament_stage':tstage,
+        }
+    
+    def form_valid(self, form):
+        # This method is called when valid form data has been POSTed.
+        # It should return an HttpResponse.
+        tevent = get_object_or_404(TournamentEvent, id=self.kwargs.get('pk_tevent'))
+        tstage = get_object_or_404(TournamentStage, id=self.kwargs.get('pk_tstage'))
+        form.instance.tournament_event = tevent
+        form.instance.tournament_stage = tstage
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        pk = self.kwargs["pk_tevent"]
+        return reverse_querystring("structure_setup.detail", kwargs={"pk": pk}, query_kwargs={'tab': self.kwargs["pk_tstage"], 'tab_tstate': 0})

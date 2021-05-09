@@ -6,7 +6,8 @@ Copyright (c) 2019 - present AppSeed.us
 from django.urls import path, re_path
 from beachhandball_app import static_views
 from beachhandball_app.views.teams_setup import TeamsSetupDetail
-from beachhandball_app.views.structure_setup import GameUpGameView, StructureSetupDetail, StageCreateView, StageDeleteView, StateCreateView, StateDeleteView, StateUpdateView, TTTUpdateView, TeamStatsUpdateTeamView
+from beachhandball_app.views.structure_setup import GameCreateView, GameResultGameView, GameUpGameView, StructureSetupDetail, StageCreateView, StageDeleteView, StateCreateView, StateDeleteView, StateUpdateView, TTTUpdateView, TeamStatsUpdateTeamView, GameDeleteView
+from beachhandball_app.views.structure_setup_fb import games_list
 
 from django.views.generic import TemplateView
 
@@ -32,9 +33,12 @@ urlpatterns = [
     path('structure_setup/<int:pk_tevent>/<int:pk_tstage>/update_tstate/<int:pk>/', StateUpdateView.as_view(), name='structure_setup.update_tstate'),
     path('structure_setup/<int:pk_tevent>/<int:pk_tstage>/update_teamstatsteam/<int:pk>/', TeamStatsUpdateTeamView.as_view(), name='structure_setup.update_teamstatsteam'),
     path('structure_setup/<int:pk_tevent>/<int:pk_tstage>/update_tttransition/<int:pk>/', TTTUpdateView.as_view(), name='structure_setup.update_tttransition'),
+    path('structure_setup/<int:pk_tevent>/<int:pk_tstage>/<int:pk_tstate>/create_game/', GameCreateView.as_view(), name='structure_setup.create_game'),
     path('structure_setup/<int:pk_tevent>/<int:pk_tstage>/update_game/<int:pk>/', GameUpGameView.as_view(), name='structure_setup.update_game'),
-    path('structure_setup/<int:pk_tstate>/games/', static_views.game_update, name='game_update_async'),
-    path('update_game/<int:pk_tevent>/<int:pk_tstage>/<int:pk>', GameUpGameView.as_view(), name='update_game'),
+    path('structure_setup/<int:pk_tevent>/<int:pk_tstage>/delete_game/<int:pk>/', GameDeleteView.as_view(), name='structure_setup.delete_game'),
+    path('structure_setup/<int:pk_tstate>/games/', games_list, name='games_list'),
+    path('structure_setup/<int:pk_tevent>/<int:pk_tstage>/update_game/<int:pk>', GameUpGameView.as_view(), name='update_game'),
+    path('structure_setup/<int:pk_tevent>/<int:pk_tstage>/update_game_result/<int:pk>', GameResultGameView.as_view(), name='update_game_result'),
     
 
     path('game_plan/', static_views.game_plan, name='game_plan'),
