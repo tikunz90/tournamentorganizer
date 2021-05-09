@@ -18,7 +18,7 @@
             <td class="text-center">{{ tstat.number_of_played_games }}</td>
             <td class="text-center">{{ tstat.sets_win }}:{{ tstat.sets_loose }}</td>
             <td class="text-center">{{ tstat.points_made }}:{{ tstat.points_received }}</td>
-            <td class="text-center"><b>{{ tstat.game_points }}</b></td>
+            <td class="text-center"><b>{{ tstat.game_points }} ({{tstat.ranking_points}})</b></td>
             </tr>
         {% endfor %}
     </tbody>

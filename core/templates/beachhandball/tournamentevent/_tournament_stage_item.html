@@ -15,7 +15,7 @@
     <div class="card">
     <div class="card-body">
         <div class="row">
-        {% for tstate in stage.tournamentstate_set.all %}
+        {% for tstate in stage.get_tstates_without_finalranking.all %}
             {% include "beachhandball/tournamentevent/_tournament_state_item.html" %}
         {% empty %}
         <h3>{{ stage.name }}No states exists!</h3>

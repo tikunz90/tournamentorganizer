@@ -98,7 +98,7 @@ class TeamStats(models.Model):
     class Meta:
         # managed = False
         db_table = 'bh_team_stats'
-        ordering = ['ranking_points']
+        ordering = ['-ranking_points']
 
 
 class TeamTournamentResult(models.Model):

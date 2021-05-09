@@ -60,6 +60,10 @@ class TournamentEvent(models.Model):
     @property
     def name_short(self):
         return '{} {}'.format(self.name, self.category)
+    
+    @property
+    def get_final_tstate(self):
+        return self.tournamentstate_set.filter(is_final=True)
 
     def __unicode__(self):
         return '{} - {}  von {} - {}'.format(self.name, self.category, self.start_ts, self.end_ts)
@@ -103,7 +107,7 @@ class TournamentState(models.Model):
     """
     created_at = UnixDateTimeField(editable=False, default=timezone.now)
 
-    tournament_event = models.ForeignKey('TournamentEvent', null=True, related_name='+', on_delete=models.CASCADE)
+    tournament_event = models.ForeignKey('TournamentEvent', null=True, on_delete=models.CASCADE)
     tournament_state = models.CharField(max_length=20, choices=TOURNAMENT_STATE_CHOICES, blank=True)
     tournament_stage = models.ForeignKey('TournamentStage', null=True, on_delete=models.CASCADE)
     name = models.CharField(db_column='name', max_length=50)
@@ -165,6 +169,10 @@ class TournamentStage(models.Model):
     short_name = models.CharField( max_length=5, default="", help_text="You have 5 characters to describe this stage")
     tournament_stage = models.CharField(max_length=20, choices=TOURNAMENT_STAGE_TYPE_CHOICES, blank=True)
     order = models.SmallIntegerField(default=0)
+
+    @property
+    def get_tstates_without_finalranking(self):
+        return self.tournamentstate_set.filter(is_final=False)
 
     def __str__(self):
         return '{} ({})'.format(self. name, self.tournament_event.name)

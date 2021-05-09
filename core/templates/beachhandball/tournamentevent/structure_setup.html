@@ -102,21 +102,16 @@
     </div>
   </div>
 </div>
-<ul>
-{% for tst in tevent.tournamentstage_set.all %}
-    <li>{{ tst.name }} {{ tst.order }}</li>
-{% empty %}
-    <li>No Stages defined. Please add</li>
-{% endfor %}
-</ul>
-<h3>From View</h3>
-<ul>
-{% for tst in tst_view %}
-    <li>{{ tst.name }}</li>
-{% empty %}
-    <li>Sorry, no StateTypes in this list.</li>
-{% endfor %}
-</ul>
+<hr>
+<h2>Final Ranking 
+  <small class="description"></small>
+</h2>
+<div class="row">
+  {% for tstate in tevent.get_final_tstate.all %}
+    {% include "beachhandball/tournamentevent/_tournament_state_final_ranking.html" %}
+  {% empty %}
+  {% endfor %}
+</div>
 
 {% endblock content %}
 
