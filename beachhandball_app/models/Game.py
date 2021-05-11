@@ -24,8 +24,8 @@ class Game(models.Model):
     )
 
     tournament = models.ForeignKey('TournamentEvent', null=True, related_name='+', on_delete=models.CASCADE)
-    team_a = models.ForeignKey('Team', null=True, related_name='+', on_delete=models.CASCADE)
-    team_b = models.ForeignKey('Team', null=True, on_delete=models.CASCADE)
+    #team_a = models.ForeignKey('Team', null=True, related_name='+', on_delete=models.CASCADE)
+    #team_b = models.ForeignKey('Team', null=True, on_delete=models.CASCADE)
     team_st_a = models.ForeignKey('TeamStats', null=True, related_name='+', on_delete=models.CASCADE)
     team_st_b = models.ForeignKey('TeamStats', null=True, related_name='+', on_delete=models.CASCADE)
     tournament_state = models.ForeignKey('TournamentState', null=True, on_delete=models.CASCADE)
@@ -53,10 +53,10 @@ class Game(models.Model):
     scouting_state = models.CharField(max_length=9, blank=True, null=True, choices=GAMESTATE_SCOUTING_CHOICES)
 
     def __unicode__(self):
-        return '{}: {} - {} um {}'.format(self.tournament_state, self.team_a, self.team_b, self.starttime)
+        return '{}: {} - {} um {}'.format(self.tournament_state, self.team_st_a, self.team_st_b, self.starttime)
 
     def __str__(self):
-        return '{}: {} - {} um {}'.format(self.tournament_state, self.team_a, self.team_b, self.starttime)
+        return '{}: {} - {} um {}'.format(self.tournament_state, self.team_st_a, self.team_st_b, self.starttime)
 
     def calc_winner(self):
         try:
@@ -71,18 +71,18 @@ class Game(models.Model):
                 self.winner_halftime_2 = 0
                 self.winner_penalty = 0
                 if sc_ta_ht1 > sc_tb_ht1:
-                    self.winner_halftime_1 = self.team_a.id
+                    self.winner_halftime_1 = self.team_st_a.team.id
                 else:
-                    self.winner_halftime_1 = self.team_b.id
+                    self.winner_halftime_1 = self.team_st_b.team.id
                 if sc_ta_ht2 > sc_tb_ht2:
-                    self.winner_halftime_2 = self.team_a.id
+                    self.winner_halftime_2 = self.team_st_a.team.id
                 else:
-                    self.winner_halftime_2 = self.team_b.id
+                    self.winner_halftime_2 = self.team_st_b.team.id
                 if self.winner_halftime_1 is not self.winner_halftime_2:
                     if sc_ta_htp > sc_tb_htp:
-                        self.winner_penalty = self.team_a.id
+                        self.winner_penalty = self.team_st_a.team.id
                     else:
-                        self.winner_penalty = self.team_b.id
+                        self.winner_penalty = self.team_st_b.team.id
         except Exception as ex:
             return ex
         finally:

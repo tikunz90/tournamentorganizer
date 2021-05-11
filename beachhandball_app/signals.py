@@ -20,7 +20,7 @@ def create_new_tournament_event(sender, instance, created, **kwargs):
                                             tournament_state=TOURNAMENT_STATE_CHOICES[-1][1],
                                             name='Final Ranking',
                                             abbreviation='FR',
-                                            hierarchy=99999,
+                                            hierarchy=999,
                                             direct_compare=False,
                                             max_number_teams=instance.max_number_teams,
                                             is_final=True,
@@ -85,9 +85,9 @@ def create_new_tournamentstate(sender, instance, created, **kwargs):
                         team_b = team_stat_b.team
 
                     g, cr = Game.objects.get_or_create(tournament=instance.tournament_event,
-                                                        team_a=team_a,
+                                                        #team_a=team_a,
                                                         team_st_a=act_team_stat,
-                                                        team_b=team_b,
+                                                        #team_b=team_b,
                                                         team_st_b=team_stat_b,
                                                         tournament_state=instance,
                                                         court=court,
