@@ -115,8 +115,8 @@ def calculate_tstate(ts):
             g.gamingstate = 'Finished'
             g.save()
         #check_direct_compare(ts)
-    except:
-        print('')
+    except Exception as e:
+        print(e)
     finally:
         print('')
 
@@ -162,6 +162,12 @@ def create_teams_testdata(tevent):
     act_team_st, cr = Team.objects.get_or_create(tournament_event=tevent,
                                                 name='The Gang',
                                                 abbreviation='TGA',
+                                                gbo_team=0,
+                                                category=tcat)
+    act_team_st.save()
+    act_team_st, cr = Team.objects.get_or_create(tournament_event=tevent,
+                                                name='Loosers',
+                                                abbreviation='Loo',
                                                 gbo_team=0,
                                                 category=tcat)
     act_team_st.save()

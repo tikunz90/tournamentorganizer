@@ -103,7 +103,7 @@ class TeamStatsUpdateTeamForm(BSModalModelForm):
         return cleaned_data
     class Meta:
         model = TeamStats
-        fields = ['team', 'rank_initial']
+        fields = ['team']
 
     def __init__(self, *args, **kwargs):
         super(TeamStatsUpdateTeamForm, self).__init__(*args, **kwargs)
@@ -157,7 +157,7 @@ class GameUpdateResultForm(BSModalModelForm):
         return cleaned_data
     class Meta:
         model = Game
-        fields = ('score_team_a_halftime_1', 'score_team_a_halftime_2', 'score_team_a_penalty', 'score_team_b_halftime_1', 'score_team_b_halftime_2', 'score_team_b_penalty')
+        fields = ('score_team_a_halftime_1', 'score_team_a_halftime_2', 'score_team_a_penalty', 'score_team_b_halftime_1', 'score_team_b_halftime_2', 'score_team_b_penalty', 'gamestate')
         labels = {
             'score_team_a_halftime_1': 'Score',
         }
