@@ -44,4 +44,6 @@ urlpatterns = [
     path('game_plan/', static_views.game_plan, name='game_plan'),
     path('results/', static_views.results, name='results'),
 
+    path('team_testdata/<int:pk_tevent>/', static_views.create_teamtestdata, name='team_testdata'),
+
 ]

@@ -4,12 +4,27 @@ from django.db.models import signals
 from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
 
-from .models.Tournament import Tournament, TournamentState, TournamentTeamTransition, Court
+from .models.Tournament import Tournament, TournamentEvent, TournamentState, TournamentTeamTransition, Court
 from .models.Team import Team, TeamStats
 from .models.Game import Game
 
+from .models.choices import TOURNAMENT_STATE_CHOICES
+
 from .helper import calculate_tstate
 
+@receiver(post_save, sender=TournamentEvent)
+def create_new_tournament_event(sender, instance, created, **kwargs):
+    if created:
+        # create final ranking
+        ts = TournamentState.objects.create(tournament_event=instance,
+                                            tournament_state=TOURNAMENT_STATE_CHOICES[-1][1],
+                                            name='Final Ranking',
+                                            abbreviation='FR',
+                                            hierarchy=99999,
+                                            direct_compare=False,
+                                            max_number_teams=instance.max_number_teams,
+                                            is_final=True,
+                                            comment='')
 
 @receiver(post_save, sender=TournamentState)
 def create_new_tournamentstate(sender, instance, created, **kwargs):
@@ -39,34 +54,10 @@ def create_new_tournamentstate(sender, instance, created, **kwargs):
                                                               comment='')
             else:
                 print('Do Final Table')
-        
-        # Create dummy games
-        tstat = TeamStats.objects.all().filter(tournamentstate=instance)
-        court = Court.objects.filter(tournament=instance.tournament_event.tournament).first()
-        if tstat.count() == 2:
-            team_a, cr = Team.objects.get_or_create(tournament_event=instance.tournament_event,
-                                                tournamentstate=instance,
-                                                name=tstat.first().name_table,
-                                                is_dummy=True,
-                                                category=instance.tournament_event.category)
-            team_b, cr = Team.objects.get_or_create(tournament_event=instance.tournament_event,
-                                                tournamentstate=instance,
-                                                name=tstat.last().name_table,
-                                                is_dummy=True,
-                                                category=instance.tournament_event.category)
-            team_a.save()
-            team_b.save()
-            g, cr = Game.objects.get_or_create(tournament=instance.tournament_event,
-                                                team_a=team_a,
-                                                team_st_a=tstat.first(),
-                                                team_b=team_b,
-                                                team_st_b=tstat.last(),
-                                                tournament_state=instance,
-                                                court=court,
-                                                gamestate='APPENDING',
-                                                gamingstate='Ready')
-            g.save()
-        else:
+        if not instance.is_final:
+            # Create dummy games
+            tstat = TeamStats.objects.all().filter(tournamentstate=instance)
+            court = Court.objects.filter(tournament=instance.tournament_event.tournament).first()
             teams = []
             for ts_tmp in tstat:
                 teams.append(ts_tmp)

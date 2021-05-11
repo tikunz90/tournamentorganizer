@@ -3,6 +3,7 @@
 Copyright (c) 2019 - present AppSeed.us
 """
 
+from beachhandball_app import helper
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, get_object_or_404, redirect
 from django.template import loader
@@ -153,4 +154,16 @@ def pages(request):
     
         html_template = loader.get_template( 'page-500.html' )
         return HttpResponse(html_template.render(context, request))
+
+
+def create_teamtestdata(request, pk_tevent):
+    context = getContext(request)
+
+    helper.create_teams_testdata(pk_tevent)
+
+    context['segment'] = 'index'
+    context['segment_title'] = 'Overview'
+
+    html_template = loader.get_template( 'index.html' )
+    return HttpResponse(html_template.render(context, request))
 

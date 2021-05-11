@@ -1,5 +1,7 @@
+from beachhandball_app.models.Tournament import TournamentEvent
 from beachhandball_app.models.Game import Game
-from beachhandball_app.models.Team import TeamStats
+from beachhandball_app.models.Team import TeamStats, Team
+from beachhandball_app.models.General import TournamentCategory
 from django.utils.http import urlencode
 from django.urls import reverse
 
@@ -118,6 +120,51 @@ def calculate_tstate(ts):
     finally:
         print('')
 
+def create_teams_testdata(tevent):
+    tevent = TournamentEvent.objects.get(id=tevent)
+    tcat = TournamentCategory.objects.get(id=1)
+    act_team_st, cr = Team.objects.get_or_create(tournament_event=tevent,
+                                                name='DreamTeam',
+                                                abbreviation='DT',
+                                                gbo_team=0,
+                                                category=tcat)
+    act_team_st.save()
+    act_team_st, cr = Team.objects.get_or_create(tournament_event=tevent,
+                                                name='The Beachers',
+                                                abbreviation='TBS',
+                                                gbo_team=0,
+                                                category=tcat)
+    act_team_st.save()
+    act_team_st, cr = Team.objects.get_or_create(tournament_event=tevent,
+                                                name='SuperStars',
+                                                abbreviation='SuS',
+                                                gbo_team=0,
+                                                category=tcat)
+    act_team_st.save()
+    act_team_st, cr = Team.objects.get_or_create(tournament_event=tevent,
+                                                name='Beach Easy Team',
+                                                abbreviation='BET',
+                                                gbo_team=0,
+                                                category=tcat)
+    act_team_st.save()
+    act_team_st, cr = Team.objects.get_or_create(tournament_event=tevent,
+                                                name='DumpHeads',
+                                                abbreviation='DH',
+                                                gbo_team=0,
+                                                category=tcat)
+    act_team_st.save()
+    act_team_st, cr = Team.objects.get_or_create(tournament_event=tevent,
+                                                name='FlyingKack',
+                                                abbreviation='FK',
+                                                gbo_team=0,
+                                                category=tcat)
+    act_team_st.save()
+    act_team_st, cr = Team.objects.get_or_create(tournament_event=tevent,
+                                                name='The Gang',
+                                                abbreviation='TGA',
+                                                gbo_team=0,
+                                                category=tcat)
+    act_team_st.save()
 
 def getIntVal(val):
     if val is not None:

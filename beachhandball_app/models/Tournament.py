@@ -209,7 +209,7 @@ class TournamentTeamTransition(models.Model):
             data = "Rank {} from {} goes to {}".format(self.origin_rank, self.origin_ts_id.name_com,
                                                    self.target_ts_id.name_com)
         except:
-            data = "TTT.id: {}".format(self.id)
+            data = "Rank: {} State: {}".format(self.origin_rank, self.origin_ts_id)
         finally:
             return data
 

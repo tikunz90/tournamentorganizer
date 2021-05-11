@@ -112,6 +112,9 @@
   {% empty %}
   {% endfor %}
 </div>
+<form action="{% url 'team_testdata' pk_tevent=tevent.id %}" method='GET'>
+<button type='submit'>Create TestData</button>
+</form>
 
 {% endblock content %}
 

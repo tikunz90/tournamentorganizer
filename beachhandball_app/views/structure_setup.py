@@ -160,6 +160,15 @@ class TTTUpdateView(BSModalUpdateView):
     template_name = 'beachhandball/templates/update_form.html'
     form_class = TTTUpdateForm
     success_message = 'Success: TeamStat was updated.'
+
+    def get_context_data(self, **kwargs):
+        ttt = self.object
+        context = super(TTTUpdateView, self).get_context_data(**kwargs)
+        
+        ttts = TournamentState.objects.filter(tournament_event=ttt.tournament_event,
+        hierarchy__gt=ttt.origin_ts_id.hierarchy)
+        context['form'].fields['target_ts_id'].queryset = ttts
+        return context
     
     def form_valid(self, form):
         # This method is called when valid form data has been POSTed.

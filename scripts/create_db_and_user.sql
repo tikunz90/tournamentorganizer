@@ -1,0 +1,11 @@
+﻿CREATE DATABASE beachhandball;
+CREATE USER 'tournament_admin'@'localhost' IDENTIFIED WITH mysql_native_password BY 'beach_karacho!';
+GRANT ALL PRIVILEGES ON beachhandball.* TO 'tournament_admin'@'localhost';
+CREATE USER 'score1'@'localhost' IDENTIFIED WITH mysql_native_password BY 'score_karacho!';
+GRANT ALL PRIVILEGES ON beachhandball.* TO 'score1'@'localhost';
+CREATE USER 'score2'@'localhost' IDENTIFIED WITH mysql_native_password BY 'score_karacho!';
+GRANT ALL PRIVILEGES ON beachhandball.* TO 'score2'@'localhost';
+CREATE USER 'score3'@'localhost' IDENTIFIED WITH mysql_native_password BY 'score_karacho!';
+GRANT ALL PRIVILEGES ON beachhandball.* TO 'score3'@'localhost';
+CREATE USER 'score4'@'localhost' IDENTIFIED WITH mysql_native_password BY 'score_karacho!';
+GRANT ALL PRIVILEGES ON beachhandball.* TO 'score4'@'localhost';
