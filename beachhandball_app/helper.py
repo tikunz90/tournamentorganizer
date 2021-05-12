@@ -89,7 +89,7 @@ def calculate_tstate(ts):
             actSetsWinA = getIntVal(teama_stats.sets_win)
             actSetsLooseA = getIntVal(teama_stats.sets_loose)
             actPointsMadeA = getIntVal(teama_stats.points_made)
-            actPointsRecA = getIntVal(teama_stats.sets_loose)
+            actPointsRecA = getIntVal(teama_stats.points_received)
 
             pointsMa = getIntVal(g.score_team_a_halftime_1) + \
                        getIntVal(g.score_team_a_halftime_2) + \
@@ -118,12 +118,33 @@ def calculate_tstate(ts):
             teamb_stats.save()
             g.gamingstate = 'Finished'
             g.save()
-        check_direct_compare(ts)
+        if not ts.direct_compare:
+            teamstatsquery = _do_table_ordering(TeamStats.objects.filter(tournamentstate=ts))
+            teamstats = teamstatsquery.all()
+            max_val = teamstats.count()
+            for tstat in teamstats:
+                tstat.ranking_points = tstat.ranking_points + max_val
+                max_val = max_val - 1
+                tstat.save()
+
+        else:    
+            check_direct_compare(ts)
         check_tournamentstate_finished(ts.tournament_event, ts)
     except Exception as e:
         print(e)
     finally:
         print('')
+
+def _do_table_ordering(queryset):
+    return queryset.extra(
+        select={'points_difference': 'points_made - points_received'}
+    ).extra(
+        select={'sets_difference': 'sets_win - sets_loose'}
+    ).extra(
+        select={'game_points_sum': 'game_points + game_points_bonus'}
+    ).order_by(
+        '-game_points_sum', '-sets_difference', '-points_difference', '-points_made'
+    )
 
 def check_direct_compare(ts):
 
@@ -170,7 +191,7 @@ def check_tournamentstate_finished(tevent, ts):
     if games_played == all_games:
         # get teamstats
         teamstats = TeamStats.objects.filter(tournament_event=tevent,
-                                            tournament_state=ts).order_by('-ranking_points')
+                                            tournamentstate=ts).order_by('-ranking_points')
 
         iRank = 1
         for stat in teamstats:
@@ -195,6 +216,7 @@ def check_tournamentstate_finished(tevent, ts):
                         target_stat.points_received = stat.points_received
                         target_stat.game_points = stat.game_points
                     target_stat.game_points_bonus = 0
+                    target_stat.ranking_points = 0
                     target_stat.save()
 
             iRank = iRank + 1
