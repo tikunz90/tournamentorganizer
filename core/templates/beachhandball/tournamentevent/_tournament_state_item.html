@@ -136,11 +136,10 @@
                             <div class="table-responsive">
                                 <table class="table table-striped">
                                 <thead>
-                                    <tr>
                                     <th class="text-center">Rank</th>
                                     <th>State</th>
                                     <th>Place</th>
-                                    </tr>
+                                    <th></th>
                                 </thead>
                                 <tbody>
                                     {% for ttt in tstate.ttt_origin.all %}
@@ -167,13 +166,13 @@
                 </div>
         </div>
         <div class="card-footer">
-            <button type="button" class="update-tstate btn btn-sm btn-primary" data-form-url="{% url 'structure_setup.update_tstate' pk_tevent=tevent.id pk_tstage=stage.id pk=tstate.id %}">
+            <button type="button" class="update-tstate btn btn-sm btn-primary" rel="tooltip" title="Edit TournamentState" data-form-url="{% url 'structure_setup.update_tstate' pk_tevent=tevent.id pk_tstage=stage.id pk=tstate.id %}">
                 <span class="fa fa-pencil"></span>
             </button>
-            <button type="button" class="create-game btn btn-sm btn-primary" data-form-url="{% url 'structure_setup.create_game' pk_tevent=tevent.id pk_tstage=stage.id pk_tstate=tstate.id %}">
+            <button type="button" class="create-game btn btn-sm btn-primary" rel="tooltip" title="Add Game" data-form-url="{% url 'structure_setup.create_game' pk_tevent=tevent.id pk_tstage=stage.id pk_tstate=tstate.id %}">
                 <i class="material-icons">note_add</i>Add Game
             </button>
-            <button type="button" class="delete-tstate btn btn-sm btn-danger" data-form-url="{% url 'structure_setup.delete_tstate' pk_tevent=tevent.id pk_tstage=stage.id pk=tstate.id %}">
+            <button type="button" class="delete-tstate btn btn-sm btn-danger" rel="tooltip" title="Delete TournamentState" data-form-url="{% url 'structure_setup.delete_tstate' pk_tevent=tevent.id pk_tstage=stage.id pk=tstate.id %}">
                 <span class="fa fa-trash"></span>
             </button>
         </div>

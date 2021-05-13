@@ -1,3 +1,4 @@
+from beachhandball_app.models.Player import PlayerStats
 from datetime import datetime
 from beachhandball_app.models.Game import Game
 from beachhandball_app.models.Game import Game
@@ -227,6 +228,14 @@ class GameResultGameView(BSModalUpdateView):
     form_class = GameUpdateResultForm
     success_message = 'Success: GameResult was updated.'
     
+    def get_context_data(self, **kwargs):
+        game = self.object
+        context = super(GameResultGameView, self).get_context_data(**kwargs)
+        
+        context['pstats_a'] = PlayerStats.objects.filter(teamstat=game.team_st_a)
+        context['pstats_b'] = PlayerStats.objects.filter(teamstat=game.team_st_b)
+        return context
+
     def form_valid(self, form):
         # This method is called when valid form data has been POSTed.
         # It should return an HttpResponse.

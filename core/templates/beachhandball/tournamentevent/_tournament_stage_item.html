@@ -23,10 +23,10 @@
         </div>
     </div>
     <div class="card-footer">
-        <button type="button" class="create-tstate btn btn-sm btn-primary" data-form-url="{% url 'structure_setup.create_tstate' pk_tevent=tevent.id pk_tstage=stage.id %}">
+        <button type="button" class="create-tstate btn btn-sm btn-primary" rel="tooltip" title="Create new TournamentState" data-form-url="{% url 'structure_setup.create_tstate' pk_tevent=tevent.id pk_tstage=stage.id %}">
             <span class="fa fa-plus mr-2"></span> Create State
         </button> 
-        <button type="button" class="delete-tstage btn btn-sm btn-danger" data-form-url="{% url 'structure_setup.delete_tstage' pk_tevent=tevent.id pk=stage.id %}">
+        <button type="button" class="delete-tstage btn btn-sm btn-danger" rel="tooltip" title="Delete Stage" data-form-url="{% url 'structure_setup.delete_tstage' pk_tevent=tevent.id pk=stage.id %}">
             <span class="fa fa-trash"></span>
         </button>   
     </div>

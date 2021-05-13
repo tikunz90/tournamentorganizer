@@ -128,7 +128,7 @@ def results(request):
     context['segment'] = 'results'
     context['segment_title'] = 'Results'
 
-    html_template = loader.get_template( 'beachhandball/results.html' )
+    html_template = loader.get_template( 'beachhandball/tournamentevent/results.html' )
     return HttpResponse(html_template.render(context, request))
 
 @login_required(login_url="/login/")

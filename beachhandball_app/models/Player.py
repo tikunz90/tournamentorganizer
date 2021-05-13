@@ -57,6 +57,8 @@ class PlayerStats(models.Model):
     is_ranked = models.SmallIntegerField(blank=True, default=False)
     games_played = models.SmallIntegerField(blank=True, default=False)
     goal_keeper_success = models.SmallIntegerField(blank=True, default=0)
+    block_success = models.SmallIntegerField(blank=True, default=0)
+
 
     @staticmethod
     def calc_score(ps):

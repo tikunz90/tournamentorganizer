@@ -7,6 +7,7 @@ from django.dispatch import receiver
 from .models.Tournament import Tournament, TournamentEvent, TournamentState, TournamentTeamTransition, Court
 from .models.Team import Team, TeamStats
 from .models.Game import Game
+from .models.Player import Player, PlayerStats
 
 from .models.choices import TOURNAMENT_STATE_CHOICES
 
@@ -122,3 +123,24 @@ def game_updated(sender, instance, created, **kwargs):
         post_save.receivers = []
         calculate_tstate(instance.tournament_state)
         post_save.receivers = receivers
+
+@receiver(post_save, sender=Player)
+def create_player_ranking_stat(sender, instance, created, **kwargs):
+    if created:
+        ps, cr = PlayerStats.objects.get_or_create(tournament_event=instance.tournament_event,
+         player=instance, is_ranked=True)
+
+        # set all to zero
+        ps.games_played = 0
+        ps.score = 0
+        ps.kempa_try = 0
+        ps.kempa_success = 0
+        ps.spin_try = 0
+        ps.spin_success = 0
+        ps.shooter_try = 0
+        ps.shooter_success = 0
+        ps.one_try = 0
+        ps.one_success = 0
+        ps.suspension = 0
+        ps.redcard = 0
+        ps.save()

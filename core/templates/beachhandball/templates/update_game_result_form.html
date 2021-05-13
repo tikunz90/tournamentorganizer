@@ -147,10 +147,10 @@
                 <th>Player</th>
             </tr>
             </thead>
-            {% for player in object.team_st_a.team.player_set.all %}
+            {% for pstat in pstats_a.all %}
             <tr>
-                <td>{{ player.number }}</td>
-                <td>{{ player.name }}, {{ player.first_name }}</td>
+                <td>{{ pstat.player.number }}</td>
+                <td>{{ pstat.player.name }}, {{ pstat.player.first_name }}</td>
             </tr>
             {% endfor %}
           </table>
@@ -164,10 +164,10 @@
                 <th>Player</th>
             </tr>
             </thead>
-            {% for player in object.team_st_b.team.player_set.all %}
+            {% for player in pstats_b.all %}
             <tr>
-                <td>{{ player.number }}</td>
-                <td>{{ player.name }}, {{ player.first_name }}</td>
+                <td>{{ pstat.player.number }}</td>
+                <td>{{ pstat.player.name }}, {{ pstat.player.first_name }}</td>
             </tr>
             {% endfor %}
           </table>

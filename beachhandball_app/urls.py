@@ -8,6 +8,7 @@ from beachhandball_app import static_views
 from beachhandball_app.views.teams_setup import TeamsSetupDetail
 from beachhandball_app.views.structure_setup import GameCreateView, GameResultGameView, GameUpGameView, StructureSetupDetail, StageCreateView, StageDeleteView, StateCreateView, StateDeleteView, StateUpdateView, TTTUpdateView, TeamStatsUpdateTeamView, GameDeleteView
 from beachhandball_app.views.structure_setup_fb import games_list
+from beachhandball_app.views.results import ResultsDetail
 
 from django.views.generic import TemplateView
 
@@ -43,6 +44,7 @@ urlpatterns = [
 
     path('game_plan/', static_views.game_plan, name='game_plan'),
     path('results/', static_views.results, name='results'),
+    path('results/<int:pk>/', ResultsDetail.as_view(), name='results.detail'),
 
     path('team_testdata/<int:pk_tevent>/', static_views.create_teamtestdata, name='team_testdata'),
 
