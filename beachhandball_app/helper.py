@@ -1,3 +1,4 @@
+from beachhandball_app.models.Player import Player
 from django.db.models.query_utils import Q
 from beachhandball_app.models.choices import GAMESTATE_CHOICES
 from beachhandball_app.models.Tournament import TournamentEvent, TournamentTeamTransition
@@ -230,48 +231,116 @@ def create_teams_testdata(tevent):
                                                 gbo_team=0,
                                                 category=tcat)
     act_team_st.save()
+    for i in range(1, 11):
+        act_player, cr = Player.objects.get_or_create(tournament_event=tevent,
+                                                        first_name=f'FName{i}',
+                                                        name=f'Name{i}',
+                                                        team=act_team_st,
+                                                        number=i)
+        act_player.save()
+
     act_team_st, cr = Team.objects.get_or_create(tournament_event=tevent,
                                                 name='The Beachers',
                                                 abbreviation='TBS',
                                                 gbo_team=0,
                                                 category=tcat)
     act_team_st.save()
+    for i in range(1, 11):
+        act_player, cr = Player.objects.get_or_create(tournament_event=tevent,
+                                                        first_name=f'FName{i}',
+                                                        name=f'Name{i}',
+                                                        team=act_team_st,
+                                                        number=i)
+        act_player.save()
+
     act_team_st, cr = Team.objects.get_or_create(tournament_event=tevent,
                                                 name='SuperStars',
                                                 abbreviation='SuS',
                                                 gbo_team=0,
                                                 category=tcat)
     act_team_st.save()
+    for i in range(1, 11):
+        act_player, cr = Player.objects.get_or_create(tournament_event=tevent,
+                                                        first_name=f'FName{i}',
+                                                        name=f'Name{i}',
+                                                        team=act_team_st,
+                                                        number=i)
+        act_player.save()
+
+
     act_team_st, cr = Team.objects.get_or_create(tournament_event=tevent,
                                                 name='Beach Easy Team',
                                                 abbreviation='BET',
                                                 gbo_team=0,
                                                 category=tcat)
     act_team_st.save()
+    for i in range(1, 11):
+        act_player, cr = Player.objects.get_or_create(tournament_event=tevent,
+                                                        first_name=f'FName{i}',
+                                                        name=f'Name{i}',
+                                                        team=act_team_st,
+                                                        number=i)
+        act_player.save()
+
+
     act_team_st, cr = Team.objects.get_or_create(tournament_event=tevent,
                                                 name='DumpHeads',
                                                 abbreviation='DH',
                                                 gbo_team=0,
                                                 category=tcat)
     act_team_st.save()
+    for i in range(1, 11):
+        act_player, cr = Player.objects.get_or_create(tournament_event=tevent,
+                                                        first_name=f'FName{i}',
+                                                        name=f'Name{i}',
+                                                        team=act_team_st,
+                                                        number=i)
+        act_player.save()
+
+
     act_team_st, cr = Team.objects.get_or_create(tournament_event=tevent,
                                                 name='FlyingKack',
                                                 abbreviation='FK',
                                                 gbo_team=0,
                                                 category=tcat)
     act_team_st.save()
+    for i in range(1, 11):
+        act_player, cr = Player.objects.get_or_create(tournament_event=tevent,
+                                                        first_name=f'FName{i}',
+                                                        name=f'Name{i}',
+                                                        team=act_team_st,
+                                                        number=i)
+        act_player.save()
+
+
     act_team_st, cr = Team.objects.get_or_create(tournament_event=tevent,
                                                 name='The Gang',
                                                 abbreviation='TGA',
                                                 gbo_team=0,
                                                 category=tcat)
     act_team_st.save()
+    for i in range(1, 11):
+        act_player, cr = Player.objects.get_or_create(tournament_event=tevent,
+                                                        first_name=f'FName{i}',
+                                                        name=f'Name{i}',
+                                                        team=act_team_st,
+                                                        number=i)
+        act_player.save()
+
+
     act_team_st, cr = Team.objects.get_or_create(tournament_event=tevent,
                                                 name='Loosers',
                                                 abbreviation='Loo',
                                                 gbo_team=0,
                                                 category=tcat)
     act_team_st.save()
+    for i in range(1, 11):
+        act_player, cr = Player.objects.get_or_create(tournament_event=tevent,
+                                                        first_name=f'FName{i}',
+                                                        name=f'Name{i}',
+                                                        team=act_team_st,
+                                                        number=i)
+        act_player.save()
 
 def get_game_winner(game):
     if game.winner_halftime_1 == game.winner_halftime_2:

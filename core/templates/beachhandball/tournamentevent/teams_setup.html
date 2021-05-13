@@ -17,7 +17,92 @@
           <h4 class="card-title">Teams registered:</h4>
         </div>
         <div class="card-body">
-          <div class="table-responsive">
+          <div id="team-list" role="tablist">
+            {% for team in tevent.team_set.all %}
+              {% if team.is_dummy is False %}
+                <div class="card-collapse">
+                  <div class="card-header" role="tab" id="{{ team.name|slugify }}_{{team.id}}_playerlist_header">
+                    <h5 class="mb-0">
+                      <a data-toggle="collapse" href="#{{ team.name|slugify }}_{{team.id}}_playerlist" aria-expanded="false" aria-controls="{{ team.name|slugify }}_{{team.id}}_playerlist" class="collapsed">
+                        <h4>{{ team.name }} ({{ team.abbreviation }})</h4>
+                        <i class="material-icons">keyboard_arrow_down</i>
+                      </a>
+                    </h5>
+                  </div>
+                  <div id="{{ team.name|slugify }}_{{team.id}}_playerlist" class="collapse" role="tabpanel" aria-labelledby="{{ team.name|slugify }}_{{team.id}}_playerlist_header" data-parent="#team-list" style="">
+                    <div class="card-body">
+                      <div class="row">
+                        <div class="col-md-4">
+                          <h3> General Information:</h3>
+                          
+                          <div class="user" hidden>
+                          <div class="photo">
+                            <img src="/static/assets/img/card-3.jpg" class="img-responsive"/>
+                          </div>
+                          </div>
+                          <div class="card card-plain">
+                            <div class="card-body">
+                              <div class="table-responsive">
+                                <table class="table">
+                                  <thead>
+                                    <tr>
+                                      <th></th>
+                                      <th class="text-center"></th>
+                                    </tr>
+                                  </thead>
+                                  <tbody>
+                                    <tr>
+                                      <td>Name:</td>
+                                      <td class="text-center">{{team.name}}</td>
+                                    </tr>
+                                    <tr>
+                                      <td>Abbreviation:</td>
+                                      <td class="text-center">{{team.abbreviation}}</td>
+                                    </tr>
+                                    <tr>
+                                      <td>GBOid:</td>
+                                      <td class="text-center">{{team.gbo_team}}</td>
+                                    </tr>
+                                  </tbody>
+                                </table>
+                              </div>
+                            </div>
+                          </div>
+                          
+                        </div>
+                        <div class="col-md-2"></div>
+                        <div class="col-md-6">
+                          <h3> Players:</h3>
+                          <div class="table-responsive">
+                            <table class="table">
+                              <thead>
+                                <tr>
+                                  <th>#</th>
+                                  <th class="text-center">Name</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                              {% for player in team.player_set.all %}
+                                <tr>
+                                  <td>{{ player.number }}</td>
+                                  <td class="text-center">{{player.name}}, {{player.first_name}}</td>
+                                </tr>
+                              {% endfor %}
+                              </tbody>
+                            </table>
+                          </div>
+                          Total amount player: {{ team.player_set.count }}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              {% endif %}
+            {% endfor %}
+          </div>
+
+
+          <div class="table-responsive" hidden>
             <table class="table">
               <thead>
                 <tr>

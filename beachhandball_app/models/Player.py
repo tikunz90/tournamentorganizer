@@ -11,9 +11,9 @@ class Player(models.Model):
     """
     created_at = UnixDateTimeField(editable=False, default=timezone.now)
 
-    user = models.OneToOneField(settings.AUTH_USER_MODEL, null=True, on_delete=models.CASCADE)
+    #user = models.OneToOneField(settings.AUTH_USER_MODEL, null=True, on_delete=models.CASCADE)
 
-    tournament = models.ForeignKey('Tournament', null=True, related_name='+', on_delete=models.SET_NULL)
+    tournament_event = models.ForeignKey('TournamentEvent', null=True, on_delete=models.CASCADE)
     team = models.ForeignKey('Team', null=True, on_delete=models.CASCADE)
     name = models.CharField(max_length=50)
     first_name = models.CharField(max_length=50, blank=True, null=True)
@@ -39,10 +39,10 @@ class PlayerStats(models.Model):
     """
     created_at = UnixDateTimeField(editable=False, default=timezone.now)
 
-    tournament = models.ForeignKey('Tournament', null=True, related_name='+', on_delete=models.CASCADE)
+    tournament_event = models.ForeignKey('TournamentEvent', null=True, on_delete=models.CASCADE)
     game = models.ForeignKey('Game', blank=True, null=True, on_delete=models.CASCADE)
     player = models.ForeignKey(Player, blank=True, null=True, on_delete=models.CASCADE)
-    team = models.ForeignKey('Team', null=True, on_delete=models.SET_NULL)
+    teamstat = models.ForeignKey('TeamStats', null=True, on_delete=models.CASCADE)
     score = models.SmallIntegerField(blank=True, default=0)
     kempa_try = models.SmallIntegerField(blank=True, default=0)
     kempa_success = models.SmallIntegerField(blank=True, default=0)

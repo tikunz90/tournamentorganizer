@@ -138,6 +138,41 @@
           </div>
         </div>
       </div>
+      <div class="row">
+        <div class="col-md-5">
+          <table id="" class="table table-striped">
+            <thead>
+            <tr>
+                <th>#</th>
+                <th>Player</th>
+            </tr>
+            </thead>
+            {% for player in object.team_st_a.team.player_set.all %}
+            <tr>
+                <td>{{ player.number }}</td>
+                <td>{{ player.name }}, {{ player.first_name }}</td>
+            </tr>
+            {% endfor %}
+          </table>
+        </div>
+        <div class="col-md-2"></div>
+        <div class="col-md-5">
+          <table id="" class="table table-striped">
+            <thead>
+            <tr>
+                <th>#</th>
+                <th>Player</th>
+            </tr>
+            </thead>
+            {% for player in object.team_st_b.team.player_set.all %}
+            <tr>
+                <td>{{ player.number }}</td>
+                <td>{{ player.name }}, {{ player.first_name }}</td>
+            </tr>
+            {% endfor %}
+          </table>
+        </div>
+      </div>
     </div>
 
     
