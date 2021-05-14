@@ -1,0 +1,4 @@
+sudo apt-get update
+sudo apt-get install -y software-properties-common apt-transport-https ca-certificates
+sudo apt-key adv --fetch-keys 'http://mariadb.org/mariadb_release_signing_key.asc'
+sudo add-apt-repository 'deb [arch=amd64,arm64,i386,ppc64el] http://sfo1.mirrors.digitalocean.com/mariadb/repo/10.4/ubuntu xenial main'
