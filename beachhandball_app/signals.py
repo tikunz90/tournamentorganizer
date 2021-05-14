@@ -110,9 +110,10 @@ def ttt_changed(sender, created, **kwargs):
         if team_stats_tar.count() > 0:
             ts_tar = team_stats_tar.get()
             ts_tar.name_table = '{}. {}'.format(ttt.origin_rank, ttt.origin_ts_id)
-            ts_tar.team.name = '{}. {}'.format(ttt.origin_rank, ttt.origin_ts_id)
-            ts_tar.team.abbreviation = '{}. {}'.format(ttt.origin_rank, ttt.origin_ts_id.abbreviation)
-            ts_tar.team.save()
+            if ts_tar.team.is_dummy is True:
+                ts_tar.team.name = '{}. {}'.format(ttt.origin_rank, ttt.origin_ts_id)
+                ts_tar.team.abbreviation = '{}. {}'.format(ttt.origin_rank, ttt.origin_ts_id.abbreviation)
+                ts_tar.team.save()
             ts_tar.save()
 
 

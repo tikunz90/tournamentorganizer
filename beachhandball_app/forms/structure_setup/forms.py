@@ -88,6 +88,22 @@ class TournamentStateUpdateForm(BSModalModelForm):
            'color': forms.widgets.TextInput(attrs={'type': 'color'}),
         }
 
+class TournamentStateFinishForm(BSModalModelForm):
+    disabled_fields = ('name',)
+    def clean(self):
+        print('Clean TournamentStateForm')
+        cleaned_data = super(TournamentStateFinishForm, self).clean()
+        return cleaned_data
+    class Meta:
+        model = TournamentState
+        fields = ('name',)
+
+    def __init__(self, *args, **kwargs):
+        super(TournamentStateFinishForm, self).__init__(*args, **kwargs)
+        for field in self.disabled_fields:
+            self.fields[field].disabled = True
+
+
 
 """
 

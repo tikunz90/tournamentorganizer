@@ -1,0 +1,60 @@
+{% load widget_tweaks %}
+{% load list_filter %}
+
+<form method="post" action="">
+  {% csrf_token %}
+
+  <div class="modal-header">
+    <h3 class="modal-title">Finish {{ object.name }}</h3>
+    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+
+  <div class="modal-body">
+    <div class="{% if form.non_field_errors %}invalid{% endif %} mb-2">
+      {% for error in form.non_field_errors %}
+        {{ error }}
+      {% endfor %}
+    </div>
+    <div class="form-group" disabled>
+        {% render_field form.name class="form-control" %}
+    </div>
+    <div class="container">
+      <div class="table-responsive">
+        <table class="table table-striped">
+        <thead>
+            <tr>
+            <th class="text-center">Rank</th>
+            <th>Team</th>
+            <th></th>
+            <th class="text-center">Target</th>
+            </tr>
+        </thead>
+        <tbody>
+          {% for trans in ttt.all %}
+            <tr>
+            <td class="text-center">{{ trans.origin_rank }}</td>
+            <td>{{ teamstats|get_at_index:forloop.counter0 }}</td>
+            <td class="text-center"><i class="material-icons">{% if trans.is_executed is True %}done{% else %}arrow_forward{% endif %}</i></td>
+            <td class="text-center">{{ trans.target_rank }}. {{ trans.target_ts_id.name }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+        </table>
+    </div>
+    </div>
+  </div>
+
+  <div class="modal-footer">
+    <div class="row">
+      <div class="col-md-6">
+        <button type="submit" class="btn btn-primary">Execute</button>
+      </div>
+      <div class="col-md-6">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+</form>

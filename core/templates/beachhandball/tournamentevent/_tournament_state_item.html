@@ -62,6 +62,7 @@
                             <p class="card-category">
                                 Overview ranking, game plan, editing game result
                             </p>
+                            {% if tstate.is_finished is True %}<h4>ALL Games PLAYED!</h4>{% if tstate.transitions_done is False %}Click "Finish State" to execute transitions{% endif %}{% endif %}
                             </div>
                             <div class="card-body">
                                 {% include "beachhandball/tournamentevent/_tournament_state_overview.html" %}
@@ -103,7 +104,7 @@
                                         </td>
                                         
                                         <td>
-                                            <button type="button" class="update_teamstatsteam btn btn-sm btn-primary" data-form-url="{% url 'structure_setup.update_teamstatsteam' pk_tevent=tevent.id pk_tstage=stage.id pk=tstat.id %}">
+                                            <button type="button" class="update_teamstatsteam btn btn-sm btn-primary" data-form-url="{% url 'structure_setup.update_teamstatsteam' pk_tevent=tevent.id pk_tstage=stage.id pk=tstat.id %}" {% if tstate.is_finished is True %}disabled{% endif %}>
                                                 <span class="fa fa-pencil"></span>
                                             </button>
                                         </td>
@@ -169,10 +170,13 @@
             <button type="button" class="update-tstate btn btn-sm btn-primary" rel="tooltip" title="Edit TournamentState" data-form-url="{% url 'structure_setup.update_tstate' pk_tevent=tevent.id pk_tstage=stage.id pk=tstate.id %}">
                 <span class="fa fa-pencil"></span>
             </button>
-            <button type="button" class="create-game btn btn-sm btn-primary" rel="tooltip" title="Add Game" data-form-url="{% url 'structure_setup.create_game' pk_tevent=tevent.id pk_tstage=stage.id pk_tstate=tstate.id %}">
+            <button type="button" class="create-game btn btn-sm btn-primary" rel="tooltip" title="Add Game" data-form-url="{% url 'structure_setup.create_game' pk_tevent=tevent.id pk_tstage=stage.id pk_tstate=tstate.id %}" {% if tstate.is_finished is True and tstate.transitions_done is True %}disabled{% endif %}>
                 <i class="material-icons">note_add</i>Add Game
             </button>
-            <button type="button" class="delete-tstate btn btn-sm btn-danger" rel="tooltip" title="Delete TournamentState" data-form-url="{% url 'structure_setup.delete_tstate' pk_tevent=tevent.id pk_tstage=stage.id pk=tstate.id %}">
+            <button type="button" class="finish-tstate btn btn-sm btn-primary" rel="tooltip" title="Finishes TournamentState after all games played" data-form-url="{% url 'structure_setup.finish_tstate' pk_tevent=tevent.id pk_tstage=stage.id pk=tstate.id %}" {% if tstate.is_finished is False or tstate.transitions_done is True %}disabled{% endif %}>
+                <i class="material-icons">check_circle_outline</i>Finish State
+            </button>
+            <button type="button" class="delete-tstate btn btn-sm btn-danger" rel="tooltip" title="Delete TournamentState" data-form-url="{% url 'structure_setup.delete_tstate' pk_tevent=tevent.id pk_tstage=stage.id pk=tstate.id %}" {% if tstate.is_finished is True and tstate.transitions_done is True %}disabled{% endif %}>
                 <span class="fa fa-trash"></span>
             </button>
         </div>

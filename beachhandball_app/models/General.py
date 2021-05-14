@@ -19,6 +19,7 @@ class TournamentCategory(models.Model):
     created_at = UnixDateTimeField(editable=False, default=timezone.now)
 
     name = models.CharField(db_column='name', max_length=50)
+    abbreviation = models.CharField(max_length=3, blank=True)
     classification = models.CharField(max_length=20, choices=CATEGORY_CLASS_CHOICES, blank=True)
     category = models.CharField(max_length=20, choices=CATEGORY_CHOICES, blank=True)
 

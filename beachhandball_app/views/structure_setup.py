@@ -1,3 +1,4 @@
+from beachhandball_app import helper
 from beachhandball_app.models.Player import PlayerStats
 from datetime import datetime
 from beachhandball_app.models.Game import Game
@@ -20,7 +21,7 @@ from ..models.Tournament import Tournament, TournamentEvent, TournamentStage, To
 from ..models.Series import Season
 from ..models.Team import Team, TeamStats
 
-from beachhandball_app.forms.structure_setup.forms import GameUpdateForm, GameUpdateResultForm, TTTUpdateForm, TournamentStageForm, TournamentStateForm, TournamentStateUpdateForm, TeamStatsUpdateTeamForm, GameForm
+from beachhandball_app.forms.structure_setup.forms import GameUpdateForm, GameUpdateResultForm, TTTUpdateForm, TournamentStageForm, TournamentStateFinishForm, TournamentStateForm, TournamentStateUpdateForm, TeamStatsUpdateTeamForm, GameForm
 
 from beachhandball_app import static_views
 
@@ -48,6 +49,8 @@ class StructureSetupDetail(DetailView):
 
         kwargs['ts_types'] = TournamentStage.objects.filter(tournament_event=tevent)
         kwargs['teams_appending'] = []#Team.objects.filter(tournament=tevent)
+        
+        helper.check_all_tournamentstate_finshed(tevent)
         
         #tstate = TournamentState.objects.get(id=6)
        # kwargs['form_tstate'] = TournamentStateUpdateForm(instance=tstate)
@@ -135,6 +138,39 @@ class StateUpdateView(BSModalUpdateView):
     def get_success_url(self):
            pk = self.kwargs["pk_tevent"]
            return reverse_querystring("structure_setup.detail", kwargs={"pk": pk}, query_kwargs={'tab': self.kwargs["pk_tstage"]})
+
+
+class StateFinishView(BSModalUpdateView):
+    model = TournamentState
+    template_name = 'beachhandball/templates/finish_tstate_form.html'
+    form_class = TournamentStateFinishForm
+    success_message = 'Success: State was updated.'
+
+    def get_context_data(self, **kwargs):
+        print('Enter StateFinishView: ', datetime.now())
+        tstate = self.object
+        kwargs['tevent'] = tstate.tournament_event 
+        kwargs['ttt']  = TournamentTeamTransition.objects.filter(origin_ts_id=tstate).order_by('origin_rank')
+        kwargs['teamstats']  = TeamStats.objects.filter(tournament_event=tstate.tournament_event, tournamentstate=tstate).order_by('-ranking_points')
+        print('Leave StateFinishView: ', datetime.now())
+        return super(StateFinishView, self).get_context_data(**kwargs)
+
+    
+    def form_valid(self, form):
+        # This method is called when valid form data has been POSTed.
+        # It should return an HttpResponse.
+        tevent = get_object_or_404(TournamentEvent, id=self.kwargs.get('pk_tevent'))
+        tstage = get_object_or_404(TournamentStage, id=self.kwargs.get('pk_tstage'))
+        form.instance.tournament_event = tevent
+        form.instance.tournament_stage = tstage
+
+        helper.check_tournamentstate_finished(tevent, self.object)
+        return super().form_valid(form)
+
+    def get_success_url(self):
+           pk = self.kwargs["pk_tevent"]
+           return reverse_querystring("structure_setup.detail", kwargs={"pk": pk}, query_kwargs={'tab': self.kwargs["pk_tstage"]})
+
 
 class TeamStatsUpdateTeamView(BSModalUpdateView):
     model = TeamStats

@@ -98,6 +98,29 @@ class Court(models.Model):
         db_table = 'bh_courts'
 
 
+class TournamentStage(models.Model):
+    """ Defines Type of TS. E.g if it is a GroupStagec, KnockOut Phase
+    """
+    created_at = UnixDateTimeField(editable=False, default=timezone.now)
+
+    tournament_event = models.ForeignKey('TournamentEvent', null=True, on_delete=models.CASCADE)
+    name = models.CharField( max_length=50, default="")
+    short_name = models.CharField( max_length=5, default="", help_text="You have 5 characters to describe this stage")
+    tournament_stage = models.CharField(max_length=20, choices=TOURNAMENT_STAGE_TYPE_CHOICES, blank=True)
+    order = models.SmallIntegerField(default=0)
+
+    @property
+    def get_tstates_without_finalranking(self):
+        return self.tournamentstate_set.filter(is_final=False)
+
+    def __str__(self):
+        return '{} ({})'.format(self. name, self.tournament_event.name)
+
+    class Meta:
+        # managed = False
+        db_table = 'bh_tournament_stage'
+
+
 class TournamentState(models.Model):
     """ TournamentStates are the main instances of a tournament structure.
     It can be a Group, Quarterfinal, Semifinal, final etc.
@@ -120,6 +143,8 @@ class TournamentState(models.Model):
     direct_compare = models.BooleanField(default=False)
     is_populated = models.BooleanField(default=False)
     is_final = models.BooleanField(default=False)
+    is_finished = models.BooleanField(default=False)
+    transitions_done = models.BooleanField(default=False)
     comment = models.CharField(max_length=50, blank=True)
 
     #color = ColorField(default='#FF0000', choices=COLOR_CHOICES)
@@ -158,29 +183,6 @@ class TournamentState(models.Model):
         # managed = False
         db_table = 'bh_tournament_states'
 
-
-class TournamentStage(models.Model):
-    """ Defines Type of TS. E.g if it is a GroupStagec, KnockOut Phase
-    """
-    created_at = UnixDateTimeField(editable=False, default=timezone.now)
-
-    tournament_event = models.ForeignKey('TournamentEvent', null=True, on_delete=models.CASCADE)
-    name = models.CharField( max_length=50, default="")
-    short_name = models.CharField( max_length=5, default="", help_text="You have 5 characters to describe this stage")
-    tournament_stage = models.CharField(max_length=20, choices=TOURNAMENT_STAGE_TYPE_CHOICES, blank=True)
-    order = models.SmallIntegerField(default=0)
-
-    @property
-    def get_tstates_without_finalranking(self):
-        return self.tournamentstate_set.filter(is_final=False)
-
-    def __str__(self):
-        return '{} ({})'.format(self. name, self.tournament_event.name)
-
-    class Meta:
-        # managed = False
-        db_table = 'bh_tournament_stage'
-
 class TournamentTeamTransition(models.Model):
     """ Defines the transistion from a TournamentState to the next.
 
@@ -198,6 +200,7 @@ class TournamentTeamTransition(models.Model):
     target_ts_id = models.ForeignKey('TournamentState', null=True, related_name='ttt_target', on_delete=models.CASCADE)
     target_rank = models.SmallIntegerField(default=0)
     keep_stats = models.BooleanField(default=False)
+    is_executed = models.BooleanField(default=False)
     comment = models.CharField( max_length=50)
 
     def __unicode__(self):

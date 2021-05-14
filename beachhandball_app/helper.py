@@ -1,7 +1,7 @@
 from beachhandball_app.models.Player import Player
 from django.db.models.query_utils import Q
 from beachhandball_app.models.choices import GAMESTATE_CHOICES
-from beachhandball_app.models.Tournament import TournamentEvent, TournamentTeamTransition
+from beachhandball_app.models.Tournament import TournamentEvent, TournamentState, TournamentTeamTransition
 from beachhandball_app.models.Game import Game
 from beachhandball_app.models.Team import TeamStats, Team
 from beachhandball_app.models.General import TournamentCategory
@@ -130,7 +130,7 @@ def calculate_tstate(ts):
 
         else:    
             check_direct_compare(ts)
-        check_tournamentstate_finished(ts.tournament_event, ts)
+        #check_tournamentstate_finished(ts.tournament_event, ts)
     except Exception as e:
         print(e)
     finally:
@@ -180,6 +180,21 @@ def check_direct_compare(ts):
             elif teamst.count() > 2:
                 print("")
 
+def check_all_tournamentstate_finshed(tevent):
+    tstates = TournamentState.objects.filter(tournament_event=tevent)
+    for ts in tstates:
+        games_played = Game.objects.all().filter(tournament=tevent,
+                                             tournament_state=ts,
+                                             gamestate=GAMESTATE_CHOICES[2][1]).count()
+
+        all_games = Game.objects.all().filter(tournament=tevent,
+                                                tournament_state=ts).count()
+        if games_played == all_games:
+            ts.is_finished = True
+        else:
+            ts.is_finished = False
+        ts.save(update_fields=['is_finished'])
+
 def check_tournamentstate_finished(tevent, ts):
     games_played = Game.objects.all().filter(tournament=tevent,
                                              tournament_state=ts,
@@ -199,6 +214,7 @@ def check_tournamentstate_finished(tevent, ts):
             # get TournamentTeamTransition
             trans = TournamentTeamTransition.objects.filter(tournament_event=tevent,
                                                             origin_ts_id=ts,
+                                                            is_executed=False,
                                                             origin_rank=iRank)
 
             if trans.count() > 0:
@@ -219,128 +235,44 @@ def check_tournamentstate_finished(tevent, ts):
                     target_stat.game_points_bonus = 0
                     target_stat.ranking_points = 0
                     target_stat.save()
+                trans.is_executed = True
+                trans.save(update_fields=['is_executed'])
 
             iRank = iRank + 1
+
+        # check if all trans of tstate are done
+        num_trans = TournamentTeamTransition.objects.filter(tournament_event=tevent,
+                                                            origin_ts_id=ts,
+                                                            is_executed=False).count()
+        if num_trans > 0:
+            ts.transitions_done = False
+        else:
+            ts.transitions_done = True
+        ts.save(update_fields=['transitions_done'])
+
+
 
 def create_teams_testdata(tevent):
     tevent = TournamentEvent.objects.get(id=tevent)
     tcat = TournamentCategory.objects.get(id=1)
-    act_team_st, cr = Team.objects.get_or_create(tournament_event=tevent,
-                                                name='DreamTeam',
-                                                abbreviation='DT',
-                                                gbo_team=0,
-                                                category=tcat)
-    act_team_st.save()
-    for i in range(1, 11):
-        act_player, cr = Player.objects.get_or_create(tournament_event=tevent,
-                                                        first_name=f'FName{i}',
-                                                        name=f'Name{i}',
-                                                        team=act_team_st,
-                                                        number=i)
-        act_player.save()
+    max_teams = tevent.max_number_teams
+    names = ('DreamTeam', 'The Beachers','SuperStars','Beach Easy Team','DumpHeads','FlyingKack','The Gang','Loosers',)
+    abb = ('DT', 'TBS','SuS','BET','DH','FK','TGA','Loo',)
+    for iTeam in range(0, max_teams):
+        act_team_st, cr = Team.objects.get_or_create(tournament_event=tevent,
+                                                    name=names[iTeam],
+                                                    abbreviation=abb[iTeam],
+                                                    gbo_team=0,
+                                                    category=tcat)
+        act_team_st.save()
+        for i in range(1, 11):
+            act_player, cr = Player.objects.get_or_create(tournament_event=tevent,
+                                                            first_name=f'FName{i}',
+                                                            name=f'Name{i}',
+                                                            team=act_team_st,
+                                                            number=i)
+            act_player.save()
 
-    act_team_st, cr = Team.objects.get_or_create(tournament_event=tevent,
-                                                name='The Beachers',
-                                                abbreviation='TBS',
-                                                gbo_team=0,
-                                                category=tcat)
-    act_team_st.save()
-    for i in range(1, 11):
-        act_player, cr = Player.objects.get_or_create(tournament_event=tevent,
-                                                        first_name=f'FName{i}',
-                                                        name=f'Name{i}',
-                                                        team=act_team_st,
-                                                        number=i)
-        act_player.save()
-
-    act_team_st, cr = Team.objects.get_or_create(tournament_event=tevent,
-                                                name='SuperStars',
-                                                abbreviation='SuS',
-                                                gbo_team=0,
-                                                category=tcat)
-    act_team_st.save()
-    for i in range(1, 11):
-        act_player, cr = Player.objects.get_or_create(tournament_event=tevent,
-                                                        first_name=f'FName{i}',
-                                                        name=f'Name{i}',
-                                                        team=act_team_st,
-                                                        number=i)
-        act_player.save()
-
-
-    act_team_st, cr = Team.objects.get_or_create(tournament_event=tevent,
-                                                name='Beach Easy Team',
-                                                abbreviation='BET',
-                                                gbo_team=0,
-                                                category=tcat)
-    act_team_st.save()
-    for i in range(1, 11):
-        act_player, cr = Player.objects.get_or_create(tournament_event=tevent,
-                                                        first_name=f'FName{i}',
-                                                        name=f'Name{i}',
-                                                        team=act_team_st,
-                                                        number=i)
-        act_player.save()
-
-
-    act_team_st, cr = Team.objects.get_or_create(tournament_event=tevent,
-                                                name='DumpHeads',
-                                                abbreviation='DH',
-                                                gbo_team=0,
-                                                category=tcat)
-    act_team_st.save()
-    for i in range(1, 11):
-        act_player, cr = Player.objects.get_or_create(tournament_event=tevent,
-                                                        first_name=f'FName{i}',
-                                                        name=f'Name{i}',
-                                                        team=act_team_st,
-                                                        number=i)
-        act_player.save()
-
-
-    act_team_st, cr = Team.objects.get_or_create(tournament_event=tevent,
-                                                name='FlyingKack',
-                                                abbreviation='FK',
-                                                gbo_team=0,
-                                                category=tcat)
-    act_team_st.save()
-    for i in range(1, 11):
-        act_player, cr = Player.objects.get_or_create(tournament_event=tevent,
-                                                        first_name=f'FName{i}',
-                                                        name=f'Name{i}',
-                                                        team=act_team_st,
-                                                        number=i)
-        act_player.save()
-
-
-    act_team_st, cr = Team.objects.get_or_create(tournament_event=tevent,
-                                                name='The Gang',
-                                                abbreviation='TGA',
-                                                gbo_team=0,
-                                                category=tcat)
-    act_team_st.save()
-    for i in range(1, 11):
-        act_player, cr = Player.objects.get_or_create(tournament_event=tevent,
-                                                        first_name=f'FName{i}',
-                                                        name=f'Name{i}',
-                                                        team=act_team_st,
-                                                        number=i)
-        act_player.save()
-
-
-    act_team_st, cr = Team.objects.get_or_create(tournament_event=tevent,
-                                                name='Loosers',
-                                                abbreviation='Loo',
-                                                gbo_team=0,
-                                                category=tcat)
-    act_team_st.save()
-    for i in range(1, 11):
-        act_player, cr = Player.objects.get_or_create(tournament_event=tevent,
-                                                        first_name=f'FName{i}',
-                                                        name=f'Name{i}',
-                                                        team=act_team_st,
-                                                        number=i)
-        act_player.save()
 
 def get_game_winner(game):
     if game.winner_halftime_1 == game.winner_halftime_2:

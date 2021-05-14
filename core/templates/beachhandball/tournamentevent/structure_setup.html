@@ -172,6 +172,13 @@
           }
           updateStateModalForm();
 
+          function finishStateModalForm() {
+            $(".finish-tstate").each(function () {
+                $(this).modalForm({formURL: $(this).data("form-url"), isDeleteForm: false});
+            });
+          }
+          finishStateModalForm();
+
           function updateTeamStatsTeamModalForm() {
             $(".update_teamstatsteam").each(function () {
                 $(this).modalForm({formURL: $(this).data("form-url"), isDeleteForm: false});
@@ -208,7 +215,7 @@
                     dataUrl: $(this).data("list-url"),
                     dataElementId: '#' + $(this).closest('table')[0].id,
                     dataKey: "table",
-                    addModalFormFunction: updateGameModalForm
+                    addModalFormFunction: reinstantiateModalForms
                   }
               });
             });
