@@ -23,7 +23,8 @@ class Game(models.Model):
         ('SignRequired', 'SignRequired',),
     )
 
-    tournament = models.ForeignKey('TournamentEvent', null=True, related_name='+', on_delete=models.CASCADE)
+    tournament = models.ForeignKey('Tournament', null=True, on_delete=models.CASCADE)
+    tournament_event = models.ForeignKey('TournamentEvent', null=True, on_delete=models.CASCADE)
     #team_a = models.ForeignKey('Team', null=True, related_name='+', on_delete=models.CASCADE)
     #team_b = models.ForeignKey('Team', null=True, on_delete=models.CASCADE)
     team_st_a = models.ForeignKey('TeamStats', null=True, related_name='+', on_delete=models.CASCADE)

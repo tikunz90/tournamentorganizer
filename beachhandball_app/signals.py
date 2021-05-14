@@ -85,7 +85,8 @@ def create_new_tournamentstate(sender, instance, created, **kwargs):
                     else:
                         team_b = team_stat_b.team
 
-                    g, cr = Game.objects.get_or_create(tournament=instance.tournament_event,
+                    g, cr = Game.objects.get_or_create( tournament=instance.tournament_event.tournament,
+                                                        tournament_event=instance.tournament_event,
                                                         #team_a=team_a,
                                                         team_st_a=act_team_stat,
                                                         #team_b=team_b,

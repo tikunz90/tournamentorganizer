@@ -36,7 +36,7 @@ def calculate_tstate(ts):
             tst.points_received = 0
             tst.save()
 
-        games = Game.objects.all().filter(tournament=ts.tournament_event,
+        games = Game.objects.all().filter(tournament_event=ts.tournament_event,
                                           tournament_state=ts,
                                           gamestate='FINISHED')
 
@@ -169,7 +169,7 @@ def check_direct_compare(ts):
                                                     game_points_bonus=teamstat.game_points_bonus)
             if teamst.count() == 2:
                 games = Game.objects.all().filter(Q(team_a=teamst[0].team) | Q(team_b=teamst[0].team),
-                                                  tournament=ts.tournament, tournament_state=ts)
+                                                  tournament_event=ts.tournament_event, tournament_state=ts)
                 games = games.filter(Q(team_a=teamst[1].team) | Q(team_b=teamst[1].team),
                                      gamestate=GAMESTATE_CHOICES[2][1])
                 if games.count() > 0:
@@ -183,11 +183,11 @@ def check_direct_compare(ts):
 def check_all_tournamentstate_finshed(tevent):
     tstates = TournamentState.objects.filter(tournament_event=tevent)
     for ts in tstates:
-        games_played = Game.objects.all().filter(tournament=tevent,
+        games_played = Game.objects.all().filter(tournament_event=tevent,
                                              tournament_state=ts,
                                              gamestate=GAMESTATE_CHOICES[2][1]).count()
 
-        all_games = Game.objects.all().filter(tournament=tevent,
+        all_games = Game.objects.all().filter(tournament_event=tevent,
                                                 tournament_state=ts).count()
         if games_played == all_games:
             ts.is_finished = True
@@ -196,11 +196,11 @@ def check_all_tournamentstate_finshed(tevent):
         ts.save(update_fields=['is_finished'])
 
 def check_tournamentstate_finished(tevent, ts):
-    games_played = Game.objects.all().filter(tournament=tevent,
+    games_played = Game.objects.all().filter(tournament_event=tevent,
                                              tournament_state=ts,
                                              gamestate=GAMESTATE_CHOICES[2][1]).count()
 
-    all_games = Game.objects.all().filter(tournament=tevent,
+    all_games = Game.objects.all().filter(tournament_event=tevent,
                                           tournament_state=ts).count()
 
     # check if all games are FINISHED

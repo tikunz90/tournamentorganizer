@@ -9,6 +9,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.template import loader
 from django.http import HttpResponse, JsonResponse
 from django import template
+from django.db.models import Q
 
 from authentication.models import GBOUser
 from .models.Tournament import Tournament, TournamentEvent, TournamentState
@@ -113,10 +114,13 @@ def structure_setup(request):
 def game_plan(request):
     
     context = getContext(request)
+    tourn = context['tourn']
+    tevents = context['events']
+
 
     context['segment'] = 'game_plan'
     context['segment_title'] = 'Game Plan'
-
+    
     html_template = loader.get_template( 'beachhandball/game_plan.html' )
     return HttpResponse(html_template.render(context, request))
 

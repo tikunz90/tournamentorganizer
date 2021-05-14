@@ -10,87 +10,36 @@
 <div class="col-lg-12 col-md-12 col-sm-12">
   <div class="card card-stats">
     <div class="card-body">
-      
-      <div class="row">
-        <div class="col-md-12 ml-auto mr-auto">
-          <div class="card card-calendar">
-            <div class="card-body ">
-              <div id="fullCalendar"></div>
-            </div>
+      <div class="table-responsive">
+            <table class="table">
+              <thead class=" text-primary">
+                <th>Date</th>
+                <th class="text-center">ID</th>
+                <th class="text-center">State</th>
+                <th class="text-center">Team A</th>
+                <th class="text-center">Team B</th>
+                <th class="text-center">Court</th>
+                <th class="text-center">1. HT</th>
+                <th class="text-center">2. HT</th>
+                <th class="text-center">Shootout</th>
+              </thead>
+              <tbody>
+                {% for game in tourn.game_set.all %}
+                <tr>
+                  <td>{{ game.starttime|date:"H:i (d.m.Y)" }}</td>
+                  <td class="text-center">{{ game.id }}</td>
+                  <td class="text-center">{{ game.tournament_state }}</td>
+                  <td class="text-center">{{ game.team_st_a.team }}</td>
+                  <td class="text-center">{{ game.team_st_b.team }}</td>
+                  <td class="text-center">{{ game.court.name }}</td>
+                  <td class="text-center">{{ game.score_team_a_halftime_1 }}:{{ game.score_team_b_halftime_1 }}</td>
+                  <td class="text-center">{{ game.score_team_a_halftime_2 }}:{{ game.score_team_b_halftime_2 }}</td>
+                  <td class="text-center">{{ game.score_team_a_penalty }}:{{ game.score_team_b_penalty }}</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
           </div>
-        </div>
-      </div>
-
-      <div class="row" hidden>
-        <div class="col-md-12 ml-auto mr-auto">
-          <div class="page-categories">
-            <ul class="nav nav-pills nav-pills-warning nav-pills-icons justify-content-center" role="tablist">
-              <li class="nav-item">
-                <a class="nav-link" data-toggle="tab" href="#link7" role="tablist">
-                  <i class="material-icons">event</i> Day 1
-                </a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link active" data-toggle="tab" href="#link8" role="tablist">
-                  <i class="material-icons">event</i> Day 2
-                </a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" data-toggle="tab" href="#link9" role="tablist">
-                  <i class="material-icons">event</i> Day 3
-                </a>
-              </li>
-            </ul>
-            <div class="tab-content tab-space tab-subcategories">
-              <div class="tab-pane" id="link7">
-                <div class="card">
-                  <div class="card-header">
-                    <h4 class="card-title">Description about product</h4>
-                    <p class="card-category">
-                      More information here
-                    </p>
-                  </div>
-                  <div class="card-body">
-                    Collaboratively administrate empowered markets via plug-and-play networks. Dynamically procrastinate B2C users after installed base benefits.
-                    <br>
-                    <br> Dramatically visualize customer directed convergence without revolutionary ROI.
-                  </div>
-                </div>
-              </div>
-              <div class="tab-pane active" id="link8">
-                <div class="card">
-                  <div class="card-header">
-                    <h4 class="card-title">Location of the product</h4>
-                    <p class="card-category">
-                      More information here
-                    </p>
-                  </div>
-                  <div class="card-body">
-                    Efficiently unleash cross-media information without cross-media value. Quickly maximize timely deliverables for real-time schemas.
-                    <br>
-                    <br> Dramatically maintain clicks-and-mortar solutions without functional solutions.
-                  </div>
-                </div>
-              </div>
-              <div class="tab-pane" id="link9">
-                <div class="card">
-                  <div class="card-header">
-                    <h4 class="card-title">Legal info of the product</h4>
-                    <p class="card-category">
-                      More information here
-                    </p>
-                  </div>
-                  <div class="card-body">
-                    Completely synergize resource taxing relationships via premier niche markets. Professionally cultivate one-to-one customer service with robust ideas.
-                    <br>
-                    <br>Dynamically innovate resource-leveling customer service for state of the art customer service.
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
      
     </div>
     <div class="card-footer">
@@ -108,8 +57,8 @@
 
 <script>
     $(document).ready(function() {
-      md.initFullCalendar();
-      md.initFullCalendar2();
+      //md.initFullCalendar();
+      //md.initFullCalendar2();
     });
   </script>
 
