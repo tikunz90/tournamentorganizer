@@ -5,6 +5,7 @@ Copyright (c) 2019 - present AppSeed.us
 
 from django.urls import path, re_path
 from beachhandball_app import static_views
+from beachhandball_app.views.basic_setup import CourtCreateView, CourtUpdateView, CourtDeleteView
 from beachhandball_app.views.teams_setup import TeamsSetupDetail
 from beachhandball_app.views.structure_setup import DownloadPreGameView, GameCreateView, GameResultGameView, GameUpGameView, StateFinishView, StructureSetupDetail, StageCreateView, StageDeleteView, StateCreateView, StateDeleteView, StateUpdateView, TTTUpdateView, TeamStatsUpdateTeamView, GameDeleteView
 from beachhandball_app.views.structure_setup_fb import games_list
@@ -20,6 +21,9 @@ urlpatterns = [
     path('ajax/data/', static_views.getData, name='get_data'),
 
     path('basic_setup/', static_views.basic_setup, name='basic_setup'),
+    path('basic_setup/<int:pk_tourn>/create_court/', CourtCreateView.as_view(), name='basic_setup.create_court'),
+    path('basic_setup/<int:pk_tourn>/update_court/<int:pk>/', CourtUpdateView.as_view(), name='basic_setup.update_court'),
+    path('basic_setup/<int:pk_tourn>/delete_court/<int:pk>/', CourtDeleteView.as_view(), name='basic_setup.delete_court'),
 
     path('teams_setup/', static_views.teams_setup, name='teams_setup'),
     path('teams_setup/<int:pk>/', TeamsSetupDetail.as_view(), name='teams_setup.detail'),

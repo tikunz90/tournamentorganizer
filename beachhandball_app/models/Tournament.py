@@ -87,7 +87,7 @@ class Court(models.Model):
     """
     created_at = UnixDateTimeField(editable=False, default=timezone.now)
 
-    tournament = models.ForeignKey('Tournament', null=True, related_name='+', on_delete=models.CASCADE)
+    tournament = models.ForeignKey('Tournament', null=True, on_delete=models.CASCADE)
     name = models.CharField(max_length=50)
     number = models.SmallIntegerField(default=0)
 

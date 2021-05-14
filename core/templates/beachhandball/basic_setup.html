@@ -6,6 +6,9 @@
 {% block stylesheets %}{% endblock stylesheets %}
 
 {% block content %}
+
+{% include "beachhandball/templates/_modal.html" %}
+
 <h2>Basic Setup - 
   <small class="description">create courts, manage teams,...</small>
 </h2>
@@ -38,14 +41,36 @@
               
             
             <div class="row" id="court_table">
-              
+              {% for court in tourn.court_set.all %}
+                <div class="col-md-3">
+                  <div class="card card-stats">
+                    <div class="card-header card-header-warning card-header-icon">
+                      <div class="card-icon">
+                        <i class="material-icons">pin_drop</i>
+                      </div>
+                      <p class="card-category">{{ court.name }}</p>
+                      <h3 class="card-title">{{ court.number }}</h3>
+                    </div>
+                    <div class="card-footer">
+                      <div class="stats">
+                        <button type="button" class="update-court btn btn-success btn-link" rel="tooltip" title="Edit Court" data-form-url="{% url 'basic_setup.update_court' pk_tourn=tourn.id pk=court.id %}">
+                          <i class="material-icons">edit</i>
+                        </button>
+                        <button type="button" rel="tooltip" class="delete-court btn btn-danger btn-link" rel="tooltip" title="Delete Court"  data-form-url="{% url 'basic_setup.delete_court' pk_tourn=tourn.id pk=court.id %}">
+                          <i class="material-icons">close</i>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              {% endfor %}
             </div>
 
             <div class="row">
                   <div class="col-md-6 col-lg-6">
-                    <button class="btn btn-primary btn-lg" data-toggle="modal" data-target="#bhAddCourtModal">
-                        <i class="material-icons">add_box</i> Add Court
-                      </button>
+                    <button type="button" class="create-court btn btn-sm btn-primary" rel="tooltip" title="Create new Court" data-form-url="{% url 'basic_setup.create_court' pk_tourn=tourn.id %}">
+                        <span class="fa fa-plus mr-2"></span> Create Court
+                    </button> 
                   </div>
               </div>
 
@@ -64,55 +89,6 @@
 </div>
 
 
-<div class="modal fade" id="bhAddCourtModal" tabindex="-1" role="dialog" aria-labelledby="AddCourtModal" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h4 class="modal-title"></h4>
-        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
-          <i class="material-icons">clear</i>
-        </button>
-      </div>
-      <div class="modal-body">
-        <div class="col-md-12">
-            <form id="bhAddCourtForm" class="form-horizontal" action="#" method="">
-              <div class="card ">
-                <div class="card-header card-header-rose card-header-text">
-                  <div class="card-text">
-                    <h4 class="card-title">Create new Court</h4>
-                  </div>
-                </div>
-                <div class="card-body ">
-                  <div class="row">
-                    <label class="col-sm-2 col-form-label">Name</label>
-                    <div class="col-sm-7">
-                      <div class="form-group">
-                        <input id="bhAddCourtForm_Name" class="form-control" type="text" name="name" required="true" />
-                      </div>
-                    </div>
-                  </div>
-                  <div class="row">
-                    <label class="col-sm-2 col-form-label">Number</label>
-                    <div class="col-sm-7">
-                      <div class="form-group">
-                        <input class="form-control" type="number" name="number" min="1" required="true" />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div class="card-footer ml-auto mr-auto">
-                  <!--button  class="btn btn-success" onclick="click_addCourt()">Add Court</button-->
-                </div>
-              </div>
-            </form>
-          </div>
-      </div>
-      <div class="modal-footer">
-        <button id="bhAddCourtForm_OK" type="button" class="btn btn-success">Add Court</button>
-      </div>
-    </div>
-  </div>
-</div>
 
 {% endblock content %}
 
@@ -120,12 +96,46 @@
 
 <script>
   $(document).ready(function() {
-    if (localStorage.getItem("mockData") === null) {
-        tournament_service.saveMockData();
-      }
-    var courts = tournament_service.getCourts();
-    courts.data.forEach(function(item, index){
-      bh.addCourtHTML(item);
+    //if (localStorage.getItem("mockData") === null) {
+    //    tournament_service.saveMockData();
+    //  }
+    //var courts = tournament_service.getCourts();
+    //courts.data.forEach(function(item, index){
+    //  bh.addCourtHTML(item);
+    //});
+
+    // Create tstate synchronous
+    function createCourtModalForm() {
+      $(".create-court").each(function () {
+          $(this).modalForm({formURL: $(this).data("form-url")});
+      });
+    }
+    createCourtModalForm();
+
+    function updateCourtModalForm() {
+      $(".update-court").each(function () {
+          $(this).modalForm({formURL: $(this).data("form-url"), isDeleteForm: false});
+      });
+    }
+    updateCourtModalForm();
+
+    function deleteCourtModalForm() {
+      $(".delete-court").each(function () {
+          $(this).modalForm({formURL: $(this).data("form-url"), isDeleteForm: true});
+      });
+    }
+    deleteCourtModalForm();
+
+    function reinstantiateModalForms() {
+      createCourtModalForm();
+      deleteCourtModalForm();
+      updateCourtModalForm();
+    }
+
+      
+    // Hide message
+    $(".alert").fadeTo(2000, 500).slideUp(500, function () {
+        $(".alert").slideUp(500);
     });
   });
 </script>

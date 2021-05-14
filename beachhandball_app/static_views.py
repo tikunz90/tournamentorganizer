@@ -4,7 +4,7 @@ Copyright (c) 2019 - present AppSeed.us
 """
 
 from beachhandball_app import helper
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.shortcuts import render, get_object_or_404, redirect
 from django.template import loader
 from django.http import HttpResponse, JsonResponse
@@ -25,27 +25,18 @@ def getContext(request):
     guser = GBOUser.objects.filter(user=request.user).first()
     
     if guser is None:
-        context['gbo_user'] = 'None'
-        context['token'] = ''
+        return context
     else:
         context['gbo_user'] = guser
         context['season_active'] = SWS.getSeasonActive(guser)
         context['token'] = guser.token
     
-    t = Tournament.objects.get(id=1)
+    t, cr = Tournament.objects.get_or_create(organizer=guser.subject_id)
+    if cr:
+        t.name = 'Not Named'
+    t.save()
     context['tourn'] = t
     context['events'] = TournamentEvent.objects.filter(tournament=t)
-    tevent = TournamentEvent.objects.filter(tournament=t).first();
-
-    #context['teams_dummy'] = ["DreamTeam"
-    #,"The Beachers"
-    #,"Superstars"
-    #,"Beach Gods"
-    #,"Lucky Beach"
-    #,"Ballers"
-    #,"Ultimate Team"
-    #,"Thunder Beach"]
-    context['teams_dummy'] = Team.objects.all().filter(tournament_event=tevent)
     return context
 
 def getData(request):
@@ -67,7 +58,13 @@ def getData(request):
 
     return JsonResponse(data)
 
+def not_in_student_group(user):
+    if user:
+        return user.groups.filter(name='tournament_organizer').count() == 0
+    return False
+
 @login_required(login_url="/login/")
+@user_passes_test(lambda u: u.groups.filter(name='tournament_organizer').exists())
 def index(request):
     context = getContext(request)
 
@@ -78,6 +75,7 @@ def index(request):
     return HttpResponse(html_template.render(context, request))
 
 @login_required(login_url="/login/")
+@user_passes_test(lambda u: u.groups.filter(name='tournament_organizer').exists())
 def basic_setup(request):
     
     context = getContext(request)
@@ -89,6 +87,7 @@ def basic_setup(request):
     return HttpResponse(html_template.render(context, request))
 
 @login_required(login_url="/login/")
+@user_passes_test(lambda u: u.groups.filter(name='tournament_organizer').exists())
 def teams_setup(request):
     
     context = getContext(request)
@@ -100,6 +99,7 @@ def teams_setup(request):
     return HttpResponse(html_template.render(context, request))
 
 @login_required(login_url="/login/")
+@user_passes_test(lambda u: u.groups.filter(name='tournament_organizer').exists())
 def structure_setup(request):
     
     context = getContext(request)
@@ -111,6 +111,7 @@ def structure_setup(request):
     return HttpResponse(html_template.render(context, request))
 
 @login_required(login_url="/login/")
+@user_passes_test(lambda u: u.groups.filter(name='tournament_organizer').exists())
 def game_plan(request):
     
     context = getContext(request)
@@ -120,11 +121,12 @@ def game_plan(request):
 
     context['segment'] = 'game_plan'
     context['segment_title'] = 'Game Plan'
-    
+
     html_template = loader.get_template( 'beachhandball/game_plan.html' )
     return HttpResponse(html_template.render(context, request))
 
 @login_required(login_url="/login/")
+@user_passes_test(lambda u: u.groups.filter(name='tournament_organizer').exists())
 def results(request):
     
     context = getContext(request)
@@ -136,6 +138,7 @@ def results(request):
     return HttpResponse(html_template.render(context, request))
 
 @login_required(login_url="/login/")
+@user_passes_test(lambda u: u.groups.filter(name='tournament_organizer').exists())
 def pages(request):
     context = {}
     # All resource paths end in .html.
