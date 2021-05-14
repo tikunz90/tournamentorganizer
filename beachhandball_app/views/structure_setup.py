@@ -11,7 +11,7 @@ from beachhandball_app.models.Game import Game
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, UpdateView
 from django.views.generic import TemplateView
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.urls import reverse_lazy
@@ -21,6 +21,8 @@ from django.contrib.messages.views import SuccessMessageMixin
 from django.conf import settings
 from beachhandball_app.helper import reverse_querystring, calculate_tstate
 from beachhandball_app.game_report import create_game_report
+
+from beachhandball_app.static_views import getContext
 
 from bootstrap_modal_forms.generic import BSModalCreateView, BSModalDeleteView, BSModalUpdateView
 
@@ -33,7 +35,7 @@ from beachhandball_app.forms.structure_setup.forms import GameUpdateForm, GameUp
 from beachhandball_app import static_views
 
 #class StructureSetupDetail(LoginRequiredMixin, DetailView):
-class StructureSetupDetail(DetailView):
+class StructureSetupDetail(LoginRequiredMixin, UserPassesTestMixin, DetailView):
     model = TournamentEvent
     template_name = 'beachhandball/tournamentevent/structure_setup.html'
     login_url = '/login/'
@@ -42,10 +44,10 @@ class StructureSetupDetail(DetailView):
     def get_context_data(self, **kwargs):
         print('Enter StructureSetupDetail: ', datetime.now())
         tevent = kwargs["object"]
-        t = Tournament.objects.get(id=1)
+        #t = Tournament.objects.get(id=1)
         #tevent = TournamentEvent.objects.filter(tournament=t).prefetch_related('TournamentStages')
-        context = {}
-        kwargs['tourn'] = t
+        context = getContext(self.request)
+        kwargs['tourn'] = context['tourn']
         kwargs['tst_view'] = tevent.tournamentstage_set.all()
 
         kwargs['tevent'] = tevent 
@@ -63,6 +65,9 @@ class StructureSetupDetail(DetailView):
        # kwargs['form_tstate'] = TournamentStateUpdateForm(instance=tstate)
         print('Leave StructureSetupDetail: ', datetime.now())
         return super(StructureSetupDetail, self).get_context_data(**kwargs)
+    
+    def test_func(self):
+        return self.request.user.groups.filter(name='tournament_organizer').exists()
 
 
 class StageCreateView(BSModalCreateView):
