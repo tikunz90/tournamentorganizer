@@ -160,11 +160,15 @@ class GameUpdateForm(BSModalModelForm):
             'team_st_a': 'Team A:',
             'team_st_b': 'Team B:',
         }
+        widgets = {
+           'starttime': forms.widgets.DateTimeInput(attrs={'class': "form-control"}),
+        }
 
     def __init__(self, *args, **kwargs):
         super(GameUpdateForm, self).__init__(*args, **kwargs)
         for field in self.disabled_fields:
             self.fields[field].disabled = True
+        #self.fields['starttime'].widget.attrs['class'] = 'form-control datetimepicker'
         
 class GameUpdateResultForm(BSModalModelForm):
 
