@@ -1,3 +1,8 @@
+import os
+import mimetypes
+from django.http.response import Http404, HttpResponse
+
+from django.views.generic.base import View
 from beachhandball_app import helper
 from beachhandball_app.models.Player import PlayerStats
 from datetime import datetime
@@ -13,7 +18,9 @@ from django.urls import reverse_lazy
 from django.http import JsonResponse
 from django.template.loader import render_to_string
 from django.contrib.messages.views import SuccessMessageMixin
+from django.conf import settings
 from beachhandball_app.helper import reverse_querystring, calculate_tstate
+from beachhandball_app.game_report import create_game_report
 
 from bootstrap_modal_forms.generic import BSModalCreateView, BSModalDeleteView, BSModalUpdateView
 
@@ -257,6 +264,43 @@ class GameUpGameView(BSModalUpdateView):
            pk = self.kwargs["pk_tevent"]
            return reverse_querystring("structure_setup.detail", kwargs={"pk": pk}, query_kwargs={'tab': self.kwargs["pk_tstage"], 'tab_tstate': 0})
 
+
+class DownloadPreGameView(View):
+    # Set the content type value
+    content_type_value = 'text/plain'
+
+    def get(self, request, pk, pk_tevent, pk_tstage):
+        game = Game.objects.get(id=pk)
+        if game:
+            # Define the full file path
+            filepath, filename = create_game_report.create_pregame_report_excel(game)
+
+            if os.path.exists(filepath):
+                # Open the file for reading content
+                path = open(filepath, 'rb')
+                # Set the mime type
+                mime_type, _ = mimetypes.guess_type(filepath)
+                # Set the return value of the HttpResponse
+                response = HttpResponse(path, content_type=mime_type)
+                # Set the HTTP header for sending to browser
+                response['Content-Disposition'] = "attachment; filename=%s" % filename
+                # Return the response value
+                return response
+            else:
+                raise Http404
+            #with open(file_path, 'rb') as fh:
+            #    response = HttpResponse(
+            #        fh.read(),
+            #        content_type=self.content_type_value
+            #    )
+            #    response['Content-Disposition'] = 'inline; filename=' + os.path.basename(file_path)
+            #return response
+        else:
+            raise Http404
+
+    def get_success_url(self):
+           pk = self.kwargs["pk_tevent"]
+           return reverse_querystring("structure_setup.detail", kwargs={"pk": pk}, query_kwargs={'tab': self.kwargs["pk_tstage"], 'tab_tstate': 0})
 
 class GameResultGameView(BSModalUpdateView):
     model = Game

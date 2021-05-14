@@ -138,3 +138,5 @@ STATICFILES_DIRS = (
 #############################################################
 
 SWS_BASE_URL = 'https://euve268544.serverprofi24.de:3060'
+
+GAME_REPORT_DIR = os.path.join(BASE_DIR, 'report')

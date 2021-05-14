@@ -6,7 +6,7 @@ Copyright (c) 2019 - present AppSeed.us
 from django.urls import path, re_path
 from beachhandball_app import static_views
 from beachhandball_app.views.teams_setup import TeamsSetupDetail
-from beachhandball_app.views.structure_setup import GameCreateView, GameResultGameView, GameUpGameView, StateFinishView, StructureSetupDetail, StageCreateView, StageDeleteView, StateCreateView, StateDeleteView, StateUpdateView, TTTUpdateView, TeamStatsUpdateTeamView, GameDeleteView
+from beachhandball_app.views.structure_setup import DownloadPreGameView, GameCreateView, GameResultGameView, GameUpGameView, StateFinishView, StructureSetupDetail, StageCreateView, StageDeleteView, StateCreateView, StateDeleteView, StateUpdateView, TTTUpdateView, TeamStatsUpdateTeamView, GameDeleteView
 from beachhandball_app.views.structure_setup_fb import games_list
 from beachhandball_app.views.results import ResultsDetail
 
@@ -41,6 +41,7 @@ urlpatterns = [
     path('structure_setup/<int:pk_tstate>/games/', games_list, name='games_list'),
     path('structure_setup/<int:pk_tevent>/<int:pk_tstage>/update_game/<int:pk>', GameUpGameView.as_view(), name='update_game'),
     path('structure_setup/<int:pk_tevent>/<int:pk_tstage>/update_game_result/<int:pk>', GameResultGameView.as_view(), name='update_game_result'),
+    path('structure_setup/<int:pk_tevent>/<int:pk_tstage>/download_pre_game/<int:pk>', DownloadPreGameView.as_view(), name='download_pre_game'),
     
 
     path('game_plan/', static_views.game_plan, name='game_plan'),

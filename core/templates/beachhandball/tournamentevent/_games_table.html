@@ -26,6 +26,11 @@
             <button type="button" class="update_game btn btn-success btn-link" rel="tooltip" title="Edit Game" data-form-url="{% url 'update_game' pk_tevent=tevent.id pk_tstage=stage.id pk=game.id %}" data-list-url="{% url 'games_list' pk_tstate=tstate.id %}" {% if tstate.is_finished is True and tstate.transitions_done is True %}disabled{% endif %}>
                 <i class="material-icons">edit</i>
             </button>
+            <button type="button" rel="tooltip" class="download-pregame-report btn btn-info btn-link" rel="tooltip" title="Download Pre-Game Report" data-form-url="{% url 'download_pre_game' pk_tevent=tevent.id pk_tstage=stage.id pk=game.id %}" data-list-url="{% url 'games_list' pk_tstate=tstate.id %}">
+                <a class="" href="{% url 'download_pre_game' pk_tevent=tevent.id pk_tstage=stage.id pk=game.id %}">
+                    <i class="material-icons">file_download</i>
+                </a>
+            </button>
             <button type="button" rel="tooltip" class="update-game-result btn btn-info btn-link" rel="tooltip" title="Enter Result" data-form-url="{% url 'update_game_result' pk_tevent=tevent.id pk_tstage=stage.id pk=game.id %}" data-list-url="{% url 'games_list' pk_tstate=tstate.id %}"{% if tstate.is_finished is True and tstate.transitions_done is True %}disabled{% endif %}>
                 <i class="material-icons">assignment</i>
             </button>
