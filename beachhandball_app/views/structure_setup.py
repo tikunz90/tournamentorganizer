@@ -119,7 +119,7 @@ class StateCreateView(BSModalCreateView):
 
     def get_success_url(self):
            pk = self.kwargs["pk_tevent"]
-           return reverse("structure_setup.detail", kwargs={"pk": pk})
+           return reverse_querystring("structure_setup.detail", kwargs={"pk": pk}, query_kwargs={'tab': self.kwargs["pk_tstage"], 'tab_tstate': 0})
 
 
 class StateDeleteView(BSModalDeleteView):
