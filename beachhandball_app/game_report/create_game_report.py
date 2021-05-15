@@ -11,7 +11,7 @@ def create_pregame_report_excel(game):
     print('game_report DIR: ' + settings.GAME_REPORT_DIR)
 
     filename_template = 'game_report_template.xlsx'
-    filename = 'PreGame_' + game.tournament.category.abbreviation + str(game.id) + '.xlsx'
+    filename = 'PreGame_' + game.tournament_event.category.abbreviation + str(game.id) + '.xlsx'
 
     fullfilepath_template = os.path.join(settings.GAME_REPORT_DIR, filename_template)
     fullfilepath_report = os.path.join(settings.GAME_REPORT_DIR, filename)
@@ -24,12 +24,12 @@ def create_pregame_report_excel(game):
         ws = wb.active
 
         # game id
-        ws["T4"] = game.tournament.category.abbreviation + str(game.id)
+        ws["T4"] = game.tournament_event.category.abbreviation + str(game.id)
         
         # category
-        if game.tournament.category.category == CATEGORY_CHOICES[0][0]:
+        if game.tournament_event.category.category == CATEGORY_CHOICES[0][0]:
             ws["M3"] = 'X'
-        elif game.tournament.category.category == CATEGORY_CHOICES[1][0]:
+        elif game.tournament_event.category.category == CATEGORY_CHOICES[1][0]:
             ws["P3"] = 'X'
 
         # court
