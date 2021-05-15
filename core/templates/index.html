@@ -71,19 +71,8 @@
 <!-- Specific Page JS goes HERE  -->
 {% block javascripts %}
   
-  <!-- Vector Map plugin, full documentation here: http://jvectormap.com/documentation/ -->
-  <script src="/static/assets/js/plugins/jquery-jvectormap.js"></script>
   <script>
     $(document).ready(function() {
-      // Javascript method's body can be found in assets/js/demos.js
-      md.initDashboardPageCharts();
-
-      md.initVectorMap();
-      if (localStorage.getItem("mockData") === null) {
-        tournament_service.saveMockData();
-      }
-
-      console.debug('{{ gbo_user }}')
       
     });
   </script>
