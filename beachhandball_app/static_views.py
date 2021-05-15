@@ -64,7 +64,8 @@ def not_in_student_group(user):
     return False
 
 @login_required(login_url="/login/")
-@user_passes_test(lambda u: u.groups.filter(name='tournament_organizer').exists())
+@user_passes_test(lambda u: u.groups.filter(name='tournament_organizer').exists(),
+login_url="/login/", redirect_field_name='next')
 def index(request):
     context = getContext(request)
 
@@ -75,7 +76,8 @@ def index(request):
     return HttpResponse(html_template.render(context, request))
 
 @login_required(login_url="/login/")
-@user_passes_test(lambda u: u.groups.filter(name='tournament_organizer').exists())
+@user_passes_test(lambda u: u.groups.filter(name='tournament_organizer').exists(),
+login_url="/login/", redirect_field_name='next')
 def basic_setup(request):
     
     context = getContext(request)
@@ -87,7 +89,8 @@ def basic_setup(request):
     return HttpResponse(html_template.render(context, request))
 
 @login_required(login_url="/login/")
-@user_passes_test(lambda u: u.groups.filter(name='tournament_organizer').exists())
+@user_passes_test(lambda u: u.groups.filter(name='tournament_organizer').exists(),
+login_url="/login/", redirect_field_name='next')
 def teams_setup(request):
     
     context = getContext(request)
@@ -99,7 +102,8 @@ def teams_setup(request):
     return HttpResponse(html_template.render(context, request))
 
 @login_required(login_url="/login/")
-@user_passes_test(lambda u: u.groups.filter(name='tournament_organizer').exists())
+@user_passes_test(lambda u: u.groups.filter(name='tournament_organizer').exists(),
+login_url="/login/", redirect_field_name='next')
 def structure_setup(request):
     
     context = getContext(request)
@@ -111,7 +115,8 @@ def structure_setup(request):
     return HttpResponse(html_template.render(context, request))
 
 @login_required(login_url="/login/")
-@user_passes_test(lambda u: u.groups.filter(name='tournament_organizer').exists())
+@user_passes_test(lambda u: u.groups.filter(name='tournament_organizer').exists(),
+login_url="/login/", redirect_field_name='next')
 def game_plan(request):
     
     context = getContext(request)
@@ -126,7 +131,8 @@ def game_plan(request):
     return HttpResponse(html_template.render(context, request))
 
 @login_required(login_url="/login/")
-@user_passes_test(lambda u: u.groups.filter(name='tournament_organizer').exists())
+@user_passes_test(lambda u: u.groups.filter(name='tournament_organizer').exists(),
+login_url="/login/", redirect_field_name='next')
 def results(request):
     
     context = getContext(request)
@@ -138,7 +144,8 @@ def results(request):
     return HttpResponse(html_template.render(context, request))
 
 @login_required(login_url="/login/")
-@user_passes_test(lambda u: u.groups.filter(name='tournament_organizer').exists())
+@user_passes_test(lambda u: u.groups.filter(name='tournament_organizer').exists(),
+login_url="/login/", redirect_field_name='next')
 def pages(request):
     context = {}
     # All resource paths end in .html.
