@@ -173,6 +173,11 @@
             <button type="button" class="create-game btn btn-sm btn-primary" rel="tooltip" title="Add Game" data-form-url="{% url 'structure_setup.create_game' pk_tevent=tevent.id pk_tstage=stage.id pk_tstate=tstate.id %}" {% if tstate.is_finished is True and tstate.transitions_done is True %}disabled{% endif %}>
                 <i class="material-icons">note_add</i>Add Game
             </button>
+            <button type="button" rel="tooltip" class="download-pregame-report btn btn-info btn-link" rel="tooltip" title="Download Pre-Game Report" data-form-url="{% url 'download_pre_game_all' pk_tevent=tevent.id pk_tstage=stage.id pk=tstate.id %}" data-list-url="{% url 'games_list' pk_tstate=tstate.id %}">
+                <a class="" href="{% url 'download_pre_game_all' pk_tevent=tevent.id pk_tstage=stage.id pk=tstate.id %}">
+                    <i class="material-icons">file_download</i> All Pre-Game Reports
+                </a>
+            </button>
             <button type="button" class="finish-tstate btn btn-sm btn-primary" rel="tooltip" title="Finishes TournamentState after all games played" data-form-url="{% url 'structure_setup.finish_tstate' pk_tevent=tevent.id pk_tstage=stage.id pk=tstate.id %}" {% if tstate.is_finished is False or tstate.transitions_done is True %}disabled{% endif %}>
                 <i class="material-icons">check_circle_outline</i>Finish State
             </button>

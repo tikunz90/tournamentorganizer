@@ -307,6 +307,43 @@ class DownloadPreGameView(View):
            pk = self.kwargs["pk_tevent"]
            return reverse_querystring("structure_setup.detail", kwargs={"pk": pk}, query_kwargs={'tab': self.kwargs["pk_tstage"], 'tab_tstate': 0})
 
+class DownloadPreGameAllView(View):
+    # Set the content type value
+    content_type_value = 'text/plain'
+
+    def get(self, request, pk, pk_tevent, pk_tstage):
+        tstate = TournamentState.objects.get(id=pk)
+        if tstate:
+            # Define the full file path
+            filepath, filename = create_game_report.create_all_tstate_pregame_report_excel(tstate)
+
+            if os.path.exists(filepath):
+                # Open the file for reading content
+                path = open(filepath, 'rb')
+                # Set the mime type
+                mime_type, _ = mimetypes.guess_type(filepath)
+                # Set the return value of the HttpResponse
+                response = HttpResponse(path, content_type=mime_type)
+                # Set the HTTP header for sending to browser
+                response['Content-Disposition'] = "attachment; filename=%s" % filename
+                # Return the response value
+                return response
+            else:
+                raise Http404
+            #with open(file_path, 'rb') as fh:
+            #    response = HttpResponse(
+            #        fh.read(),
+            #        content_type=self.content_type_value
+            #    )
+            #    response['Content-Disposition'] = 'inline; filename=' + os.path.basename(file_path)
+            #return response
+        else:
+            raise Http404
+
+    def get_success_url(self):
+           pk = self.kwargs["pk_tevent"]
+           return reverse_querystring("structure_setup.detail", kwargs={"pk": pk}, query_kwargs={'tab': self.kwargs["pk_tstage"], 'tab_tstate': 0})
+
 class GameResultGameView(BSModalUpdateView):
     model = Game
     template_name = 'beachhandball/templates/update_game_result_form.html'

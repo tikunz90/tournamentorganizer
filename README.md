@@ -20,7 +20,7 @@ App for creating, controlling beachhandball tournaments.
 
 - Seitenmenu klappt sich nach jeder Aktion wieder auf. Default sollte immer eingeklappt sein damit man die Tabellen etc. immer voll sieht
 
-- Beim Anlegen von States innerhalb einer Stage aspringt die App danach immer wieder auf die erste Stage zurück. Nicht schlimm aber nervig wenn man innerhlab einer Stage mehrere States anlegen möchte. Immer auf der letzten Seite bleiben.
+- Beim Anlegen von States innerhalb einer Stage aspringt die App danach immer wieder auf die erste Stage zurück. Nicht schlimm aber nervig wenn man innerhlab einer Stage mehrere States anlegen möchte. Immer auf der letzten Seite bleiben. DONE
 
 - Pts in Klammern in Tabellen nicht ganz klar welche Bedeutung/Nutzen
 
