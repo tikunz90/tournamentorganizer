@@ -33,7 +33,8 @@ class ResultsDetail(DetailView):
     def get_context_data(self, **kwargs):
         print('Enter ResultsDetail: ', datetime.now())
         tevent = kwargs["object"]
-        t = Tournament.objects.get(id=1)
+        context = static_views.getContext(self.request)
+        t = context['tourn']
         #tevent = TournamentEvent.objects.filter(tournament=t).prefetch_related('TournamentStages')
         context = {}
         kwargs['tourn'] = t
