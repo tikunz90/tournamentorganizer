@@ -1,6 +1,6 @@
 {% load widget_tweaks %}
 
-<form method="post" action="">
+<form id="update-form" method="post" action="" onclick="modalShowSpinner();">
   {% csrf_token %}
 
   <div class="modal-header">
@@ -61,3 +61,5 @@
   </div>
 
 </form>
+
+<script>function modalShowSpinner(){$("#update-form").LoadingOverlay("show");}</script>

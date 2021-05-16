@@ -1,6 +1,6 @@
 {% load widget_tweaks %}
 
-<form method="post" action="">
+<form id="create-stage-form" method="post" action="">
   {% csrf_token %}
 
   <div class="modal-header">
@@ -57,7 +57,9 @@
   </div>
 
   <div class="modal-footer">
-    <button type="submit" class="btn btn-primary">Create</button>
+    <button type="submit" class="btn btn-primary" onclick="modalShowSpinner();">Create</button>
   </div>
 
 </form>
+
+<script>function modalShowSpinner(){$("#create-stage-form").LoadingOverlay("show");}</script>

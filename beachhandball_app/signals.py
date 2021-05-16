@@ -29,7 +29,7 @@ def create_new_tournament_event(sender, instance, created, **kwargs):
 
 @receiver(post_save, sender=TournamentState)
 def create_new_tournamentstate(sender, instance, created, **kwargs):
-    print('Enter create_new_tournamentstate: ', datetime.now())
+    #print('Enter create_new_tournamentstate: ', datetime.now())
     if created:
         # Create dummy teamstats
         for i in range(1, instance.max_number_teams+1):
@@ -96,7 +96,7 @@ def create_new_tournamentstate(sender, instance, created, **kwargs):
                                                         gamestate='APPENDING',
                                                         gamingstate='Ready')
                     g.save()
-    print('Leave create_new_tournamentstate: ', datetime.now())
+    #print('Leave create_new_tournamentstate: ', datetime.now())
 
 
 @receiver(post_save, sender=TournamentTeamTransition)

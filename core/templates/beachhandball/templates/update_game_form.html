@@ -1,6 +1,6 @@
 {% load widget_tweaks %}
 
-<form method="post" action="">
+<form id="update-game-form" method="post" action="">
   {% csrf_token %}
 
   <div class="modal-header">
@@ -59,7 +59,7 @@
     {% endfor %}
   </div>
   <div class="modal-footer">
-    <button type="submit" class="btn btn-primary">Update</button>
+    <button type="submit" class="btn btn-primary" onclick="modalShowSpinner();">Update</button>
   </div>
 
 </form>
@@ -75,4 +75,8 @@
     //$( "#id_starttime" ).val($( "#id_starttime" )[0].attributes.value.value);
     $( "#id_starttime" ).val(date_string);
   });
+
+  function modalShowSpinner(){
+  $("#update-game-form").LoadingOverlay("show");
+    }
 </script>

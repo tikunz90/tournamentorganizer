@@ -1,6 +1,6 @@
 {% load widget_tweaks %}
 
-<form method="post" action="">
+<form id="update-teamstat-form" method="post" action="">
   {% csrf_token %}
 
   <div class="modal-header">
@@ -57,7 +57,8 @@
   </div>
 
   <div class="modal-footer">
-    <button type="submit" class="btn btn-primary">Update</button>
+    <button type="submit" class="btn btn-primary" onclick="modalShowSpinner();">Update</button>
   </div>
 
 </form>
+<script>function modalShowSpinner(){$("#update-teamstat-form").LoadingOverlay("show");}</script>

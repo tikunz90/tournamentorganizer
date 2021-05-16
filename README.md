@@ -24,8 +24,6 @@ App for creating, controlling beachhandball tournaments.
 
 - Template Wizzard --> Vorkonfigurierte Strutkurbäume ermöglichen oder halt individuell
 
-- Beim Ergebnisseintrag der einzelnen Spiele ist es mir oft passiert, dass ich vergessen habe den Status auf "Finished" zu setzen. Am besten wäre unten neben dem "Update" Button noch einen Button "Update and Set to Finished" zu machen. Dann bleiben wir flexibel aber spart den Klick und das Wundern warum die Tabelle nicht aktualisiert wird.
-
 - Zeitblöcke und Anzahl pro Tag für Spielplan vorgeben können (bspw. 45 min Raster in 10 Std, Spiele einfach beliebig einsortieren) Finde die Gameplan Liste gut. Frage ist ob man hier ggf. die einzelnen Blöcke hin und herschieben könnte innerhalb der Zeitblöcke. Falls wir für ein Gadget da Geld zahlen müssten können wir das investieren. So wie du beim Kalender meintest.
 
 - Gamneplan Ergebnisse - Info zu Sätzen fehlt (wer hat gewonnen)

@@ -98,7 +98,7 @@
               <ul class="nav">
               {% for tevent in tourn.tournamentevent_set.all %}
                 <li class="nav-item">
-                  <a class="nav-link" href="{% url 'results.detail' pk=tevent.id %}">
+                  <a class="nav-link" href="{% url 'results.detail' pk=tevent.id %}" onclick="modalShowSpinner();">
                     <!--span class="sidebar-mini"> 1234 </!--span-->
                     <span class="sidebar-normal"> {{ tevent.name_short }}</span>
                   </a>

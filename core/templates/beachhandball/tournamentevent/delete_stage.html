@@ -1,6 +1,6 @@
 {% load widget_tweaks %}
 
-<form method="post" action="">
+<form id="delete-stage-form" method="post" action="">
   {% csrf_token %}
 
   <div class="modal-header">
@@ -15,7 +15,9 @@
   </div>
 
   <div class="modal-footer">
-    <button type="submit" id="delete-btn" class="btn btn-danger">Delete</button>
+    <button type="submit" id="delete-btn" class="btn btn-danger" onclick="modalShowSpinner();">Delete</button>
   </div>
 
 </form>
+
+<script>function modalShowSpinner(){$("#delete-stage-form").LoadingOverlay("show");}</script>
