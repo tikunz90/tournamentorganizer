@@ -1,3 +1,4 @@
+from beachhandball_app.models.choices import GAMESTATE_CHOICES
 import os
 import mimetypes
 from django.http.response import Http404, HttpResponse
@@ -365,6 +366,8 @@ class GameResultGameView(BSModalUpdateView):
         tstage = get_object_or_404(TournamentStage, id=self.kwargs.get('pk_tstage'))
         form.instance.tournament_event = tevent
         form.instance.tournament_stage = tstage
+        self.object.gamestate = GAMESTATE_CHOICES[2][0]
+        self.object.save()
         #calculate_tstate(self.object.tournament_state)
         return super().form_valid(form)
 
