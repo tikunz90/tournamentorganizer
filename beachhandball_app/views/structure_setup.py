@@ -60,6 +60,7 @@ class StructureSetupDetail(LoginRequiredMixin, UserPassesTestMixin, DetailView):
         kwargs['ts_types'] = TournamentStage.objects.filter(tournament_event=tevent)
         kwargs['teams_appending'] = []#Team.objects.filter(tournament=tevent)
         
+        print('Before check: ', datetime.now())
         helper.check_all_tournamentstate_finshed(tevent)
         
         #tstate = TournamentState.objects.get(id=6)
