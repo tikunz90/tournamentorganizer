@@ -20,13 +20,9 @@ App for creating, controlling beachhandball tournaments.
 
 - Seitenmenu klappt sich nach jeder Aktion wieder auf. Default sollte immer eingeklappt sein damit man die Tabellen etc. immer voll sieht
 
-- Beim Anlegen von States innerhalb einer Stage aspringt die App danach immer wieder auf die erste Stage zurück. Nicht schlimm aber nervig wenn man innerhlab einer Stage mehrere States anlegen möchte. Immer auf der letzten Seite bleiben. DONE
-
 - Pts in Klammern in Tabellen nicht ganz klar welche Bedeutung/Nutzen
 
 - Template Wizzard --> Vorkonfigurierte Strutkurbäume ermöglichen oder halt individuell
-
-- Button zum Drucken aller Spielberichtsbögen per Tournament State oder Tournament Stage wäre nice
 
 - Beim Ergebnisseintrag der einzelnen Spiele ist es mir oft passiert, dass ich vergessen habe den Status auf "Finished" zu setzen. Am besten wäre unten neben dem "Update" Button noch einen Button "Update and Set to Finished" zu machen. Dann bleiben wir flexibel aber spart den Klick und das Wundern warum die Tabelle nicht aktualisiert wird.
 
