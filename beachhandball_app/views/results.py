@@ -1,6 +1,7 @@
 from datetime import datetime
 from beachhandball_app.models.Game import Game
 from beachhandball_app.models.Game import Game
+from django.conf import settings
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, UpdateView
 from django.views.generic import TemplateView
@@ -33,8 +34,12 @@ class ResultsDetail(DetailView):
     def get_context_data(self, **kwargs):
         print('Enter ResultsDetail: ', datetime.now())
         tevent = kwargs["object"]
-        context = static_views.getContext(self.request)
-        t = context['tourn']
+        
+        if settings.DEBUG is True:
+            t = Tournament.objects.get(id=2)
+        else:
+            context = static_views.getContext(self.request)
+            t = context['tourn']
         #tevent = TournamentEvent.objects.filter(tournament=t).prefetch_related('TournamentStages')
         context = {}
         kwargs['tourn'] = t
