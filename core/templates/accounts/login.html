@@ -12,7 +12,7 @@
 
           <form role="form" method="post" action="">
 
-            {% csrf_token %}
+            <input type="hidden" name="csrfmiddlewaretoken" value="{{csrf_token}}">
     
             <div class="card card-login card-hidden">
               <div class="card-header card-header-rose text-center">
