@@ -18,7 +18,7 @@
             </a>
           </li>
           <li class="nav-item {% if 'basic_setup' in segment %} active {% endif %}">
-            <a class="nav-link" href="{% url 'basic_setup' %}">
+            <a class="nav-link" href="{{ url('basic_setup') }}" onclick="modalShowSpinner();">
               <i class="material-icons">settings</i>
               <p> Basic Setup </p>
             </a>
@@ -31,11 +31,11 @@
               </div>
             </a>
             <div class="collapse" id="collapseTeamsSetup">
-            {% if tourn.tournamentevent_set.count > 0 %}
+            {% if tourn.tournamentevent_set.count() > 0 %}
               <ul class="nav">
-              {% for tevent in tourn.tournamentevent_set.all %}
+              {% for tevent in tourn.tournamentevent_set.all() %}
                 <li class="nav-item">
-                  <a class="nav-link" href="{% url 'teams_setup.detail' pk=tevent.id %}">
+                  <a class="nav-link" href="{{ url('teams_setup.detail', kwargs={'pk': tevent.id}) }}" onclick="modalShowSpinner();">
                     <!--span class="sidebar-mini"> 1234 </!--span-->
                     <span class="sidebar-normal"> {{ tevent.name_short }}</span>
                   </a>
@@ -60,11 +60,11 @@
               </div>
             </a>
             <div class="collapse" id="collapseStructureSetup">
-            {% if tourn.tournamentevent_set.count > 0 %}
+            {% if tourn.tournamentevent_set.count() > 0 %}
               <ul class="nav">
-              {% for tevent in tourn.tournamentevent_set.all %}
-                <li class="nav-item">
-                  <a class="nav-link" href="{% url 'structure_setup.detail' pk=tevent.id %}">
+              {% for tevent in tourn.tournamentevent_set.all() %}
+                <li class="nav-item">"
+                  <a class="nav-link" href="{{ url('structure_setup.detail', kwargs={'pk': tevent.id}) }}" onclick="modalShowSpinner();">
                     <!--span class="sidebar-mini"> 1234 </!--span-->
                     <span class="sidebar-normal"> {{ tevent.name_short }}</span>
                   </a>
@@ -79,7 +79,7 @@
 
 
           <li class="nav-item {% if 'game_plan' in segment %} active {% endif %}">
-            <a class="nav-link" href="{% url 'game_plan' %}">
+            <a class="nav-link" href="{{ url('game_plan') }}" onclick="modalShowSpinner();">
               <i class="material-icons">table_chart</i>
               <p> Game Plan </p>
             </a>
@@ -94,11 +94,11 @@
               </div>
             </a>
             <div class="collapse" id="collapseResults">
-            {% if tourn.tournamentevent_set.count > 0 %}
+            {% if tourn.tournamentevent_set.count() > 0 %}
               <ul class="nav">
-              {% for tevent in tourn.tournamentevent_set.all %}
+              {% for tevent in tourn.tournamentevent_set.all() %}
                 <li class="nav-item">
-                  <a class="nav-link" href="{% url 'results.detail' pk=tevent.id %}" onclick="modalShowSpinner();">
+                  <a class="nav-link" href="{{ url('results.detail', kwargs={'pk': tevent.id}) }}" onclick="modalShowSpinner();">
                     <!--span class="sidebar-mini"> 1234 </!--span-->
                     <span class="sidebar-normal"> {{ tevent.name_short }}</span>
                   </a>
@@ -364,7 +364,7 @@
           </li>
 
           <li class="nav-item ">
-            <a class="nav-link" href="{% url 'logout' %}">
+            <a class="nav-link" href="{{ url('logout') }}">
               <i class="material-icons">directions_run</i>
               <p> Logout </p>
             </a>

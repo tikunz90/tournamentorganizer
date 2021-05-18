@@ -1,4 +1,4 @@
-{% load mathfilters %}
+
 <div class="table-responsive">
     <table class="table table-striped">
     <thead>
@@ -12,15 +12,15 @@
         </tr>
     </thead>
     <tbody>
-        {% for tstat in tstate.teamstats_set.all %}
+        {% for tstat in tstate.teamstats_set.all() %}
             <tr>
-            <td class="text-center">{{forloop.counter}}</td>
+            <td class="text-center">{{loop.index}}</td>
             <td>{{ tstat.team.name }} ({{ tstat.team.abbreviation}})</td>
             <td class="text-center">{{ tstat.number_of_played_games }}</td>
             <td class="text-center">{{ tstat.sets_win }}:{{ tstat.sets_loose }}</td>
-            <td class="text-center">{{ tstat.sets_win|sub:tstat.sets_loose }}</td>
+            <td class="text-center">{{ tstat.sets_win - tstat.sets_loose }}</td>
             <td class="text-center">{{ tstat.points_made }}:{{ tstat.points_received }}</td>
-            <td class="text-center">{{ tstat.points_made|sub:tstat.points_received }}</td>
+            <td class="text-center">{{ tstat.points_made - tstat.points_received }}</td>
             <td class="text-center"><b>{{ tstat.game_points }} ({{tstat.ranking_points}})</b></td>
             </tr>
         {% endfor %}

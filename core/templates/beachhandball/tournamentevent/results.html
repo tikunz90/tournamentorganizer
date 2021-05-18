@@ -1,5 +1,4 @@
 {% extends "layouts/base.html" %}
-{% load mathfilters %}
 
 {% block title %} Results {% endblock title %}
 
@@ -28,10 +27,10 @@
                 </tr>
               </thead>
               <tbody>
-              {% for pstat in playerstats_offense.all|slice:":10" %}
-                {% if pstat.is_ranked is 1 %}
+              {% for pstat in playerstats_offense.all()[:10] %}
+                {% if pstat.is_ranked == 1 %}
                 <tr>
-                  <td>{{ forloop.counter }}</td>
+                  <td>{{ loop.index }}</td>
                   <td>{{ pstat.player.name }}, {{ pstat.player.first_name }} ({{ pstat.player.team.name }})</td>
                   <td>{{ pstat.score }}</td>
                 </tr>
@@ -66,10 +65,10 @@
                 </tr>
               </thead>
               <tbody>
-              {% for pstat in playerstats_defense.all|slice:":10" %}
-                {% if pstat.is_ranked is 1 %}
+              {% for pstat in playerstats_defense.all()[:10] %}
+                {% if pstat.is_ranked == 1 %}
                 <tr>
-                  <td>{{ forloop.counter }}</td>
+                  <td>{{ loop.index }}</td>
                   <td>{{ pstat.player.name }}, {{ pstat.player.first_name }} ({{ pstat.player.team.name }})</td>
                   <td>{{ pstat.block_success }}</td>
                 </tr>
@@ -104,10 +103,10 @@
                 </tr>
               </thead>
               <tbody>
-              {% for pstat in playerstats_goalie.all|slice:":10" %}
-                {% if pstat.is_ranked is 1 %}
+              {% for pstat in playerstats_goalie.all()[:10] %}
+                {% if pstat.is_ranked == 1 %}
                 <tr>
-                  <td>{{ forloop.counter }}</td>
+                  <td>{{ loop.index }}</td>
                   <td>{{ pstat.player.name }}, {{ pstat.player.first_name }} ({{ pstat.player.team.name }})</td>
                   <td>{{ pstat.goal_keeper_success }}</td>
                 </tr>

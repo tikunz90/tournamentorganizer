@@ -11,9 +11,9 @@
                 </tr>
             </thead>
             <tbody>
-                {% for tstat in tstate.teamstats_set.all %}
+                {% for tstat in tstate.teamstats_set.all() %}
                     <tr>
-                    <td class="text-center">{{forloop.counter}}</td>
+                    <td class="text-center">{{loop.index}}</td>
                     <td>{{ tstat.team.name }} ({{ tstat.team.abbreviation}})</td>
                     </tr>
                 {% endfor %}

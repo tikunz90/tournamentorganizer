@@ -24,9 +24,9 @@
                 <th class="text-center">Shootout</th>
               </thead>
               <tbody>
-                {% for game in tourn.game_set.all %}
+                {% for game in tourn.game_set.all() %}
                 <tr>
-                  <td>{{ game.starttime|date:"H:i (d.m.Y)" }}</td>
+                  <td>{{ game.starttime.strftime('%H:%M (%d.%m.%Y)') }}</td>
                   <td class="text-center">{{ game.id }}</td>
                   <td class="text-center">{{ game.tournament_state }}</td>
                   <td class="text-center">{{ game.team_st_a.team }}</td>

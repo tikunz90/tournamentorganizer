@@ -27,7 +27,7 @@ from beachhandball_app.static_views import getContext
 
 from bootstrap_modal_forms.generic import BSModalCreateView, BSModalDeleteView, BSModalUpdateView
 
-from ..models.Tournament import Tournament, TournamentEvent, TournamentStage, TournamentState, TournamentTeamTransition
+from ..models.Tournament import Court, Tournament, TournamentEvent, TournamentStage, TournamentState, TournamentTeamTransition
 from ..models.Series import Season
 from ..models.Team import Team, TeamStats
 
@@ -71,11 +71,17 @@ class StructureSetupDetail(LoginRequiredMixin, UserPassesTestMixin, DetailView):
     def test_func(self):
         return self.request.user.groups.filter(name='tournament_organizer').exists()
 
-
 class StageCreateView(BSModalCreateView):
     template_name = 'beachhandball/tournamentevent/create_stage_form.html'
     form_class = TournamentStageForm
     success_message = 'Success: Stage was created.'
+
+    def get_context_data(self, **kwargs):
+        context = super(StageCreateView, self).get_context_data(**kwargs)
+        tevent = get_object_or_404(TournamentEvent, id=self.kwargs.get('pk'))
+
+        context['form'].fields['tournament_event'].queryset = TournamentEvent.objects.filter(id=tevent.id)
+        return context
 
     def get_initial(self):
         tevent = get_object_or_404(TournamentEvent, id=self.kwargs.get('pk'))
@@ -96,11 +102,17 @@ class StageDeleteView(BSModalDeleteView):
            pk = self.kwargs["pk_tevent"]
            return reverse("structure_setup.detail", kwargs={"pk": pk})
 
-
 class StateCreateView(BSModalCreateView):
     template_name = 'beachhandball/templates/create_form.html'
     form_class = TournamentStateForm
     success_message = 'Success: State was created.'
+
+    def get_context_data(self, **kwargs):
+        context = super(StateCreateView, self).get_context_data(**kwargs)
+        tstage = get_object_or_404(TournamentStage, id=self.kwargs.get('pk_tstage'))
+
+        context['form'].fields['tournament_stage'].queryset = TournamentStage.objects.filter(id=tstage.id)
+        return context
 
     def get_initial(self):
         tevent = get_object_or_404(TournamentEvent, id=self.kwargs.get('pk_tevent'))
@@ -123,7 +135,6 @@ class StateCreateView(BSModalCreateView):
            pk = self.kwargs["pk_tevent"]
            return reverse_querystring("structure_setup.detail", kwargs={"pk": pk}, query_kwargs={'tab': self.kwargs["pk_tstage"], 'tab_tstate': 0})
 
-
 class StateDeleteView(BSModalDeleteView):
     model = TournamentState
     template_name = 'beachhandball/tournamentevent/delete_state.html'
@@ -132,7 +143,6 @@ class StateDeleteView(BSModalDeleteView):
     def get_success_url(self):
            pk = self.kwargs["pk_tevent"]
            return reverse("structure_setup.detail", kwargs={"pk": pk})
-
 
 class StateUpdateView(BSModalUpdateView):
     model = TournamentState
@@ -191,6 +201,14 @@ class TeamStatsUpdateTeamView(BSModalUpdateView):
     template_name = 'beachhandball/templates/update_teamstat_form.html'
     form_class = TeamStatsUpdateTeamForm
     success_message = 'Success: TeamStat was updated.'
+
+    def get_context_data(self, **kwargs):
+        tstat = self.object
+        context = super(TeamStatsUpdateTeamView, self).get_context_data(**kwargs)
+        
+        teams = Team.objects.filter(tournament_event=tstat.tournament_event, is_dummy=False)
+        context['form'].fields['team'].queryset = teams
+        return context
     
     def form_valid(self, form):
         # This method is called when valid form data has been POSTed.
@@ -252,6 +270,7 @@ class GameUpGameView(BSModalUpdateView):
         tstate = game.tournament_state
         qTeamStats = TeamStats.objects.filter(tournamentstate=tstate)
         qTeams = Team.objects.filter(is_dummy=False)
+        context['form'].fields['court'].queryset = Court.objects.filter(tournament=game.tournament)
         context['form'].fields['team_st_a'].queryset = qTeamStats
         context['form'].fields['team_st_b'].queryset = qTeamStats
         #context['form'].fields['team_a'].queryset = qTeams
@@ -390,6 +409,21 @@ class GameCreateView(BSModalCreateView):
     template_name = 'beachhandball/templates/create_form.html'
     form_class = GameForm
     success_message = 'Success: State was created.'
+
+    def get_context_data(self, **kwargs):
+        
+        context = super(GameCreateView, self).get_context_data(**kwargs)
+        tevent = get_object_or_404(TournamentEvent, id=self.kwargs.get('pk_tevent'))
+        tstage = get_object_or_404(TournamentStage, id=self.kwargs.get('pk_tstage'))
+        tstate = get_object_or_404(TournamentState, id=self.kwargs.get('pk_tstate'))
+        
+        context['form'].fields['tournament'].queryset = Tournament.objects.filter(id=tevent.tournament.id)
+        context['form'].fields['tournament_event'].queryset = TournamentEvent.objects.filter(id=tevent.id)
+        context['form'].fields['team_st_a'].queryset = TeamStats.objects.filter(tournamentstate=tstate)
+        context['form'].fields['team_st_b'].queryset = TeamStats.objects.filter(tournamentstate=tstate)
+        context['form'].fields['tournament_state'].queryset = TournamentState.objects.filter(id=tstate.id)
+        context['form'].fields['court'].queryset = Court.objects.filter(tournament=tevent.tournament)
+        return context
 
     def get_initial(self):
         tevent = get_object_or_404(TournamentEvent, id=self.kwargs.get('pk_tevent'))

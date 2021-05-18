@@ -1,8 +1,5 @@
-{% load widget_tweaks %}
-{% load list_filter %}
-
-<form method="post" action="">
-  {% csrf_token %}
+<form id="finish-tstate-form" method="post" action="">
+  <input type="hidden" name="csrfmiddlewaretoken" value="{{csrf_token}}">
 
   <div class="modal-header">
     <h3 class="modal-title">Finish {{ object.name }}</h3>
@@ -18,7 +15,7 @@
       {% endfor %}
     </div>
     <div class="form-group" disabled>
-        {% render_field form.name class="form-control" %}
+        {% form.name %}
     </div>
     <div class="container">
       <div class="table-responsive">
@@ -32,11 +29,11 @@
             </tr>
         </thead>
         <tbody>
-          {% for trans in ttt.all %}
+          {% for trans in ttt.all() %}
             <tr>
             <td class="text-center">{{ trans.origin_rank }}</td>
-            <td>{{ teamstats|get_at_index:forloop.counter0 }}</td>
-            <td class="text-center"><i class="material-icons">{% if trans.is_executed is True %}done{% else %}arrow_forward{% endif %}</i></td>
+            <td>{{ teamstats[loop.index0] }}</td>
+            <td class="text-center"><i class="material-icons">{% if trans.is_executed %}done{% else %}arrow_forward{% endif %}</i></td>
             <td class="text-center">{{ trans.target_rank }}. {{ trans.target_ts_id.name }}</td>
             </tr>
           {% endfor %}
@@ -49,7 +46,7 @@
   <div class="modal-footer">
     <div class="row">
       <div class="col-md-6">
-        <button type="submit" class="btn btn-primary">Execute</button>
+        <button type="submit" class="btn btn-primary" onclick="modalShowSpinnerModal();">Execute</button>
       </div>
       <div class="col-md-6">
         <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
@@ -58,3 +55,10 @@
   </div>
 
 </form>
+
+<script>
+$(document).ready(function() {
+    $("#main-content").LoadingOverlay("hide");
+  });
+function modalShowSpinnerModal(){$("#finish-tstate-form").LoadingOverlay("show");}
+</script>

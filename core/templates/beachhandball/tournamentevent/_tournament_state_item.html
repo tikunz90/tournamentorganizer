@@ -1,4 +1,3 @@
-{% load widget_tweaks %}
 
 <div class="col-md">
     <div class="card">
@@ -13,48 +12,48 @@
                 <br />
                 <ul class="nav nav-pills nav-pills-warning justify-content-center" role="tablist">
                     <li class="nav-item">
-                    {% if request.GET.tab_tstate is not None %}
+                    {% if request.GET.tab_tstate %}
                         {% if request.GET.tab_tstate == '0' %}
-                        <a class="nav-link active" data-toggle="tab" href="#{{ tstate.name|slugify }}_{{tstate.id}}_ov" role="tablist">Overview</a>
+                        <a class="nav-link active" data-toggle="tab" href="#{{tstate.id}}_ov" role="tablist">Overview</a>
                         {% else %}
-                        <a class="nav-link" data-toggle="tab" href="#{{ tstate.name|slugify }}_{{tstate.id}}_ov" role="tablist">Overview</a>
+                        <a class="nav-link" data-toggle="tab" href="#{{tstate.id}}_ov" role="tablist">Overview</a>
                         {% endif %}
                     {% else %}
-                        <a class="nav-link active" data-toggle="tab" href="#{{ tstate.name|slugify }}_{{tstate.id}}_ov" role="tablist">Overview</a>
+                        <a class="nav-link active" data-toggle="tab" href="#{{tstate.id}}_ov" role="tablist">Overview</a>
                     {% endif %}
                     </li>
                     <li class="nav-item">
-                    {% if request.GET.tab_tstate is not None %}
+                    {% if request.GET.tab_tstate %}
                         {% if request.GET.tab_tstate == '1' %}
-                        <a class="nav-link active" data-toggle="tab" href="#{{ tstate.name|slugify }}_{{tstate.id}}_ts" role="tablist">Team Setup</a>
+                        <a class="nav-link active" data-toggle="tab" href="#{{tstate.id}}_ts" role="tablist">Team Setup</a>
                         {% else %}
-                        <a class="nav-link" data-toggle="tab" href="#{{ tstate.name|slugify }}_{{tstate.id}}_ts" role="tablist">Team Setup</a>
+                        <a class="nav-link" data-toggle="tab" href="#{{tstate.id}}_ts" role="tablist">Team Setup</a>
                         {% endif %}
                     {% else %}
-                        <a class="nav-link" data-toggle="tab" href="#{{ tstate.name|slugify }}_{{tstate.id}}_ts" role="tablist">Team Setup</a>
+                        <a class="nav-link" data-toggle="tab" href="#{{tstate.id}}_ts" role="tablist">Team Setup</a>
                     {% endif %}
                     </li>
                     <li class="nav-item">
-                    {% if request.GET.tab_tstate is not None %}
+                    {% if request.GET.tab_tstate %}
                         {% if request.GET.tab_tstate == '2' %}
-                        <a class="nav-link active" data-toggle="tab" href="#{{ tstate.name|slugify }}_{{tstate.id}}_tr" role="tablist">Transitions</a>
+                        <a class="nav-link active" data-toggle="tab" href="#{{tstate.id}}_tr" role="tablist">Transitions</a>
                         {% else %}
-                        <a class="nav-link" data-toggle="tab" href="#{{ tstate.name|slugify }}_{{tstate.id}}_tr" role="tablist">Transitions</a>
+                        <a class="nav-link" data-toggle="tab" href="#{{tstate.id}}_tr" role="tablist">Transitions</a>
                         {% endif %}
                     {% else %}
-                        <a class="nav-link" data-toggle="tab" href="#{{ tstate.name|slugify }}_{{tstate.id}}_tr" role="tablist">Transitions</a>
+                        <a class="nav-link" data-toggle="tab" href="#{{tstate.id}}_tr" role="tablist">Transitions</a>
                     {% endif %}
                     </li>
                 </ul>
                 <div class="tab-content tab-space tab-subcategories">
-                    {% if request.GET.tab_tstate is not None %}
+                    {% if request.GET.tab_tstate %}
                         {% if request.GET.tab_tstate == '0' %}
-                        <div class="tab-pane active" id="{{ tstate.name|slugify }}_{{tstate.id}}_ov">
+                        <div class="tab-pane active" id="{{tstate.id}}_ov">
                         {% else %}
-                        <div class="tab-pane" id="{{ tstate.name|slugify }}_{{tstate.id}}_ov">
+                        <div class="tab-pane" id="{{tstate.id}}_ov">
                         {% endif %}
                     {% else %}
-                        <div class="tab-pane active" id="{{ tstate.name|slugify }}_{{tstate.id}}_ov">
+                        <div class="tab-pane active" id="{{tstate.id}}_ov">
                     {% endif %}
                         <div class="card">
                             <div class="card-header">
@@ -62,21 +61,21 @@
                             <p class="card-category">
                                 Overview ranking, game plan, editing game result
                             </p>
-                            {% if tstate.is_finished is True %}<h4>ALL Games PLAYED!</h4>{% if tstate.transitions_done is False %}Click "Finish State" to execute transitions{% endif %}{% endif %}
+                            {% if tstate.is_finished %}<h4>ALL Games PLAYED!</h4>{% if not tstate.transitions_done %}Click "Finish State" to execute transitions{% endif %}{% endif %}
                             </div>
                             <div class="card-body">
                                 {% include "beachhandball/tournamentevent/_tournament_state_overview.html" %}
                             </div>
                         </div>
                     </div>
-                    {% if request.GET.tab_tstate is not None %}
+                    {% if not request.GET.tab_tstate %}
                         {% if request.GET.tab_tstate == '1' %}
-                        <div class="tab-pane active" id="{{ tstate.name|slugify }}_{{tstate.id}}_ts">
+                        <div class="tab-pane active" id="{{tstate.id}}_ts">
                         {% else %}
-                        <div class="tab-pane" id="{{ tstate.name|slugify }}_{{tstate.id}}_ts">
+                        <div class="tab-pane" id="{{tstate.id}}_ts">
                         {% endif %}
                     {% else %}
-                        <div class="tab-pane" id="{{ tstate.name|slugify }}_{{tstate.id}}_ts">
+                        <div class="tab-pane" id="{{tstate.id}}_ts">
                     {% endif %}
                         <div class="card">
                             <div class="card-header">
@@ -96,7 +95,7 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {% for tstat in tstate.teamstats_set.all|dictsort:"rank_initial" %}
+                                    {% for tstat in tstate.teamstats_set.all()|sort(attribute="rank_initial") %}
                                         <tr>
                                         <td class="text-center">{{ tstat.rank_initial }}</td>
                                         <td>
@@ -104,7 +103,7 @@
                                         </td>
                                         
                                         <td>
-                                            <button type="button" class="update_teamstatsteam btn btn-sm btn-primary" data-form-url="{% url 'structure_setup.update_teamstatsteam' pk_tevent=tevent.id pk_tstage=stage.id pk=tstat.id %}" {% if tstate.is_finished is True %}disabled{% endif %}>
+                                            <button type="button" class="update_teamstatsteam btn btn-sm btn-primary" data-form-url="{{ url('structure_setup.update_teamstatsteam', kwargs={'pk_tevent':tevent.id, 'pk_tstage':stage.id, 'pk':tstat.id}) }}" {% if tstate.is_finished %}disabled{% endif %}>
                                                 <span class="fa fa-pencil"></span>
                                             </button>
                                         </td>
@@ -117,14 +116,14 @@
                         </div>
                     </div>
                     
-                    {% if request.GET.tab_tstate is not None %}
+                    {% if not request.GET.tab_tstate %}
                         {% if request.GET.tab_tstate == '2' %}
-                        <div class="tab-pane active" id="{{ tstate.name|slugify }}_{{tstate.id}}_tr">
+                        <div class="tab-pane active" id="{{tstate.id}}_tr">
                         {% else %}
-                        <div class="tab-pane" id="{{ tstate.name|slugify }}_{{tstate.id}}_tr">
+                        <div class="tab-pane" id="{{tstate.id}}_tr">
                         {% endif %}
                     {% else %}
-                        <div class="tab-pane" id="{{ tstate.name|slugify }}_{{tstate.id}}_tr">
+                        <div class="tab-pane" id="{{tstate.id}}_tr">
                     {% endif %}
                         <div class="card">
                             <div class="card-header">
@@ -143,7 +142,7 @@
                                     <th></th>
                                 </thead>
                                 <tbody>
-                                    {% for ttt in tstate.ttt_origin.all %}
+                                    {% for ttt in tstate.ttt_origin.all() %}
                                         <tr>
                                         <td class="text-center">{{ ttt.origin_rank }}</td>
                                         <td>
@@ -151,7 +150,7 @@
                                         </td>
                                         <td>{{ ttt.target_rank }}</td>
                                         <td>
-                                            <button type="button" class="update_tttransition btn btn-sm btn-primary" data-form-url="{% url 'structure_setup.update_tttransition' pk_tevent=tevent.id pk_tstage=stage.id pk=ttt.id %}">
+                                            <button type="button" class="update_tttransition btn btn-sm btn-primary" data-form-url="{{ url('structure_setup.update_tttransition', kwargs={'pk_tevent':tevent.id, 'pk_tstage':stage.id, 'pk':ttt.id}) }}" onclick="modalShowSpinner();">
                                                 <span class="fa fa-pencil"></span>
                                             </button>
                                         </td>
@@ -169,29 +168,29 @@
         <div class="card-footer">
         <div class="row">
             <div class="col-md">
-            <button type="button" class="update-tstate btn btn-sm btn-primary" rel="tooltip" title="Edit TournamentState" data-form-url="{% url 'structure_setup.update_tstate' pk_tevent=tevent.id pk_tstage=stage.id pk=tstate.id %}">
+            <button type="button" class="update-tstate btn btn-sm btn-primary" rel="tooltip" title="Edit TournamentState" data-form-url="{{ url('structure_setup.update_tstate', kwargs={'pk_tevent':tevent.id, 'pk_tstage':stage.id, 'pk':tstate.id}) }}">
                 <span class="fa fa-pencil"></span>
             </button>
             </div>
             <div class="col-md">
-            <button type="button" class="create-game btn btn-sm btn-primary" rel="tooltip" title="Add Game" data-form-url="{% url 'structure_setup.create_game' pk_tevent=tevent.id pk_tstage=stage.id pk_tstate=tstate.id %}" {% if tstate.is_finished is True and tstate.transitions_done is True %}disabled{% endif %}>
+            <button type="button" class="create-game btn btn-sm btn-primary" rel="tooltip" title="Add Game" data-form-url="{{ url('structure_setup.create_game', kwargs={'pk_tevent':tevent.id, 'pk_tstage':stage.id, 'pk_tstate':tstate.id}) }}" {% if tstate.is_finished and tstate.transitions_done %} disabled {% else %} onclick="modalShowSpinner();"{% endif %}>
                 <i class="material-icons">note_add</i>Add Game
             </button>
             </div>
             <div class="col-md">
-            <button type="button" rel="tooltip" class="download-pregame-report btn btn-info" rel="tooltip" title="Download Pre-Game Report" data-form-url="{% url 'download_pre_game_all' pk_tevent=tevent.id pk_tstage=stage.id pk=tstate.id %}" data-list-url="{% url 'games_list' pk_tstate=tstate.id %}">
-                <a class="" href="{% url 'download_pre_game_all' pk_tevent=tevent.id pk_tstage=stage.id pk=tstate.id %}">
+            <button type="button" rel="tooltip" class="download-pregame-report btn btn-info" rel="tooltip" title="Download Pre-Game Report" data-form-url="{{ url('download_pre_game_all', kwargs={'pk_tevent':tevent.id, 'pk_tstage':stage.id, 'pk':tstate.id}) }}" data-list-url="{{ url('games_list', kwargs={'pk_tstate':tstate.id}) }}">
+                <a class="" href="{{ url('download_pre_game_all', kwargs={'pk_tevent':tevent.id, 'pk_tstage':stage.id, 'pk':tstate.id}) }}">
                     <i class="material-icons">file_download</i> All Pre-Game Reports
                 </a>
             </button>
             </div>
             <div class="col-md">
-            <button type="button" class="finish-tstate btn btn-sm btn-primary" rel="tooltip" title="Finishes TournamentState after all games played" data-form-url="{% url 'structure_setup.finish_tstate' pk_tevent=tevent.id pk_tstage=stage.id pk=tstate.id %}" {% if tstate.is_finished is False or tstate.transitions_done is True %}disabled{% endif %}>
+            <button type="button" class="finish-tstate btn btn-sm btn-primary" rel="tooltip" title="Finishes TournamentState after all games played" data-form-url="{{ url('structure_setup.finish_tstate', kwargs={'pk_tevent':tevent.id, 'pk_tstage':stage.id, 'pk':tstate.id}) }}" onclick="modalShowSpinner();" {% if not tstate.is_finished  or tstate.transitions_done %}disabled{% endif %}>
                 <i class="material-icons">check_circle_outline</i>Finish State
             </button>
             </div>
             <div class="col-md">
-            <button type="button" class="delete-tstate btn btn-sm btn-danger" rel="tooltip" title="Delete TournamentState" data-form-url="{% url 'structure_setup.delete_tstate' pk_tevent=tevent.id pk_tstage=stage.id pk=tstate.id %}" {% if tstate.is_finished is True and tstate.transitions_done is True %}disabled{% endif %}>
+            <button type="button" class="delete-tstate btn btn-sm btn-danger" rel="tooltip" title="Delete TournamentState" data-form-url="{{ url('structure_setup.delete_tstate', kwargs={'pk_tevent':tevent.id, 'pk_tstage':stage.id, 'pk':tstate.id}) }}" {% if tstate.is_finished and tstate.transitions_done %}disabled{% endif %}>
                 <span class="fa fa-trash"></span>
             </button>
             </div>

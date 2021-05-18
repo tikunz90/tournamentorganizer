@@ -2,7 +2,7 @@ from django.shortcuts import get_object_or_404
 from beachhandball_app.models.Game import Game
 from beachhandball_app.models.Team import Team, TeamStats
 from django import forms
-from django.forms import ModelForm
+from django.forms import ModelForm, widgets
 from ...models.Tournament import TournamentEvent, TournamentState, TournamentStage, TournamentTeamTransition
 
 from colorfield.widgets import ColorWidget
@@ -32,6 +32,10 @@ class TournamentStageForm(BSModalModelForm):
     class Meta:
         model = TournamentStage
         exclude = []
+        widgets = {
+            'tournament_event': forms.widgets.Select(attrs={'class': "form-control selectpicker", 'data-style':"btn btn-info btn-round"}),
+            'tournament_stage': forms.widgets.Select(attrs={'class': "form-control selectpicker", 'data-style':"btn btn-info btn-round"}),
+        }
 
         #def __init__(self, *args, **kwargs):
         #    super(TournamentStageForm, self).__init__(*args, **kwargs)
@@ -70,8 +74,9 @@ class TournamentStateForm(BSModalModelForm):
     
     class Meta:
         model = TournamentState
-        exclude = ['tournament_event', 'tournament_state','grid_row', 'grid_col']
+        exclude = ['tournament_event', 'tournament_state','grid_row', 'grid_col', 'is_populated', 'is_final', 'is_finished', 'transitions_done', 'min_number_teams']
         widgets = {
+            'tournament_stage': forms.widgets.Select(attrs={'class': "form-control selectpicker", 'data-style':"btn btn-info btn-round"}),
            'color': forms.widgets.TextInput(attrs={'type': 'color'}),
         }
 
@@ -120,6 +125,9 @@ class TeamStatsUpdateTeamForm(BSModalModelForm):
     class Meta:
         model = TeamStats
         fields = ['team']
+        widgets = {
+            'team': forms.widgets.Select(attrs={'class': "form-control selectpicker", 'data-style':"btn btn-info btn-round"}),
+        }
 
     def __init__(self, *args, **kwargs):
         super(TeamStatsUpdateTeamForm, self).__init__(*args, **kwargs)
@@ -141,6 +149,9 @@ class TTTUpdateForm(BSModalModelForm):
     class Meta:
         model = TournamentTeamTransition
         fields = ['target_ts_id', 'target_rank']
+        widgets = {
+            'target_ts_id': forms.widgets.Select(attrs={'class': "form-control selectpicker", 'data-style':"btn btn-info btn-round"}),
+        }
 
 """
 
@@ -161,7 +172,14 @@ class GameUpdateForm(BSModalModelForm):
             'team_st_b': 'Team B:',
         }
         widgets = {
-           'starttime': forms.widgets.DateTimeInput(attrs={'class': "form-control"}),
+            'team_st_a': forms.widgets.Select(attrs={'class': "form-control selectpicker", 'data-style':"btn btn-info btn-round"}),
+            'team_st_b': forms.widgets.Select(attrs={'class': "form-control selectpicker", 'data-style':"btn btn-info btn-round"}),
+            'court': forms.widgets.Select(attrs={'class': "form-control selectpicker", 'data-style':"btn btn-info btn-round"}),
+           'tournament_state': forms.widgets.Select(attrs={'class': "form-control selectpicker", 'data-style':"btn btn-info btn-round"}),
+           'starttime': forms.widgets.DateTimeInput(attrs={'class': "form-control datetimepicker"}),
+           'gamestate': forms.widgets.Select(attrs={'class': "form-control selectpicker", 'data-style':"btn btn-info btn-round"}),
+           'gamingstate': forms.widgets.Select(attrs={'class': "form-control selectpicker", 'data-style':"btn btn-info btn-round"}),
+           'scouting_state': forms.widgets.Select(attrs={'class': "form-control selectpicker", 'data-style':"btn btn-info btn-round"}),
         }
 
     def __init__(self, *args, **kwargs):
@@ -180,6 +198,9 @@ class GameUpdateResultForm(BSModalModelForm):
         fields = ('score_team_a_halftime_1', 'score_team_a_halftime_2', 'score_team_a_penalty', 'score_team_b_halftime_1', 'score_team_b_halftime_2', 'score_team_b_penalty', 'gamestate')
         labels = {
             'score_team_a_halftime_1': 'Score',
+        }
+        widgets = {
+            'gamestate': forms.widgets.Select(attrs={'class': "form-control selectpicker", 'data-style':"btn btn-info btn-round"}),
         }
 
 
@@ -200,4 +221,16 @@ class GameForm(BSModalModelForm):
     
     class Meta:
         model = Game
-        exclude = []
+        exclude = ['duration_of_halftime', 'number_of_penalty_tries', 'score_team_a_halftime_1', 'score_team_a_halftime_2', 'score_team_a_penalty', 'score_team_b_halftime_1', 'score_team_b_halftime_2', 'score_team_b_penalty', 'winner_halftime_1', 'winner_halftime_2', 'winner_penalty', 'act_time']
+        widgets = {
+            'tournament': forms.widgets.Select(attrs={'class': "form-control selectpicker", 'data-style':"btn btn-info btn-round"}),
+            'tournament_event': forms.widgets.Select(attrs={'class': "form-control selectpicker", 'data-style':"btn btn-info btn-round"}),
+            'tournament_state': forms.widgets.Select(attrs={'class': "form-control selectpicker", 'data-style':"btn btn-info btn-round"}),
+            'team_st_a': forms.widgets.Select(attrs={'class': "form-control selectpicker", 'data-style':"btn btn-info btn-round"}),
+            'team_st_b': forms.widgets.Select(attrs={'class': "form-control selectpicker", 'data-style':"btn btn-info btn-round"}),
+            'gamestate': forms.widgets.Select(attrs={'class': "form-control selectpicker", 'data-style':"btn btn-info btn-round"}),
+            'gamingstate': forms.widgets.Select(attrs={'class': "form-control selectpicker", 'data-style':"btn btn-info btn-round"}),
+            'scouting_state': forms.widgets.Select(attrs={'class': "form-control selectpicker", 'data-style':"btn btn-info btn-round"}),
+            'starttime': forms.widgets.DateTimeInput(attrs={'class': "form-control datetimepicker"}),
+            'court': forms.widgets.Select(attrs={'class': "form-control selectpicker", 'data-style':"btn btn-info btn-round"}),
+        }

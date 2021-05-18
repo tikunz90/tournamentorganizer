@@ -1,7 +1,5 @@
-{% load widget_tweaks %}
-
 <form id="delete-stage-form" method="post" action="">
-  {% csrf_token %}
+  <input type="hidden" name="csrfmiddlewaretoken" value="{{csrf_token}}">
 
   <div class="modal-header">
     <h3 class="modal-title">Delete Stage</h3>
@@ -20,4 +18,9 @@
 
 </form>
 
-<script>function modalShowSpinner(){$("#delete-stage-form").LoadingOverlay("show");}</script>
+<script>
+$(document).ready(function() {
+    $("#main-content").LoadingOverlay("hide");
+  });
+function modalShowSpinner(){$("#delete-stage-form").LoadingOverlay("show");}
+</script>

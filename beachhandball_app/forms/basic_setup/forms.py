@@ -15,9 +15,15 @@ class CourtForm(BSModalModelForm):
     class Meta:
         model = Court
         fields = '__all__'
+        widgets = {
+            'tournament': forms.widgets.Select(attrs={'class': "form-control selectpicker", 'data-style':"btn btn-info btn-round"}),
+        }
 
 class CourtUpdateForm(BSModalModelForm):
 
     class Meta:
         model = Court
         fields = '__all__'
+        widgets = {
+            'tournament': forms.widgets.Select(attrs={'class': "form-control selectpicker", 'data-style':"btn btn-info btn-round"}),
+        }

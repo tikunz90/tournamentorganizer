@@ -1,4 +1,4 @@
-<table id="{{ tstate.name|slugify }}-{{tstate.id}}-games-table" class="table table-striped">
+<table id="{{tstate.id}}-games-table" class="table table-striped">
     <thead>
     <tr>
         <th>Startzeit</th>
@@ -12,9 +12,9 @@
         <th>Actions</th>
     </tr>
     </thead>
-    {% for game in tstate.game_set.all %}
+    {% for game in tstate.game_set.all() %}
     <tr>
-        <td>{{ game.starttime|date:"H:i (d.m.Y)" }}</td>
+        <td>{{ game.starttime.strftime('%H:%M (%d.%m.%Y)') }}</td>
         <td>{{ game.id }}</td>
         <td>{{ game.team_st_a.team.abbreviation }}</td>
         <td>{{ game.team_st_b.team.abbreviation }}</td>
@@ -23,18 +23,18 @@
         <td class="text-center">{{ game.score_team_a_halftime_2 }}:{{ game.score_team_b_halftime_2 }}</td>
         <td class="text-center">{{ game.score_team_a_penalty }}:{{ game.score_team_b_penalty }}</td>
         <td class="td-actions text-right">
-            <button type="button" class="update_game btn btn-success btn-link" rel="tooltip" title="Edit Game" data-form-url="{% url 'update_game' pk_tevent=tevent.id pk_tstage=stage.id pk=game.id %}" data-list-url="{% url 'games_list' pk_tstate=tstate.id %}" {% if tstate.is_finished is True and tstate.transitions_done is True %}disabled{% endif %}>
+            <button type="button" class="update_game btn btn-success btn-link" rel="tooltip" title="Edit Game" data-form-url='{{ url("update_game", kwargs={"pk_tevent":tevent.id, "pk_tstage": stage.id, "pk":  game.id}) }}' data-list-url="{{ url('games_list', kwargs={'pk_tstate': tstate.id}) }}" onclick="modalShowSpinner();" {% if tstate.is_finished and tstate.transitions_done %}disabled{% endif %}>
                 <i class="material-icons">edit</i>
             </button>
-            <button type="button" rel="tooltip" class="download-pregame-report btn btn-info btn-link" rel="tooltip" title="Download Pre-Game Report" data-form-url="{% url 'download_pre_game' pk_tevent=tevent.id pk_tstage=stage.id pk=game.id %}" data-list-url="{% url 'games_list' pk_tstate=tstate.id %}">
-                <a class="" href="{% url 'download_pre_game' pk_tevent=tevent.id pk_tstage=stage.id pk=game.id %}">
+            <button type="button" rel="tooltip" class="download-pregame-report btn btn-info btn-link" rel="tooltip" title="Download Pre-Game Report" data-form-url="{{ url('download_pre_game', kwargs={'pk_tevent':tevent.id, 'pk_tstage': stage.id, 'pk':  game.id}) }}" data-list-url="{{ url('games_list', kwargs={'pk_tstate': tstate.id}) }}">
+                <a class="" href="{{ url('download_pre_game', kwargs={'pk_tevent':tevent.id, 'pk_tstage': stage.id, 'pk':  game.id}) }}">
                     <i class="material-icons">file_download</i>
                 </a>
             </button>
-            <button type="button" rel="tooltip" class="update-game-result btn btn-info btn-link" rel="tooltip" title="Enter Result" data-form-url="{% url 'update_game_result' pk_tevent=tevent.id pk_tstage=stage.id pk=game.id %}" data-list-url="{% url 'games_list' pk_tstate=tstate.id %}"{% if tstate.is_finished is True and tstate.transitions_done is True %}disabled{% endif %}>
+            <button type="button" rel="tooltip" class="update-game-result btn btn-info btn-link" rel="tooltip" title="Enter Result" data-form-url='{{ url("update_game_result", kwargs={"pk_tevent":tevent.id, "pk_tstage": stage.id, "pk":  game.id}) }}' data-list-url="{{ url('games_list', kwargs={'pk_tstate': tstate.id}) }}" onclick="modalShowSpinner();" {% if tstate.is_finished and tstate.transitions_done %}disabled{% endif %}>
                 <i class="material-icons">assignment</i>
             </button>
-            <button type="button" rel="tooltip" class="delete-game btn btn-danger btn-link" rel="tooltip" title="Delete Game"  data-form-url="{% url 'structure_setup.delete_game' pk_tevent=tevent.id pk_tstage=stage.id pk=game.id %}"{% if tstate.is_finished is True and tstate.transitions_done is True %}disabled{% endif %}>
+            <button type="button" rel="tooltip" class="delete-game btn btn-danger btn-link" rel="tooltip" title="Delete Game"  data-form-url='{{ url("structure_setup.delete_game", kwargs={"pk_tevent":tevent.id, "pk_tstage": stage.id, "pk":  game.id}) }}' onclick="modalShowSpinner();" {% if tstate.is_finished and tstate.transitions_done %}disabled{% endif %}>
                 <i class="material-icons">close</i>
             </button>
         </td>

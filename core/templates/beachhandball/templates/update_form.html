@@ -1,7 +1,37 @@
-{% load widget_tweaks %}
+{% macro input_field(bound_field, hide_labels, extra_label_classes="", extra_control_classes="") -%}
+<div class="row">
+  <div class="col-md-12">
+    <div class="row align-items-center">
+      <div class="col-sm-3">
+      <b>{{ bound_field.field.label }}</b>
+      </div>
+      <div class="col-sm-7">
+      <div class="form-group">
+          
+          {% if bound_field.field.errors %}
+              {% for error in bound_field.field.errors %}
+              <div class="invalid-feedback">
+                  {{ error }}
+              </div>
+              {% endfor %}
+          {% else %}
+              {{ bound_field }}
+          {% endif %}
 
-<form id="update-form" method="post" action="" onclick="modalShowSpinner();">
-  {% csrf_token %}
+          {% if bound_field.help_text %}
+          <small class="form-text text-muted">{{ bound_field.field.help_text }}</small>
+          {% endif %}      
+      </div>
+      </div>
+    </div>
+    <hr>
+  </div>
+</div>
+{%- endmacro %}
+
+<form id="update-form" method="post" action="">
+  <input type="hidden" name="csrfmiddlewaretoken" value="{{csrf_token}}">
+
 
   <div class="modal-header">
     <h3 class="modal-title">Update</h3>
@@ -13,53 +43,25 @@
   <div class="modal-body">
 
     <div class="{% if form.non_field_errors %}invalid{% endif %} mb-2">
-      {% for error in form.non_field_errors %}
+      {% for error in form.non_field_errors() %}
         {{ error }}
       {% endfor %}
     </div>
-
-    {% for field in form.visible_fields %}
-        <div class="row">
-            <div class="col-sm-3">
-            {{ field.label_tag }}
-            </div>
-            <div class="col-sm-7">
-            <div class="form-group">
-                {% if form.is_bound %}
-                {% if field.errors %}
-                    {% render_field field class="form-control is-invalid" %}
-                    {% for error in field.errors %}
-                    <div class="invalid-feedback">
-                        {{ error }}
-                    </div>
-                    {% endfor %}
-                {% else %}
-                    {% render_field field class="form-control is-valid" %}
-                {% endif %}
-                {% else %}
-                {% if field|widget_type == "select" %}
-                    {% render_field field class="selectpicker" data-style="btn btn-default btn-sm" %}
-                {% else %}
-                    {% render_field field class="form-control" %}
-                {% endif %}
-                
-                {% endif %}
-
-                {% if field.help_text %}
-                <small class="form-text text-muted">{{ field.help_text }}</small>
-                {% endif %}
-                
-            </div>
-            </div>
-        </div>
-        
+    {% for name, field in form.fields.items() %}
+        {{ input_field(form[name], form.hide_labels) }}
     {% endfor %}
+
   </div>
 
   <div class="modal-footer">
-    <button type="submit" class="btn btn-primary">Update</button>
+    <button type="submit" class="btn btn-primary" onclick="modalShowSpinnerModal();">Update</button>
   </div>
 
 </form>
 
-<script>function modalShowSpinner(){$("#update-form").LoadingOverlay("show");}</script>
+<script>
+$(document).ready(function() {
+    $("#main-content").LoadingOverlay("hide");
+  });
+  function modalShowSpinnerModal(){$("#update-form").LoadingOverlay("show");}
+</script>
