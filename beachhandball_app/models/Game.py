@@ -43,6 +43,7 @@ class Game(models.Model):
     winner_halftime_1 = models.IntegerField(blank=True, null=True)
     winner_halftime_2 = models.IntegerField(blank=True, null=True)
     winner_penalty = models.IntegerField( blank=True, null=True)
+    winner = models.IntegerField( blank=True, null=True)
     gamestate = models.CharField(max_length=9, blank=True, null=True, choices=GAMESTATE_CHOICES)
     act_time = models.IntegerField(blank=True, null=True)
     gamingstate = models.CharField(
@@ -71,19 +72,26 @@ class Game(models.Model):
                 self.winner_halftime_1 = 0
                 self.winner_halftime_2 = 0
                 self.winner_penalty = 0
+                self.winner = -1
                 if sc_ta_ht1 > sc_tb_ht1:
-                    self.winner_halftime_1 = self.team_st_a.team.id
+                    self.winner_halftime_1 = self.team_st_a.id
+                    self.winner = self.team_st_a.id
                 else:
-                    self.winner_halftime_1 = self.team_st_b.team.id
+                    self.winner_halftime_1 = self.team_st_b.id
+                    self.winner = self.team_st_b.id
                 if sc_ta_ht2 > sc_tb_ht2:
-                    self.winner_halftime_2 = self.team_st_a.team.id
+                    self.winner_halftime_2 = self.team_st_a.id
+                    self.winner = self.team_st_a.id
                 else:
-                    self.winner_halftime_2 = self.team_st_b.team.id
+                    self.winner_halftime_2 = self.team_st_b.id
+                    self.winner = self.team_st_b.id
                 if self.winner_halftime_1 is not self.winner_halftime_2:
                     if sc_ta_htp > sc_tb_htp:
-                        self.winner_penalty = self.team_st_a.team.id
+                        self.winner_penalty = self.team_st_a.id
+                        self.winner = self.team_st_a.id
                     else:
-                        self.winner_penalty = self.team_st_b.team.id
+                        self.winner_penalty = self.team_st_b.id
+                        self.winner = self.team_st_b.id
         except Exception as ex:
             return ex
         finally:

@@ -118,6 +118,7 @@ def calculate_tstate(ts):
             teama_stats.save()
             teamb_stats.save()
             g.gamingstate = 'Finished'
+            g.calc_winner()
             g.save()
         if not ts.direct_compare:
             teamstatsquery = _do_table_ordering(TeamStats.objects.filter(tournamentstate=ts))
