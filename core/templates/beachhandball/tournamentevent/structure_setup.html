@@ -59,7 +59,7 @@
         {% with link_name=stage.id %}
         <li class="nav-item">
           {% if request.GET.tab %}
-            {% if request.GET.tab == stage.id %}
+            {% if request.GET.tab == stage.id|string %}
               <a class="nav-link active" data-toggle="tab" href="{{ ['#', link_name]|join('')  }}" role="tablist">
             {% else %}
               <a class="nav-link" data-toggle="tab" href="{{ ['#', link_name]|join('')  }}" role="tablist">
@@ -97,7 +97,7 @@
       {% for stage in tevent.tournamentstage_set.all() %}
         {% with link_name = stage.id %}
           {% if request.GET.tab %}
-              {% if request.GET.tab == stage.id %}
+              {% if request.GET.tab == stage.id|string %}
                   <div class="tab-pane active" id={{link_name}}>
               {% else %}
                   <div class="tab-pane" id={{link_name}}>

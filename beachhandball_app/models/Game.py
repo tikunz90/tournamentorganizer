@@ -40,6 +40,8 @@ class Game(models.Model):
     score_team_b_halftime_1 = models.SmallIntegerField(default=0, blank=True, null=True)
     score_team_b_halftime_2 = models.SmallIntegerField(default=0, blank=True, null=True)
     score_team_b_penalty = models.SmallIntegerField(default=0, blank=True, null=True)
+    setpoints_team_a = models.SmallIntegerField(default=0, blank=True, null=True)
+    setpoints_team_b = models.SmallIntegerField(default=0, blank=True, null=True)
     winner_halftime_1 = models.IntegerField(blank=True, null=True)
     winner_halftime_2 = models.IntegerField(blank=True, null=True)
     winner_penalty = models.IntegerField( blank=True, null=True)
@@ -69,6 +71,8 @@ class Game(models.Model):
                 sc_tb_ht2 = self.score_team_b_halftime_2
                 sc_ta_htp = self.score_team_a_penalty
                 sc_tb_htp = self.score_team_b_penalty
+                self.setpoints_team_a = 0
+                self.setpoints_team_b = 0
                 self.winner_halftime_1 = 0
                 self.winner_halftime_2 = 0
                 self.winner_penalty = 0
@@ -76,22 +80,28 @@ class Game(models.Model):
                 if sc_ta_ht1 > sc_tb_ht1:
                     self.winner_halftime_1 = self.team_st_a.id
                     self.winner = self.team_st_a.id
+                    self.setpoints_team_a = self.setpoints_team_a + 1
                 else:
                     self.winner_halftime_1 = self.team_st_b.id
                     self.winner = self.team_st_b.id
+                    self.setpoints_team_b = self.setpoints_team_b + 1
                 if sc_ta_ht2 > sc_tb_ht2:
                     self.winner_halftime_2 = self.team_st_a.id
                     self.winner = self.team_st_a.id
+                    self.setpoints_team_a = self.setpoints_team_a + 1
                 else:
                     self.winner_halftime_2 = self.team_st_b.id
                     self.winner = self.team_st_b.id
+                    self.setpoints_team_b = self.setpoints_team_b + 1
                 if self.winner_halftime_1 is not self.winner_halftime_2:
                     if sc_ta_htp > sc_tb_htp:
                         self.winner_penalty = self.team_st_a.id
                         self.winner = self.team_st_a.id
+                        self.setpoints_team_a = self.setpoints_team_a + 1
                     else:
                         self.winner_penalty = self.team_st_b.id
                         self.winner = self.team_st_b.id
+                        self.setpoints_team_b = self.setpoints_team_b + 1
         except Exception as ex:
             return ex
         finally:

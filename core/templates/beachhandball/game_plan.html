@@ -42,6 +42,26 @@
             <div class="card card-stats">
               <div class="card-header">
                 <div class="col d-flex justify-content-left">
+                  <h4 class="card-title">by State:</h4>
+                </div>
+              </div>
+              <div class="card-body">
+                <div class="col d-flex justify-content-center">
+                  <select id="filter-tstate" class="selectpicker" onchange="add_filter_tstate();" data-size="7" data-style="btn btn-primary btn-round" title="Select State">
+                        <option value="-1">All</option>
+                        {% for tstate in tstates.all() %}
+                        <option value="{{ tstate.id }}">{{ tstate.name }} ({{ tstate.tournament_event.category }})</option>
+                        {% endfor %}
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-lg-3 col-md-6 col-sm-6">
+            <div class="card card-stats">
+              <div class="card-header">
+                <div class="col d-flex justify-content-left">
                   <h4 class="card-title">by Court:</h4>
                 </div>
               </div>
@@ -109,18 +129,19 @@
       <div class="table-responsive">
             <table id="table-games" class="table">
               <thead class=" text-primary">
-                <th hidden>tournament_event</th>
-                <th>Date</th>
-                <th class="text-center">ID</th>
-                <th class="text-center"></th>
-                <th class="text-center">State</th>
-                <th class="text-center">Team A</th>
-                <th class="text-center">Team B</th>
-                <th class="text-center">Court</th>
-                <th class="text-center">1. HT</th>
-                <th class="text-center">2. HT</th>
-                <th class="text-center">Shootout</th>
-                <th class="text-center">Gamestate</th>
+                <th hidden data-col="tournament_event">tournament_event</th>
+                <th data-col="date">Date</th>
+                <th class="text-center" data-col="id">ID</th>
+                <th class="text-center" data-col="category"></th>
+                <th class="text-center" data-col="tournament_state">State</th>
+                <th class="text-center" data-col="team_a">Team A</th>
+                <th class="text-center" data-col="team_b">Team B</th>
+                <th class="text-center" data-col="court">Court</th>
+                <th class="text-center" data-col="result_ht1">1. HT</th>
+                <th class="text-center" data-col="result_ht2">2. HT</th>
+                <th class="text-center" data-col="result_p">Shootout</th>
+                <th class="text-center" data-col="sets">Sets</th>
+                <th class="text-center" data-col="gamestate">Gamestate</th>
               </thead>
               <tbody>
                 {% for game in tourn.game_set.all() %}
@@ -135,7 +156,7 @@
                   </td>
                   <td class="text-center" data-content="{{ game.id }}">{{ game.id }}</td>
                   <td data-content="{{ game.tournament_event.category }}">{{ game.tournament_event.category }}</td>
-                  <td class="text-center" data-content="{{ game.tournament_state }}">
+                  <td class="text-center" data-content="{{ game.tournament_state.id }}">
                   <div class="btn btn-small" style="background: {{ game.tournament_state.color }}">
                     {{ game.tournament_state.abbreviation }}
                   </div>
@@ -147,6 +168,7 @@
                   <td class="text-center" data-content="result_ht1">{{ game.score_team_a_halftime_1 }}:{{ game.score_team_b_halftime_1 }}</td>
                   <td class="text-center" data-content="result_ht2">{{ game.score_team_a_halftime_2 }}:{{ game.score_team_b_halftime_2 }}</td>
                   <td class="text-center" data-content="result_p">{{ game.score_team_a_penalty }}:{{ game.score_team_b_penalty }}</td>
+                  <td class="text-center" data-content="sets">{{ game.setpoints_team_a }}:{{ game.setpoints_team_b }}</td>
                   <td class="text-center" data-content="{{ game.gamestate }}">{{ game.gamestate }}</td>
                 </tr>
                 {% endfor %}
@@ -262,6 +284,21 @@
         opt_val = opt_val.substring(1, opt_val.length);
       }
       var filter_obj = {'col': 'tournament_event', 'filter': opt_val }
+      $('#games-filter').val(JSON.stringify(filter_obj));$('#games-filter').keyup();
+    }
+    function add_filter_tstate() {
+      var opt_val = $('#filter-tstate').children("option:selected").val();
+      if(opt_val == -1)
+      {
+        opt_val = "";
+        $("#filter-tstate > option").each(function() {
+            if((this.value == -1) || (this.value == '') )return;
+
+            opt_val = opt_val + "§" + this.value;
+        });
+        opt_val = opt_val.substring(1, opt_val.length);
+      }
+      var filter_obj = {'col': 'tournament_state', 'filter': opt_val }
       $('#games-filter').val(JSON.stringify(filter_obj));$('#games-filter').keyup();
     }
     function add_filter_court() {

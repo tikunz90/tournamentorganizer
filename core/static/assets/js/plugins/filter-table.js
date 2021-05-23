@@ -42,7 +42,7 @@
         }
         else if ($row.find("th").length > 0 && filter_obj.col.indexOf('__all__') == -1)  {
           $row.find("th").each(function(ii, th) {
-            $cell = $(th).text().toUpperCase();
+            $cell = $(th).data('col').toUpperCase();
             if ($cell.indexOf(filter_obj.col.toUpperCase()) > -1) {  
               col_idx.push(ii);
             }

@@ -25,6 +25,7 @@ from .models.Game import Game
 from .services.services import SWS
 
 def getContext(request):
+    print('Enter getContext')
     context = {}
 
     guser = GBOUser.objects.filter(user=request.user).first()
@@ -42,6 +43,7 @@ def getContext(request):
     t.save()
     context['tourn'] = t
     context['events'] = TournamentEvent.objects.filter(tournament=t)
+    print('Exit getContext')
     return context
 
 def getData(request):
@@ -73,6 +75,8 @@ def UpdateGameFromList(request):
             'game': list()
         }
         return JsonResponse(data)
+
+
 class UpdateGameFromList(TemplateView):
     @method_decorator(csrf_exempt)
     def dispatch(self, request, *args, **kwargs):
@@ -155,8 +159,10 @@ def game_plan(request):
     context = getContext(request)
     tourn = context['tourn']
     tevents = context['events']
-
-
+    all_tstates_qs = Q()
+    for event in tevents:
+        all_tstates_qs = all_tstates_qs | Q(tournament_event=event, is_final=False)
+    context['tstates'] = TournamentState.objects.filter(all_tstates_qs)
     context['segment'] = 'game_plan'
     context['segment_title'] = 'Game Plan'
 
