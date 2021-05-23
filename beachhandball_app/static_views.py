@@ -2,9 +2,14 @@
 """
 Copyright (c) 2019 - present AppSeed.us
 """
+import time
+from django.utils.dateparse import parse_datetime
 
+from django.views.generic import TemplateView
 from beachhandball_app import helper
 from django.contrib.auth.decorators import login_required, user_passes_test
+from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import csrf_exempt
 from django.shortcuts import render, get_object_or_404, redirect
 from django.template import loader
 from django.http import HttpResponse, JsonResponse
@@ -57,6 +62,34 @@ def getData(request):
     
 
     return JsonResponse(data)
+
+def UpdateGameFromList(request):
+    t = Tournament.objects.get(id=1)
+    tevent = TournamentEvent.objects.filter(tournament=t).first();
+    tstates = list(TournamentState.objects.filter(tournament_event=tevent).values())
+
+    if request.GET:
+        data = {
+            'game': list()
+        }
+        return JsonResponse(data)
+class UpdateGameFromList(TemplateView):
+    @method_decorator(csrf_exempt)
+    def dispatch(self, request, *args, **kwargs):
+        return super(UpdateGameFromList, self).dispatch(request, *args, **kwargs)
+
+    def get(self, request, *args, **kwargs):
+        context = {'game': 'Hello World'}
+        return JsonResponse(context)
+        #return self.render_to_response(context)
+
+    def post(self, request, *args, **kwargs):
+        game = request.POST['game']
+        new_dt = request.POST['datetime']
+        dt = parse_datetime(new_dt)
+        game_obj = Game.objects.filter(pk=game).update(starttime=dt)
+        context = {'game':game, 'new_datetime': new_dt}
+        return JsonResponse(context)
 
 def not_in_student_group(user):
     if user:

@@ -126,7 +126,13 @@
                 {% for game in tourn.game_set.all() %}
                 <tr>
                   <td hidden data-content="{{ game.tournament_event.id }}">{{ game.tournament_event.id }}</td>
-                  <td data-content="datetime">{{ game.starttime.strftime('%H:%M (%d.%m.%Y)') }}</td>
+                  <td id="game-list-td-id-{{ game.id }}" data-content="datetime" class="game-list-datetime-td">
+                  <div class="game-list-datetime-label">{{ game.starttime.strftime('%H:%M (%d.%m.%Y)') }}</div>
+                  <div class="game-list-datetime-input" hidden>
+                    <input id="id_starttime" data-game_id="{{ game.id }}" class="game-list-datetime form-control datetimepicker" type="text" name="starttime" value="{{ game.starttime }}">
+                    <input id="initial-id_starttime" type="hidden" class="game-list-datetime-init" name="initial-starttime" value="{{ game.starttime }}">
+                  </div>
+                  </td>
                   <td class="text-center" data-content="{{ game.id }}">{{ game.id }}</td>
                   <td data-content="{{ game.tournament_event.category }}">{{ game.tournament_event.category }}</td>
                   <td class="text-center" data-content="{{ game.tournament_state }}">
@@ -167,12 +173,78 @@
       //md.initFullCalendar();
       //md.initFullCalendar2();
 
-      
+      md.initFormExtendedDatetimepickers();
+
+      // Repair DateTime Form because datetimepicker.min.js deletes input value on load
+      $(".game-list-datetime" ).each(function(i, datetime_input){
+        var userDate = datetime_input.attributes.value.value;
+        var date_string = moment(userDate, "YYYY-MM-DD HH:mm:ss").format("MM/DD/YYYY HH:mm");
+        $(datetime_input).val(date_string);
+      });
 
       //$('table').tableFilter({});
        $('#table-games').filterTable('#games-filter');
       //$('table').tableFilter('filterRows', 'The Beachers');
     });
+    $('.game-list-datetime-label').on('dblclick', function () {
+        $(this).attr('hidden', true);
+        var close = $(this).parent().children('.game-list-datetime-input');
+        $(close[0]).attr('hidden', false);
+    });
+    $(".game-list-datetime").on('keyup', function(e){ 
+        var code = e.key; // recommended to use e.key, it's normalized across devices and languages
+        if(code==="Enter") e.preventDefault();
+        if(code===" " || code==="Enter" || code===","|| code===";"){
+            var game_id = $(this).data('game_id');
+            var date_string = moment($(this).val(), "MM/DD/YYYY HH:mm").format("YYYY-MM-DD HH:mm:ss");
+            var data = postUpdateGameDateTime(game_id, date_string);
+            $(this).closest('.game-list-datetime-input').first().attr('hidden', true);
+            var close = $(this).closest('.game-list-datetime-td').first().children('.game-list-datetime-label');
+            $(close[0]).attr('hidden', false);
+        } // missing closing if brace
+    });
+    function getUpdateGameDateTime(game_id) {
+        return $.ajax({
+            type: 'GET',
+            url: "ajax/update-game-date/" + game_id + "/",
+            async: true,
+            dataType: 'json',
+            done: function (data) {
+              if (data) {
+                console.debug(JSON.stringify(data));
+                return data;
+              }
+            }
+          });
+      }
+      function postUpdateGameDateTime(game_id, new_datetime) {
+        return $.ajax({
+            type: 'POST',
+            url: "ajax/update-game-date/" + game_id + "/",
+            data: {'game': game_id, 'datetime': new_datetime},
+            async: true,
+            dataType: 'json',
+            done: function (data) {
+              console.debug('done');
+              if (data) {
+                console.debug(JSON.stringify(data));
+                return data;
+              }
+            },
+            success:function(response){
+              console.debug('success: ');
+              var date_label = moment(response.new_datetime, "YYYY-MM-DD HH:mm:ss").format("HH:mm (DD.MM.YYYY)");
+              var date_input = moment(response.new_datetime, "YYYY-MM-DD HH:mm:ss").format("MM/DD/YYYY HH:mm");
+
+              var game_td = $('#game-list-td-id-' + response.game)
+              $(game_td).children('.game-list-datetime-label').first().text(date_label);
+              $(game_td).children('.game-list-datetime-input').first().children().each(function(i, input){ $(input).val(date_input);});
+              },
+            complete:function(){console.debug('complete');},
+            error:function (xhr, textStatus, thrownError){console.debug('error');}
+          });
+      }
+
     function add_filter(filter) {
         var filter_obj = {'col': 'Team A', 'filter': filter }
         $('#games-filter').val(JSON.stringify(filter_obj));$('#games-filter').keyup();
