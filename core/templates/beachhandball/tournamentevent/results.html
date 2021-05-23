@@ -7,6 +7,19 @@
 
 {% block content %}
 <h2>Results</h2>
+<hr>
+<div class="col d-flex justify-content-center">
+<h2>Final Ranking 
+  <small class="description"></small>
+</h2>
+</div>
+<div class="row">
+  {% for tstate in tevent.get_final_tstate.all() %}
+    {% include "beachhandball/tournamentevent/_tournament_state_final_ranking.html" %}
+  {% else %}
+  {% endfor %}
+</div>
+<hr>
 <div class="row">
   <div class="col-md-4">
     <div class="card">
@@ -121,6 +134,8 @@
     </div>
   </div>
 </div>
+
+
 {% endblock content %}
 
 {% block javascripts %}

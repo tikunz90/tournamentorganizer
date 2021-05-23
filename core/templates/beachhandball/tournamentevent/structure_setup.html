@@ -137,15 +137,7 @@
   </div>
 </div>
 <hr>
-<h2>Final Ranking 
-  <small class="description"></small>
-</h2>
-<div class="row">
-  {% for tstate in tevent.get_final_tstate.all() %}
-    {% include "beachhandball/tournamentevent/_tournament_state_final_ranking.html" %}
-  {% else %}
-  {% endfor %}
-</div>
+
 <form action="{{ url('team_testdata', kwargs={'pk_tevent': tevent.id}) }}" method='GET'>
 <button type='submit'>Create TestData</button>
 </form>
