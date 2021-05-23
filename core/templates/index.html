@@ -21,24 +21,21 @@
     <div class="col-md-4">
       <div class="card card-product">
         <div class="card-header card-header-image" data-header-animation="true">
-          <a href="#">
+          <a href="{{ url('structure_setup.detail', kwargs={'pk': tevent.id }) }}">
             <img class="img" src="/static/assets/img/logo2019.png">
           </a>
         </div>
         <div class="card-body">
           <div class="card-actions text-center">
             <button type="button" class="btn btn-default btn-link" rel="tooltip" data-placement="bottom" title="Edit Teams">
-              <i class="material-icons">edit</i>
+              <a href="{{ url('teams_setup.detail', kwargs={'pk': tevent.id }) }}"><i class="material-icons">edit</i></a>
             </button>
             <button type="button" class="btn btn-success btn-link" rel="tooltip" data-placement="bottom" title="Edit Structure">
-              <i class="material-icons">edit</i>
-            </button>
-            <button type="button" class="btn btn-danger btn-link" rel="tooltip" data-placement="bottom" title="Remove">
-              <i class="material-icons">close</i>
+              <a href="{{ url('structure_setup.detail', kwargs={'pk': tevent.id }) }}"><i class="material-icons">edit</i></a>
             </button>
           </div>
           <h3 class="card-title">
-            <a href="#">{{ tevent.name }}</a>
+            <a href="{{ url('structure_setup.detail', kwargs={'pk': tevent.id }) }}">{{ tevent.name }}</a>
           </h3>
           {% if tevent.is_in_configuration %}
           <div>

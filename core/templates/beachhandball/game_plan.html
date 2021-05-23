@@ -159,7 +159,7 @@
                   <td data-content="{{ game.tournament_event.category }}">{{ game.tournament_event.category }}</td>
                   <td class="text-center" data-content="{{ game.tournament_state.id }}">
                   <div class="btn btn-small" style="background: {{ game.tournament_state.color }}">
-                    {{ game.tournament_state.abbreviation }}
+                    <a href="{{ url('structure_setup.detail', kwargs={'pk': game.tournament_event.id }) }}" style="color:white;"><b>{{ game.tournament_state.abbreviation }}</b>
                   </div>
                   
                   </td>

@@ -2,6 +2,7 @@
 """
 Copyright (c) 2019 - present AppSeed.us
 """
+from datetime import datetime
 import time
 from django.utils.dateparse import parse_datetime
 
@@ -25,7 +26,7 @@ from .models.Game import Game
 from .services.services import SWS
 
 def getContext(request):
-    print('Enter getContext')
+    print('Enter getContext' , datetime.now())
     context = {}
 
     guser = GBOUser.objects.filter(user=request.user).first()
@@ -43,7 +44,7 @@ def getContext(request):
     t.save()
     context['tourn'] = t
     context['events'] = TournamentEvent.objects.filter(tournament=t)
-    print('Exit getContext')
+    print('Exit getContext', datetime.now())
     return context
 
 def getData(request):
