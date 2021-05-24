@@ -6,10 +6,15 @@
         Tip 2: you can also add an image using data-image tag
     -->
       <div class="logo">
+        <img class="mw-100" src="/static/assets/img/logo_to_t.png" />
       </div>
       <div class="sidebar-wrapper">
-        <div class="user">  
-        </div>
+        {% if tourn %}
+        <h4 class="nav-link">{{ tourn.name }}</h4>
+        {% endif %}
+        <!--div class="user">
+          {{ request.user.username }} 
+        </div-->
         <ul class="nav">
           <li class="nav-item {% if 'index' in segment %} active {% endif %}">
             <a class="nav-link" href="/">

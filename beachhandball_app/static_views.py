@@ -35,13 +35,10 @@ def getContext(request):
         return context
     else:
         context['gbo_user'] = guser
-        context['season_active'] = 'SEASON'#SWS.getSeasonActive(guser)
+        context['season_active'] = SWS.getSeasonActive(guser)
         context['token'] = guser.token
     
-    t, cr = Tournament.objects.get_or_create(organizer=guser.subject_id)
-    if cr:
-        t.name = 'Not Named'
-    t.save()
+    t = Tournament.objects.get(organizer=guser.subject_id)
     context['tourn'] = t
     context['events'] = TournamentEvent.objects.filter(tournament=t)
     print('Exit getContext', datetime.now())

@@ -28,6 +28,12 @@
               </div>
             </form>
             <div id='SeasonActive'>
+            {% if request.user.is_superuser %}
+              <i class="material-icons">local_police</i>
+              ADMIN USER
+            {% endif %}
+            </div>
+            <div id='SeasonActive'>
             {% if season_active %}
               {{ season_active }}
             {% endif %}

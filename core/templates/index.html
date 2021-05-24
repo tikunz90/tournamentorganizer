@@ -7,7 +7,7 @@
 
 {% block content %}
 
-{% if tourn %}
+{% if not tourn %}
   <h2>Welcome</h2>
 {% else %}
   <h2>Welcome to {{ tourn.name_short }} in Season {{ season_active }}</h2>

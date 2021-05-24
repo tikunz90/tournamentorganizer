@@ -3,6 +3,7 @@
 Copyright (c) 2019 - present AppSeed.us
 """
 
+from beachhandball_app.models.Tournament import Tournament
 from django.shortcuts import render
 from datetime import datetime
 
@@ -30,8 +31,27 @@ def login_view(request):
             print()
             username = form.cleaned_data.get("username")
             password = form.cleaned_data.get("password")
+
+            # check if gbo user is online
+            gbouser = GBOUser.objects.get(user__username=username)
+            if gbouser:
+                if not gbouser.is_online:
+                    user = authenticate(username=username, password=password)
+                    if user is not None:
+                        t = Tournament.objects.filter(organizer=gbouser.subject_id)
+                        if t.count() <= 0:
+                            msg ='No Tournament Data available! SubjectID: ' + str(gbouser.subject_id)
+                            return render(request, "accounts/login.html", {"form": form, "msg" : msg})
+                    else:
+                        msg ='Username or password wrong!'
+                        return render(request, "accounts/login.html", {"form": form, "msg" : msg})
+                    login(request, user)
+                    return redirect("/")
+
+
             result = s.SWS.create_session(username, password)
             if result['isError'] is not True:
+                # first login => create gbo user
                 if User.objects.filter(username=username).count() == 0:
                     user = User.objects.create_user(username, result['message']['user']['email'], password)
                     user.first_name = result['message']['user']['name']
@@ -48,7 +68,7 @@ def login_view(request):
                 
                 user = authenticate(username=username, password=password)
                 if user is not None:
-                    login(request, user)
+                    # create gbo user for admin
                     if user.is_superuser is True:
                         if GBOUser.objects.filter(user=user).count() == 0:
                             guser = GBOUser(user=user,
@@ -57,14 +77,29 @@ def login_view(request):
                             validUntil = datetime.utcfromtimestamp(result['message']['expiresIn'] / 1000))
                             guser.subject_id = s.SWS.getGBOUserId(guser)
                             guser.save()
+                    
                     gbouser = GBOUser.objects.get(user=user)
-                    gbouser.token = result['message']['token'].split(' ')[1]
-                    gbouser.validUntil = datetime.utcfromtimestamp(result['message']['expiresIn'] / 1000)
-                    #data = s.SWS.getTournamentByUser(gbouser)      
-                    gbouser.save()    
+                    if gbouser:
+                        if not gbouser.is_online:
+                            gbouser.token = result['message']['token'].split(' ')[1]
+                            gbouser.validUntil = datetime.utcfromtimestamp(result['message']['expiresIn'] / 1000)
+                            #data = s.SWS.getTournamentByUser(gbouser)      
+                            gbouser.save()  
+                        t = Tournament.objects.filter(organizer=gbouser.subject_id)
+                        if t.count() <= 0:
+                            msg ='No Tournament Data available! SubjectID: ' + str(gbouser.subject_id)
+                            return render(request, "accounts/login.html", {"form": form, "msg" : msg}) 
+                    else:
+                        msg ='GBO user not found! Username: '+ user.username
+                        return render(request, "accounts/login.html", {"form": form, "msg" : msg}) 
+                    
+                    login(request, user)
                     return redirect("/")
                 else:    
-                    msg = 'Invalid credentials'    
+                    msg = 'Invalid credentials'
+            else:
+                msg ='GBO session failed!'
+                return render(request, "accounts/login.html", {"form": form, "msg" : msg})
         else:
             msg = 'Error validating the form'    
 

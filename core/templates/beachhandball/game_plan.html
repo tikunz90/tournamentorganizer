@@ -131,18 +131,18 @@
             <table id="table-games" class="table">
               <thead class=" text-primary">
                 <th hidden data-col="tournament_event">tournament_event</th>
-                <th data-col="date">Date</th>
-                <th class="text-center" data-col="id">ID</th>
-                <th class="text-center" data-col="category"></th>
-                <th class="text-center" data-col="tournament_state">State</th>
-                <th class="text-center" data-col="team_a">Team A</th>
-                <th class="text-center" data-col="team_b">Team B</th>
-                <th class="text-center" data-col="court">Court</th>
-                <th class="text-center" data-col="result_ht1">1. HT</th>
-                <th class="text-center" data-col="result_ht2">2. HT</th>
-                <th class="text-center" data-col="result_p">Shootout</th>
-                <th class="text-center" data-col="sets">Sets</th>
-                <th class="text-center" data-col="gamestate">Gamestate</th>
+                <th class="text-left" data-col="date">Date</th>
+                <th class="text-left" data-col="id">ID</th>
+                <th class="text-left" data-col="category"></th>
+                <th class="text-left" data-col="tournament_state">State</th>
+                <th class="text-left" data-col="team_a">Team A</th>
+                <th class="text-left" data-col="team_b">Team B</th>
+                <th class="text-left" data-col="court">Court</th>
+                <th class="text-left" data-col="result_ht1">1. HT</th>
+                <th class="text-left" data-col="result_ht2">2. HT</th>
+                <th class="text-left" data-col="result_p">Shootout</th>
+                <th class="text-left" data-col="sets">Sets</th>
+                <th class="text-left" data-col="gamestate">Gamestate</th>
               </thead>
               <tbody>
                 {% for game in tourn.game_set.all() %}
@@ -179,9 +179,6 @@
      
     </div>
     <div class="card-footer">
-      <div class="stats">
-        <i class="material-icons">date_range</i> Last 24 Hours
-      </div>
     </div>
   </div>
 </div>
@@ -197,6 +194,13 @@
       //md.initFullCalendar2();
 
       md.initFormExtendedDatetimepickers();
+      $.fn.dataTable.moment( 'HH:mm (DD.MM.YYYY)' );
+
+      var table = $('#table-games').DataTable({
+        searching: false,
+        paging: false,
+        "order": [[1, 'asc']]
+      });
 
       // Repair DateTime Form because datetimepicker.min.js deletes input value on load
       $(".game-list-datetime" ).each(function(i, datetime_input){
@@ -224,6 +228,8 @@
             $(this).closest('.game-list-datetime-input').first().attr('hidden', true);
             var close = $(this).closest('.game-list-datetime-td').first().children('.game-list-datetime-label');
             $(close[0]).attr('hidden', false);
+            var table = $('#table-games').DataTable();
+            var order = table.order([1,'asc']);
         } // missing closing if brace
     });
     function getUpdateGameDateTime(game_id) {

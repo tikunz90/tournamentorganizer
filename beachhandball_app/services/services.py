@@ -1,6 +1,7 @@
 from django.conf import settings as conf_settings
 import requests
 
+from beachhandball_app.models.Tournament import Tournament, TournamentEvent
 
 class SWS():
     """ Service for GBO database
@@ -25,6 +26,9 @@ class SWS():
 
     @staticmethod
     def getGBOUserId(gbo_user):
+        if not gbo_user.is_online:
+            return gbo_user.subject_id
+            
         endpoint = '/gbo/subjects/email/{}'.format(gbo_user.gbo_user)
         headers = SWS.headers
         headers['Authorization'] = 'Bearer {}'.format(gbo_user.token)
@@ -41,6 +45,8 @@ class SWS():
     
     @staticmethod
     def getSeasonActive(gbo_user):
+        if not gbo_user.is_online:
+            return 'offline'
         endpoint = '/gbo/seasons/active'
         headers = SWS.headers
         headers['Authorization'] = 'Bearer {}'.format(gbo_user.token)
@@ -62,6 +68,23 @@ class SWS():
         act_season = ''
         if response.json()['isError'] is not True:
             data = response.json()['message']
+            act_season = data[0]['season']['name']
+        else:
+            act_season = 'error'
+        return data
+
+    @staticmethod
+    def syncTournamentData(gbo_user):
+        # request data from sws
+        endpoint = '/season/cup-tournaments/to/' + str(gbo_user.subject_id)
+        headers = SWS.headers
+        headers['Authorization'] = 'Bearer {}'.format(gbo_user.token)
+        response = requests.get(SWS.base_url + endpoint, headers=headers)
+        act_season = ''
+        if response.json()['isError'] is not True:
+            tourns = Tournament.objects.filter(organizer=gbo_user.subject_id)
+            data = response.json()['message']
+            
             act_season = data[0]['season']['name']
         else:
             act_season = 'error'

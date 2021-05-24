@@ -24,6 +24,7 @@ class Tournament(models.Model):
     #address = AddressField(related_name='+', blank=True, null=True, on_delete=models.CASCADE)
     
     gbo_data = jsonfield.JSONField()
+    gbo_series_cup_tournament_id = models.SmallIntegerField(default=0)
 
     @property
     def name_short(self):

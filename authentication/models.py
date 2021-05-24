@@ -15,6 +15,7 @@ class GBOUser(models.Model):
     token = models.TextField(max_length=512)
     validUntil = UnixDateTimeField(null=False, default=0)
     subject_id = models.IntegerField(null=True)
+    is_online = models.BooleanField(default=True)
 
     def __str__(self):
         return '{} {}, {} {}'.format(self.user.id, self.user.last_name, self.user.first_name, self.user.email)
