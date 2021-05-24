@@ -57,6 +57,11 @@ def login_view(request):
                             validUntil = datetime.utcfromtimestamp(result['message']['expiresIn'] / 1000))
                             guser.subject_id = s.SWS.getGBOUserId(guser)
                             guser.save()
+                    gbouser = GBOUser.objects.get(user=user)
+                    gbouser.token = result['message']['token'].split(' ')[1]
+                    gbouser.validUntil = datetime.utcfromtimestamp(result['message']['expiresIn'] / 1000)
+                    #data = s.SWS.getTournamentByUser(gbouser)      
+                    gbouser.save()    
                     return redirect("/")
                 else:    
                     msg = 'Invalid credentials'    

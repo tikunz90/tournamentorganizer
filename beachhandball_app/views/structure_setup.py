@@ -13,7 +13,7 @@ from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, UpdateView
 from django.views.generic import TemplateView
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 from django.urls import reverse_lazy
 from django.http import JsonResponse
@@ -23,7 +23,7 @@ from django.conf import settings
 from beachhandball_app.helper import reverse_querystring, calculate_tstate
 from beachhandball_app.game_report import create_game_report
 
-from beachhandball_app.static_views import getContext
+from beachhandball_app.static_views import checkLoginIsValid, getContext
 
 from bootstrap_modal_forms.generic import BSModalCreateView, BSModalDeleteView, BSModalUpdateView
 
@@ -42,12 +42,19 @@ class StructureSetupDetail(LoginRequiredMixin, UserPassesTestMixin, DetailView):
     login_url = '/login/'
     redirect_field_name = 'structure_setup'
 
+    def dispatch(self, request, *args, **kwargs):
+        context = getContext(self.request)
+        if not checkLoginIsValid(context['gbo_user']):
+            return redirect('login')
+        self.kwargs['context_data'] = context
+        return super(StructureSetupDetail, self).dispatch(request, *args, **kwargs)
+
     def get_context_data(self, **kwargs):
         print('Enter StructureSetupDetail: ', datetime.now())
         tevent = kwargs["object"]
         #t = Tournament.objects.get(id=1)
         #tevent = TournamentEvent.objects.filter(tournament=t).prefetch_related('TournamentStages')
-        context = getContext(self.request)
+        context = self.kwargs['context_data']#getContext(self.request)
         kwargs['tourn'] = context['tourn']
         kwargs['tst_view'] = tevent.tournamentstage_set.all()
 

@@ -35,7 +35,7 @@ def getContext(request):
         return context
     else:
         context['gbo_user'] = guser
-        context['season_active'] = SWS.getSeasonActive(guser)
+        context['season_active'] = 'SEASON'#SWS.getSeasonActive(guser)
         context['token'] = guser.token
     
     t, cr = Tournament.objects.get_or_create(organizer=guser.subject_id)
@@ -46,6 +46,12 @@ def getContext(request):
     context['events'] = TournamentEvent.objects.filter(tournament=t)
     print('Exit getContext', datetime.now())
     return context
+
+def checkLoginIsValid(gbouser):
+    if int(time.time()) > time.mktime(gbouser.validUntil.timetuple()):
+        return False
+    else:
+        return True
 
 def getData(request):
     t = Tournament.objects.get(id=1)
@@ -66,6 +72,7 @@ def getData(request):
 
     return JsonResponse(data)
 
+@login_required(login_url="/login/")
 def UpdateGameFromList(request):
     t = Tournament.objects.get(id=1)
     tevent = TournamentEvent.objects.filter(tournament=t).first();
@@ -78,6 +85,7 @@ def UpdateGameFromList(request):
         return JsonResponse(data)
 
 
+@method_decorator(login_required, name='dispatch')
 class UpdateGameFromList(TemplateView):
     @method_decorator(csrf_exempt)
     def dispatch(self, request, *args, **kwargs):
@@ -106,7 +114,9 @@ def not_in_student_group(user):
 login_url="/login/", redirect_field_name='next')
 def index(request):
     context = getContext(request)
-
+    if not checkLoginIsValid(context['gbo_user']):
+        return redirect('login')
+    
     context['segment'] = 'index'
     context['segment_title'] = 'Overview'
 
@@ -119,6 +129,8 @@ login_url="/login/", redirect_field_name='next')
 def basic_setup(request):
     
     context = getContext(request)
+    if not checkLoginIsValid(context['gbo_user']):
+        return redirect('login')
 
     context['segment'] = 'basic_setup'
     context['segment_title'] = 'Basic Setup'
@@ -132,6 +144,8 @@ login_url="/login/", redirect_field_name='next')
 def teams_setup(request):
     
     context = getContext(request)
+    if not checkLoginIsValid(context['gbo_user']):
+        return redirect('login')
 
     context['segment'] = 'teams_setup'
     context['segment_title'] = 'Teams Setup'
@@ -145,6 +159,8 @@ login_url="/login/", redirect_field_name='next')
 def structure_setup(request):
     
     context = getContext(request)
+    if not checkLoginIsValid(context['gbo_user']):
+        return redirect('login')
 
     context['segment'] = 'structure_setup'
     context['segment_title'] = 'Structure Setup'
@@ -158,6 +174,9 @@ login_url="/login/", redirect_field_name='next')
 def game_plan(request):
     
     context = getContext(request)
+    if not checkLoginIsValid(context['gbo_user']):
+        return redirect('login')
+
     tourn = context['tourn']
     tevents = context['events']
     all_tstates_qs = Q()
@@ -176,6 +195,8 @@ login_url="/login/", redirect_field_name='next')
 def results(request):
     
     context = getContext(request)
+    if not checkLoginIsValid(context['gbo_user']):
+        return redirect('login')
 
     context['segment'] = 'results'
     context['segment_title'] = 'Results'
@@ -212,6 +233,8 @@ def pages(request):
 
 def create_teamtestdata(request, pk_tevent):
     context = getContext(request)
+    if not checkLoginIsValid(context['gbo_user']):
+        return redirect('login')
 
     helper.create_teams_testdata(pk_tevent)
 

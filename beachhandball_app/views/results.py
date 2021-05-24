@@ -1,4 +1,6 @@
 from datetime import datetime
+
+from django.views.generic.base import RedirectView
 from beachhandball_app.models.Game import Game
 from beachhandball_app.models.Game import Game
 from django.conf import settings
@@ -31,6 +33,13 @@ class ResultsDetail(DetailView):
     login_url = '/login/'
     redirect_field_name = 'results'
 
+    def dispatch(self, request, *args, **kwargs):
+        context = static_views.getContext(self.request)
+        if not static_views.checkLoginIsValid(context['gbo_user']):
+            return RedirectView('login')
+        self.kwargs['context_data'] = context
+        return super(ResultsDetail, self).dispatch(request, *args, **kwargs)
+
     def get_context_data(self, **kwargs):
         print('Enter ResultsDetail: ', datetime.now())
         tevent = kwargs["object"]
@@ -38,7 +47,7 @@ class ResultsDetail(DetailView):
         if settings.DEBUG is True:
             t = Tournament.objects.get(id=2)
         else:
-            context = static_views.getContext(self.request)
+            context = self.kwargs['context_data']
             t = context['tourn']
         #tevent = TournamentEvent.objects.filter(tournament=t).prefetch_related('TournamentStages')
         context = {}

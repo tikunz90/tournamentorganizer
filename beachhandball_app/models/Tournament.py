@@ -2,6 +2,8 @@ from django.db import models
 from django.utils import timezone
 from datetime import datetime
 
+import jsonfield
+
 from colorfield.fields import ColorField
 
 from .choices import TOURNAMENT_STATE_CHOICES, TOURNAMENT_STAGE_TYPE_CHOICES, COLOR_CHOICES
@@ -21,6 +23,7 @@ class Tournament(models.Model):
 
     #address = AddressField(related_name='+', blank=True, null=True, on_delete=models.CASCADE)
     
+    gbo_data = jsonfield.JSONField()
 
     @property
     def name_short(self):

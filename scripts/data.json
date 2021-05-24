@@ -1,0 +1,308 @@
+{
+            "id": 1,
+            "isBlocked": false,
+            "created_at_ts": 1618334148,
+            "ts": 1618334148,
+            "seasonCup": {
+                "id": 6,
+                "points": 60,
+                "created_at_ts": 1618166377,
+                "ts": 1618166377,
+                "cup": {
+                    "id": 2,
+                    "name": "Beachcup",
+                    "created_at_ts": 1618162179,
+                    "ts": 1618162179
+                }
+            },
+            "seasonTeamCupTournamentRankings": [],
+            "seasonTournament": {
+                "id": 4,
+                "created_at_ts": 1618332679,
+                "ts": 1618332679,
+                "requestTournamentSubjects": [],
+                "seasonTournamentCriteriaSubjects": [],
+                "seasonTournamentCriteriaSubjectWeeks": [],
+                "seasonTournamentNetworks": [],
+                "seasonTournamentCriterias": [
+                    {
+                        "id": 1,
+                        "created_at_ts": 1618333702,
+                        "ts": 1618333702,
+                        "seasonCriteria": {
+                            "id": 2,
+                            "points": 10,
+                            "created_at_ts": 1618162817,
+                            "ts": 1618162817,
+                            "criteria": {
+                                "id": 2,
+                                "points": 10,
+                                "created_at_ts": 1618162354,
+                                "ts": 1618162354,
+                                "criteriaGroup": {
+                                    "id": 1,
+                                    "name": "Catchnets behind Goals",
+                                    "created_at_ts": 1618162301,
+                                    "ts": 1618162301
+                                },
+                                "criteriaOption": {
+                                    "id": 2,
+                                    "name": "2 courts",
+                                    "created_at_ts": 1618162318,
+                                    "ts": 1618162318
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "id": 2,
+                        "created_at_ts": 1618333740,
+                        "ts": 1618333740,
+                        "seasonCriteria": {
+                            "id": 7,
+                            "points": 15,
+                            "created_at_ts": 1618162819,
+                            "ts": 1618162819,
+                            "criteria": {
+                                "id": 7,
+                                "points": 15,
+                                "created_at_ts": 1618162512,
+                                "ts": 1618162512,
+                                "criteriaGroup": {
+                                    "id": 3,
+                                    "name": "2 Referees per Game",
+                                    "created_at_ts": 1618162501,
+                                    "ts": 1618162501
+                                },
+                                "criteriaOption": {
+                                    "id": 5,
+                                    "name": "yes",
+                                    "created_at_ts": 1618162447,
+                                    "ts": 1618162447
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "id": 3,
+                        "created_at_ts": 1618333745,
+                        "ts": 1618333745,
+                        "seasonCriteria": {
+                            "id": 8,
+                            "points": 15,
+                            "created_at_ts": 1618162820,
+                            "ts": 1618162820,
+                            "criteria": {
+                                "id": 8,
+                                "points": 15,
+                                "created_at_ts": 1618162532,
+                                "ts": 1618162532,
+                                "criteriaGroup": {
+                                    "id": 4,
+                                    "name": "Clean Zone",
+                                    "created_at_ts": 1618162521,
+                                    "ts": 1618162521
+                                },
+                                "criteriaOption": {
+                                    "id": 5,
+                                    "name": "yes",
+                                    "created_at_ts": 1618162447,
+                                    "ts": 1618162447
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "id": 4,
+                        "created_at_ts": 1618333752,
+                        "ts": 1618333752,
+                        "seasonCriteria": {
+                            "id": 10,
+                            "points": 20,
+                            "created_at_ts": 1618166556,
+                            "ts": 1618166556,
+                            "criteria": {
+                                "id": 10,
+                                "points": 20,
+                                "created_at_ts": 1618166497,
+                                "ts": 1618166497,
+                                "criteriaGroup": {
+                                    "id": 5,
+                                    "name": "EBT Status",
+                                    "created_at_ts": 1618166425,
+                                    "ts": 1618166425
+                                },
+                                "criteriaOption": {
+                                    "id": 7,
+                                    "name": "101-150 Punkte",
+                                    "created_at_ts": 1618166451,
+                                    "ts": 1618166451
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "id": 5,
+                        "created_at_ts": 1618333759,
+                        "ts": 1618333759,
+                        "seasonCriteria": {
+                            "id": 5,
+                            "points": 10,
+                            "created_at_ts": 1618162819,
+                            "ts": 1618162819,
+                            "criteria": {
+                                "id": 5,
+                                "points": 10,
+                                "created_at_ts": 1618162455,
+                                "ts": 1618162455,
+                                "criteriaGroup": {
+                                    "id": 2,
+                                    "name": "Official Beachhandball Rules",
+                                    "created_at_ts": 1618162411,
+                                    "ts": 1618162468
+                                },
+                                "criteriaOption": {
+                                    "id": 5,
+                                    "name": "yes",
+                                    "created_at_ts": 1618162447,
+                                    "ts": 1618162447
+                                }
+                            }
+                        }
+                    }
+                ],
+                "seasonTournamentWeeks": [],
+                "seasonTournamentCategories": [
+                    {
+                        "id": 3,
+                        "created_at_ts": 1618333711,
+                        "ts": 1618333711,
+                        "category": {
+                            "id": 1,
+                            "name": "Main",
+                            "created_at_ts": 1618148789,
+                            "ts": 1620063832,
+                            "gender": {
+                                "id": 1,
+                                "name": "man",
+                                "created_at_ts": 1620062954,
+                                "ts": 1620062954,
+                                "svgIcon": {
+                                    "id": 158,
+                                    "name": "male",
+                                    "svg": "male.svg",
+                                    "created_at_ts": 1620030415,
+                                    "ts": 1620030415
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "id": 4,
+                        "created_at_ts": 1618333711,
+                        "ts": 1618333711,
+                        "category": {
+                            "id": 2,
+                            "name": "Main",
+                            "created_at_ts": 1618148789,
+                            "ts": 1620063799,
+                            "gender": {
+                                "id": 2,
+                                "name": "woman",
+                                "created_at_ts": 1620062954,
+                                "ts": 1620062954,
+                                "svgIcon": {
+                                    "id": 159,
+                                    "name": "female",
+                                    "svg": "female.svg",
+                                    "created_at_ts": 1620030423,
+                                    "ts": 1620030423
+                                }
+                            }
+                        }
+                    }
+                ],
+                "tournament": {
+                    "id": 3,
+                    "name": "NewTournament2",
+                    "logo": null,
+                    "created_at_ts": 1618332679,
+                    "ts": 1618332679,
+                    "address": {
+                        "id": 9,
+                        "street": "Gghgg",
+                        "number": "1",
+                        "created_at_ts": 1618332679,
+                        "ts": 1618332679,
+                        "city": {
+                            "id": 5170,
+                            "name": "Butzbach",
+                            "post_code": "35510",
+                            "created_at_ts": 1618149222,
+                            "ts": 1618149222,
+                            "state": {
+                                "id": 6,
+                                "name": "Hessen",
+                                "name_abbreviated": "HE",
+                                "created_at_ts": 1618149111,
+                                "ts": 1618149111
+                            },
+                            "country": {
+                                "id": 196,
+                                "name": "Germany",
+                                "name_code": "germany",
+                                "name_abbreviated_2_letters": "DE",
+                                "name_abbreviated_3_letters": "DEU",
+                                "image_flag_3d": "germany_flag-3d-250.png",
+                                "image_flag_3d_round": "germany_flag-3d-round-250.png",
+                                "image_flag_3d_heart": "germany_flag-heart-3d-250.png",
+                                "image_flag_button_round": "germany_flag-button-round-250.png",
+                                "image_flag_button_square": "germany_flag-button-square-250.png",
+                                "image_flag_wave": "germany_flag-wave-250.png",
+                                "image_flag_waving": "germany_flag-waving-250.png",
+                                "created_at_ts": 1618148911,
+                                "ts": 1618148911
+                            }
+                        }
+                    }
+                },
+                "seasonSubject": {
+                    "id": 6,
+                    "isPublished": true,
+                    "created_at_ts": 1618261640,
+                    "ts": 1618261640,
+                    "subject": {
+                        "id": 9,
+                        "expires_in": null,
+                        "created_at_ts": 1618252438,
+                        "ts": 1618261117,
+                        "user": {
+                            "email": "to2@email",
+                            "name": "Tour 2",
+                            "family_name": "Organizer",
+                            "height": 123,
+                            "weight": 60000,
+                            "birthday": "2011-02-01T00:00:00.000Z",
+                            "profile_photo": null,
+                            "email_recovery": null,
+                            "hash": "a830001212ab047ff64075074fadf21c9e2f170c14dc9eec8b70fce4527bd738c8c2c817f0fb7096a081542080ad82032cd429b1f6aa50261ea6c628df7fc13d",
+                            "salt": "37e30e6c6de93eedbcc440663352b05fdc94c467392895de330a9593a2553ae5",
+                            "created_at_ts": 1618252438,
+                            "ts": 1618334108
+                        }
+                    }
+                }
+            },
+            "season": {
+                "id": 1,
+                "isPublished": true,
+                "name": "GBO Seniors 2021",
+                "deadlineTournamentDays": 14,
+                "start_at_ts": "1622498400000",
+                "end_at_ts": "1638226800000",
+                "start_setup_at_ts": "1617228000000",
+                "end_setup_at_ts": "1622412000000",
+                "created_at_ts": 1618161890,
+                "ts": 1619973110
+            }
+        }
