@@ -5,6 +5,7 @@ import os
 from shutil import copyfile
 
 from openpyxl import load_workbook
+from openpyxl.drawing.image import Image
 
 from django.conf import settings
 
@@ -24,8 +25,9 @@ def create_pregame_report_excel(game):
         print('file exists')
         wb = load_workbook(filename = fullfilepath_report)
         ws = wb.active
+        #img = Image(os.path.join(settings.GAME_REPORT_DIR,'dhb_logo.png'))
         #ws_copy = wb.copy_worksheet(ws)
-
+        #ws.add_image(img, 'T1')
         # game id
         ws["T4"] = game.tournament_event.category.abbreviation + str(game.id)
         
@@ -81,7 +83,7 @@ def create_all_tstate_pregame_report_excel(tstate):
         games = Game.objects.filter(tournament_state=tstate)
         wb = load_workbook(filename = fullfilepath_report)
         ws_origin = wb.active
-
+        #img = Image(os.path.join(settings.GAME_REPORT_DIR,'dhb_logo.png'))
         for game in games:
             
             ws_game = wb.copy_worksheet(ws_origin)
