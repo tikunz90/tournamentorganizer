@@ -45,6 +45,8 @@ def getContext(request):
     return context
 
 def checkLoginIsValid(gbouser):
+    if not gbouser.is_online:
+        return True
     if int(time.time()) > time.mktime(gbouser.validUntil.timetuple()):
         return False
     else:
