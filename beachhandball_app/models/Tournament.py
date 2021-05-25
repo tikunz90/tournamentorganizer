@@ -14,7 +14,7 @@ from django_unixdatetimefield import UnixDateTimeField
 class Tournament(models.Model):
     """Model of representing a Beachhandball Tournament. It is the frame for TournamentEvents
 
-    A Tournament basically has a name and is restricted to teams to the according gender.
+    A Tournament basically has a name. Organizer is subject_id of gbo TO
     """
     created_at = UnixDateTimeField(editable=False, default=timezone.now)
 
@@ -38,6 +38,20 @@ class Tournament(models.Model):
 
     class Meta:
         db_table = 'bh_tournament'
+
+
+class TournamentSettings(models.Model):
+    """Model of representing a Tournaments settings
+    """
+    created_at = UnixDateTimeField(editable=False, default=timezone.now)
+
+    tournament = models.ForeignKey('Tournament', null=True, on_delete=models.CASCADE)
+
+    amount_players_report = models.SmallIntegerField(default=10)
+    amount_officials_report = models.SmallIntegerField(default=2)
+
+    class Meta:
+        db_table = 'bh_tournament_settings'
 
 
 class TournamentEvent(models.Model):

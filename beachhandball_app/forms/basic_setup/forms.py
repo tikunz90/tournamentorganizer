@@ -1,10 +1,15 @@
 from django.shortcuts import get_object_or_404
 from django import forms
 from django.forms import ModelForm
-from ...models.Tournament import Court
+from ...models.Tournament import Court, TournamentSettings
 
 from bootstrap_modal_forms.forms import BSModalModelForm
 
+class TournamentSettingsForm(ModelForm):
+    class Meta:
+        model = TournamentSettings
+        fields = '__all__'
+        exclude = ('tournament',)
 
 class CourtForm(BSModalModelForm):
 

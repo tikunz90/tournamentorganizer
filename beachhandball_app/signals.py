@@ -4,7 +4,7 @@ from django.db.models import signals
 from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
 
-from .models.Tournament import Tournament, TournamentEvent, TournamentState, TournamentTeamTransition, Court
+from .models.Tournament import Tournament, TournamentEvent, TournamentSettings, TournamentState, TournamentTeamTransition, Court
 from .models.Team import Team, TeamStats
 from .models.Game import Game
 from .models.Player import Player, PlayerStats
@@ -12,6 +12,11 @@ from .models.Player import Player, PlayerStats
 from .models.choices import TOURNAMENT_STATE_CHOICES
 
 from .helper import calculate_tstate
+
+@receiver(post_save, sender=TournamentEvent)
+def create_new_tournament(sender, instance, created, **kwargs):
+    if created:
+        tourn_settings, cr =  TournamentSettings.objects.get_or_create(tournament=instance)
 
 @receiver(post_save, sender=TournamentEvent)
 def create_new_tournament_event(sender, instance, created, **kwargs):

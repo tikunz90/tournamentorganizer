@@ -18,10 +18,11 @@ from django import template
 from django.db.models import Q
 
 from authentication.models import GBOUser
-from .models.Tournament import Tournament, TournamentEvent, TournamentState
+from .models.Tournament import Tournament, TournamentEvent, TournamentSettings, TournamentState
 from .models.Team import Team, TeamStats
 from .models.Series import Season
 from .models.Game import Game
+from beachhandball_app.forms.basic_setup.forms import TournamentSettingsForm
 
 from .services.services import SWS
 
@@ -40,6 +41,7 @@ def getContext(request):
     
     t = Tournament.objects.get(organizer=guser.subject_id)
     context['tourn'] = t
+    context['tourn_settings'] = TournamentSettings.objects.get(tournament=t)
     context['events'] = TournamentEvent.objects.filter(tournament=t)
     print('Exit getContext', datetime.now())
     return context
@@ -131,8 +133,18 @@ def basic_setup(request):
     if not checkLoginIsValid(context['gbo_user']):
         return redirect('login')
 
+    if request.method == 'POST':
+        form = TournamentSettingsForm(request.POST, instance=context['tourn_settings'])
+        if form.is_valid():
+            form.save()
+    
+    if request.method == 'GET':
+        form = TournamentSettingsForm(instance=context['tourn_settings'])
+
     context['segment'] = 'basic_setup'
     context['segment_title'] = 'Basic Setup'
+
+    context['tourn_settings_form'] = form
 
     html_template = loader.get_template( 'beachhandball/basic_setup.html' )
     return HttpResponse(html_template.render(context, request))
