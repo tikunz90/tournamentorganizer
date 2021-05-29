@@ -20,7 +20,7 @@ class Tournament(models.Model):
 
     organizer = models.SmallIntegerField(default=0)
     name = models.CharField(db_column='name', max_length=50)
-
+    is_active = models.BooleanField(default=False)
     #address = AddressField(related_name='+', blank=True, null=True, on_delete=models.CASCADE)
     
     gbo_data = jsonfield.JSONField()
@@ -49,6 +49,12 @@ class TournamentSettings(models.Model):
 
     amount_players_report = models.SmallIntegerField(default=10)
     amount_officials_report = models.SmallIntegerField(default=2)
+
+    def __unicode__(self):
+        return '{}'.format(self.tournament)
+
+    def __str__(self):
+        return '{}'.format(self.tournament)
 
     class Meta:
         db_table = 'bh_tournament_settings'
@@ -304,3 +310,31 @@ class TournamentStateSorting(models.Model):
 
     class Meta:
         db_table = 'bh_ts_sorting'
+
+
+class Referee(models.Model):
+    """ Model for representing a referee.
+    """
+    created_at = UnixDateTimeField(editable=False, default=timezone.now)
+
+    #user = models.OneToOneField(settings.AUTH_USER_MODEL, null=True, on_delete=models.CASCADE)
+
+    tournament = models.ForeignKey('Tournament', null=True, on_delete=models.CASCADE)
+    name = models.CharField(max_length=50)
+    first_name = models.CharField(max_length=50, blank=True, null=True)
+    abbreviation = models.CharField(max_length=12, blank=True, null=True)
+
+    partner = models.ForeignKey("Referee", blank=True, null=True, on_delete=models.SET_NULL)
+
+    gbo_subject_id = models.SmallIntegerField(default=0)
+
+
+    
+    def __unicode__(self):
+        return '{} {} ({})'.format(self.first_name, self.name, self.id)
+
+    def __str__(self):
+        return '{} {} ({})'.format(self.first_name, self.name, self.id)
+
+    class Meta:
+        db_table = 'bh_referee'

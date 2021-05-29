@@ -14,7 +14,7 @@ from django.contrib.auth.models import User, Group
 from authentication.models import GBOUser
 from django.forms.utils import ErrorList
 from django.http import HttpResponse
-from .forms import LoginForm, SignUpForm
+from .forms import LoginForm, SignUpForm, SelectTournamentForm
 from django.views.generic import TemplateView
 
 from beachhandball_app.services import services as s
@@ -42,6 +42,16 @@ def login_view(request):
                         if t.count() <= 0:
                             msg ='No Tournament Data available! SubjectID: ' + str(gbouser.subject_id)
                             return render(request, "accounts/login.html", {"form": form, "msg" : msg})
+                        elif t.count() == 1:
+                            tourn = t.first()
+                            tourn.is_active = True
+                            tourn.save()
+                        elif t.count() > 1:
+                            for tourn in t:
+                                tourn.is_active = False
+                                tourn.save()
+                            login(request, user)
+                            return redirect("login_select_tourn")
                     else:
                         msg ='Username or password wrong!'
                         return render(request, "accounts/login.html", {"form": form, "msg" : msg})
@@ -88,7 +98,18 @@ def login_view(request):
                         t = Tournament.objects.filter(organizer=gbouser.subject_id)
                         if t.count() <= 0:
                             msg ='No Tournament Data available! SubjectID: ' + str(gbouser.subject_id)
-                            return render(request, "accounts/login.html", {"form": form, "msg" : msg}) 
+                            return render(request, "accounts/login.html", {"form": form, "msg" : msg})
+                        elif t.count() == 1:
+                            tourn = t.first()
+                            tourn.is_active = True
+                            tourn.save()
+                        elif t.count() > 1:
+                            for tourn in t:
+                                tourn.is_active = False
+                                tourn.save()
+                            login(request, user)
+                            return redirect("login_select_tourn")
+
                     else:
                         msg ='GBO user not found! Username: '+ user.username
                         return render(request, "accounts/login.html", {"form": form, "msg" : msg}) 
@@ -105,6 +126,30 @@ def login_view(request):
 
     #return redirect("login", {"form": form, "msg" : msg})
     return render(request, "accounts/login.html", {"form": form, "msg" : msg})
+
+
+def select_tourn_view(request):
+    guser = GBOUser.objects.filter(user=request.user).first()
+    
+
+    msg = None
+
+    if request.method == "GET":
+        print("select_tourn_view GET")
+        form = SelectTournamentForm(request.GET, gbo_organizer=guser.subject_id)
+    if request.method == "POST":
+        form = SelectTournamentForm(request.POST, gbo_organizer=guser.subject_id)
+        if form.is_valid():
+            print("select_tourn_view POST tourn:" + request.POST['tournaments'])
+            id_tourn = request.POST['tournaments']
+            tourn = Tournament.objects.get(id=id_tourn)
+            tourn.is_active = True
+            tourn.save()
+            return redirect('/')
+
+    #return redirect("login", {"form": form, "msg" : msg})
+    return render(request, "accounts/login_select_tourn.html", {"form": form, "msg" : msg})
+
 
 def register_user(request):
 
@@ -139,3 +184,4 @@ class ProfileView(TemplateView):
         context['segment'] = 'profile'
         context['gbo_user'] = GBOUser.objects.filter(user=self.request.user)
         return context
+

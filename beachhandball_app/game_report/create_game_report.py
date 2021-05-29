@@ -1,3 +1,4 @@
+from beachhandball_app.models.Tournament import TournamentSettings
 from beachhandball_app.models.choices import CATEGORY_CHOICES
 from beachhandball_app.models.Game import Game
 
@@ -80,6 +81,7 @@ def create_all_tstate_pregame_report_excel(tstate):
 
     if os.path.isfile(fullfilepath_report):
         print('file exists')
+        tsettings = TournamentSettings.objects.get(tournament=tstate.tournament_event.tournament)
         games = Game.objects.filter(tournament_state=tstate)
         wb = load_workbook(filename = fullfilepath_report)
         ws_origin = wb.active
@@ -109,7 +111,7 @@ def create_all_tstate_pregame_report_excel(tstate):
             time = game.starttime.strftime("%H:%M")
             ws_game["C10"] = date
             ws_game["F10"] = time
-            max_num_player = 10
+            max_num_player = tsettings.amount_players_report
             row_start_a = 13
             for player in game.team_st_a.team.player_set.all()[:max_num_player]:
                 ws_game["A"+str(row_start_a)]=player.number

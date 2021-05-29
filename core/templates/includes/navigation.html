@@ -27,13 +27,22 @@
                 </button>
               </div>
             </form>
-            <div id='SeasonActive'>
+            <div class="col"></div>
+            <div class="col"></div>
+            <div class="col"></div>
+            <div class="col"></div>
+            <div id='TournamentActive' class="col">
+            {% if tourn %}
+              {{ tourn }}
+            {% endif %}
+            </div>
+            <div id='SeasonActive' class="col">
             {% if request.user.is_superuser %}
               <i class="material-icons">local_police</i>
               ADMIN USER
             {% endif %}
             </div>
-            <div id='SeasonActive'>
+            <div id='SeasonActive' class="col">
             {% if season_active %}
               {{ season_active }}
             {% endif %}

@@ -39,7 +39,7 @@ def getContext(request):
         context['season_active'] = SWS.getSeasonActive(guser)
         context['token'] = guser.token
     
-    t = Tournament.objects.get(organizer=guser.subject_id)
+    t = Tournament.objects.get(organizer=guser.subject_id, is_active=True)
     context['tourn'] = t
     context['tourn_settings'] = TournamentSettings.objects.get(tournament=t)
     context['events'] = TournamentEvent.objects.filter(tournament=t)

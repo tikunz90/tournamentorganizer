@@ -1,0 +1,72 @@
+{% extends "layouts/base-auth.html" %}
+
+{% block title %} Login {% endblock title %}
+
+{% block content %}
+
+  <div class="page-header login-page header-filter" filter-color="black" style="background-image: url('/static/assets/img/bg_login.jpg'); background-size: cover; background-position: top center;">
+    <!--   you can change the color of the filter page using: data-color="blue | purple | green | orange | red | rose " -->
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-4 col-md-6 col-sm-8 ml-auto mr-auto">
+
+          <form role="form" method="post" action="">
+
+            <input type="hidden" name="csrfmiddlewaretoken" value="{{csrf_token}}">
+    
+            <div class="card card-login card-hidden">
+              <div class="card-header card-header-rose text-center">
+                <h4 class="card-title">
+                  Select Tournament
+                </h4>
+
+              </div>
+              <div class="card-body ">
+                <p class="card-description text-center">
+    
+                  {% if msg %}
+                    {{ msg | safe }}
+                  {% else %}
+                    <span>
+                      
+                    </span>
+                  {% endif %}
+                    
+                </p>
+    
+                {{ form.tournaments }}
+    
+    
+              </div>
+              <div class="card-footer justify-content-center">
+                <button type="submit" name="select" class="btn btn-primary my-4">Select</button>
+              </div>
+    
+              <br />
+    
+            </div>
+          </form>
+
+        </div>
+      </div>
+    </div>
+
+    {% include 'includes/footer-auth.html' %}
+
+  </div>
+
+{% endblock content %}
+
+{% block javascripts %}
+
+  <script>
+    $(document).ready(function() {
+      md.checkFullPageBackgroundImage();
+      setTimeout(function() {
+        // after 1000 ms we add the class animated to the login/register card
+        $('.card').removeClass('card-hidden');
+      }, 700);
+    });
+  </script>
+
+{% endblock javascripts %}

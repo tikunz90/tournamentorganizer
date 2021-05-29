@@ -6,7 +6,7 @@ Copyright (c) 2019 - present AppSeed.us
 from django.contrib import admin
  
 from .models.General import TournamentCategory
-from .models.Tournament import Tournament, TournamentEvent, TournamentFinalRanking, TournamentSettings, TournamentTeamTransition, Court
+from .models.Tournament import Referee, Tournament, TournamentEvent, TournamentFinalRanking, TournamentSettings, TournamentTeamTransition, Court
 from .models.Tournament import TournamentStage, TournamentState
 from .models.Team import Team, TeamStats
 from .models.Player import Player, PlayerStats
@@ -30,6 +30,14 @@ admin.site.register(TournamentFinalRanking)
 admin.site.register(Series)
 admin.site.register(Season)
 
+@admin.register(Referee)
+class RefereeAdmin(admin.ModelAdmin):
+    list_display = ( "name", "first_name" , "ref_name_partner", "created_at")
+    list_filter = ( "name",)
+    search_fields = ("name__startswith", )
+    def ref_name_partner(self, obj):
+        return obj.partner
+    ref_name_partner.short_description = "Referee"
 @admin.register(Court)
 class CourtAdmin(admin.ModelAdmin):
     list_display = ( "name", "number" , "tournament_name_short", "created_at")
