@@ -8,6 +8,7 @@ from .choices import NATIONALITY_CHOICES, CATEGORY_CHOICES
 
 CATEGORY_CLASS_CHOICES = (
         ('Adult', 'Adult'),
+        ('Seniors', 'Seniors'),
         ('Junior', 'Junior'),
         ('Mixed', 'Mixed'),
     )
@@ -20,9 +21,10 @@ class TournamentCategory(models.Model):
 
     name = models.CharField(db_column='name', max_length=50)
     abbreviation = models.CharField(max_length=3, blank=True)
-    classification = models.CharField(max_length=20, choices=CATEGORY_CLASS_CHOICES, blank=True)
-    category = models.CharField(max_length=20, choices=CATEGORY_CHOICES, blank=True)
+    classification = models.CharField(max_length=50, choices=CATEGORY_CLASS_CHOICES, blank=True)
+    category = models.CharField(max_length=50, choices=CATEGORY_CHOICES, blank=True)
 
+    season_tournament_category_id = models.IntegerField(null=True)
     def __unicode__(self):
         return self.name
 

@@ -1,12 +1,128 @@
+
+from datetime import datetime
 from beachhandball_app.models.Player import Player
 from django.db.models.query_utils import Q
 from beachhandball_app.models.choices import GAMESTATE_CHOICES
-from beachhandball_app.models.Tournament import TournamentEvent, TournamentState, TournamentTeamTransition
+from beachhandball_app.models.Tournament import Tournament, TournamentEvent, TournamentSettings, TournamentState, TournamentTeamTransition
 from beachhandball_app.models.Game import Game
 from beachhandball_app.models.Team import TeamStats, Team
 from beachhandball_app.models.General import TournamentCategory
 from django.utils.http import urlencode
 from django.urls import reverse
+
+from beachhandball_app.services.services import SWS
+
+def update_user_tournament(gbouser):
+    print("ENTER update_user_tournamet")
+    gbo_data = gbouser.gbo_data
+    if gbo_data['isError'] == 'true':
+        return None
+    gbo_data = gbo_data['message']
+
+    to_tourn = None
+
+    tourns = Tournament.objects.filter(organizer=gbouser.subject_id)
+    for gbot in gbo_data:
+        tourn_found = False
+        
+        season_tourn = gbot['seasonTournament']
+        gbo_tourn = season_tourn['tournament']
+
+        to_tourn = None
+        for t in tourns:
+            if t.gbo_season_tournament_id == gbot['id']:
+                print("Found season_tourn")
+                to_tourn = t
+                tourn_found = True
+                t.organizer=gbouser.subject_id
+                t.name=gbo_tourn['name']
+                t.last_sync_at=datetime.now()
+                t.gbo_season_tournament_id=season_tourn['id']
+                t.gbo_season_cup_tournament_id=gbot['id']
+                t.save()
+                ts, cr = TournamentSettings.objects.get_or_create(tournament=t)
+                ts.save()
+        if not tourn_found:
+            #create tournament
+            new_t = Tournament(organizer=gbouser.subject_id,
+            name=gbo_tourn['name'],
+            last_sync_at=datetime.now(),
+            gbo_season_tournament_id=season_tourn['id'],
+            gbo_season_cup_tournament_id=gbot['id'])
+            new_t.save()
+            ts, cr = TournamentSettings.objects.get_or_create(tournament=new_t)
+            ts.save()
+            to_tourn = new_t
+        
+        to_tourn = Tournament.objects.filter(organizer=gbouser.subject_id, gbo_season_cup_tournament_id=gbot['id']).first();
+
+        # read dates
+        if not season_tourn['seasonTournamentWeeks']:
+            print("Not weeks defined")
+        start_ts = int(season_tourn['seasonTournamentWeeks'][0]['seasonWeek']['start_at_ts'])/1000
+        end_ts = int(season_tourn['seasonTournamentWeeks'][0]['seasonWeek']['end_at_ts'])/1000
+
+        # scann categories and update/create events
+        for cat in season_tourn['seasonTournamentCategories']:
+            tcat = None
+            te = None
+            abbrv = 'W'
+            if cat['category']['gender']['name'] == 'man':
+                abbrv = 'M'
+            
+            tcats = TournamentCategory.objects.filter(season_tournament_category_id=cat['id'])
+            if tcats.count() == 0:
+                tcat = TournamentCategory(season_tournament_category_id=cat['id'],
+                    classification=cat['category']['name'],
+                    name=cat['category']['gender']['name'],
+                    category=cat['category']['gender']['name'],
+                    abbreviation=abbrv)
+                tcat.save()
+            else:
+                tcat = tcats.first()
+
+            tevents = TournamentEvent.objects.filter(season_tournament_category_id=cat['id'], season_cup_tournament_id=gbot['id'])
+            if tevents.count() == 0:
+                te = TournamentEvent(tournament_id=to_tourn.id,
+                    season_tournament_category_id=cat['id'],
+                    season_cup_tournament_id=gbot['id'],
+                    season_tournament_id=season_tourn['id'],
+                    name=to_tourn.name,
+                    category=tcat,
+                    start_ts=datetime.fromtimestamp(start_ts),
+                    end_ts=datetime.fromtimestamp(end_ts),
+                    max_number_teams=4,
+                    last_sync_at=datetime.now())
+                te.save()         
+            else:
+                te = tevents.first()
+                te.tournament=to_tourn
+                te.name=to_tourn.name
+                te.category=tcat
+                te.start_ts=datetime.fromtimestamp(start_ts)
+                te.end_ts=datetime.fromtimestamp(end_ts)
+                te.max_number_teams=4
+                te.last_sync_at=datetime.now()
+            te.save()
+
+            # team
+            team_requests = season_tourn['requestSeasonTeamTournaments']
+            
+
+            for team_req in team_requests:
+                teams = Team.objects.filter(request_season_team_tournaments_id=team_req['id'])
+                if teams.count() == 0:
+                    data_tt = SWS.getTeamTournamentById(gbouser, team_req['id'])
+                    data_team = SWS.getSeasonActive(gbouser, data_tt['seasonTeam']['id'])
+                    team = Team(request_season_team_tournaments_id=team_req['id'],
+                    gbo_team = data_team['id'],
+                    tournament_event=te,
+                    name=data_team['team']['name'],
+                    abbreviation=data_team['team']['name_abbreviated'])
+            
+
+    print("EXIT update_user_tournament")
+    return tourns
 
 def reverse_querystring(view, urlconf=None, args=None, kwargs=None, current_app=None, query_kwargs=None):
     '''Custom reverse to handle query strings.

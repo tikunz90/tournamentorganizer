@@ -2,12 +2,8 @@
 CATEGORY_CHOICES = (
         ('MEN', 'MEN'),
         ('WOMEN', 'WOMAN'),
-        ('U18 MEN', 'U18 MEN'),
-        ('U18 WOMEN', 'U18 WOMAN'),
-        ('U16 MEN', 'U16 MEN'),
-        ('U16 WOMEN', 'U16 WOMAN'),
-        ('U14 MEN', 'U14 MEN'),
-        ('U14 WOMEN', 'U14 WOMAN'),
+        ('man', 'man'),
+        ('woman', 'woman'),
         ('MIXED', 'MIXED'),
     )
 

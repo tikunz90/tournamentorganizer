@@ -22,7 +22,7 @@
       <div class="card card-product">
         <div class="card-header card-header-image" data-header-animation="true">
           <a href="{{ url('structure_setup.detail', kwargs={'pk': tevent.id }) }}">
-            <img class="img" src="/static/assets/img/logo2019.png">
+            <img class="img" src="/static/assets/img/trophy/ball.png">
           </a>
         </div>
         <div class="card-body">
@@ -43,12 +43,15 @@
           </div>
           {% endif%}
           <div class="card-description">
-            The place is close to Barceloneta Beach and bus stop just 2 min by walk and near to "Naviglio" where you can enjoy the main night life in Barcelona.
+            {{ tevent.start_ts.strftime('%d.%m.') }} till {{ tevent.end_ts.strftime('%d.%m.%Y') }}
           </div>
         </div>
         <div class="card-footer">
           <div>
             <h4>#Teams: {{ tevent.max_number_teams }}</h4>
+          </div>
+          <div class="justify-content-center">
+            <h6><i class="material-icons">sync</i>{{ tevent.last_sync_at.strftime('%H:%M:%S (%d.%m.%Y)') }}</h6>
           </div>
           <div class="stats">
             <h4 class="card-category"><i class="material-icons">{{ tevent.category.icon }}</i>{{ tevent.category }}</h4>

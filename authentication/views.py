@@ -18,6 +18,7 @@ from .forms import LoginForm, SignUpForm, SelectTournamentForm
 from django.views.generic import TemplateView
 
 from beachhandball_app.services import services as s
+from beachhandball_app.helper import update_user_tournament
 
 def login_view(request):
     form = LoginForm(request.POST or None)
@@ -33,7 +34,11 @@ def login_view(request):
             password = form.cleaned_data.get("password")
 
             # check if gbo user is online
-            gbouser = GBOUser.objects.get(user__username=username)
+            user = User.objects.filter(username=username)
+            if user.count() > 0:
+                gbouser = GBOUser.objects.filter(user__username=username).first()
+            else:
+                gbouser = None
             if gbouser:
                 if not gbouser.is_online:
                     user = authenticate(username=username, password=password)
@@ -72,6 +77,7 @@ def login_view(request):
                     token = result['message']['token'].split(' ')[1],
                     validUntil = datetime.utcfromtimestamp(result['message']['expiresIn'] / 1000))
                     guser.subject_id = s.SWS.getGBOUserId(guser)
+                    guser.gbo_data = s.SWS.getTournamentByUser(guser)
                     guser.save()
                     to_group = Group.objects.get(name='tournament_organizer')
                     to_group.user_set.add(user)
@@ -90,12 +96,16 @@ def login_view(request):
                     
                     gbouser = GBOUser.objects.get(user=user)
                     if gbouser:
-                        if not gbouser.is_online:
+                        if gbouser.is_online:
                             gbouser.token = result['message']['token'].split(' ')[1]
                             gbouser.validUntil = datetime.utcfromtimestamp(result['message']['expiresIn'] / 1000)
-                            #data = s.SWS.getTournamentByUser(gbouser)      
-                            gbouser.save()  
-                        t = Tournament.objects.filter(organizer=gbouser.subject_id)
+
+                            gbouser.subject_id =45
+
+                            gbouser.gbo_data = s.SWS.syncTournamentData(gbouser)
+                            gbouser.save() 
+                        
+                        t = update_user_tournament(gbouser)
                         if t.count() <= 0:
                             msg ='No Tournament Data available! SubjectID: ' + str(gbouser.subject_id)
                             return render(request, "accounts/login.html", {"form": form, "msg" : msg})

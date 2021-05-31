@@ -23,8 +23,10 @@ class Tournament(models.Model):
     is_active = models.BooleanField(default=False)
     #address = AddressField(related_name='+', blank=True, null=True, on_delete=models.CASCADE)
     
+    last_sync_at = UnixDateTimeField(editable=False, default=timezone.now)
     gbo_data = jsonfield.JSONField()
-    gbo_series_cup_tournament_id = models.SmallIntegerField(default=0)
+    gbo_season_tournament_id = models.SmallIntegerField(default=0)
+    gbo_season_cup_tournament_id = models.SmallIntegerField(default=0)
 
     @property
     def name_short(self):
@@ -69,7 +71,7 @@ class TournamentEvent(models.Model):
 
     tournament = models.ForeignKey('Tournament', null=True, on_delete=models.CASCADE)
     #season = models.ForeignKey('Season', null=True, related_name='+', on_delete=models.SET_NULL)
-    category = models.ForeignKey('TournamentCategory', null=True, related_name='+', on_delete=models.CASCADE)
+    category = models.ForeignKey('TournamentCategory', null=True, on_delete=models.CASCADE)
 
     name = models.CharField(db_column='name', max_length=50)
 
@@ -79,7 +81,10 @@ class TournamentEvent(models.Model):
     max_number_teams = models.SmallIntegerField(default=0)
     is_in_configuration = models.BooleanField(default=False)
 
+    last_sync_at = UnixDateTimeField(editable=True, default=timezone.now)
     season_tournament_id = models.IntegerField(null=True)
+    season_cup_tournament_id = models.IntegerField(null=True)
+    season_tournament_category_id = models.IntegerField(null=True)
 
     @property
     def name_short(self):

@@ -68,7 +68,8 @@ class SWS():
         act_season = ''
         if response.json()['isError'] is not True:
             data = response.json()['message']
-            act_season = data[0]['season']['name']
+            if data:
+                act_season = data[0]['season']['name']
         else:
             act_season = 'error'
         return data
@@ -80,12 +81,31 @@ class SWS():
         headers = SWS.headers
         headers['Authorization'] = 'Bearer {}'.format(gbo_user.token)
         response = requests.get(SWS.base_url + endpoint, headers=headers)
-        act_season = ''
+        return response.json()
+
+    @staticmethod
+    def getTeamById(gbo_user, team_id):
+        # request data from sws
+        endpoint = '/season/team/' + str(team_id)
+        headers = SWS.headers
+        headers['Authorization'] = 'Bearer {}'.format(gbo_user.token)
+        response = requests.get(SWS.base_url + endpoint, headers=headers)
         if response.json()['isError'] is not True:
-            tourns = Tournament.objects.filter(organizer=gbo_user.subject_id)
             data = response.json()['message']
-            
-            act_season = data[0]['season']['name']
         else:
-            act_season = 'error'
+            data = None
         return data
+
+    @staticmethod
+    def getTeamTournamentById(gbo_user, team_tourn_id):
+        # request data from sws
+        endpoint = '/request/season-team-tournament/' + str(team_tourn_id)
+        headers = SWS.headers
+        headers['Authorization'] = 'Bearer {}'.format(gbo_user.token)
+        response = requests.get(SWS.base_url + endpoint, headers=headers)
+        if response.json()['isError'] is not True:
+            data = response.json()['message']
+        else:
+            data = None
+        return data
+    

@@ -21,7 +21,7 @@
                 </h4>
 
               </div>
-              <div class="card-body ">
+              <div class="card-body justify-content-center">
                 <p class="card-description text-center">
     
                   {% if msg %}
@@ -33,8 +33,9 @@
                   {% endif %}
                     
                 </p>
-    
+                <div class="col-md-12">
                 {{ form.tournaments }}
+                </div>
     
     
               </div>
@@ -62,10 +63,10 @@
   <script>
     $(document).ready(function() {
       md.checkFullPageBackgroundImage();
-      setTimeout(function() {
-        // after 1000 ms we add the class animated to the login/register card
-        $('.card').removeClass('card-hidden');
-      }, 700);
+      
+      //$("#id_tournaments").addClass("form-control selectpicker");
+      //$('#id_tournaments').attr('data-style', 'btn btn-info btn-round');
+      $('.card').removeClass('card-hidden');
     });
   </script>
 
