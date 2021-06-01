@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from django.db.models import signals
 from django.db.models.signals import post_save, post_delete
@@ -94,8 +94,9 @@ def create_new_tournamentstate(sender, instance, created, **kwargs):
                     else:
                         team_b = team_stat_b.team
                     
-                    time_delta = datetime.timedelta(minutes=game_slot_mins * te_settings.game_slot_counter)
-                    act_game_slot = act_game_slot + time_delta
+                    delta = game_slot_mins * te_settings.game_slot_counter
+                    time_delta = timedelta(minutes=delta)
+                    act_game_slot = first_game_slot + time_delta
                     te_settings.game_slot_counter = te_settings.game_slot_counter + 1
                     g, cr = Game.objects.get_or_create( tournament=instance.tournament_event.tournament,
                                                         tournament_event=instance.tournament_event,
