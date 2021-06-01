@@ -5,7 +5,7 @@ from django.http import HttpResponse, JsonResponse
 from django import template
 
 from authentication.models import GBOUser
-from ..models.Tournament import Tournament, TournamentEvent, TournamentState
+from ..models.Tournaments import Tournament, TournamentEvent, TournamentState
 from ..models.Team import Team, TeamStats
 from ..models.Series import Season
 from ..models.Game import Game

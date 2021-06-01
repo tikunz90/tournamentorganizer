@@ -156,6 +156,14 @@
     //courts.data.forEach(function(item, index){
     //  bh.addCourtHTML(item);
     //});
+    md.initFormExtendedDatetimepickers();
+    var userDate = $("#id_first_game_slot" )[0].attributes.value.value
+    if(moment(userDate, "MM/DD/YYYY HH:mm").format("MM/DD/YYYY HH:mm") !== userDate)
+    {
+    var date_string = moment(userDate, "YYYY-MM-DD HH:mm:ss").format("MM/DD/YYYY HH:mm");
+    //$( "#id_starttime" ).val($( "#id_starttime" )[0].attributes.value.value);
+    $( "#id_first_game_slot" ).val(date_string);
+    }
 
     // Create tstate synchronous
     function createCourtModalForm() {

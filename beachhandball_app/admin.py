@@ -6,8 +6,8 @@ Copyright (c) 2019 - present AppSeed.us
 from django.contrib import admin
  
 from .models.General import TournamentCategory
-from .models.Tournament import Referee, Tournament, TournamentEvent, TournamentFinalRanking, TournamentSettings, TournamentTeamTransition, Court
-from .models.Tournament import TournamentStage, TournamentState
+from .models.Tournaments import Referee, Tournament, TournamentEvent, TournamentFinalRanking, TournamentSettings, TournamentTeamTransition, Court
+from .models.Tournaments import TournamentStage, TournamentState
 from .models.Team import Team, TeamStats
 from .models.Player import Player, PlayerStats
 from .models.Game import Game, GameAction

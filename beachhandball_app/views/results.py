@@ -18,7 +18,7 @@ from beachhandball_app.helper import reverse_querystring, calculate_tstate
 
 from bootstrap_modal_forms.generic import BSModalCreateView, BSModalDeleteView, BSModalUpdateView
 
-from ..models.Tournament import Tournament, TournamentEvent, TournamentStage, TournamentState, TournamentTeamTransition
+from ..models.Tournaments import Tournament, TournamentEvent, TournamentStage, TournamentState, TournamentTeamTransition
 from ..models.Series import Season
 from ..models.Team import Team, TeamStats
 

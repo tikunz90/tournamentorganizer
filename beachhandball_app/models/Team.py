@@ -18,7 +18,7 @@ class Team(models.Model):
     abbreviation = models.CharField(max_length=8, null=True)
     gbo_team = models.IntegerField(null=True)
     season_team_id = models.IntegerField(null=True)
-    request_season_team_tournaments_id = models.IntegerField(null=True)
+    season_team_cup_tournament_ranking_id = models.IntegerField(null=True)
     status_progress = models.CharField(max_length=25, null=True)
     
     category = models.ForeignKey('TournamentCategory', null=True, related_name='+', on_delete=models.CASCADE)

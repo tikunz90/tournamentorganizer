@@ -1,7 +1,7 @@
 from django.views.generic.detail import DetailView
 from django.contrib.auth.mixins import LoginRequiredMixin
 
-from ..models.Tournament import Tournament, TournamentEvent
+from ..models.Tournaments import Tournament, TournamentEvent
 from ..models.Series import Season
 from ..models.Team import Team
 

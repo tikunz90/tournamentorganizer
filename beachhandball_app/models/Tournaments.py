@@ -25,8 +25,8 @@ class Tournament(models.Model):
     
     last_sync_at = UnixDateTimeField(editable=False, default=timezone.now)
     gbo_data = jsonfield.JSONField()
-    gbo_season_tournament_id = models.SmallIntegerField(default=0)
-    gbo_season_cup_tournament_id = models.SmallIntegerField(default=0)
+    season_tournament_id = models.SmallIntegerField(default=0)
+    season_cup_tournament_id = models.SmallIntegerField(default=0)
 
     @property
     def name_short(self):
@@ -48,15 +48,20 @@ class TournamentSettings(models.Model):
     created_at = UnixDateTimeField(editable=False, default=timezone.now)
 
     tournament = models.ForeignKey('Tournament', null=True, on_delete=models.CASCADE)
+    
+    first_game_slot = UnixDateTimeField(editable=True, default=timezone.now)
+    actual_game_slot = UnixDateTimeField(editable=True, default=timezone.now)
+    game_slot_counter = models.SmallIntegerField(default=0)
+    game_slot_mins = models.SmallIntegerField(default=45)
 
     amount_players_report = models.SmallIntegerField(default=10)
     amount_officials_report = models.SmallIntegerField(default=2)
 
     def __unicode__(self):
-        return '{}'.format(self.tournament)
+        return 'Tsettings: {}'.format(self.tournament)
 
     def __str__(self):
-        return '{}'.format(self.tournament)
+        return 'Tsettings: {}'.format(self.tournament)
 
     class Meta:
         db_table = 'bh_tournament_settings'
@@ -71,7 +76,7 @@ class TournamentEvent(models.Model):
 
     tournament = models.ForeignKey('Tournament', null=True, on_delete=models.CASCADE)
     #season = models.ForeignKey('Season', null=True, related_name='+', on_delete=models.SET_NULL)
-    category = models.ForeignKey('TournamentCategory', null=True, on_delete=models.CASCADE)
+    category = models.ForeignKey('TournamentCategory', blank=True, null=True, on_delete=models.CASCADE)
 
     name = models.CharField(db_column='name', max_length=50)
 
@@ -80,6 +85,8 @@ class TournamentEvent(models.Model):
 
     max_number_teams = models.SmallIntegerField(default=0)
     is_in_configuration = models.BooleanField(default=False)
+
+    logo = models.CharField(max_length=50, default='trophy')
 
     last_sync_at = UnixDateTimeField(editable=True, default=timezone.now)
     season_tournament_id = models.IntegerField(null=True)

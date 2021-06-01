@@ -1,15 +1,20 @@
 from django.shortcuts import get_object_or_404
 from django import forms
 from django.forms import ModelForm
-from ...models.Tournament import Court, TournamentSettings
+from ...models.Tournaments import Court, TournamentSettings
 
 from bootstrap_modal_forms.forms import BSModalModelForm
 
 class TournamentSettingsForm(ModelForm):
     class Meta:
         model = TournamentSettings
-        fields = '__all__'
+        fields = ('first_game_slot', 'game_slot_mins', 'game_slot_counter', 'amount_players_report', 'amount_officials_report')
         exclude = ('tournament',)
+
+        widgets = {
+           'first_game_slot': forms.widgets.DateTimeInput(attrs={'class': "form-control datetimepicker"}),
+           #'actual_game_slot': forms.widgets.DateTimeInput(attrs={'class': "form-control datetimepicker"}),
+        }
 
 class CourtForm(BSModalModelForm):
 

@@ -1,4 +1,4 @@
-from beachhandball_app.models.Tournament import TournamentSettings
+from beachhandball_app.models.Tournaments import TournamentSettings
 from beachhandball_app.models.choices import CATEGORY_CHOICES
 from beachhandball_app.models.Game import Game
 

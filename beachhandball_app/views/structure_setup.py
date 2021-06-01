@@ -27,7 +27,7 @@ from beachhandball_app.static_views import checkLoginIsValid, getContext
 
 from bootstrap_modal_forms.generic import BSModalCreateView, BSModalDeleteView, BSModalUpdateView
 
-from ..models.Tournament import Court, Tournament, TournamentEvent, TournamentStage, TournamentState, TournamentTeamTransition
+from ..models.Tournaments import Court, Tournament, TournamentEvent, TournamentStage, TournamentState, TournamentTeamTransition
 from ..models.Series import Season
 from ..models.Team import Team, TeamStats
 

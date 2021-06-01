@@ -18,7 +18,7 @@ from django import template
 from django.db.models import Q
 
 from authentication.models import GBOUser
-from .models.Tournament import Tournament, TournamentEvent, TournamentSettings, TournamentState
+from .models.Tournaments import Tournament, TournamentEvent, TournamentSettings, TournamentState
 from .models.Team import Team, TeamStats
 from .models.Series import Season
 from .models.Game import Game

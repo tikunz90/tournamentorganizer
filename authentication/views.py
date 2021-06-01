@@ -3,7 +3,7 @@
 Copyright (c) 2019 - present AppSeed.us
 """
 
-from beachhandball_app.models.Tournament import Tournament
+from beachhandball_app.models.Tournaments import Tournament
 from django.shortcuts import render
 from datetime import datetime
 

@@ -4,7 +4,7 @@ from django.db.models import signals
 from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
 
-from .models.Tournament import Tournament, TournamentEvent, TournamentSettings, TournamentState, TournamentTeamTransition, Court
+from .models.Tournaments import Tournament, TournamentEvent, TournamentSettings, TournamentState, TournamentTeamTransition, Court
 from .models.Team import Team, TeamStats
 from .models.Game import Game
 from .models.Player import Player, PlayerStats
@@ -13,7 +13,7 @@ from .models.choices import TOURNAMENT_STATE_CHOICES
 
 from .helper import calculate_tstate
 
-@receiver(post_save, sender=TournamentEvent)
+@receiver(post_save, sender=Tournament)
 def create_new_tournament(sender, instance, created, **kwargs):
     if created:
         tourn_settings, cr =  TournamentSettings.objects.get_or_create(tournament=instance)
@@ -36,6 +36,10 @@ def create_new_tournament_event(sender, instance, created, **kwargs):
 def create_new_tournamentstate(sender, instance, created, **kwargs):
     #print('Enter create_new_tournamentstate: ', datetime.now())
     if created:
+        #
+        te_settings = TournamentSettings.objects.filter(tournament=instance.tournament_event.tournament).first()
+        first_game_slot = te_settings.first_game_slot
+        game_slot_mins = te_settings.game_slot_mins
         # Create dummy teamstats
         for i in range(1, instance.max_number_teams+1):
             new_dummy_team, cr = Team.objects.get_or_create(tournament_event=instance.tournament_event,
@@ -89,7 +93,10 @@ def create_new_tournamentstate(sender, instance, created, **kwargs):
                         team_b.save()
                     else:
                         team_b = team_stat_b.team
-
+                    
+                    time_delta = datetime.timedelta(minutes=game_slot_mins * te_settings.game_slot_counter)
+                    act_game_slot = act_game_slot + time_delta
+                    te_settings.game_slot_counter = te_settings.game_slot_counter + 1
                     g, cr = Game.objects.get_or_create( tournament=instance.tournament_event.tournament,
                                                         tournament_event=instance.tournament_event,
                                                         #team_a=team_a,
@@ -99,8 +106,11 @@ def create_new_tournamentstate(sender, instance, created, **kwargs):
                                                         tournament_state=instance,
                                                         court=court,
                                                         gamestate='APPENDING',
-                                                        gamingstate='Ready')
+                                                        gamingstate='Ready',
+                                                        starttime=act_game_slot)
                     g.save()
+                    
+            te_settings.save()
     #print('Leave create_new_tournamentstate: ', datetime.now())
 
 

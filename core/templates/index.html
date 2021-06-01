@@ -22,7 +22,7 @@
       <div class="card card-product">
         <div class="card-header card-header-image" data-header-animation="true">
           <a href="{{ url('structure_setup.detail', kwargs={'pk': tevent.id }) }}">
-            <img class="img" src="/static/assets/img/trophy/ball.png">
+            <img class="img" src="/static/assets/img/trophy/{{ tevent.logo }}.png">
           </a>
         </div>
         <div class="card-body">
@@ -51,7 +51,7 @@
             <h4>#Teams: {{ tevent.max_number_teams }}</h4>
           </div>
           <div class="justify-content-center">
-            <h6><i class="material-icons">sync</i>{{ tevent.last_sync_at.strftime('%H:%M:%S (%d.%m.%Y)') }}</h6>
+            <button class="btn btn-outline-info" rel="tooltip" data-placement="bottom" title="last sync with GBO"><i class="material-icons">sync</i>{{ tevent.last_sync_at.strftime('%H:%M:%S (%d.%m.%Y)') }}</button>
           </div>
           <div class="stats">
             <h4 class="card-category"><i class="material-icons">{{ tevent.category.icon }}</i>{{ tevent.category }}</h4>

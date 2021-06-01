@@ -7,7 +7,7 @@ from django.urls import reverse_lazy
 from beachhandball_app.static_views import getContext
 from bootstrap_modal_forms.generic import BSModalCreateView, BSModalDeleteView, BSModalUpdateView
 
-from ..models.Tournament import Court, Tournament
+from ..models.Tournaments import Court, Tournament
 from beachhandball_app.forms.basic_setup.forms import CourtForm, CourtUpdateForm
 
 

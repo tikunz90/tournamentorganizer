@@ -3,7 +3,7 @@ from datetime import datetime
 from beachhandball_app.models.Player import Player
 from django.db.models.query_utils import Q
 from beachhandball_app.models.choices import GAMESTATE_CHOICES
-from beachhandball_app.models.Tournament import Tournament, TournamentEvent, TournamentSettings, TournamentState, TournamentTeamTransition
+from beachhandball_app.models.Tournaments import Tournament, TournamentEvent, TournamentSettings, TournamentState, TournamentTeamTransition
 from beachhandball_app.models.Game import Game
 from beachhandball_app.models.Team import TeamStats, Team
 from beachhandball_app.models.General import TournamentCategory
@@ -30,15 +30,15 @@ def update_user_tournament(gbouser):
 
         to_tourn = None
         for t in tourns:
-            if t.gbo_season_tournament_id == gbot['id']:
+            if t.season_tournament_id == gbot['id']:
                 print("Found season_tourn")
                 to_tourn = t
                 tourn_found = True
                 t.organizer=gbouser.subject_id
                 t.name=gbo_tourn['name']
                 t.last_sync_at=datetime.now()
-                t.gbo_season_tournament_id=season_tourn['id']
-                t.gbo_season_cup_tournament_id=gbot['id']
+                t.season_tournament_id=season_tourn['id']
+                t.season_cup_tournament_id=gbot['id']
                 t.save()
                 ts, cr = TournamentSettings.objects.get_or_create(tournament=t)
                 ts.save()
@@ -47,14 +47,14 @@ def update_user_tournament(gbouser):
             new_t = Tournament(organizer=gbouser.subject_id,
             name=gbo_tourn['name'],
             last_sync_at=datetime.now(),
-            gbo_season_tournament_id=season_tourn['id'],
-            gbo_season_cup_tournament_id=gbot['id'])
+            season_tournament_id=season_tourn['id'],
+            season_cup_tournament_id=gbot['id'])
             new_t.save()
             ts, cr = TournamentSettings.objects.get_or_create(tournament=new_t)
             ts.save()
             to_tourn = new_t
         
-        to_tourn = Tournament.objects.filter(organizer=gbouser.subject_id, gbo_season_cup_tournament_id=gbot['id']).first();
+        to_tourn = Tournament.objects.filter(organizer=gbouser.subject_id, season_cup_tournament_id=gbot['id']).first();
 
         # read dates
         if not season_tourn['seasonTournamentWeeks']:
@@ -92,8 +92,7 @@ def update_user_tournament(gbouser):
                     start_ts=datetime.fromtimestamp(start_ts),
                     end_ts=datetime.fromtimestamp(end_ts),
                     max_number_teams=4,
-                    last_sync_at=datetime.now())
-                te.save()         
+                    last_sync_at=datetime.now())      
             else:
                 te = tevents.first()
                 te.tournament=to_tourn
@@ -106,16 +105,18 @@ def update_user_tournament(gbouser):
             te.save()
 
             # team
-            team_requests = season_tourn['requestSeasonTeamTournaments']
+            team_ranked = []#SWS.getTeamsOfTournamentById(gbouser, season_tourn['id'])
+            #team_requests = season_tourn['requestSeasonTeamTournaments']
             
 
-            for team_req in team_requests:
-                teams = Team.objects.filter(request_season_team_tournaments_id=team_req['id'])
+            for team_item in team_ranked:
+                teams = Team.objects.filter(season_team_cup_tournament_ranking_id=team_item['id'])
                 if teams.count() == 0:
-                    data_tt = SWS.getTeamTournamentById(gbouser, team_req['id'])
+                    data_tt = SWS.getTeamTournamentById(gbouser, team_item['seasonTeam'])
                     data_team = SWS.getSeasonActive(gbouser, data_tt['seasonTeam']['id'])
-                    team = Team(request_season_team_tournaments_id=team_req['id'],
+                    team = Team(request_season_team_tournaments_id=team_item['id'],
                     gbo_team = data_team['id'],
+                    season_team_id=team_item['seasonTeam']['id'],
                     tournament_event=te,
                     name=data_team['team']['name'],
                     abbreviation=data_team['team']['name_abbreviated'])

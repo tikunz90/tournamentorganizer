@@ -1,7 +1,7 @@
 from django.conf import settings as conf_settings
 import requests
 
-from beachhandball_app.models.Tournament import Tournament, TournamentEvent
+from beachhandball_app.models.Tournaments import Tournament, TournamentEvent
 
 class SWS():
     """ Service for GBO database
@@ -100,6 +100,19 @@ class SWS():
     def getTeamTournamentById(gbo_user, team_tourn_id):
         # request data from sws
         endpoint = '/request/season-team-tournament/' + str(team_tourn_id)
+        headers = SWS.headers
+        headers['Authorization'] = 'Bearer {}'.format(gbo_user.token)
+        response = requests.get(SWS.base_url + endpoint, headers=headers)
+        if response.json()['isError'] is not True:
+            data = response.json()['message']
+        else:
+            data = None
+        return data
+
+    @staticmethod
+    def getTeamsOfTournamentById(gbo_user, tourn_id):
+        # request data from sws
+        endpoint = '/season/team-cup-tournament-ranking/' + str(tourn_id)
         headers = SWS.headers
         headers['Authorization'] = 'Bearer {}'.format(gbo_user.token)
         response = requests.get(SWS.base_url + endpoint, headers=headers)

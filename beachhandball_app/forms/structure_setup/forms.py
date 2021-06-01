@@ -3,7 +3,7 @@ from beachhandball_app.models.Game import Game
 from beachhandball_app.models.Team import Team, TeamStats
 from django import forms
 from django.forms import ModelForm, widgets
-from ...models.Tournament import TournamentEvent, TournamentState, TournamentStage, TournamentTeamTransition
+from ...models.Tournaments import TournamentEvent, TournamentState, TournamentStage, TournamentTeamTransition
 
 from colorfield.widgets import ColorWidget
 from bootstrap_modal_forms.forms import BSModalModelForm
