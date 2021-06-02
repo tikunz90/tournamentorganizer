@@ -35,7 +35,7 @@
             </button>
           </div>
           <h3 class="card-title">
-            <a href="{{ url('structure_setup.detail', kwargs={'pk': tevent.id }) }}">{{ tevent.name }}</a>
+            <a href="{{ url('structure_setup.detail', kwargs={'pk': tevent.id }) }}">{{ tevent.name }} ({{ tevent.id }})</a>
           </h3>
           {% if tevent.is_in_configuration %}
           <div>

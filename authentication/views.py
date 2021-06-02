@@ -100,12 +100,13 @@ def login_view(request):
                             gbouser.token = result['message']['token'].split(' ')[1]
                             gbouser.validUntil = datetime.utcfromtimestamp(result['message']['expiresIn'] / 1000)
 
-                            gbouser.subject_id =45
+                            #gbouser.subject_id =45
 
                             gbouser.gbo_data = s.SWS.syncTournamentData(gbouser)
                             gbouser.save() 
                         
-                        t = update_user_tournament(gbouser)
+                        #t = update_user_tournament(gbouser)
+                        t = Tournament.objects.filter(organizer=gbouser.subject_id)
                         if t.count() <= 0:
                             msg ='No Tournament Data available! SubjectID: ' + str(gbouser.subject_id)
                             return render(request, "accounts/login.html", {"form": form, "msg" : msg})
