@@ -24,6 +24,7 @@ class TournamentCategory(models.Model):
     classification = models.CharField(max_length=50, choices=CATEGORY_CLASS_CHOICES, blank=True)
     category = models.CharField(max_length=50, choices=CATEGORY_CHOICES, blank=True)
 
+    gbo_category_id = models.IntegerField(null=True)
     season_tournament_category_id = models.IntegerField(null=True)
     def __unicode__(self):
         return self.name
