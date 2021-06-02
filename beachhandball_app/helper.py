@@ -72,16 +72,18 @@ def update_user_tournament(gbouser):
             
             tcats = TournamentCategory.objects.filter(season_tournament_category_id=cat['id'])
             if tcats.count() == 0:
-                tcat = TournamentCategory(season_tournament_category_id=cat['id'],
+                tcat, cr = TournamentCategory.objects.get_or_create(
                     classification=cat['category']['name'],
                     name=cat['category']['gender']['name'],
                     category=cat['category']['gender']['name'],
                     abbreviation=abbrv)
+                if cr:
+                    tcat.season_tournament_category_id=cat['id']
                 tcat.save()
             else:
                 tcat = tcats.first()
 
-            tevents = TournamentEvent.objects.filter(season_tournament_category_id=cat['id'], season_cup_tournament_id=gbot['id'])
+            tevents = TournamentEvent.objects.filter(season_tournament_category_id=tcat.season_tournament_category_id, season_cup_tournament_id=gbot['id'])
             if tevents.count() == 0:
                 te = TournamentEvent(tournament_id=to_tourn.id,
                     season_tournament_category_id=cat['id'],

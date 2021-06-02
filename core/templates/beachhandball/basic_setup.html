@@ -41,7 +41,7 @@
 {% include "beachhandball/templates/_modal.html" %}
 
 <h2>Basic Setup - 
-  <small class="description">create courts, manage teams,...</small>
+  <small class="description">manage referees, create courts, tournament settings,...</small>
 </h2>
 
 <div class="col-md-12">
@@ -54,18 +54,30 @@
     <div class="card-body ">
         <ul class="nav nav-pills nav-pills-icons" role="tablist">
           <li class="nav-item">
-            <a class="nav-link active" data-toggle="tab" href="#link1" role="tablist">
+            <a class="nav-link active" data-toggle="tab" href="#referees" role="tablist">
+                <i class="material-icons">sports</i> Referees
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" data-toggle="tab" href="#courts" role="tablist">
                 <i class="material-icons">dashboard</i> Courts
             </a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" data-toggle="tab" href="#link2" role="tablist">
+            <a class="nav-link" data-toggle="tab" href="#tsettings" role="tablist">
                 <i class="material-icons">settings</i> Settings
             </a>
           </li>
         </ul>
         <div class="tab-content tab-space">
-          <div class="tab-pane active" id="link1">
+          <div class="tab-pane active" id="referees">
+              <div class="card ">
+                <div class="card-body">            
+                  <h3>List of registered Referees</h3>
+                </div>
+              </div>
+          </div>
+          <div class="tab-pane" id="courts">
               <div class="card ">
                 <div class="card-body">            
                   <h3>Add and edit courts for Tournament Events</h3>
@@ -106,7 +118,7 @@
                 </div>
               </div>
           </div>
-          <div class="tab-pane" id="link2">
+          <div class="tab-pane" id="tsettings">
             <div class="card card-body">
             <form id="tourn-settings-form" method="post" action="">
               <input type="hidden" name="csrfmiddlewaretoken" value="{{csrf_token}}">
