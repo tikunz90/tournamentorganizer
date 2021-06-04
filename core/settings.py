@@ -35,6 +35,7 @@ INSTALLED_APPS = [
     'widget_tweaks',
     'bootstrap_modal_forms',
     'mathfilters',
+    'rest_framework',
 
     'authentication',
     'beachhandball_app'  # Enable the inner app 

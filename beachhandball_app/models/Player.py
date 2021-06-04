@@ -21,6 +21,13 @@ class Player(models.Model):
     birthday = models.DateField(blank=True, null=True)
 
     position = models.ForeignKey('PlayerPosition', null=True, on_delete=models.SET_NULL)
+
+    is_active = models.BooleanField(null=True, default=False)
+
+    season_team_id = models.IntegerField(null=True)
+    season_player_id = models.IntegerField(null=True)
+    gbo_position = models.CharField(max_length=50, blank=True, null=True)
+    
     
     def __unicode__(self):
         return '{} {} ({})'.format(self.first_name, self.name, self.id)

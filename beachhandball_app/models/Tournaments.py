@@ -77,7 +77,7 @@ class TournamentEvent(models.Model):
 
     tournament = models.ForeignKey('Tournament', null=True, on_delete=models.CASCADE)
     #season = models.ForeignKey('Season', null=True, related_name='+', on_delete=models.SET_NULL)
-    category = models.ForeignKey('TournamentCategory', blank=True, null=True, on_delete=models.DO_NOTHING)
+    category = models.ForeignKey('TournamentCategory', blank=True, null=True, on_delete=models.SET_NULL)
 
     name = models.CharField(db_column='name', max_length=50)
 
@@ -103,10 +103,10 @@ class TournamentEvent(models.Model):
         return self.tournamentstate_set.filter(is_final=True)
 
     def __unicode__(self):
-        return '{} - {}  von {} - {}'.format(self.name, self.category, self.start_ts, self.end_ts)
+        return '({}) {} - {}  von {} - {}'.format(self.id, self.name, self.category, self.start_ts, self.end_ts)
 
     def __str__(self):
-        return '{} - {}  von {} - {}'.format(self.name, self.category, self.start_ts, self.end_ts)
+        return '({}) {} - {}  von {} - {}'.format(self.id, self.name, self.category, self.start_ts, self.end_ts)
 
     class Meta:
         db_table = 'bh_tournament_event'

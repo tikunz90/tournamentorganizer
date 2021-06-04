@@ -5,7 +5,7 @@ from django.db.models.query_utils import Q
 from beachhandball_app.models.choices import GAMESTATE_CHOICES
 from beachhandball_app.models.Tournaments import Tournament, TournamentEvent, TournamentSettings, TournamentState, TournamentTeamTransition
 from beachhandball_app.models.Game import Game
-from beachhandball_app.models.Team import TeamStats, Team
+from beachhandball_app.models.Team import Coach, TeamStats, Team
 from beachhandball_app.models.General import TournamentCategory
 from django.utils.http import urlencode
 from django.urls import reverse
@@ -19,9 +19,6 @@ def update_user_tournament(gbouser):
         return None
     gbo_data = gbo_data['message']
 
-    to_tourn = None
-
-    tourns = Tournament.objects.filter(organizer=gbouser.subject_id)
     for gbot in gbo_data:
         tourn_found = False
         
@@ -29,6 +26,7 @@ def update_user_tournament(gbouser):
         gbo_tourn = season_tourn['tournament']
 
         to_tourn = None
+        tourns = Tournament.objects.filter(organizer=gbouser.subject_id)
         for t in tourns:
             if t.season_tournament_id == gbot['id']:
                 print("Found season_tourn")
@@ -53,9 +51,17 @@ def update_user_tournament(gbouser):
             ts, cr = TournamentSettings.objects.get_or_create(tournament=new_t)
             ts.save()
             to_tourn = new_t
-        
-        to_tourn = Tournament.objects.filter(organizer=gbouser.subject_id, season_cup_tournament_id=gbot['id']).first();
+    
 
+def update_user_tournament_events(gbouser, to_tourn):
+    print("ENTER update_user_tournament_events")
+    gbo_data = gbouser.gbo_data
+    if gbo_data['isError'] == 'true':
+        return None
+    gbo_data = gbo_data['message']
+
+    for gbot in gbo_data:
+        season_tourn = gbot['seasonTournament']
         # read dates
         if not season_tourn['seasonTournamentWeeks']:
             print("Not weeks defined")
@@ -73,17 +79,18 @@ def update_user_tournament(gbouser):
             tcats = TournamentCategory.objects.filter(season_tournament_category_id=cat['id'])
             if tcats.count() == 0:
                 tcat, cr = TournamentCategory.objects.get_or_create(
+                    gbo_category_id=cat['category']['id'],
                     classification=cat['category']['name'],
                     name=cat['category']['gender']['name'],
                     category=cat['category']['gender']['name'],
                     abbreviation=abbrv)
-                if cr:
-                    tcat.season_tournament_category_id=cat['id']
+     
+                tcat.season_tournament_category_id=cat['id']
                 tcat.save()
             else:
                 tcat = tcats.first()
 
-            tevents = TournamentEvent.objects.filter(season_tournament_category_id=tcat.season_tournament_category_id, season_cup_tournament_id=gbot['id'])
+            tevents = TournamentEvent.objects.filter(tournament=to_tourn,season_tournament_category_id=tcat.season_tournament_category_id, season_cup_tournament_id=gbot['id'])
             if tevents.count() == 0:
                 te = TournamentEvent(tournament_id=to_tourn.id,
                     season_tournament_category_id=cat['id'],
@@ -93,7 +100,7 @@ def update_user_tournament(gbouser):
                     category=tcat,
                     start_ts=datetime.fromtimestamp(start_ts),
                     end_ts=datetime.fromtimestamp(end_ts),
-                    max_number_teams=4,
+                    max_number_teams=16,
                     last_sync_at=datetime.now())      
             else:
                 te = tevents.first()
@@ -109,7 +116,12 @@ def update_user_tournament(gbouser):
             # team
             team_ranked = []#SWS.getTeamsOfTournamentById(gbouser, season_tourn['id'])
             #team_requests = season_tourn['requestSeasonTeamTournaments']
-            
+            data = SWS.getSeasonTeamCupTournamentRanking(gbouser)
+            if data['isError'] is True:
+                print(data['message'])
+                continue
+
+            sync_teams(gbouser, te, data)
 
             for team_item in team_ranked:
                 teams = Team.objects.filter(season_team_cup_tournament_ranking_id=team_item['id'])
@@ -125,7 +137,74 @@ def update_user_tournament(gbouser):
             
 
     print("EXIT update_user_tournament")
-    return tourns
+
+
+def sync_teams(gbouser, tevent, data):
+    response = SWS.getTeams(gbouser)
+    if response['isError'] is True:
+        return
+    teams_data = response['message']
+    team_cup_tournament_rankings = data['message']
+    for ranking in team_cup_tournament_rankings:
+        if tevent.season_cup_tournament_id != ranking['seasonCupTournament']['id']:
+            continue
+        if tevent.category.gbo_category_id != ranking['seasonTeam']['team']['category']['id']:
+            continue
+        act_team = None
+
+        act_team, cr = Team.objects.get_or_create(season_team_cup_tournament_ranking_id=ranking['id'],
+        tournament_event=tevent)
+        act_team.gbo_team = ranking['seasonTeam']['team']['id']
+        act_team.season_team_id = ranking['seasonTeam']['id']
+        act_team.season_team_cup_tournament_ranking_id = ranking['id']
+        act_team.name = ranking['seasonTeam']['team']['name']
+        act_team.abbreviation = ranking['seasonTeam']['team']['name_abbreviated']
+        act_team.category = tevent.category
+        act_team.is_dummy = False
+        act_team.save()
+
+        season_team = None
+        for st in teams_data:
+            if st['id'] == act_team.season_team_id:
+                season_team = st
+
+        if season_team is None:
+            return
+
+        for season_player in season_team['seasonPlayers']:
+            act_player, cr = Player.objects.get_or_create(season_team_id=act_team.season_team_id, season_player_id=season_player['id'], number=season_player['number'])
+            act_player.tournament_event = tevent
+            act_player.team = act_team
+            act_player.name = season_player['seasonSubject']['subject']['user']['family_name']
+            act_player.first_name = season_player['seasonSubject']['subject']['user']['name']
+            act_player.gbo_position = season_player['seasonSubject']['subject']['subjectLevel']['name']
+            is_active = False
+            for activeplayer in ranking['seasonPlayersInTournament']:
+                if activeplayer['seasonPlayer']['id'] == season_player['id']:
+                    is_active = True
+            act_player.is_active = is_active
+            act_player.number = season_player['number']
+            act_player.season_team_id = act_team.season_team_id
+            act_player.season_player_id = season_player['id']
+            act_player.save()
+        
+        # Coaches
+        for season_coach in season_team['seasonCoaches']:
+            act_coach, cr = Coach.objects.get_or_create(season_team_id=act_team.season_team_id, season_coach_id=season_coach['id'])
+            act_coach.tournament_event = tevent
+            act_coach.team = act_team
+            act_coach.name = season_coach['seasonSubject']['subject']['user']['family_name']
+            act_coach.first_name = season_coach['seasonSubject']['subject']['user']['name']
+            act_coach.gbo_position = season_coach['seasonSubject']['subject']['subjectLevel']['name']
+            act_coach.season_team_id = act_team.season_team_id
+            act_coach.season_coach_id = season_coach['id']
+            act_coach.save()
+
+
+    return
+
+def update_team(gbouser, team_id):
+    return
 
 def reverse_querystring(view, urlconf=None, args=None, kwargs=None, current_app=None, query_kwargs=None):
     '''Custom reverse to handle query strings.

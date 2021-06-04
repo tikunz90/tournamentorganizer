@@ -8,6 +8,12 @@
 {% block content %}
 <h2>Teams Setup</h2>
 <div class="row">
+  <div class="col">
+    <div class="card">
+    </div>
+  </div>
+</div>
+<div class="row">
 <div class="col-md-12">
       <div class="card">
         <div class="card-header card-header-success card-header-icon">
@@ -68,6 +74,32 @@
                               </div>
                             </div>
                           </div>
+
+                          <h3> Coaches:</h3>
+                          <div class="card card-plain">
+                            <div class="card-body">
+                              <div class="table-responsive">
+                                <table class="table">
+                                  <thead>
+                                    <tr>
+                                      <th>Name</th>
+                                      <th class="text-center">Role</th>
+                                      <th class="text-center">ID</th>
+                                    </tr>
+                                  </thead>
+                                  <tbody>
+                                    {% for coach in team.coach_set.all() %}
+                                      <tr>
+                                        <td class="text-center">{{coach.name}}, {{coach.first_name}}</td>
+                                        <td class="text-center">{{ coach.gbo_position }}</td>
+                                        <td class="text-center">{{ coach.season_coach_id }}</td>
+                                      </tr>
+                                    {% endfor %}
+                                  </tbody>
+                                </table>
+                              </div>
+                            </div>
+                          </div>
                           
                         </div>
                         <div class="col-md-2"></div>
@@ -77,15 +109,21 @@
                             <table class="table">
                               <thead>
                                 <tr>
+                                  <th>Active</th>
                                   <th>#</th>
                                   <th class="text-center">Name</th>
+                                  <th class="text-center">Position</th>
+                                  <th class="text-center">ID</th>
                                 </tr>
                               </thead>
                               <tbody>
                               {% for player in team.player_set.all() %}
                                 <tr>
+                                  <td>{% if player.is_active %}<i class="material-icons">check_box</i>{% else %}<i class="material-icons">check_box_outline_blank</i>{% endif %}</td>
                                   <td>{{ player.number }}</td>
                                   <td class="text-center">{{player.name}}, {{player.first_name}}</td>
+                                  <td class="text-center">{{ player.gbo_position }}</td>
+                                  <td>{{ player.season_player_id }}</td>
                                 </tr>
                               {% endfor %}
                               </tbody>
@@ -126,7 +164,7 @@
       </div>
     </div>
 </div>
-<div class="row">
+<div class="row" hidden>
 <div class="col-md-12">
       <div class="card">
         <div class="card-header card-header-warning card-header-icon">

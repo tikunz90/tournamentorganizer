@@ -121,4 +121,22 @@ class SWS():
         else:
             data = None
         return data
+
+    @staticmethod
+    def getSeasonTeamCupTournamentRanking(gbo_user):
+        # request data from sws
+        endpoint = '/season/team-cup-tournament-ranking/'
+        headers = SWS.headers
+        headers['Authorization'] = 'Bearer {}'.format(gbo_user.token)
+        response = requests.get(SWS.base_url + endpoint, headers=headers)
+        return response.json()
+
+    @staticmethod
+    def getTeams(gbo_user):
+        # request data from sws
+        endpoint = '/season/team/'
+        headers = SWS.headers
+        headers['Authorization'] = 'Bearer {}'.format(gbo_user.token)
+        response = requests.get(SWS.base_url + endpoint, headers=headers)
+        return response.json()
     

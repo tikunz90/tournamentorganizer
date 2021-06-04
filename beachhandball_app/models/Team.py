@@ -147,3 +147,31 @@ class TeamTournamentRegistration(models.Model):
 
     class Meta:
         db_table = 'bh_team_tournanment_registration'
+
+
+class Coach(models.Model):
+    """ Model for representing a player of a team.
+    """
+    created_at = UnixDateTimeField(editable=False, default=timezone.now)
+
+    #user = models.OneToOneField(settings.AUTH_USER_MODEL, null=True, on_delete=models.CASCADE)
+
+    tournament_event = models.ForeignKey('TournamentEvent', null=True, on_delete=models.CASCADE)
+    team = models.ForeignKey('Team', null=True, on_delete=models.CASCADE)
+    name = models.CharField(max_length=50)
+    first_name = models.CharField(max_length=50, blank=True, null=True)
+    birthday = models.DateField(blank=True, null=True)
+
+    season_team_id = models.IntegerField(null=True)
+    season_coach_id = models.IntegerField(null=True)
+    gbo_position = models.CharField(max_length=50, blank=True, null=True)
+    
+    
+    def __unicode__(self):
+        return '{} {} ({})'.format(self.first_name, self.name, self.id)
+
+    def __str__(self):
+        return '{} {} ({})'.format(self.first_name, self.name, self.id)
+
+    class Meta:
+        db_table = 'bh_coach'

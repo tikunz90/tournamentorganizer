@@ -2,14 +2,22 @@
 
 /* bh_tournament to gbo_tournament*/
 ALTER TABLE `beachhandball_2021`.`bh_tournament`
+	DROP FOREIGN KEY `FK_bh_tournament_season.season_tournament`,
+	DROP FOREIGN KEY `FK_bh_tournament_season.season_cup_tournament`,
+	DROP FOREIGN KEY `FK_bh_tournament_gbo.tournament`;
+ALTER TABLE `beachhandball_2021`.`bh_tournament`
 	ADD CONSTRAINT `FK_bh_tournament_gbo.tournament` FOREIGN KEY (`gbo_tournament_id`) REFERENCES `gbo`.`tournament` (`id`) ON DELETE NO ACTION,
 	ADD CONSTRAINT `FK_bh_tournament_season.season_tournament` FOREIGN KEY (`season_tournament_id`) REFERENCES `season`.`season_tournament` (`id`) ON DELETE CASCADE,
 	ADD CONSTRAINT `FK_bh_tournament_season.season_cup_tournament` FOREIGN KEY (`season_cup_tournament_id`) REFERENCES `season`.`season_cup_tournament` (`id`) ON DELETE NO ACTION;
-	
+
+ALTER TABLE `bh_tourn_category`
+	DROP FOREIGN KEY `FK_bh_tourn_category_gbo.category`;
 ALTER TABLE `beachhandball_2021`.`bh_tourn_category`
 	ADD CONSTRAINT `FK_bh_tourn_category_gbo.category` FOREIGN KEY (`gbo_category_id`) REFERENCES `gbo`.`category` (`id`);
 
 /* tevent fk to season category */
+ALTER TABLE `bh_tournament_event`
+	DROP FOREIGN KEY `FK_bh_tournament_event_season.tournament_category`;
 ALTER TABLE `bh_tournament_event`
 	ADD CONSTRAINT `FK_bh_tournament_event_season.tournament_category` FOREIGN KEY (`season_tournament_category_id`) REFERENCES `season`.`tournament_category` (`id`) ON DELETE CASCADE;
 

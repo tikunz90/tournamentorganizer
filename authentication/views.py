@@ -18,7 +18,7 @@ from .forms import LoginForm, SignUpForm, SelectTournamentForm
 from django.views.generic import TemplateView
 
 from beachhandball_app.services import services as s
-from beachhandball_app.helper import update_user_tournament
+from beachhandball_app.helper import update_user_tournament, update_user_tournament_events
 
 def login_view(request):
     form = LoginForm(request.POST or None)
@@ -105,8 +105,9 @@ def login_view(request):
                             gbouser.gbo_data = s.SWS.syncTournamentData(gbouser)
                             gbouser.save() 
                         
-                        #t = update_user_tournament(gbouser)
+                        update_user_tournament(gbouser)
                         t = Tournament.objects.filter(organizer=gbouser.subject_id)
+                        
                         if t.count() <= 0:
                             msg ='No Tournament Data available! SubjectID: ' + str(gbouser.subject_id)
                             return render(request, "accounts/login.html", {"form": form, "msg" : msg})
@@ -114,6 +115,7 @@ def login_view(request):
                             tourn = t.first()
                             tourn.is_active = True
                             tourn.save()
+                            update_user_tournament_events(gbouser, tourn)
                         elif t.count() > 1:
                             for tourn in t:
                                 tourn.is_active = False
@@ -156,6 +158,7 @@ def select_tourn_view(request):
             tourn = Tournament.objects.get(id=id_tourn)
             tourn.is_active = True
             tourn.save()
+            update_user_tournament_events(guser, tourn)
             return redirect('/')
 
     #return redirect("login", {"form": form, "msg" : msg})
