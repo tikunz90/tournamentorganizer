@@ -44,11 +44,11 @@ class ResultsDetail(DetailView):
         print('Enter ResultsDetail: ', datetime.now())
         tevent = kwargs["object"]
         
-        if settings.DEBUG is True:
-            t = Tournament.objects.get(id=2)
-        else:
-            context = self.kwargs['context_data']
-            t = context['tourn']
+        #if settings.DEBUG is True:
+        #    t = Tournament.objects.get(id=2)
+        #else:
+        context = self.kwargs['context_data']
+        t = context['tourn']
         #tevent = TournamentEvent.objects.filter(tournament=t).prefetch_related('TournamentStages')
         context = {}
         kwargs['tourn'] = t
