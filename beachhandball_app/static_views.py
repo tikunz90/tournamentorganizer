@@ -18,7 +18,7 @@ from django import template
 from django.db.models import Q
 
 from authentication.models import GBOUser
-from .models.Tournaments import Tournament, TournamentEvent, TournamentSettings, TournamentState
+from .models.Tournaments import Court, Referee, Tournament, TournamentEvent, TournamentSettings, TournamentState
 from .models.Team import Team, TeamStats
 from .models.Series import Season
 from .models.Game import Game
@@ -103,6 +103,25 @@ class UpdateGameFromList(TemplateView):
         dt = parse_datetime(new_dt)
         game_obj = Game.objects.filter(pk=game).update(starttime=dt)
         context = {'game':game, 'new_datetime': new_dt}
+        return JsonResponse(context)
+
+@method_decorator(login_required, name='dispatch')
+class UpdateGameCourtFromList(TemplateView):
+    @method_decorator(csrf_exempt)
+    def dispatch(self, request, *args, **kwargs):
+        return super(UpdateGameCourtFromList, self).dispatch(request, *args, **kwargs)
+
+    def get(self, request, *args, **kwargs):
+        context = {'game': 'Hello World'}
+        return JsonResponse(context)
+        #return self.render_to_response(context)
+
+    def post(self, request, *args, **kwargs):
+        game = request.POST['game']
+        new_c = request.POST['new_court']
+        court = Court.objects.get(id=new_c)
+        game_obj = Game.objects.filter(pk=game).update(court=court)
+        context = {'game':game, 'court': court.name}
         return JsonResponse(context)
 
 def not_in_student_group(user):
@@ -196,6 +215,9 @@ def game_plan(request):
     context['tstates'] = TournamentState.objects.filter(all_tstates_qs)
     context['segment'] = 'game_plan'
     context['segment_title'] = 'Game Plan'
+
+    context['courts'] = Court.objects.filter(tournament=tourn)
+    context['referees'] = Referee.objects.filter(tournament=tourn)
 
     html_template = loader.get_template( 'beachhandball/game_plan.html' )
     return HttpResponse(html_template.render(context, request))
