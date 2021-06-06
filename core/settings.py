@@ -157,7 +157,10 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 #############################################################
 #############################################################
 
-SWS_BASE_URL = 'https://euve268544.serverprofi24.de:3060'
-IWS_BASE_URL = 'https://euve268544.serverprofi24.de:3080'
+#SWS_BASE_URL = 'https://euve268544.serverprofi24.de:3060'
+#IWS_BASE_URL = 'https://euve268544.serverprofi24.de:3080'
+
+SWS_BASE_URL = 'https://german-beach-open.app:3060'
+IWS_BASE_URL = 'https://german-beach-open.app:3080'
 
 GAME_REPORT_DIR = os.path.join(BASE_DIR, 'report')
