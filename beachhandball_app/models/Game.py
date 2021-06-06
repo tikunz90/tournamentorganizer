@@ -109,7 +109,7 @@ class Game(models.Model):
 
     class Meta:
         db_table = 'bh_game'
-        ordering = ['-starttime']
+        ordering = ['starttime']
 
 
 class GameAction(models.Model):

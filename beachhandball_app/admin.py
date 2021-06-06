@@ -34,7 +34,7 @@ admin.site.register(Season)
 class TeamAdmin(admin.ModelAdmin):
     list_display = ( "id", "name", "is_dummy", "tournament_event")
     list_filter = ( "name",)
-    search_fields = ("name__startswith", "tournament_event__name" )
+    search_fields = ("name__startswith", )
 
 @admin.register(Referee)
 class RefereeAdmin(admin.ModelAdmin):
