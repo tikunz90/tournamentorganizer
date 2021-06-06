@@ -171,7 +171,7 @@ class TournamentState(models.Model):
     tournament_state = models.CharField(max_length=20, choices=TOURNAMENT_STATE_CHOICES, blank=True)
     tournament_stage = models.ForeignKey('TournamentStage', null=True, on_delete=models.CASCADE)
     name = models.CharField(db_column='name', max_length=50)
-    abbreviation = models.CharField(max_length=3, null=True)
+    abbreviation = models.CharField(max_length=10, null=True)
     max_number_teams = models.SmallIntegerField(default=0)
     min_number_teams = models.SmallIntegerField(default=0)
     hierarchy = models.SmallIntegerField(default=0)
