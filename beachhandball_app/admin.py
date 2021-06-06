@@ -19,7 +19,7 @@ admin.site.register(TournamentEvent)
 admin.site.register(TournamentCategory)
 admin.site.register(TournamentStage)
 admin.site.register(TournamentTeamTransition)
-admin.site.register(Team)
+#admin.site.register(Team)
 admin.site.register(TeamStats)
 admin.site.register(Player)
 admin.site.register(PlayerStats)
@@ -29,6 +29,12 @@ admin.site.register(GameAction)
 admin.site.register(TournamentFinalRanking)
 admin.site.register(Series)
 admin.site.register(Season)
+
+@admin.register(Team)
+class TeamAdmin(admin.ModelAdmin):
+    list_display = ( "id", "name", "is_dummy", "tournament_event")
+    list_filter = ( "name",)
+    search_fields = ("name__startswith", "tournament_event" )
 
 @admin.register(Referee)
 class RefereeAdmin(admin.ModelAdmin):
