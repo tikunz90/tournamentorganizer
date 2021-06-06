@@ -30,3 +30,25 @@ class GameActionViewSet(viewsets.ModelViewSet):
     def highlight(self, request, *args, **kwargs):
         tourn = self.get_object()
         return Response(tourn)
+
+
+class ScoutingReportViewSet(viewsets.ViewSet):
+    def list(self, request):
+        queryset = Game.objects.all()
+        serializer = GameActionSerializer(queryset, many=True)
+        return Response(serializer.data)
+
+    def retrieve(self, request, game_id=None):
+        queryset = Game.objects.all()
+        game = get_object_or_404(queryset, pk=game_id)
+        serializer = GameSerializer(game)
+        return Response(serializer.data)
+
+    def create(self, request, game_id=None):
+        return Response(request.data)
+
+    def handle_scouting(self, request, game_id=None):
+        pass
+
+    def partial_update(self, request, game_id=None):
+        pass

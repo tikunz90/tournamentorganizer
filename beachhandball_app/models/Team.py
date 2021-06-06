@@ -25,10 +25,10 @@ class Team(models.Model):
     is_dummy = models.BooleanField(null=True, default=False)
 
     def __unicode__(self):
-        return self.name
+        return '({}) {} is_dummy:{} gbo_id: {}'.format(self.id, self.name, self.is_dummy, self.season_team_id)
 
     def __str__(self):
-        return self.name
+        return '({}) {} is_dummy:{} gbo_id: {}'.format(self.id, self.name, self.is_dummy, self.season_team_id)
 
     class Meta:
         # managed = False

@@ -4,7 +4,7 @@ from django.contrib import admin
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from django.views.generic import TemplateView
 from .views import login_by_token
-from .views.game.views import GameViewSet, GameActionViewSet
+from .views.game.views import GameViewSet, GameActionViewSet, ScoutingReportViewSet
 
 from rest_framework import renderers
 from rest_framework.authtoken import views
@@ -19,4 +19,6 @@ urlpatterns = [
     # GAME
     path('gameaction/', GameActionViewSet.as_view({'get': 'list', 'post': 'create'})),
     path('gameaction/<int:pk>/', GameActionViewSet.as_view({'get': 'retrieve'})),
+
+    path('scouting/<int:game_id>/', ScoutingReportViewSet.as_view({'get': 'retrieve', 'post': 'create', 'patch': 'partial_update'})),
 ]

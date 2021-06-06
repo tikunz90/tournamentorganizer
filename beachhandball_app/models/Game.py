@@ -157,3 +157,19 @@ class GameAction(models.Model):
 
     class Meta:
         db_table = 'bh_gameaction'
+
+
+class ScoutingReport(models.Model):
+    """ Link between game and scouting report
+    """
+    created_at = UnixDateTimeField(editable=False, default=timezone.now)
+
+    tournament_event = models.ForeignKey('TournamentEvent', null=True, on_delete=models.CASCADE)
+    game = models.ForeignKey('Game', null=True, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return "({}) ScoutingReport: {}".format(self.id,
+                                     self.game)
+
+    class Meta:
+        db_table = 'bh_game_scouting_report'
