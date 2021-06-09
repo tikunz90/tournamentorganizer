@@ -17,7 +17,7 @@ class Player(models.Model):
     team = models.ForeignKey('Team', null=True, on_delete=models.CASCADE)
     name = models.CharField(max_length=50)
     first_name = models.CharField(max_length=50, blank=True, null=True)
-    number = models.SmallIntegerField()
+    number = models.SmallIntegerField(null=True)
     birthday = models.DateField(blank=True, null=True)
 
     position = models.ForeignKey('PlayerPosition', null=True, on_delete=models.SET_NULL)
