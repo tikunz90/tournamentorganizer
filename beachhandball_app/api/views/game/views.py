@@ -1,4 +1,6 @@
 # snippets/views.py
+from beachhandball_app.api.serializers.game.serializer import PlayerStatsSerializer
+from beachhandball_app.models.Player import PlayerStats
 from rest_framework import generics, viewsets, renderers
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -42,7 +44,9 @@ class ScoutingReportViewSet(viewsets.ViewSet):
         queryset = Game.objects.all()
         game = get_object_or_404(queryset, pk=game_id)
         serializer = GameSerializer(game)
-        return Response(serializer.data)
+        ps = PlayerStats.objects.create()
+        pss= PlayerStatsSerializer(ps)
+        return Response({'game': serializer.data, 'PlayerStat': pss.data})
 
     def create(self, request, game_id=None):
         return Response(request.data)

@@ -1,3 +1,4 @@
+from beachhandball_app.models.Player import PlayerStats
 from django.urls import path, include
 from django.contrib.auth.models import User
 from beachhandball_app.models.Game import Game, GameAction
@@ -15,3 +16,10 @@ class GameActionSerializer(serializers.ModelSerializer):
     class Meta:
         model = GameAction
         fields = '__all__'
+
+
+class PlayerStatsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PlayerStats
+        fields = '__all__'
+        depth = 0
