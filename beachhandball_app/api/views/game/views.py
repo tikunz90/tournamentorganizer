@@ -1,12 +1,23 @@
 # snippets/views.py
-from beachhandball_app.api.serializers.game.serializer import PlayerStatsSerializer
+from django.http.response import JsonResponse
+from rest_framework.views import APIView
+from rest_framework import authentication, permissions
+from beachhandball_app.api.serializers.game.serializer import GameRunningSerializer, PlayerStatsSerializer
 from beachhandball_app.models.Player import PlayerStats
 from rest_framework import generics, viewsets, renderers
-from rest_framework.decorators import action
+from rest_framework.decorators import action, api_view
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 from beachhandball_app.models.Game import Game, GameAction
 from beachhandball_app.api.serializers.game import GameSerializer, GameActionSerializer
+
+
+@api_view(['GET'])
+def RunningGames(request):
+    if request.method == 'GET':
+        games = Game.objects.filter(gamestate='RUNNING').all()
+        serializers = GameRunningSerializer(games,many=True)
+        return Response(serializers.data)
 
 class GameViewSet(viewsets.ModelViewSet):
     queryset = Game.objects.all()
