@@ -21,13 +21,13 @@ def RunningGames(request):
     if request.method == 'GET':
         #games = Game.objects.filter(gamestate='RUNNING').all()
         #serializers = GameRunningSerializer(games,many=True)
-        game1 = Game.objects.get(id=60)
+        game1 = Game.objects.get(id=62)
         serializers = GameRunningSerializer(game1,many=False)
         data = serializers.data
         data['court'] = game1.court.number
         data['team_st_a'] = game1.team_st_a.team.name
         data['team_st_b'] = game1.team_st_b.team.name
-        game2 = Game.objects.get(id=61)
+        game2 = Game.objects.get(id=63)
         serializers = GameRunningSerializer(game2,many=False)
         data2 = serializers.data
         data2['court'] = game2.court.number
