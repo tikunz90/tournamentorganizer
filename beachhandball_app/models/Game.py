@@ -25,8 +25,8 @@ class Game(models.Model):
 
     tournament = models.ForeignKey('Tournament', null=True, on_delete=models.CASCADE)
     tournament_event = models.ForeignKey('TournamentEvent', null=True, on_delete=models.CASCADE)
-    #team_a = models.ForeignKey('Team', null=True, related_name='+', on_delete=models.CASCADE)
-    #team_b = models.ForeignKey('Team', null=True, on_delete=models.CASCADE)
+    team_a = models.ForeignKey('Team',related_name='TeamA', null=True, blank=True, on_delete=models.SET_NULL)
+    team_b = models.ForeignKey('Team',related_name='TeamB', null=True, blank=True, on_delete=models.SET_NULL)
     team_st_a = models.ForeignKey('TeamStats', null=True, related_name='+', on_delete=models.CASCADE)
     team_st_b = models.ForeignKey('TeamStats', null=True, related_name='+', on_delete=models.CASCADE)
     tournament_state = models.ForeignKey('TournamentState', blank=True, null=True, on_delete=models.CASCADE)

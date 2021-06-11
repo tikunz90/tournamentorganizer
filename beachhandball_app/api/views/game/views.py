@@ -1,10 +1,11 @@
 # snippets/views.py
+from beachhandball_app.models.Team import Team
 from django.http.response import JsonResponse
 from rest_framework.views import APIView
 from rest_framework import authentication, permissions
 from rest_framework.authentication import SessionAuthentication, BasicAuthentication
 from rest_framework.permissions import IsAuthenticated
-from beachhandball_app.api.serializers.game.serializer import GameRunningSerializer, PlayerStatsSerializer
+from beachhandball_app.api.serializers.game.serializer import GameRunningSerializer, PlayerStatsSerializer, TeamSerializer
 from beachhandball_app.models.Player import PlayerStats
 from rest_framework import generics, viewsets, renderers
 from rest_framework.decorators import action, api_view, authentication_classes, permission_classes
@@ -25,14 +26,14 @@ def RunningGames(request):
         serializers = GameRunningSerializer(game1,many=False)
         data = serializers.data
         data['court'] = game1.court.number
-        data['team_st_a'] = game1.team_st_a.team.name
-        data['team_st_b'] = game1.team_st_b.team.name
+        data['team_st_a'] = game1.team_a.name
+        data['team_st_b'] = game1.team_b.name
         game2 = Game.objects.get(id=63)
         serializers = GameRunningSerializer(game2,many=False)
         data2 = serializers.data
         data2['court'] = game2.court.number
-        data2['team_st_a'] = game2.team_st_a.team.name
-        data2['team_st_b'] = game2.team_st_b.team.name
+        data2['team_st_a'] = game2.team_a.name
+        data2['team_st_b'] = game2.team_b.name
         return Response([data, data2])
 
 class GameViewSet(viewsets.ModelViewSet):
@@ -60,6 +61,11 @@ class GameActionViewSet(viewsets.ModelViewSet):
         tourn = self.get_object()
         return Response(tourn)
 
+class TeamViewSet(viewsets.ViewSet):
+    def list(self, request):
+        queryset = Team.objects.filter(is_dummy=False).all()
+        serializer = TeamSerializer(queryset, many=True)
+        return Response(serializer.data)
 
 class ScoutingReportViewSet(viewsets.ViewSet):
     def list(self, request):
