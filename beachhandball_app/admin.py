@@ -24,11 +24,17 @@ admin.site.register(TeamStats)
 #admin.site.register(Player)
 admin.site.register(PlayerStats)
 admin.site.register(TournamentState)
-admin.site.register(Game)
+#admin.site.register(Game)
 admin.site.register(GameAction)
 admin.site.register(TournamentFinalRanking)
 admin.site.register(Series)
 admin.site.register(Season)
+
+@admin.register(Game)
+class GameAdmin(admin.ModelAdmin):
+    list_display = ( "id", "starttime", "court","team_st_a", "team_st_b", "tournament_state", "gamestate")
+    list_filter = ( "gamestate",)
+    search_fields = ("name__startswith", )
 
 @admin.register(Team)
 class TeamAdmin(admin.ModelAdmin):
