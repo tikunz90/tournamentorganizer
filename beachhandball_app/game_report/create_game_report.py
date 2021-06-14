@@ -46,6 +46,12 @@ def create_pregame_report_excel(game):
         ws["B8"] = game.team_st_a.team.name
         ws["G8"] = game.team_st_b.team.name
 
+        # ref names
+        if game.ref_a is not None:
+            ws["B48"] = game.ref_a.name + ', ' + game.ref_a.first_name
+        if game.ref_b is not None:
+            ws["B49"] = game.ref_b.name + ', ' + game.ref_b.first_name 
+
         # Date and Time
         date = game.starttime.strftime("%d.%m.%Y")
         time = game.starttime.strftime("%H:%M")
@@ -128,6 +134,12 @@ def create_all_tstate_pregame_report_excel(tstate):
             # team names
             ws_game["B8"] = game.team_st_a.team.name
             ws_game["G8"] = game.team_st_b.team.name
+
+            # ref names
+            if game.ref_a is not None:
+                ws_game["B48"] = game.ref_a.name + ', ' + game.ref_a.first_name
+            if game.ref_b is not None:
+                ws_game["B49"] = game.ref_b.name + ', ' + game.ref_b.first_name 
 
             # Date and Time
             date = game.starttime.strftime("%d.%m.%Y")

@@ -166,7 +166,7 @@ class GameUpdateForm(BSModalModelForm):
         return cleaned_data
     class Meta:
         model = Game
-        fields = ('team_st_a', 'team_st_b', 'tournament_state', 'starttime', 'court', 'gamestate', 'gamingstate', 'scouting_state')
+        fields = ('team_st_a', 'team_st_b', 'tournament_state', 'ref_a', 'ref_b', 'starttime', 'court', 'gamestate', 'gamingstate', 'scouting_state')
         labels = {
             'team_st_a': 'Team A:',
             'team_st_b': 'Team B:',
@@ -174,6 +174,8 @@ class GameUpdateForm(BSModalModelForm):
         widgets = {
             'team_st_a': forms.widgets.Select(attrs={'class': "form-control selectpicker", 'data-style':"btn btn-info btn-round"}),
             'team_st_b': forms.widgets.Select(attrs={'class': "form-control selectpicker", 'data-style':"btn btn-info btn-round"}),
+            'ref_a': forms.widgets.Select(attrs={'class': "form-control selectpicker", 'data-style':"btn btn-info btn-round"}),
+            'ref_b': forms.widgets.Select(attrs={'class': "form-control selectpicker", 'data-style':"btn btn-info btn-round"}),
             'court': forms.widgets.Select(attrs={'class': "form-control selectpicker", 'data-style':"btn btn-info btn-round"}),
            'tournament_state': forms.widgets.Select(attrs={'class': "form-control selectpicker", 'data-style':"btn btn-info btn-round"}),
            'starttime': forms.widgets.DateTimeInput(attrs={'class': "form-control datetimepicker"}),

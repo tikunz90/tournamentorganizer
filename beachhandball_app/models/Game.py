@@ -30,6 +30,8 @@ class Game(models.Model):
     team_st_a = models.ForeignKey('TeamStats', null=True, related_name='+', on_delete=models.CASCADE)
     team_st_b = models.ForeignKey('TeamStats', null=True, related_name='+', on_delete=models.CASCADE)
     tournament_state = models.ForeignKey('TournamentState', blank=True, null=True, on_delete=models.CASCADE)
+    ref_a = models.ForeignKey('Referee',related_name='RefA', null=True, blank=True, on_delete=models.SET_NULL)
+    ref_b = models.ForeignKey('Referee',related_name='RefB', null=True, blank=True, on_delete=models.SET_NULL)
     starttime = UnixDateTimeField(db_column='start_ts', default=timezone.now)
     duration_of_halftime = models.IntegerField(default=600)
     number_of_penalty_tries = models.SmallIntegerField(default=5)

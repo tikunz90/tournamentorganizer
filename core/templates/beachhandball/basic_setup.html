@@ -74,6 +74,24 @@
               <div class="card ">
                 <div class="card-body">            
                   <h3>List of registered Referees</h3>
+                  <div class="row" id="">
+                    <table id="referee_table" class="table table-striped">
+                      <thead>
+                      <tr>
+                          <th>ID</th>
+                          <th>Name</th>
+                          <th>Partner</th>
+                      </tr>
+                      </thead>
+                      {% for referee in tourn.referee_set.all() %}
+                      <tr>
+                          <td>{{ referee.id }}</td>
+                          <td>{{ referee.name }}, {{ referee.first_name }}</td>
+                          <td>{{ referee.partner }}</td>
+                      </tr>
+                      {% endfor %}
+                    </table>
+                  </div>
                 </div>
               </div>
           </div>
