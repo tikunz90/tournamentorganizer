@@ -30,6 +30,7 @@ def create_pregame_report_excel(game):
         #ws_copy = wb.copy_worksheet(ws)
         #ws.add_image(img, 'T1')
         # game id
+        tsettings = TournamentSettings.objects.get(tournament=game.tournament_event.tournament)
         ws["T4"] = game.tournament_event.category.abbreviation + str(game.id)
         
         # category
@@ -50,17 +51,39 @@ def create_pregame_report_excel(game):
         time = game.starttime.strftime("%H:%M")
         ws["C10"] = date
         ws["F10"] = time
-        max_num_player = 10
+        max_num_player = tsettings.amount_players_report
         row_start_a = 13
-        for player in game.team_st_a.team.player_set.all()[:max_num_player]:
+        act_player_counter = 1
+        for player in game.team_st_a.team.player_set.all():
+            if act_player_counter > max_num_player:
+                break
+            if not player.is_active:
+                continue
             ws["A"+str(row_start_a)]=player.number
             ws["B"+str(row_start_a)]=player.name + ", " + player.first_name
+            act_player_counter = act_player_counter + 1
             row_start_a = row_start_a + 1
         row_start_b = 30
-        for player in game.team_st_b.team.player_set.all()[:max_num_player]:
+        act_player_counter = 1
+        for player in game.team_st_b.team.player_set.all():
+            if act_player_counter > max_num_player:
+                break
+            if not player.is_active:
+                continue
             ws["A"+str(row_start_b)]=player.number
             ws["B"+str(row_start_b)]=player.name + ", " + player.first_name
+            act_player_counter = act_player_counter + 1
             row_start_b = row_start_b + 1
+        max_num_coaches = 2
+        row_start_coach_a = 25
+        for coach in game.team_st_a.team.coach_set.all()[:max_num_coaches]:
+            ws["B"+str(row_start_coach_a)]=coach.name + ", " + coach.first_name
+            row_start_coach_a = row_start_coach_a + 1
+        row_start_coach_b = 42
+        for coach in game.team_st_b.team.coach_set.all()[:max_num_coaches]:
+            ws["B"+str(row_start_coach_b)]=coach.name + ", " + coach.first_name
+            row_start_coach_b = row_start_coach_b + 1
+
         wb.save(fullfilepath_report)
 
         return fullfilepath_report, filename
@@ -113,15 +136,36 @@ def create_all_tstate_pregame_report_excel(tstate):
             ws_game["F10"] = time
             max_num_player = tsettings.amount_players_report
             row_start_a = 13
-            for player in game.team_st_a.team.player_set.all()[:max_num_player]:
+            act_player_counter = 1
+            for player in game.team_st_a.team.player_set.all():
+                if act_player_counter > max_num_player:
+                    break
+                if not player.is_active:
+                    continue
                 ws_game["A"+str(row_start_a)]=player.number
                 ws_game["B"+str(row_start_a)]=player.name + ", " + player.first_name
+                act_player_counter = act_player_counter + 1
                 row_start_a = row_start_a + 1
             row_start_b = 30
-            for player in game.team_st_b.team.player_set.all()[:max_num_player]:
+            act_player_counter = 1
+            for player in game.team_st_b.team.player_set.all():
+                if act_player_counter > max_num_player:
+                    break
+                if not player.is_active:
+                    continue
                 ws_game["A"+str(row_start_b)]=player.number
                 ws_game["B"+str(row_start_b)]=player.name + ", " + player.first_name
+                act_player_counter = act_player_counter + 1
                 row_start_b = row_start_b + 1
+            max_num_coaches = 2
+            row_start_coach_a = 25
+            for coach in game.team_st_a.team.coach_set.all()[:max_num_coaches]:
+                ws_game["B"+str(row_start_coach_a)]=coach.name + ", " + coach.first_name
+                row_start_coach_a = row_start_coach_a + 1
+            row_start_coach_b = 42
+            for coach in game.team_st_b.team.coach_set.all()[:max_num_coaches]:
+                ws_game["B"+str(row_start_coach_b)]=coach.name + ", " + coach.first_name
+                row_start_coach_b = row_start_coach_b + 1
         wb.remove_sheet(ws_origin)
         wb.save(fullfilepath_report)
 
