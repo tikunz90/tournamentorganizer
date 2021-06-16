@@ -4,6 +4,8 @@ Copyright (c) 2019 - present AppSeed.us
 """
 from datetime import datetime
 import time
+import json
+from rest_framework.renderers import JSONRenderer
 from django.utils.dateparse import parse_datetime
 
 from django.views.generic import TemplateView
@@ -23,6 +25,7 @@ from .models.Team import Team, TeamStats
 from .models.Series import Season
 from .models.Game import Game
 from beachhandball_app.forms.basic_setup.forms import TournamentSettingsForm
+from beachhandball_app.api.serializers.game import GameSerializer,GameRunningSerializer, serialize_game
 
 from .services.services import SWS
 
@@ -218,8 +221,15 @@ def game_plan(request):
 
     context['courts'] = Court.objects.filter(tournament=tourn)
     context['referees'] = Referee.objects.filter(tournament=tourn)
+    games = Game.objects.select_related('team_a', 'team_b')
+    games_ser = []
+    for game in games:
+        games_ser.append(serialize_game(game))
+    #data_list = str(JSONRenderer().render(GameSerializer(tourn.game_set.all(), many=True).data), 'utf-8')
+    context['data'] = json.dumps(games_ser)
+    #JSONRenderer().render(GameRunningSerializer(tourn.game_set.all(), many=True).data)
 
-    html_template = loader.get_template( 'beachhandball/game_plan.html' )
+    html_template = loader.get_template( 'beachhandball/game_plan_.html' )
     return HttpResponse(html_template.render(context, request))
 
 @login_required(login_url="/login/")

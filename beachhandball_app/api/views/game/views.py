@@ -13,6 +13,8 @@ from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 from beachhandball_app.models.Game import Game, GameAction
 from beachhandball_app.api.serializers.game import GameSerializer, GameActionSerializer
+from django.utils import six
+from beachhandball_app.api.drf_optimize import OptimizeRelatedModelViewSetMetaclass
 
 
 @api_view(['GET'])
@@ -23,7 +25,7 @@ def RunningGames(request):
         #games = Game.objects.filter(gamestate='RUNNING').all()
         #serializers = GameRunningSerializer(games,many=True)
         game1 = Game.objects.get(id=62)
-        serializers = GameRunningSerializer(game1,many=False)
+        serializers = GameRunningSerializer(game1,read_only=True, many=False)
         data = serializers.data
         data['court'] = game1.court.number
         data['team_st_a'] = game1.team_a.name
@@ -36,8 +38,10 @@ def RunningGames(request):
         data2['team_st_b'] = game2.team_b.name
         return Response([data, data2])
 
+
+@six.add_metaclass(OptimizeRelatedModelViewSetMetaclass)
 class GameViewSet(viewsets.ModelViewSet):
-    queryset = Game.objects.all()
+    queryset = Game.objects.prefetch_related('team_a').all()
     serializer_class  = GameSerializer
 
     @action(detail=True, renderer_classes=[renderers.StaticHTMLRenderer])
