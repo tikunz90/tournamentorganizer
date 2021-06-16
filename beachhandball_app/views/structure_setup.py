@@ -51,14 +51,23 @@ class StructureSetupDetail(LoginRequiredMixin, UserPassesTestMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         print('Enter StructureSetupDetail: ', datetime.now())
+
+        #tourn = context['tourn']
+
         tevent = kwargs["object"]
         #t = Tournament.objects.get(id=1)
-        #tevent = TournamentEvent.objects.filter(tournament=t).prefetch_related('TournamentStages')
+        
         context = self.kwargs['context_data']#getContext(self.request)
+
+        tevent = TournamentEvent.objects.filter(tournament=context['tourn']).select_related('TournamentStages')
+        stages = TournamentStage.objects.filter(tournament_event=tevent).all().prefetch_related('tournament_state_set')
+        print(stages.query)
+        kwargs['tstages_pre'] = [stage for stage in tevent.tournament_stage_set.all()]
         kwargs['tourn'] = context['tourn']
         kwargs['tst_view'] = tevent.tournamentstage_set.all()
 
-        kwargs['tevent'] = tevent 
+        kwargs['tevent'] = tevent
+
         #kwargs = static_views.getContext(self.request)
         kwargs['tournaments_active'] = 'active_detail'
         kwargs['segment'] = 'structure_setup'
