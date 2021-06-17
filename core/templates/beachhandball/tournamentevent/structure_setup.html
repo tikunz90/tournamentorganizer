@@ -55,7 +55,7 @@
     
     </p>
     <ul class="nav nav-pills nav-pills-warning nav-pills-icons justify-content-center" role="tablist">
-      {% for stage in tevent.tournamentstage_set.all() %}
+      {% for stage in tstages_pre %}
         {% with link_name=stage.id %}
         <li class="nav-item">
           {% if request.GET.tab %}
@@ -94,7 +94,7 @@
     </ul>
     <div class="tab-content tab-space tab-subcategories">
 
-      {% for stage in tevent.tournamentstage_set.all() %}
+      {% for stage in tstages_pre %}
         {% with link_name = stage.id %}
           {% if request.GET.tab %}
               {% if request.GET.tab == stage.id|string %}
@@ -112,11 +112,13 @@
               <div class="card">
               <div class="card-body">
                   <div class="row">
-                  {% for tstate in stage.get_tstates_without_finalranking.all() %}
-                      {% include "beachhandball/tournamentevent/_tournament_state_item.html" %}
+
+                  {% for tstate in stage.tstates_wo_final %}
+                    {% include "beachhandball/tournamentevent/_tournament_state_item.html" %}
                   {% else %}
                   <h3>{{ stage.name }}No states exists!</h3>
                   {% endfor %}
+
                   </div>
               </div>
               <div class="card-footer">

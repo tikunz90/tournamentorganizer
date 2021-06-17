@@ -12,7 +12,7 @@
         <th>Actions</th>
     </tr>
     </thead>
-    {% for game in tstate.game_set.all() %}
+    {% for game in tstate.games %}
     <tr>
         <td>{{ game.starttime.strftime('%H:%M (%d.%m.%Y)') }}</td>
         <td>{{ game.id }}</td>
