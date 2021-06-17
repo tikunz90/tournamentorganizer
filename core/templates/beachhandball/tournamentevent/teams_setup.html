@@ -24,7 +24,7 @@
         </div>
         <div class="card-body">
           <div id="team-list" role="tablist">
-            {% for team in tevent.team_set.all() %}
+            {% for team in teams_accepted %}
               {% if not team.is_dummy %}
                 <div class="card-collapse">
                   <div class="card-header" role="tab" id="{{team.id}}_playerlist_header">
@@ -88,7 +88,7 @@
                                     </tr>
                                   </thead>
                                   <tbody>
-                                    {% for coach in team.coach_set.all() %}
+                                    {% for coach in team.coaches %}
                                       <tr>
                                         <td class="text-center">{{coach.name}}, {{coach.first_name}}</td>
                                         <td class="text-center">{{ coach.gbo_position }}</td>
@@ -117,7 +117,7 @@
                                 </tr>
                               </thead>
                               <tbody>
-                              {% for player in team.player_set.all() %}
+                              {% for player in team.players %}
                                 <tr>
                                   <td>{% if player.is_active %}<i class="material-icons">check_box</i>{% else %}<i class="material-icons">check_box_outline_blank</i>{% endif %}</td>
                                   <td>{{ player.number }}</td>
