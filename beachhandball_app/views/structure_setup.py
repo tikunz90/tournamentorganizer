@@ -89,12 +89,14 @@ class StructureSetupDetail(LoginRequiredMixin, UserPassesTestMixin, DetailView):
         print(len(connection.queries))
         #print(stages.query)
         tstages_pre = []
+        tstates_pre = []
         for stage in stages:
             if stage.tournament_event.id==tevent.id:
                 tstates = []
                 for state in stage.tstates:
                     if not state.is_final:
                         tstates.append(state)
+                        tstates_pre.append(state)
                 stage.tstates_wo_final = tstates
                 tstages_pre.append(stage)
 
@@ -113,7 +115,7 @@ class StructureSetupDetail(LoginRequiredMixin, UserPassesTestMixin, DetailView):
         kwargs['teams_appending'] = []#Team.objects.filter(tournament=tevent)
         
         print('Before check: ', datetime.now())
-        #helper.check_all_tournamentstate_finshed(tevent)
+        helper.check_all_tournamentstate_finshed(tevent, tstates_pre)
         
         #tstate = TournamentState.objects.get(id=6)
        # kwargs['form_tstate'] = TournamentStateUpdateForm(instance=tstate)

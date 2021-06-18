@@ -380,16 +380,15 @@ def check_direct_compare(ts):
             elif teamst.count() > 2:
                 print("")
 
-def check_all_tournamentstate_finshed(tevent):
-    tstates = TournamentState.objects.filter(tournament_event=tevent)
-    for ts in tstates:
-        games_played = Game.objects.all().filter(tournament_event=tevent,
-                                             tournament_state=ts,
-                                             gamestate=GAMESTATE_CHOICES[2][1]).count()
-
-        all_games = Game.objects.all().filter(tournament_event=tevent,
-                                                tournament_state=ts).count()
-        if games_played == all_games:
+def check_all_tournamentstate_finshed(tevent, states):
+    #tstates = stages.tstates #TournamentState.objects.filter(tournament_event=tevent)
+    for ts in states:
+        games_played = 0
+        for game in ts.games:
+            if game.gamestate == GAMESTATE_CHOICES[2][1]:
+                games_played = games_played + 1
+        
+        if games_played == len(ts.games):
             ts.is_finished = True
         else:
             ts.is_finished = False
