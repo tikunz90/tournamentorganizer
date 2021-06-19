@@ -1,4 +1,4 @@
-
+import unicodedata
 from datetime import datetime
 from beachhandball_app.models.Player import Player
 from django.db.models.query_utils import Q, check_rel_lookup_compatibility
@@ -309,8 +309,8 @@ def sync_teams(gbouser, tevent, data, cup_type):
             act_player, cr = Player.objects.get_or_create(tournament_event=tevent, season_team_id=act_team.season_team_id, season_player_id=season_player['id'])
             act_player.tournament_event = tevent
             act_player.team = act_team
-            act_player.name = season_player['seasonSubject']['subject']['user']['family_name']
-            act_player.first_name = season_player['seasonSubject']['subject']['user']['name']
+            act_player.name = strip_accents(season_player['seasonSubject']['subject']['user']['family_name'])
+            act_player.first_name = strip_accents(season_player['seasonSubject']['subject']['user']['name'])
             act_player.gbo_position = season_player['seasonSubject']['subject']['subjectLevel']['name']
             is_active = False
             for activeplayer in ranking['seasonPlayersInTournament']:
@@ -327,8 +327,8 @@ def sync_teams(gbouser, tevent, data, cup_type):
             act_coach, cr = Coach.objects.get_or_create(season_team_id=act_team.season_team_id, season_coach_id=season_coach['id'])
             act_coach.tournament_event = tevent
             act_coach.team = act_team
-            act_coach.name = season_coach['seasonSubject']['subject']['user']['family_name']
-            act_coach.first_name = season_coach['seasonSubject']['subject']['user']['name']
+            act_coach.name = strip_accents(season_coach['seasonSubject']['subject']['user']['family_name'])
+            act_coach.first_name = strip_accents(season_coach['seasonSubject']['subject']['user']['name'])
             act_coach.gbo_position = season_coach['seasonSubject']['subject']['subjectLevel']['name']
             act_coach.season_team_id = act_team.season_team_id
             act_coach.season_coach_id = season_coach['id']
@@ -336,6 +336,19 @@ def sync_teams(gbouser, tevent, data, cup_type):
 
 
     return
+
+def strip_accents(text):
+
+    try:
+        text = str(text, 'utf-8')
+    except NameError: # unicode is a default on python 3 
+        pass
+
+    text = unicodedata.normalize('NFD', text)\
+           .encode('ascii', 'ignore')\
+           .decode("utf-8")
+
+    return str(text)
 
 def update_team(gbouser, team_id):
     return
