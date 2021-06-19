@@ -57,6 +57,7 @@ class Game(models.Model):
         choices=GAMINGSTATE_CHOICES
     )
     scouting_state = models.CharField(max_length=9, blank=True, null=True, choices=GAMESTATE_SCOUTING_CHOICES)
+    id_counter = models.IntegerField(default=0, blank=True, null=True)
 
     def __unicode__(self):
         return '{}: {} - {} um {}'.format(self.tournament_state, self.team_st_a, self.team_st_b, self.starttime)

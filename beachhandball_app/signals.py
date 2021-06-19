@@ -40,6 +40,7 @@ def create_new_tournamentstate(sender, instance, created, **kwargs):
         te_settings = TournamentSettings.objects.filter(tournament=instance.tournament_event.tournament).first()
         first_game_slot = te_settings.first_game_slot
         game_slot_mins = te_settings.game_slot_mins
+        game_counter = te_settings.game_counter
         # Create dummy teamstats
         for i in range(1, instance.max_number_teams+1):
             new_dummy_team, cr = Team.objects.get_or_create(tournament_event=instance.tournament_event,
@@ -113,9 +114,11 @@ def create_new_tournamentstate(sender, instance, created, **kwargs):
                                                         court=court,
                                                         gamestate='APPENDING',
                                                         gamingstate='Ready',
-                                                        starttime=act_game_slot)
+                                                        starttime=act_game_slot,
+                                                        id_counter=game_counter)
                     g.save()
-                    
+                    game_counter = game_counter + 1
+            te_settings.game_counter = game_counter
             te_settings.save()
     #print('Leave create_new_tournamentstate: ', datetime.now())
 
