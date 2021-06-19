@@ -306,7 +306,7 @@ def sync_teams(gbouser, tevent, data, cup_type):
 
         for season_player in season_team['seasonPlayers']:
             print('CheckPlayer:' + str(act_team.season_team_id) + ' ' + str(season_player['id']))
-            act_player, cr = Player.objects.get_or_create(season_team_id=act_team.season_team_id, season_player_id=season_player['id'])
+            act_player, cr = Player.objects.get_or_create(tournament_event=tevent, season_team_id=act_team.season_team_id, season_player_id=season_player['id'])
             act_player.tournament_event = tevent
             act_player.team = act_team
             act_player.name = season_player['seasonSubject']['subject']['user']['family_name']
