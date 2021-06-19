@@ -94,9 +94,9 @@ class TournamentEvent(models.Model):
     logo = models.CharField(max_length=50, default='trophy')
 
     last_sync_at = UnixDateTimeField(editable=True, default=timezone.now)
-    season_tournament_id = models.IntegerField(null=True)
-    season_cup_tournament_id = models.IntegerField(null=True)
-    season_tournament_category_id = models.IntegerField(null=True)
+    season_tournament_id = models.IntegerField(null=True, default=0)
+    season_cup_tournament_id = models.IntegerField(null=True, default=0)
+    season_tournament_category_id = models.IntegerField(null=True, default=0)
     season_cup_german_championship_id = models.IntegerField(default=0)
     sub_season_cup_tournament_id = models.IntegerField(default=0)
 

@@ -5,6 +5,7 @@ Copyright (c) 2019 - present AppSeed.us
 from datetime import datetime
 import time
 import json
+from django.db.models.query import Prefetch
 from rest_framework.renderers import JSONRenderer
 from django.utils.dateparse import parse_datetime
 
@@ -212,6 +213,10 @@ def game_plan(request):
 
     tourn = context['tourn']
     tevents = context['events']
+    stages = Tournament.objects.select_related("").prefetch_related(
+            Prefetch("game_set", queryset=Game.objects.select_related("tournament_event__category").prefetch_related()
+                , to_attr="all_games")
+                )
     all_tstates_qs = Q()
     for event in tevents:
         all_tstates_qs = all_tstates_qs | Q(tournament_event=event, is_final=False)
@@ -229,7 +234,7 @@ def game_plan(request):
     context['data'] = json.dumps(games_ser)
     #JSONRenderer().render(GameRunningSerializer(tourn.game_set.all(), many=True).data)
 
-    html_template = loader.get_template( 'beachhandball/game_plan_.html' )
+    html_template = loader.get_template( 'beachhandball/game_plan.html' )
     return HttpResponse(html_template.render(context, request))
 
 @login_required(login_url="/login/")
