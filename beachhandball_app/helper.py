@@ -249,8 +249,8 @@ def update_user_tournament_events(gbouser, to_tourn):
                 if data['isError'] is True:
                     print(data['message'])
                     continue
-
-                sync_teams(gbouser, te, data, cup_type)              
+                
+                #sync_teams(gbouser, te, data, cup_type)              
                 
     print("EXIT update_user_tournament_events")
 

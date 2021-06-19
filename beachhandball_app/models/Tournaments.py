@@ -53,6 +53,8 @@ class TournamentSettings(models.Model):
     created_at = UnixDateTimeField(editable=False, default=timezone.now)
 
     tournament = models.ForeignKey('Tournament', null=True, on_delete=models.CASCADE)
+
+    game_counter = models.IntegerField(default=0)
     
     first_game_slot = UnixDateTimeField(editable=True, default=timezone.now)
     actual_game_slot = UnixDateTimeField(editable=True, default=timezone.now)
@@ -97,8 +99,8 @@ class TournamentEvent(models.Model):
     season_tournament_id = models.IntegerField(null=True, default=0)
     season_cup_tournament_id = models.IntegerField(null=True, default=0)
     season_tournament_category_id = models.IntegerField(null=True, default=0)
-    season_cup_german_championship_id = models.IntegerField(default=0)
-    sub_season_cup_tournament_id = models.IntegerField(default=0)
+    season_cup_german_championship_id = models.IntegerField(null=True, default=0)
+    sub_season_cup_tournament_id = models.IntegerField(null=True, default=0)
 
     @property
     def name_short(self):
