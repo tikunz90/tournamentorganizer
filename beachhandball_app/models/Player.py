@@ -5,10 +5,9 @@ from datetime import datetime
 
 from django_unixdatetimefield import UnixDateTimeField
 
-
 class Player(models.Model):
     """ Model for representing a player of a team.
-    """
+    """  
     created_at = UnixDateTimeField(editable=False, default=timezone.now)
 
     #user = models.OneToOneField(settings.AUTH_USER_MODEL, null=True, on_delete=models.CASCADE)

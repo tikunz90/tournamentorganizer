@@ -20,6 +20,8 @@ urlpatterns = [
     #re_path(r'^.*\.*', static_views.pages, name='pages'),
     path('ajax/data/', static_views.getData, name='get_data'),
 
+    path('sync_tournament_data/', static_views.sync_tournament_data, name='sync_tournament_data'),
+
     path('game_plan/ajax/update-game-date/<int:pk>/', static_views.UpdateGameFromList.as_view(), name='ajax-update-game-date'),
     path('game_plan/ajax/update-game-court/<int:pk>/', static_views.UpdateGameCourtFromList.as_view(), name='ajax-update-game-court'),
 

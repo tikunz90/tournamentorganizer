@@ -1,5 +1,7 @@
 import unicodedata
 from datetime import datetime
+
+from django.db.models.query import Prefetch
 from beachhandball_app.models.Player import Player
 from django.db.models.query_utils import Q, check_rel_lookup_compatibility
 from beachhandball_app.models.choices import GAMESTATE_CHOICES
@@ -71,14 +73,14 @@ def update_user_tournament(gbouser):
             tourns = Tournament.objects.filter(organizer=gbouser.subject_id, season_cup_german_championship_id=gbot['id'])
             tourns_by_season_cup_id = Tournament.objects.filter(season_cup_german_championship_id=gbot['id'])
             for t in tourns:
-                if t.season_tournament_id == season_tourn['id']:
+                if t.season_german_championship_id == season_tourn['id']:
                     print("Found season_tourn")
                     to_tourn = t
                     tourn_found = True
                     t.organizer=gbouser.subject_id
                     t.name=gbo_tourn['name']
                     t.last_sync_at=datetime.now()
-                    t.season_tournament_id=season_tourn['id']
+                    t.season_german_championship_id=season_tourn['id']
                     t.season_cup_german_championship_id=gbot['id']
                     t.save()
                     ts, cr = TournamentSettings.objects.get_or_create(tournament=t)
@@ -88,7 +90,7 @@ def update_user_tournament(gbouser):
                 new_t = Tournament(organizer=gbouser.subject_id,
                 name=gbo_tourn['name'],
                 last_sync_at=datetime.now(),
-                season_tournament_id=season_tourn['id'],
+                season_german_championship_id=season_tourn['id'],
                 season_cup_german_championship_id=gbot['id'])
                 new_t.save()
                 ts, cr = TournamentSettings.objects.get_or_create(tournament=new_t)
@@ -158,6 +160,13 @@ def update_user_tournament_events(gbouser, to_tourn):
 
         for gbot in gbo_data:
             season_tourn = gbot['seasonTournament']
+            if cup_type == 'is_cup' and season_tourn['tournament']['id'] != to_tourn.season_tournament_id:
+                continue
+            elif cup_type == 'is_gc' and season_tourn['tournament']['id'] != to_tourn.season_german_championship_id:
+                continue
+            elif cup_type == 'is_sub':
+                continue
+                
             # read dates
             if not season_tourn['seasonTournamentWeeks']:
                 print("Not weeks defined")
@@ -259,8 +268,18 @@ def sync_teams(gbouser, tevent, data, cup_type):
     response = SWS.getTeams(gbouser)
     if response['isError'] is True:
         return
+    
+    team_data_q = Team.objects.select_related("tournament_event").prefetch_related(
+        Prefetch("player_set", queryset=Player.objects.select_related("tournament_event").all(), to_attr="players"),
+        Prefetch("coach_set", queryset=Coach.objects.select_related("tournament_event").all(), to_attr="coaches")
+    ).all()
+    my_team_data = [team for team in team_data_q if not team.is_dummy and team.tournament_event.id == tevent.id]
+    my_dummy_team_data = [team for team in team_data_q if team.is_dummy and team.tournament_event.id == tevent.id]    
+    
     teams_data = response['message']
     team_cup_tournament_rankings = data['message']
+    team_bulk_list = []
+    season_cup_tourn_id_for_dummy = 0;
     for ranking in team_cup_tournament_rankings:
         if cup_type == 'is_cup' and tevent.season_cup_tournament_id != ranking['seasonCupTournament']['id']:
             continue
@@ -270,14 +289,24 @@ def sync_teams(gbouser, tevent, data, cup_type):
             continue
         if tevent.category.gbo_category_id != ranking['seasonTeam']['team']['category']['id']:
             continue
-        act_team = None
-        if cup_type == 'is_cup':
+        season_cup_tourn_id_for_dummy = ranking['seasonCupTournament']['id']
+        player_bulk_update_list = []
+        player_bulk_create_list = []
+        coach_bulk_update_list = []
+        coach_bulk_create_list = []
+        players_list = []
+        coaches_list = []
+        act_team = next((x for x in my_team_data if x.season_team_cup_tournament_ranking_id==ranking['id']), None)
+        if not act_team is None:
+            players_list = act_team.players
+            coaches_list = act_team.coaches
+        if act_team is None and cup_type == 'is_cup':
             act_team, cr = Team.objects.get_or_create(season_team_cup_tournament_ranking_id=ranking['id'],
                 tournament_event=tevent)
-        elif cup_type == 'is_gc':
+        elif act_team is None and  cup_type == 'is_gc':
             act_team, cr = Team.objects.get_or_create(season_team_cup_championship_ranking_id=ranking['id'],
                 tournament_event=tevent)
-        elif cup_type == 'is_sub':
+        elif act_team is None and  cup_type == 'is_sub':
             act_team, cr = Team.objects.get_or_create(season_team_sub_cup_tournament_ranking_id=ranking['id'],
                 tournament_event=tevent)
         
@@ -286,14 +315,17 @@ def sync_teams(gbouser, tevent, data, cup_type):
         act_team.season_team_cup_tournament_ranking_id = ranking['id']
         if cup_type == 'is_cup':
             act_team.season_team_cup_tournament_ranking_id = ranking['id']
+            act_team.season_cup_tournament_id = tevent.tournament.season_cup_tournament_id
         elif cup_type == 'is_gc':
             act_team.season_team_cup_championship_ranking_id = ranking['id']
+            act_team.season_cup_german_championship_id = tevent.tournament.season_cup_german_championship_id
         elif cup_type == 'is_sub':
             act_team.season_team_sub_cup_tournament_ranking_id = ranking['id']
         act_team.name = ranking['seasonTeam']['team']['name']
         act_team.abbreviation = ranking['seasonTeam']['team']['name_abbreviated']
         act_team.category = tevent.category
         act_team.is_dummy = False
+        #team_bulk_list.append(act_team)
         act_team.save()
 
         season_team = None
@@ -306,7 +338,12 @@ def sync_teams(gbouser, tevent, data, cup_type):
 
         for season_player in season_team['seasonPlayers']:
             print('CheckPlayer:' + str(act_team.season_team_id) + ' ' + str(season_player['id']))
-            act_player, cr = Player.objects.get_or_create(tournament_event=tevent, season_team_id=act_team.season_team_id, season_player_id=season_player['id'])
+            cr = False
+            act_player = next((x for x in players_list if x.tournament_event.id==tevent.id and x.season_team_id==act_team.season_team_id and x.season_player_id==season_player['id']), None)
+            if act_player is None:
+                #act_player, cr = Player.objects.get_or_create(tournament_event=tevent, season_team_id=act_team.season_team_id, season_player_id=season_player['id'])
+                act_player = Player(tournament_event=tevent, season_team_id=act_team.season_team_id, season_player_id=season_player['id'])
+                cr = True
             act_player.tournament_event = tevent
             act_player.team = act_team
             act_player.name = strip_accents(season_player['seasonSubject']['subject']['user']['family_name'])
@@ -320,11 +357,19 @@ def sync_teams(gbouser, tevent, data, cup_type):
             act_player.number = season_player['number']
             act_player.season_team_id = act_team.season_team_id
             act_player.season_player_id = season_player['id']
-            act_player.save()
+            if cr:
+                player_bulk_create_list.append(act_player)
+            else:
+                player_bulk_update_list.append(act_player)
+            #act_player.save()
         
         # Coaches
         for season_coach in season_team['seasonCoaches']:
-            act_coach, cr = Coach.objects.get_or_create(season_team_id=act_team.season_team_id, season_coach_id=season_coach['id'])
+            cr = False
+            act_coach = next((x for x in coaches_list if x.tournament_event.id==tevent.id and x.season_team_id==act_team.season_team_id and x.season_coach_id==season_coach['id']), None)
+            if act_coach is None:
+                act_coach = Coach(tournament_event=tevent, season_team_id=act_team.season_team_id, season_coach_id=season_coach['id'])
+                cr = True
             act_coach.tournament_event = tevent
             act_coach.team = act_team
             act_coach.name = strip_accents(season_coach['seasonSubject']['subject']['user']['family_name'])
@@ -332,8 +377,35 @@ def sync_teams(gbouser, tevent, data, cup_type):
             act_coach.gbo_position = season_coach['seasonSubject']['subject']['subjectLevel']['name']
             act_coach.season_team_id = act_team.season_team_id
             act_coach.season_coach_id = season_coach['id']
-            act_coach.save()
+            if cr:
+                coach_bulk_create_list.append(act_coach)
+            else:
+                coach_bulk_update_list.append(act_coach)
+            #act_coach.save()
+        if len(player_bulk_create_list) > 0:
+            Player.objects.bulk_create(player_bulk_create_list)
+        if len(player_bulk_update_list) > 0:
+            Player.objects.bulk_update(player_bulk_update_list, ("tournament_event", "team", "name", "first_name", "gbo_position", "is_active", "number","season_team_id", "season_player_id",))
+        if len(coach_bulk_create_list) > 0:
+            Coach.objects.bulk_create(coach_bulk_create_list)
+        if len(coach_bulk_update_list) > 0:
+            Coach.objects.bulk_update(coach_bulk_update_list, ("tournament_event", "team", "name", "first_name", "gbo_position","season_team_id", "season_coach_id",))
+            
+        #Coach.objects.bulk_update(coach_bulk_list)
 
+    for dummy in my_dummy_team_data:
+        if cup_type == 'is_cup':
+            dummy.season_cup_tournament_id = season_cup_tourn_id_for_dummy
+            continue
+        if cup_type == 'is_gc':
+            dummy.season_cup_german_championship_id = season_cup_tourn_id_for_dummy
+            continue
+        if cup_type == 'is_sub':
+            continue
+    if cup_type == 'is_cup':
+        Team.objects.bulk_update(my_dummy_team_data, ("season_cup_tournament_id",))
+    if cup_type == 'is_gc':
+        Team.objects.bulk_update(my_dummy_team_data, ("season_cup_german_championship_id",))
 
     return
 

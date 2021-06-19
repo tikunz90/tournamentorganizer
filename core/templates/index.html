@@ -13,6 +13,10 @@
   <h2>Welcome to {{ tourn.name_short }} in Season {{ season_active }}</h2>
 {% endif %}
 
+<form action="{{ url('sync_tournament_data') }}" method='GET'>
+<!--button type='submit'>Create TestData</button-->
+</form>
+
   <br>
   <h4>Events</h4>
   <div class="row">

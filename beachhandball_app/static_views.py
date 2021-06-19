@@ -43,10 +43,12 @@ def getContext(request):
         context['season_active'] = SWS.getSeasonActive(guser)
         context['token'] = guser.token
     
-    t = Tournament.objects.get(organizer=guser.subject_id, is_active=True)
+    t = Tournament.objects.prefetch_related(
+        Prefetch("tournamentsettings_set", queryset=TournamentSettings.objects.all(), to_attr="settings"), 
+        Prefetch("tournamentevent_set", queryset=TournamentEvent.objects.all(), to_attr="events")).get(organizer=guser.subject_id, is_active=True)
     context['tourn'] = t
-    context['tourn_settings'] = TournamentSettings.objects.get(tournament=t)
-    context['events'] = TournamentEvent.objects.filter(tournament=t)
+    context['tourn_settings'] = t.settings[0] #TournamentSettings.objects.get(tournament=t)
+    context['events'] = t.events #TournamentEvent.objects.filter(tournament=t)
     print('Exit getContext', datetime.now())
     return context
 
@@ -278,6 +280,21 @@ def pages(request):
         html_template = loader.get_template( 'page-500.html' )
         return HttpResponse(html_template.render(context, request))
 
+@login_required(login_url="/login/")
+@user_passes_test(lambda u: u.groups.filter(name='tournament_organizer').exists(),
+login_url="/login/", redirect_field_name='next')
+def sync_tournament_data(request):
+    context = getContext(request)
+    if not checkLoginIsValid(context['gbo_user']):
+        return redirect('login')
+
+    helper.update_user_tournament_events(context['gbo_user'], context['tourn'])
+
+    context['segment'] = 'index'
+    context['segment_title'] = 'Overview'
+
+    html_template = loader.get_template( 'index.html' )
+    return HttpResponse(html_template.render(context, request))
 
 def create_teamtestdata(request, pk_tevent):
     context = getContext(request)

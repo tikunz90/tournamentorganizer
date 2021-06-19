@@ -28,6 +28,7 @@ class Tournament(models.Model):
     gbo_gc_data = jsonfield.JSONField()
     gbo_sub_data = jsonfield.JSONField()
     season_tournament_id = models.IntegerField(default=0)
+    season_german_championship_id = models.IntegerField(default=0)
     season_cup_tournament_id = models.IntegerField(default=0)
     gbo_tournament_id = models.IntegerField(default=0)
     season_cup_german_championship_id = models.IntegerField(default=0)

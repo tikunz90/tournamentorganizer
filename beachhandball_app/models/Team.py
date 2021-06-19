@@ -21,6 +21,8 @@ class Team(models.Model):
     season_team_cup_tournament_ranking_id = models.IntegerField(default=0)
     season_team_cup_championship_ranking_id = models.IntegerField(default=0)
     season_team_sub_cup_tournament_ranking_id = models.IntegerField(default=0)
+    season_cup_tournament_id = models.IntegerField(default=0)
+    season_cup_german_championship_id = models.IntegerField(default=0)
     status_progress = models.CharField(max_length=25, null=True)
     
     category = models.ForeignKey('TournamentCategory', null=True, related_name='+', on_delete=models.CASCADE)
