@@ -75,9 +75,57 @@ class SWS():
         return data
 
     @staticmethod
+    def getTournamentGermanChampionshipByUser(gbo_user):
+        endpoint = '/season/cup-german-championship/to/' + str(gbo_user.subject_id)
+        headers = SWS.headers
+        headers['Authorization'] = 'Bearer {}'.format(gbo_user.token)
+        response = requests.get(SWS.base_url + endpoint, headers=headers)
+        act_season = ''
+        if response.json()['isError'] is not True:
+            data = response.json()['message']
+            if data:
+                act_season = data[0]['season']['name']
+        else:
+            act_season = 'error'
+        return data
+
+    @staticmethod
+    def getTournamentSubByUser(gbo_user):
+        endpoint = '/season/cup-german-championship/to/' + str(gbo_user.subject_id)
+        headers = SWS.headers
+        headers['Authorization'] = 'Bearer {}'.format(gbo_user.token)
+        response = requests.get(SWS.base_url + endpoint, headers=headers)
+        act_season = ''
+        if response.json()['isError'] is not True:
+            data = response.json()['message']
+            if data:
+                act_season = data[0]['season']['name']
+        else:
+            act_season = 'error'
+        return data
+
+    @staticmethod
     def syncTournamentData(gbo_user):
         # request data from sws
         endpoint = '/season/cup-tournaments/to/' + str(gbo_user.subject_id)
+        headers = SWS.headers
+        headers['Authorization'] = 'Bearer {}'.format(gbo_user.token)
+        response = requests.get(SWS.base_url + endpoint, headers=headers)
+        return response.json()
+
+    @staticmethod
+    def syncTournamentGCData(gbo_user):
+        # request data from sws
+        endpoint = '/season/cup-german-championship/to/' + str(gbo_user.subject_id)
+        headers = SWS.headers
+        headers['Authorization'] = 'Bearer {}'.format(gbo_user.token)
+        response = requests.get(SWS.base_url + endpoint, headers=headers)
+        return response.json()
+
+    @staticmethod
+    def syncTournamentSubData(gbo_user):
+        # request data from sws
+        endpoint = '/season/cup-german-championship/to/' + str(gbo_user.subject_id)
         headers = SWS.headers
         headers['Authorization'] = 'Bearer {}'.format(gbo_user.token)
         response = requests.get(SWS.base_url + endpoint, headers=headers)

@@ -78,6 +78,8 @@ def login_view(request):
                     validUntil = datetime.utcfromtimestamp(result['message']['expiresIn'] / 1000))
                     guser.subject_id = s.SWS.getGBOUserId(guser)
                     guser.gbo_data = s.SWS.getTournamentByUser(guser)
+                    guser.gbo_gc_data = s.SWS.getTournamentGermanChampionshipByUser(guser)
+                    guser.gbo_sub_data = s.SWS.getTournamentSubByUser(guser)
                     guser.save()
                     to_group = Group.objects.get(name='tournament_organizer')
                     to_group.user_set.add(user)
@@ -103,6 +105,8 @@ def login_view(request):
                             #gbouser.subject_id =45
 
                             gbouser.gbo_data = s.SWS.syncTournamentData(gbouser)
+                            gbouser.gbo_gc_data = s.SWS.syncTournamentGCData(gbouser)
+                            gbouser.gbo_sub_data = s.SWS.syncTournamentSubData(gbouser)
                             gbouser.save() 
                         
                         update_user_tournament(gbouser)

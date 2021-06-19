@@ -25,9 +25,13 @@ class Tournament(models.Model):
     
     last_sync_at = UnixDateTimeField(editable=False, default=timezone.now)
     gbo_data = jsonfield.JSONField()
+    gbo_gc_data = jsonfield.JSONField()
+    gbo_sub_data = jsonfield.JSONField()
     season_tournament_id = models.IntegerField(default=0)
     season_cup_tournament_id = models.IntegerField(default=0)
     gbo_tournament_id = models.IntegerField(default=0)
+    season_cup_german_championship_id = models.IntegerField(default=0)
+    sub_season_cup_tournament_id = models.IntegerField(default=0)
 
     @property
     def name_short(self):
@@ -93,6 +97,8 @@ class TournamentEvent(models.Model):
     season_tournament_id = models.IntegerField(null=True)
     season_cup_tournament_id = models.IntegerField(null=True)
     season_tournament_category_id = models.IntegerField(null=True)
+    season_cup_german_championship_id = models.IntegerField(default=0)
+    sub_season_cup_tournament_id = models.IntegerField(default=0)
 
     @property
     def name_short(self):
