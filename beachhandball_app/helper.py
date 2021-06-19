@@ -340,7 +340,7 @@ def sync_teams(gbouser, tevent, data, cup_type):
 def strip_accents(text):
 
     try:
-        text = str(text, 'utf-8')
+        text = str(bytes(text,'utf-8'), 'utf-8')
     except NameError: # unicode is a default on python 3 
         pass
 
