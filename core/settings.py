@@ -16,7 +16,7 @@ CORE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = config('SECRET_KEY', default='S#perS3crEt_1122')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = config('DEBUG', default=True, cast=bool)
+DEBUG = True#config('DEBUG', default=True, cast=bool)
 
 # load production server from .env
 ALLOWED_HOSTS = ['*', 'localhost', '127.0.0.1', config('SERVER', default='127.0.0.1')]
@@ -36,15 +36,20 @@ INSTALLED_APPS = [
     'bootstrap_modal_forms',
     'mathfilters',
     'rest_framework',
+    'corsheaders',
 
     'authentication',
-    'beachhandball_app'  # Enable the inner app 
+    'beachhandball_app',  # Enable the inner app 
+    'debug_toolbar'
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -52,6 +57,12 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     
 ]
+INTERNAL_IPS = [
+    # ...
+    '127.0.0.1',
+    'beach-tournament-organizer.herokuapp.com',
+]
+CORS_ALLOW_ALL_ORIGINS = True
 
 ROOT_URLCONF = 'core.urls'
 LOGIN_REDIRECT_URL = "login"   # Route defined in app/urls.py
@@ -164,3 +175,20 @@ SWS_BASE_URL = 'https://german-beach-open.app:3060'
 IWS_BASE_URL = 'https://german-beach-open.app:3080'
 
 GAME_REPORT_DIR = os.path.join(BASE_DIR, 'report')
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+        }
+    },
+    'loggers': {
+        'django.db.backends': {
+            'handlers': ['console'],
+            'level': 'DEBUG',
+        },
+    }
+}

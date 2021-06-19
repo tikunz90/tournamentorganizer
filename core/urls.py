@@ -12,4 +12,5 @@ urlpatterns = [
     path("", include("authentication.urls")), # Auth routes - login / register
     path("", include("beachhandball_app.urls")),             # UI Kits Html files
     path('api/', include("beachhandball_app.api.urls")),
+    path('__debug__/', include(debug_toolbar.urls)),
 ]

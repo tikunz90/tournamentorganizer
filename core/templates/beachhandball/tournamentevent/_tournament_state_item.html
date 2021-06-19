@@ -95,7 +95,7 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {% for tstat in tstate.teamstats_set.all()|sort(attribute="rank_initial") %}
+                                    {% for tstat in tstate.stats|sort(attribute="rank_initial") %}
                                         <tr>
                                         <td class="text-center">{{ tstat.rank_initial }}</td>
                                         <td>
@@ -142,7 +142,7 @@
                                     <th></th>
                                 </thead>
                                 <tbody>
-                                    {% for ttt in tstate.ttt_origin.all() %}
+                                    {% for ttt in tstate.ttt_origin_pre %}
                                         <tr>
                                         <td class="text-center">{{ ttt.origin_rank }}</td>
                                         <td>
