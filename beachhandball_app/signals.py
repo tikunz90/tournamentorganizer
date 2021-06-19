@@ -53,6 +53,11 @@ def create_new_tournamentstate(sender, instance, created, **kwargs):
                                                               tournamentstate=instance,
                                                               team=new_dummy_team,
                                                               rank_initial=i)
+                            
+
+            if cr:
+                act_team_st.rank = act_team_st.rank_initial
+                act_team_st.save()
 
             if not instance.is_final:
                 # create team transitions

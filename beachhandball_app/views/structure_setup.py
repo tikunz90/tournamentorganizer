@@ -66,7 +66,7 @@ class StructureSetupDetail(LoginRequiredMixin, UserPassesTestMixin, DetailView):
         #stages = TournamentStage.objects.filter(tournament_event=tevent).all().prefetch_related('tournament_state_set')
         #prefTeamStats = Prefetch("teamstats_set", queryset=TeamStats.objects.all(), to_attr="tstats")
         #pref=Prefetch("tournamentstate_set", queryset=TournamentState.objects.filter(is_final=False).prefetch_related(prefTeamStats), to_attr="sstates")
-        print(len(connection.queries))
+        #print(len(connection.queries))
         stages = TournamentStage.objects.select_related("tournament_event").prefetch_related(
             Prefetch("tournamentstate_set", queryset=TournamentState.objects.select_related("tournament_event__category").prefetch_related(
                 Prefetch("teamstats_set", queryset=TeamStats.objects.select_related("team").all(), to_attr="stats"),
@@ -312,6 +312,14 @@ class GameUpGameView(BSModalUpdateView):
     template_name = 'beachhandball/templates/update_game_form.html'
     form_class = GameUpdateForm
     success_message = 'Success: Game was updated.'
+
+    def get(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        return super(GameUpGameView, self).get(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        return super(GameUpGameView, self).post(request, *args, **kwargs)
 
     def dispatch(self, request, *args, **kwargs):
         # here you can make your custom validation for any particular user
