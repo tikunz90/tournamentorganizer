@@ -215,25 +215,36 @@ def game_plan(request):
 
     tourn = context['tourn']
     tevents = context['events']
-    stages = Tournament.objects.select_related("").prefetch_related(
-            Prefetch("game_set", queryset=Game.objects.select_related("tournament_event__category").prefetch_related()
-                , to_attr="all_games")
-                )
-    all_tstates_qs = Q()
-    for event in tevents:
-        all_tstates_qs = all_tstates_qs | Q(tournament_event=event, is_final=False)
-    context['tstates'] = TournamentState.objects.filter(all_tstates_qs)
+    tourn_data = Tournament.objects.prefetch_related(
+            Prefetch("game_set", queryset=Game.objects.select_related("tournament", "tournament_event__category", "team_a", "team_b", "team_st_a__team", "team_st_b__team", "ref_a", "ref_b", "tournament_state", "court")
+                , to_attr="all_games"),
+            Prefetch("tournamentevent_set", queryset=TournamentEvent.objects.select_related("tournament", "category").prefetch_related(
+                Prefetch("tournamentstate_set", queryset=TournamentState.objects.select_related("tournament_event__category", "tournament_stage")
+                , to_attr="all_tstates")
+            )
+                , to_attr="all_tevents"),
+            Prefetch("court_set", queryset=Court.objects.select_related("tournament")
+                , to_attr="all_courts"),
+            Prefetch("referee_set", queryset=Referee.objects.select_related("tournament")
+                , to_attr="all_refs")
+                ).get(id=tourn.id)
+    #all_tstates_qs = Q()
+    #for event in tevents:
+    #    all_tstates_qs = all_tstates_qs | Q(tournament_event=event, is_final=False)
+    tstates = []
+    for te in tourn_data.all_tevents:
+        for ts in te.all_tstates:
+            if ts.is_final is False:
+                tstates.append(ts)
+    context['tstates'] = tstates #TournamentState.objects.filter(all_tstates_qs)
     context['segment'] = 'game_plan'
     context['segment_title'] = 'Game Plan'
 
-    context['courts'] = Court.objects.filter(tournament=tourn)
-    context['referees'] = Referee.objects.filter(tournament=tourn)
-    games = Game.objects.select_related('team_a', 'team_b')
-    games_ser = []
-    for game in games:
-        games_ser.append(serialize_game(game))
+    context['courts'] = tourn_data.all_courts #Court.objects.filter(tournament=tourn)
+    context['referees'] = tourn_data.all_refs #Referee.objects.filter(tournament=tourn)
+
     #data_list = str(JSONRenderer().render(GameSerializer(tourn.game_set.all(), many=True).data), 'utf-8')
-    context['data'] = json.dumps(games_ser)
+    context['games'] = tourn_data.all_games
     #JSONRenderer().render(GameRunningSerializer(tourn.game_set.all(), many=True).data)
 
     html_template = loader.get_template( 'beachhandball/game_plan.html' )

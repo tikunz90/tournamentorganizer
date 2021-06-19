@@ -30,7 +30,7 @@
                 <div class="col d-flex justify-content-center">
                   <select id="filter-tevent" class="selectpicker" onchange="add_filter_tevent();" data-size="7" data-style="btn btn-primary btn-round" title="Select Event">
                     <option value="-1">All</option>
-                    {% for event in events.all() %}
+                    {% for event in events %}
                     <option value="{{ event.id }}">{{ event.name }} ({{ event.category}})</option>
                     {% endfor %}
                   </select>
@@ -50,7 +50,7 @@
                 <div class="col d-flex justify-content-center">
                   <select id="filter-tstate" class="selectpicker" onchange="add_filter_tstate();" data-size="7" data-style="btn btn-primary btn-round" title="Select State">
                         <option value="-1">All</option>
-                        {% for tstate in tstates.all() %}
+                        {% for tstate in tstates %}
                         <option value="{{ tstate.id }}">{{ tstate.name }} ({{ tstate.tournament_event.category }})</option>
                         {% endfor %}
                   </select>
@@ -70,7 +70,7 @@
                 <div class="col d-flex justify-content-center">
                   <select id="filter-court" class="selectpicker" onchange="add_filter_court();" data-size="7" data-style="btn btn-primary btn-round" title="Select Court">
                         <option value="-1">All</option>
-                        {% for court in tourn.court_set.all() %}
+                        {% for court in courts %}
                         <option value="{{ court.id }}">{{ court.name }}</option>
                         {% endfor %}
                   </select>
@@ -146,7 +146,7 @@
                 <th>Actions</th>
               </thead>
               <tbody>
-                {% for game in tourn.game_set.all() %}
+                {% for game in games %}
                 <tr>
                   <td hidden data-content="{{ game.tournament_event.id }}">{{ game.tournament_event.id }}</td>
                   <td id="game-list-td-id-{{ game.id }}" data-content="datetime" class="game-list-datetime-td">
@@ -156,7 +156,7 @@
                     <input id="initial-id_starttime" type="hidden" class="game-list-datetime-init" name="initial-starttime" value="{{ game.starttime }}">
                   </div>
                   </td>
-                  <td class="text-center" data-content="{{ game.id }}">{{ game.id }}</td>
+                  <td class="text-center" data-content="{{ game.id }}">{{ game.id_counter }}</td>
                   <td data-content="{{ game.tournament_event.category }}">{{ game.tournament_event.category }}</td>
                   <td class="text-center" data-content="{{ game.tournament_state.id }}">
                   <div class="btn btn-small" style="background: {{ game.tournament_state.color }}">
@@ -170,7 +170,7 @@
                     <div class="game-list-court-label">{{ game.court.name }}</div>
                     <div class="game-list-court-select" data-game_id="{{ game.id }}" hidden>
                       <select class="selectpicker" title="Select Court..." data-game_id="{{ game.id }}">
-                        {% for court in courts.all() %}
+                        {% for court in courts %}
                           <option value="{{ court.id }}">#{{court.number}} {{court.name}}</option>
                         {% endfor%}
                       </select>
