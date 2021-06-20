@@ -6,10 +6,17 @@ from django_unixdatetimefield import UnixDateTimeField
 
 from .choices import COURT_CHOICES, GAMESTATE_CHOICES, GAMESTATE_SCOUTING_CHOICES
 
+class GameManager(models.Manager):
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+        return qs.select_related('tournament', 'tournament_event__category','tournament_state', 'team_a', 'team_b', 'team_st_a__team', 'team_st_b__team', 'ref_a', 'ref_b', 'court')
 
 class Game(models.Model):
     """ Model for representing a beachhandball game.
     """
+    objects = GameManager()
+
     created_at = UnixDateTimeField(editable=False, default=timezone.now)
 
     GAMINGSTATE_CHOICES = (

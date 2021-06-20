@@ -70,7 +70,7 @@ class StructureSetupDetail(LoginRequiredMixin, UserPassesTestMixin, DetailView):
         stages = TournamentStage.objects.select_related("tournament_event").prefetch_related(
             Prefetch("tournamentstate_set", queryset=TournamentState.objects.select_related("tournament_event__category").prefetch_related(
                 Prefetch("teamstats_set", queryset=TeamStats.objects.select_related("team").all(), to_attr="stats"),
-                Prefetch("game_set", queryset=Game.objects.select_related("team_st_a__team", "team_st_b__team", "court", "ref_a", "ref_b").all(), to_attr="games"),
+                Prefetch("game_set", queryset=Game.objects.all(), to_attr="games"),
                 Prefetch("ttt_origin", queryset=TournamentTeamTransition.objects.select_related("origin_ts_id", "target_ts_id").all(), to_attr="ttt_origin_pre")
                 )
                 , to_attr="tstates")

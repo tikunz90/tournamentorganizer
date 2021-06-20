@@ -451,12 +451,19 @@ def calculate_tstate(ts):
             tst.sets_loose = 0
             tst.points_made = 0
             tst.points_received = 0
-            tst.save()
+            #tst.save()
+        TeamStats.objects.bulk_update(tstats, ("number_of_played_games","game_points", "game_points_bonus", "ranking_points", "sets_win", "sets_loose", "points_made", "points_received"))
 
-        games = Game.objects.all().filter(tournament_event=ts.tournament_event,
-                                          tournament_state=ts,
-                                          gamestate='FINISHED')
-
+        #games = Game.objects.all().filter(tournament_event=ts.tournament_event,
+        #                                  tournament_state=ts,
+        #                                  gamestate='FINISHED')
+        games = Game.objects.select_related("team_st_a__team", "team_st_b__team").filter(tournament_event=ts.tournament_event,
+                                                                                    tournament_state=ts,
+                                                                                    gamestate='FINISHED').all()
+        games_bulk_list = []
+        team_st_a_bulk_list = []
+        team_st_b_bulk_list = []
+        num_finished_games = 0
         for g in games:
             #teama_stats = TeamStats.objects.filter(tournament_event=g.tournament,
             #                                       tournamentstate=g.tournament_state,
@@ -488,6 +495,11 @@ def calculate_tstate(ts):
             elif getIntVal(g.score_team_a_penalty) < getIntVal(
                     g.score_team_b_penalty):
                 iSetA += 1
+
+            if iSetH == 0 and iSetA == 0:
+                g.gamestate = GAMESTATE_CHOICES[0][0]
+                games_bulk_list.append(g)
+                continue
 
             actGamesWinA = getIntVal(teama_stats.game_points)
             nPlayedGamesA = getIntVal(teama_stats.number_of_played_games)
@@ -532,12 +544,19 @@ def calculate_tstate(ts):
             teamb_stats.points_made = actPointsMadeB + pointsMb
             teamb_stats.points_received = actPointsRecB + pointsMa
 
-            teama_stats.save()
-            teamb_stats.save()
+            team_st_a_bulk_list.append(teama_stats)
+            team_st_b_bulk_list.append(teamb_stats)
+            #teama_stats.save()
+            #teamb_stats.save()
             g.gamingstate = 'Finished'
             g.calc_winner()
-            g.save()
-        if not ts.direct_compare:
+            games_bulk_list.append(g)
+            num_finished_games = num_finished_games + 1
+            #g.save()
+        TeamStats.objects.bulk_update(team_st_a_bulk_list+team_st_b_bulk_list,("sets_win", "sets_loose", "points_made", "points_received", "game_points", "ranking_points", "number_of_played_games"))
+        Game.objects.bulk_update(games_bulk_list,("gamingstate", "score_team_a_halftime_1", "score_team_a_halftime_2", "score_team_a_penalty", "score_team_b_halftime_1", "score_team_b_halftime_2", "score_team_b_penalty"))
+        
+        if not ts.direct_compare and num_finished_games > 0:
             teamstatsquery = _do_table_ordering(TeamStats.objects.filter(tournamentstate=ts))
             teamstats = teamstatsquery.all()
             max_val = teamstats.count()
@@ -547,9 +566,10 @@ def calculate_tstate(ts):
                 tstat.rank = rank
                 rank = rank + 1
                 max_val = max_val - 1
-                tstat.save()
+                #tstat.save()
+            TeamStats.objects.bulk_update(teamstats, ("ranking_points","rank"))
 
-        else:    
+        elif num_finished_games > 0:    
             check_direct_compare(ts)
             teamstatsquery = _do_table_ordering(TeamStats.objects.filter(tournamentstate=ts))
             teamstats = teamstatsquery.all()
@@ -560,7 +580,8 @@ def calculate_tstate(ts):
                 tstat.rank = rank
                 rank = rank + 1
                 max_val = max_val - 1
-                tstat.save()
+                #tstat.save()
+            TeamStats.objects.bulk_update(teamstats, ("ranking_points","rank"))
         #check_tournamentstate_finished(ts.tournament_event, ts)
     except Exception as e:
         print(e)
@@ -613,6 +634,7 @@ def check_direct_compare(ts):
 
 def check_all_tournamentstate_finshed(tevent, states):
     #tstates = stages.tstates #TournamentState.objects.filter(tournament_event=tevent)
+    ts_bulk_list = []
     for ts in states:
         games_played = 0
         for game in ts.games:
@@ -623,7 +645,9 @@ def check_all_tournamentstate_finshed(tevent, states):
             ts.is_finished = True
         else:
             ts.is_finished = False
-        ts.save(update_fields=['is_finished'])
+        ts_bulk_list.append(ts)
+        #ts.save(update_fields=['is_finished'])
+    TournamentState.objects.bulk_update(ts_bulk_list, ("is_finished",))
 
 def check_tournamentstate_finished(tevent, ts):
     games_played = Game.objects.all().filter(tournament_event=tevent,

@@ -74,12 +74,18 @@ class TournamentSettings(models.Model):
     class Meta:
         db_table = 'bh_tournament_settings'
 
+class TournamentEventManager(models.Manager):
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+        return qs.select_related('tournament', 'category')
 
 class TournamentEvent(models.Model):
     """Model of representing a Beachhandball TournamentEvent.
 
     A TournamentEvent basically has a name and is restricted to teams to the according gender.
     """
+    objects = TournamentEventManager()
     created_at = UnixDateTimeField(editable=False, default=timezone.now)
 
     tournament = models.ForeignKey('Tournament', null=True, on_delete=models.CASCADE)

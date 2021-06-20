@@ -216,7 +216,7 @@ def game_plan(request):
     tourn = context['tourn']
     tevents = context['events']
     tourn_data = Tournament.objects.prefetch_related(
-            Prefetch("game_set", queryset=Game.objects.select_related("tournament", "tournament_event__category", "team_a", "team_b", "team_st_a__team", "team_st_b__team", "ref_a", "ref_b", "tournament_state", "court")
+            Prefetch("game_set", queryset=Game.objects.select_related("tournament", "tournament_event__category", "team_a", "team_b", "team_st_a__team", "team_st_b__team", "ref_a", "ref_b", "tournament_state__tournament_stage", "court")
                 , to_attr="all_games"),
             Prefetch("tournamentevent_set", queryset=TournamentEvent.objects.select_related("tournament", "category").prefetch_related(
                 Prefetch("tournamentstate_set", queryset=TournamentState.objects.select_related("tournament_event__category", "tournament_stage")
@@ -233,7 +233,9 @@ def game_plan(request):
     #    all_tstates_qs = all_tstates_qs | Q(tournament_event=event, is_final=False)
     tstates = []
     for te in tourn_data.all_tevents:
+        #print(te.category)
         for ts in te.all_tstates:
+            #print(ts.tournament_event.category)
             if ts.is_final is False:
                 tstates.append(ts)
     context['tstates'] = tstates #TournamentState.objects.filter(all_tstates_qs)
@@ -245,6 +247,8 @@ def game_plan(request):
 
     #data_list = str(JSONRenderer().render(GameSerializer(tourn.game_set.all(), many=True).data), 'utf-8')
     context['games'] = tourn_data.all_games
+    for g in tourn_data.all_games:
+        print(str(g.tournament_event.category))
     #JSONRenderer().render(GameRunningSerializer(tourn.game_set.all(), many=True).data)
 
     html_template = loader.get_template( 'beachhandball/game_plan.html' )

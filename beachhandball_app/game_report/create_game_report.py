@@ -15,7 +15,7 @@ def create_pregame_report_excel(game):
     print('game_report DIR: ' + settings.GAME_REPORT_DIR)
 
     filename_template = 'game_report_template.xlsx'
-    filename = 'PreGame_' + game.tournament_event.category.abbreviation + str(game.id) + '.xlsx'
+    filename = 'PreGame_' + game.tournament_event.category.abbreviation + str(game.id_counter) + '.xlsx'
 
     fullfilepath_template = os.path.join(settings.GAME_REPORT_DIR, filename_template)
     fullfilepath_report = os.path.join(settings.GAME_REPORT_DIR, filename)
@@ -31,7 +31,7 @@ def create_pregame_report_excel(game):
         #ws.add_image(img, 'T1')
         # game id
         tsettings = TournamentSettings.objects.get(tournament=game.tournament_event.tournament)
-        ws["T4"] = game.tournament_event.category.abbreviation + str(game.id)
+        ws["T4"] = game.tournament_event.category.abbreviation + str(game.id_counter)
         
         # category
         if game.tournament_event.category.category == CATEGORY_CHOICES[0][0]:
