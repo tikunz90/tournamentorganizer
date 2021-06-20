@@ -356,8 +356,6 @@ class Referee(models.Model):
 
     gbo_subject_id = models.SmallIntegerField(default=0)
 
-
-    
     def __unicode__(self):
         return '{} {} ({})'.format(self.first_name, self.name, self.id)
 
@@ -366,4 +364,27 @@ class Referee(models.Model):
 
     class Meta:
         db_table = 'bh_referee'
-        
+
+
+class Scouter(models.Model):
+    """ Model for representing a referee.
+    """
+    created_at = UnixDateTimeField(editable=False, default=timezone.now)
+
+    #user = models.OneToOneField(settings.AUTH_USER_MODEL, null=True, on_delete=models.CASCADE)
+
+    tournament = models.ForeignKey('Tournament', null=True, on_delete=models.CASCADE)
+    name = models.CharField(max_length=50)
+    first_name = models.CharField(max_length=50, blank=True, null=True)
+    abbreviation = models.CharField(max_length=12, blank=True, null=True)
+
+    gbo_subject_id = models.SmallIntegerField(default=0)
+
+    def __unicode__(self):
+        return '{} {} ({})'.format(self.first_name, self.name, self.id)
+
+    def __str__(self):
+        return '{} {} ({})'.format(self.first_name, self.name, self.id)
+
+    class Meta:
+        db_table = 'bh_scouter'

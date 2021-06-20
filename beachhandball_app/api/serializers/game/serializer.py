@@ -12,8 +12,8 @@ from django.utils import six
 class GameSerializer(serializers.ModelSerializer):
     class Meta:
         model = Game
-        fields = ('id','court','tournament_state', 'team_a', 'team_b', 'ref_a', 'ref_b', 'gamestate')
-        depth = 1
+        fields = ('id','court','tournament','tournament_event','tournament_state', 'starttime','team_a', 'team_b','team_st_a', 'team_st_b', 'ref_a', 'ref_b', 'gamestate', 'scouting_state')
+        depth = 2
         read_only_fields = fields
 
 class GameRunningSerializer(serializers.ModelSerializer):

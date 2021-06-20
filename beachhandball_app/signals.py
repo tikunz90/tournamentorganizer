@@ -113,6 +113,7 @@ def create_new_tournamentstate(sender, instance, created, **kwargs):
                                                         tournament_state=instance,
                                                         court=court,
                                                         gamestate='APPENDING',
+                                                        scoutingstate='APPENDING',
                                                         gamingstate='Ready',
                                                         starttime=act_game_slot,
                                                         id_counter=game_counter)

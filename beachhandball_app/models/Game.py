@@ -177,6 +177,7 @@ class ScoutingReport(models.Model):
 
     tournament_event = models.ForeignKey('TournamentEvent', null=True, on_delete=models.CASCADE)
     game = models.ForeignKey('Game', null=True, on_delete=models.CASCADE)
+    scouter = models.ForeignKey('Scouter', null=True, on_delete=models.CASCADE)
 
     def __str__(self):
         return "({}) ScoutingReport: {}".format(self.id,
