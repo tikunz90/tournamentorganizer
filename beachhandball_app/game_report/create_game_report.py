@@ -31,12 +31,13 @@ def create_pregame_report_excel(game):
         #ws.add_image(img, 'T1')
         # game id
         tsettings = TournamentSettings.objects.get(tournament=game.tournament_event.tournament)
+        tstage = game.tournament_state.tournament_stage
         ws["T4"] = game.tournament_event.category.abbreviation + str(game.id_counter)
         
         # category
-        if game.tournament_event.category.category == CATEGORY_CHOICES[0][0]:
+        if game.tournament_event.category.abbreviation == 'M': # CATEGORY_CHOICES[0][0]:
             ws["M3"] = 'X'
-        elif game.tournament_event.category.category == CATEGORY_CHOICES[1][0]:
+        elif game.tournament_event.category.abbreviation == 'W': # CATEGORY_CHOICES[1][0]:
             ws["P3"] = 'X'
 
         # court
@@ -51,6 +52,13 @@ def create_pregame_report_excel(game):
             ws["B48"] = game.ref_a.name + ', ' + game.ref_a.first_name
         if game.ref_b is not None:
             ws["B49"] = game.ref_b.name + ', ' + game.ref_b.first_name 
+
+        # stage
+        if tstage is not None:
+            if tstage.tournament_stage == 'GROUP_STAGE':
+                ws["I4"] = 'X'
+            if tstage.tournament_stage == 'KNOCKOUT_STAGE' or tstage.tournament_stage == 'FINAL' or tstage.tournament_stage == 'PLAYOFF_STAGE':
+                ws["I5"] = 'X'
 
         # Date and Time
         date = game.starttime.strftime("%d.%m.%Y")
@@ -123,10 +131,10 @@ def create_all_tstate_pregame_report_excel(tstate):
             ws_game["T4"] = game.tournament_event.category.abbreviation + str(game.id)
             
             # category
-            if game.tournament_event.category.category == CATEGORY_CHOICES[0][0]:
-                ws_game["M3"] = 'X'
-            elif game.tournament_event.category.category == CATEGORY_CHOICES[1][0]:
-                ws_game["P3"] = 'X'
+            if game.tournament_event.category.abbreviation == 'M': # CATEGORY_CHOICES[0][0]:
+                ws["M3"] = 'X'
+            elif game.tournament_event.category.abbreviation == 'W': # CATEGORY_CHOICES[1][0]:
+                ws["P3"] = 'X'
 
             # court
             ws_game["R8"] = game.court.number
