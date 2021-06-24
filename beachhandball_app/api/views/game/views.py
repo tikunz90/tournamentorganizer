@@ -42,6 +42,42 @@ def RunningGames(request):
         data2['team_st_b'] = game2.team_b.name
         return Response([data, data2])
 
+@api_view(['GET'])
+@authentication_classes([SessionAuthentication, BasicAuthentication])
+@permission_classes([IsAuthenticated])
+def RunningGamesDM(request):
+    if request.method == 'GET':
+        #games = Game.objects.filter(gamestate='RUNNING').all()
+        #serializers = GameRunningSerializer(games,many=True)
+        #all_games = Game.objects.all()
+        #for g in all_games:
+        #    g.team_a = g.team_st_a.team
+        #    g.team_b = g.team_st_b.team
+        #    g.act_time = 0
+        #    g.save()
+        #'court','act_time','team_st_a', 'team_st_b','team_a', 'team_b', 'score_team_a_halftime_1', 'score_team_a_halftime_2', 'score_team_a_penalty', 'score_team_b_halftime_1', 'score_team_b_halftime_2', 'score_team_b_penalty', 'setpoints_team_a', 'setpoints_team_b', 'gamestate', 'gamingstate'
+        games = Game.objects.select_related('team_a', 'team_b', 'court').filter(tournament_id=21, gamestate='RUNNING')
+        if games.count() == 0:
+            return Response([])
+        game1 = games.first()
+        #serializers = GameRunningSerializer(game1,read_only=True, many=False)
+        #data = serializers.data
+        data = {}
+        data["act_time"] = game1.act_time
+        data["score_team_a_halftime_1"] = game1.score_team_a_halftime_1
+        data["score_team_a_halftime_2"] = game1.score_team_a_halftime_2
+        data["score_team_a_penalty"] = game1.score_team_a_penalty
+        data["score_team_b_halftime_1"] = game1.score_team_b_halftime_1
+        data["score_team_b_halftime_2"] = game1.score_team_b_halftime_2
+        data["score_team_b_penalty"] = game1.score_team_b_penalty
+        data["setpoints_team_a"] = game1.setpoints_team_a
+        data["setpoints_team_b"] = game1.setpoints_team_b
+        data["gamestate"] = game1.gamestate
+        data['court'] = game1.court.number
+        data['team_st_a'] = game1.team_a.name
+        data['team_st_b'] = game1.team_b.name
+        data['gamingstate'] = game1.gamingstate
+        return Response([data])
 
 @six.add_metaclass(OptimizeRelatedModelViewSetMetaclass)
 class GameViewSet(viewsets.ModelViewSet):
