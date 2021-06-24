@@ -37,12 +37,19 @@ class Player(models.Model):
     class Meta:
         db_table = 'bh_player'
 
+class PlayerStatsManager(models.Manager):
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+        return qs.select_related('tournament_event', 'game','player', 'teamstat')
 
 class PlayerStats(models.Model):
     """ PlayerStats is created for each player for each game.
 
     This object will feeded with statistics while game is running.
     """
+    objects = PlayerStatsManager()
+
     created_at = UnixDateTimeField(editable=False, default=timezone.now)
 
     tournament_event = models.ForeignKey('TournamentEvent', null=True, on_delete=models.CASCADE)
@@ -65,6 +72,10 @@ class PlayerStats(models.Model):
     goal_keeper_success = models.SmallIntegerField(blank=True, default=0)
     block_success = models.SmallIntegerField(blank=True, default=0)
 
+    season_team_id = models.IntegerField(null=True)
+    season_player_id = models.IntegerField(null=True)
+    season_cup_tournament_id = models.IntegerField(null=True, default=0)
+    season_cup_german_championship_id = models.IntegerField(null=True, default=0)
 
     @staticmethod
     def calc_score(ps):

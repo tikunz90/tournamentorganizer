@@ -22,7 +22,7 @@ admin.site.register(TournamentTeamTransition)
 #admin.site.register(Team)
 admin.site.register(TeamStats)
 #admin.site.register(Player)
-admin.site.register(PlayerStats)
+#admin.site.register(PlayerStats)
 admin.site.register(TournamentState)
 #admin.site.register(Game)
 admin.site.register(GameAction)
@@ -46,6 +46,12 @@ class TeamAdmin(admin.ModelAdmin):
 class PlayerAdmin(admin.ModelAdmin):
     list_display = ( "id", "name", "first_name", "number", "team")
     list_filter = ( "team",)
+    search_fields = ("name__startswith", )
+
+@admin.register(PlayerStats)
+class PlayerStatsAdmin(admin.ModelAdmin):
+    list_display = ( "id", "tournament_event", "game", "player", "teamstat", "score", "is_ranked")
+    list_filter = ( "game",)
     search_fields = ("name__startswith", )
 
 @admin.register(Referee)

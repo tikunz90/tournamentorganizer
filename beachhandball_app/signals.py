@@ -156,7 +156,7 @@ def create_player_ranking_stat(sender, instance, created, **kwargs):
     if created:
         ps, cr = PlayerStats.objects.get_or_create(tournament_event=instance.tournament_event,
          player=instance, is_ranked=True)
-
+        
         # set all to zero
         ps.games_played = 0
         ps.score = 0
@@ -170,4 +170,8 @@ def create_player_ranking_stat(sender, instance, created, **kwargs):
         ps.one_success = 0
         ps.suspension = 0
         ps.redcard = 0
+        ps.season_team_id = instance.season_team_id
+        ps.season_player_id = instance.season_player_id
+        ps.season_cup_german_championship_id = instance.tournament_event.tournament.season_cup_german_championship_id
+        ps.season_cup_tournament_id = instance.tournament_event.tournament.season_cup_tournament_id
         ps.save()

@@ -72,6 +72,22 @@ class GameList(generics.ListAPIView):
         tourn_id = self.kwargs['pk_tourn']
         return Game.objects.filter(tournament=tourn_id, scouting_state='APPENDING')
 
+class PlayerStatsViewSet(viewsets.ModelViewSet):
+    queryset = PlayerStats.objects.all()
+    serializer_class  = PlayerStatsSerializer
+
+    @action(detail=True, renderer_classes=[renderers.StaticHTMLRenderer])
+    def highlight(self, request, *args, **kwargs):
+        tourn = self.get_object()
+        return Response(tourn)
+
+    def partial_update(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = GameRunningSerializer(instance, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data)
+
 class GameActionViewSet(viewsets.ModelViewSet):
     queryset = GameAction.objects.all()
     serializer_class  = GameActionSerializer
@@ -138,12 +154,20 @@ def StartGameScouting(request, game_id):
             for stat in pstats_a:
                 if stat.player.id == player.id:
                     act_stat = stat
+                    act_stat.season_team_id=player.season_team_id,
+                    act_stat.season_player_id = player.season_player_id,
+                    act_stat.season_cup_tournament_id = game.tournament.season_cup_tournament_id,
+                    act_stat.season_cup_german_championship_id = game.tournament.season_cup_german_championship_id
             if act_stat is None:
                 new_stat = PlayerStats(
                     tournament_event= game.tournament_event,
                     game=game,
                     player=player,
-                    teamstat=game.team_st_a)
+                    teamstat=game.team_st_a,
+                    season_team_id=player.season_team_id,
+                    season_player_id = player.season_player_id,
+                    season_cup_tournament_id = game.tournament.season_cup_tournament_id,
+                    season_cup_german_championship_id = game.tournament.season_cup_german_championship_id)
                 bulk_create_pstats.append(new_stat)
             else:
                 pstats_a_new.append(act_stat)
@@ -156,12 +180,20 @@ def StartGameScouting(request, game_id):
             for stat in pstats_b:
                 if stat.player.id == player.id:
                     act_stat = stat
+                    act_stat.season_team_id=player.season_team_id,
+                    act_stat.season_player_id = player.season_player_id,
+                    act_stat.season_cup_tournament_id = game.tournament.season_cup_tournament_id,
+                    act_stat.season_cup_german_championship_id = game.tournament.season_cup_german_championship_id
             if act_stat is None:
                 new_stat = PlayerStats(
                     tournament_event= game.tournament_event,
                     game=game,
                     player=player,
-                    teamstat=game.team_st_b)
+                    teamstat=game.team_st_b,
+                    season_team_id=player.season_team_id,
+                    season_player_id = player.season_player_id,
+                    season_cup_tournament_id = game.tournament.season_cup_tournament_id,
+                    season_cup_german_championship_id = game.tournament.season_cup_german_championship_id)
                 bulk_create_pstats.append(new_stat)
             else:
                 pstats_b_new.append(act_stat)
@@ -172,7 +204,7 @@ def StartGameScouting(request, game_id):
         if reload_game:
             game_new = Game.objects.prefetch_related(
                 Prefetch("playerstats_set", queryset=PlayerStats.objects.all(), to_attr="pstat")
-            ).get(id=data['game_id'])
+            ).get(id=game_id)
             all_pstats = game_new.pstat
             pstats_a = [ps for ps in all_pstats if ps.player.team.id == game.team_st_a.team.id]
             pstats_b = [ps for ps in all_pstats if ps.player.team.id == game.team_st_b.team.id]

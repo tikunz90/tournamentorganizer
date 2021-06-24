@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     'mathfilters',
     'rest_framework',
     'corsheaders',
+    'django_extensions',
 
     'authentication',
     'beachhandball_app',  # Enable the inner app 

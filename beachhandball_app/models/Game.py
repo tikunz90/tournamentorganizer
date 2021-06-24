@@ -141,6 +141,8 @@ class GameAction(models.Model):
         ('SPIN', 'SPIN'),
         ('SHOOTER', 'SHOOTER'),
         ('ONE', 'ONE'),
+        ('BLOCK', 'BLOCK'),
+        ('GK_SAVE', 'GK_SAVE'),
         ('SUSPENSION', 'SUSPENSION'),
         ('REDCARD', 'REDCARD'),
         ('CORRECTION', 'CORRECTION'),
@@ -159,6 +161,7 @@ class GameAction(models.Model):
     score_team_b = models.SmallIntegerField(default=0, blank=True, null=True)
     time_min = models.SmallIntegerField(default=0, blank=True, null=True)
     time_sec = models.SmallIntegerField(default=0, blank=True, null=True)
+    guid = models.CharField(null=True, blank=True, max_length=32)
 
     def __unicode__(self):
         return 'Gameaction ID: {}'.format(self.id)
