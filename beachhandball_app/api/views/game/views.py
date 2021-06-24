@@ -190,9 +190,9 @@ def StartGameScouting(request, game_id):
             for stat in pstats_a:
                 if stat.player.id == player.id:
                     act_stat = stat
-                    act_stat.season_team_id=player.season_team_id,
-                    act_stat.season_player_id = player.season_player_id,
-                    act_stat.season_cup_tournament_id = game.tournament.season_cup_tournament_id,
+                    act_stat.season_team_id=player.season_team_id
+                    act_stat.season_player_id = player.season_player_id
+                    act_stat.season_cup_tournament_id = game.tournament.season_cup_tournament_id
                     act_stat.season_cup_german_championship_id = game.tournament.season_cup_german_championship_id
             if act_stat is None:
                 new_stat = PlayerStats(
@@ -216,9 +216,9 @@ def StartGameScouting(request, game_id):
             for stat in pstats_b:
                 if stat.player.id == player.id:
                     act_stat = stat
-                    act_stat.season_team_id=player.season_team_id,
-                    act_stat.season_player_id = player.season_player_id,
-                    act_stat.season_cup_tournament_id = game.tournament.season_cup_tournament_id,
+                    act_stat.season_team_id=player.season_team_id
+                    act_stat.season_player_id = player.season_player_id
+                    act_stat.season_cup_tournament_id = game.tournament.season_cup_tournament_id
                     act_stat.season_cup_german_championship_id = game.tournament.season_cup_german_championship_id
             if act_stat is None:
                 new_stat = PlayerStats(
