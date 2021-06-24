@@ -106,7 +106,7 @@ class GameList(generics.ListAPIView):
 
     def get_queryset(self):
         tourn_id = self.kwargs['pk_tourn']
-        return Game.objects.filter(tournament=tourn_id, scouting_state='APPENDING')
+        return Game.objects.filter(tournament=tourn_id, gamestate='APPENDING')
 
 class PlayerStatsViewSet(viewsets.ModelViewSet):
     queryset = PlayerStats.objects.all()

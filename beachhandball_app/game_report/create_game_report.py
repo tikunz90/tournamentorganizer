@@ -68,7 +68,7 @@ def create_pregame_report_excel(game):
         max_num_player = tsettings.amount_players_report
         row_start_a = 13
         act_player_counter = 1
-        for player in game.team_st_a.team.player_set.all():
+        for player in game.team_st_a.team.player_set.order_by('number').all():
             if act_player_counter > max_num_player:
                 break
             if not player.is_active:
@@ -79,7 +79,7 @@ def create_pregame_report_excel(game):
             row_start_a = row_start_a + 1
         row_start_b = 30
         act_player_counter = 1
-        for player in game.team_st_b.team.player_set.all():
+        for player in game.team_st_b.team.player_set.order_by('number').all():
             if act_player_counter > max_num_player:
                 break
             if not player.is_active:
