@@ -436,11 +436,11 @@ def reverse_querystring(view, urlconf=None, args=None, kwargs=None, current_app=
     return base_url
 
 
-def calculate_tstate(ts):
+def calculate_tstate(tstate):
     try:
         #ts = TournamentState.objects.get(id=tstate)
 
-        tstats = TeamStats.objects.filter(tournamentstate=ts).all()
+        tstats = TeamStats.objects.filter(tournamentstate=tstate).all()
 
         for tst in tstats:
             tst.number_of_played_games = 0
@@ -457,8 +457,8 @@ def calculate_tstate(ts):
         #games = Game.objects.all().filter(tournament_event=ts.tournament_event,
         #                                  tournament_state=ts,
         #                                  gamestate='FINISHED')
-        games = Game.objects.select_related("team_st_a__team", "team_st_b__team").filter(tournament_event=ts.tournament_event,
-                                                                                    tournament_state=ts,
+        games = Game.objects.select_related("team_st_a__team", "team_st_b__team").filter(tournament_event=tstate.tournament_event,
+                                                                                    tournament_state=tstate,
                                                                                     gamestate='FINISHED').all()
         games_bulk_list = []
         team_st_a_bulk_list = []
@@ -578,10 +578,10 @@ def calculate_tstate(ts):
             num_finished_games = num_finished_games + 1
             #g.save()
         TeamStats.objects.bulk_update(team_st_bulk_list,("sets_win", "sets_loose", "points_made", "points_received", "game_points", "ranking_points", "number_of_played_games"))
-        Game.objects.bulk_update(games_bulk_list,("gamingstate", "score_team_a_halftime_1", "score_team_a_halftime_2", "score_team_a_penalty", "score_team_b_halftime_1", "score_team_b_halftime_2", "score_team_b_penalty"))
+        Game.objects.bulk_update(games_bulk_list,("gamingstate", "score_team_a_halftime_1", "score_team_a_halftime_2", "score_team_a_penalty", "score_team_b_halftime_1", "score_team_b_halftime_2", "score_team_b_penalty", "setpoints_team_a", "setpoints_team_b", "winner_halftime_1", "winner_halftime_2", "winner_penalty", "winner"))
         
-        if not ts.direct_compare and num_finished_games > 0:
-            teamstatsquery = _do_table_ordering(TeamStats.objects.filter(tournamentstate=ts))
+        if not tstate.direct_compare and num_finished_games > 0:
+            teamstatsquery = _do_table_ordering(TeamStats.objects.filter(tournamentstate=tstate))
             teamstats = teamstatsquery.all()
             max_val = teamstats.count()
             rank = 1
@@ -594,8 +594,8 @@ def calculate_tstate(ts):
             TeamStats.objects.bulk_update(teamstats, ("ranking_points","rank"))
 
         elif num_finished_games > 0:    
-            check_direct_compare(ts)
-            teamstatsquery = _do_table_ordering(TeamStats.objects.filter(tournamentstate=ts))
+            check_direct_compare(tstate)
+            teamstatsquery = _do_table_ordering(TeamStats.objects.filter(tournamentstate=tstate))
             teamstats = teamstatsquery.all()
             max_val = teamstats.count()
             rank = 1
