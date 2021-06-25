@@ -101,12 +101,23 @@ class GameReadOnlyViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class  = GameSerializer
 
 class GameList(generics.ListAPIView):
-    queryset = Game.objects.all()
+    #queryset = Game.objects.all()
     serializer_class = GameSerializer
 
-    def get_queryset(self):
+    def list(self, request, pk_tourn):
         tourn_id = self.kwargs['pk_tourn']
-        return Game.objects.filter(tournament=tourn_id, gamestate='APPENDING')
+        queryset = Game.objects.select_related('tournament', 'tournament_event__category','tournament_state', 'team_st_a__team', 'team_st_b__team', 'team_a', 'team_b', 'court', 'ref_a', 'ref_b').filter(tournament=tourn_id, gamestate='APPENDING')[:2]
+        serializer = GameSerializer(queryset, many=True)
+        return Response(serializer.data)
+
+    #def get_queryset(self):
+    #    tourn_id = self.kwargs['pk_tourn']
+    #    #qq = Game.objects.appending(tourn_id)
+    #    qq = Game.objects.select_related('tournament', 'tournament_event__category','tournament_state', 'team_st_a__team', 'team_st_b__team', 'team_a', 'team_b', 'court', 'ref_a', 'ref_b').all()
+    #    return qq.filter(tournament=tourn_id, gamestate='APPENDING')
+    #    print(qq)
+    #    return Game.objects.appending(tourn_id)
+    #    return Game.objects.filter(tournament=tourn_id, gamestate='APPENDING')
 
 class PlayerStatsViewSet(viewsets.ModelViewSet):
     queryset = PlayerStats.objects.all()

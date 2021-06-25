@@ -10,12 +10,18 @@ class GameManager(models.Manager):
 
     def get_queryset(self):
         qs = super().get_queryset()
+        return qs
         return qs.select_related('tournament', 'tournament_event__category','tournament_state', 'team_a', 'team_b', 'team_st_a__team', 'team_st_b__team', 'ref_a', 'ref_b', 'court')
+
+    def appending(self, tourn_id):
+        qs = super().get_queryset()
+        return qs.select_related('tournament', 'tournament_event__category','tournament_state', 'team_a', 'team_b', 'team_st_a__team', 'team_st_b__team', 'ref_a', 'ref_b', 'court') #.filter(tournament=tourn_id, gamestate='APPENDING')
+
 
 class Game(models.Model):
     """ Model for representing a beachhandball game.
     """
-    objects = GameManager()
+    #objects = GameManager()
 
     created_at = UnixDateTimeField(editable=False, default=timezone.now)
 
