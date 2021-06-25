@@ -185,9 +185,9 @@
                   <td class="text-center" data-content="sets">{{ game.setpoints_team_a }}:{{ game.setpoints_team_b }}</td>
                   <td class="text-center" data-content="{{ game.gamestate }}">{{ game.gamestate }}</td>
                   <td class="td-actions text-right">
-                    <!--button type="button" class="update_game btn btn-success btn-link" rel="tooltip" title="Edit Game" data-form-url='{{ url("update_game", kwargs={"pk_tevent":game.tournament_event.id, "pk_tstage": game.tournament_state.tournament_stage.id, "pk":  game.id}) }}' data-list-url="{{ url('games_list', kwargs={'pk_tstate': game.tournament_state.id}) }}" onclick="modalShowSpinner();">
+                    <button type="button" class="update_game btn btn-success btn-link" rel="tooltip" title="Edit Game" data-form-url='{{ url("update_game", kwargs={"pk_tevent":game.tournament_event.id, "pk_tstage": game.tournament_state.tournament_stage.id, "pk":  game.id}) }}' data-list-url="{{ url('games_list', kwargs={'pk_tstate': game.tournament_state.id}) }}" onclick="modalShowSpinner();">
                         <i class="material-icons">edit</i>
-                    </button-->
+                    </button>
                     <button type="button" rel="tooltip" class="download-pregame-report btn btn-info btn-link" rel="tooltip" title="Download Pre-Game Report" data-form-url="{{ url('download_pre_game', kwargs={'pk_tevent':game.tournament_event.id, 'pk_tstage': game.tournament_state.tournament_stage.id, 'pk':  game.id}) }}" data-list-url="{{ url('games_list', kwargs={'pk_tstate': game.tournament_state.id}) }}">
                         <a class="" href="{{ url('download_pre_game', kwargs={'pk_tevent':game.tournament_event.id, 'pk_tstage': 1, 'pk':  game.id}) }}">
                             <i class="material-icons">file_download</i>
