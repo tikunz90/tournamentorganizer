@@ -44,8 +44,8 @@ def RunningGames(request):
         return Response([data, data2])
 
 @api_view(['GET'])
-@authentication_classes([SessionAuthentication, BasicAuthentication])
-@permission_classes([IsAuthenticated])
+#@authentication_classes([SessionAuthentication, BasicAuthentication])
+#@permission_classes([IsAuthenticated])
 def RunningGamesDM(request):
     if request.method == 'GET':
         #games = Game.objects.filter(gamestate='RUNNING').all()
@@ -112,6 +112,39 @@ class GameViewSet(viewsets.ModelViewSet):
         #serializer.save()
         return Response(request.data)
 
+@six.add_metaclass(OptimizeRelatedModelViewSetMetaclass)
+class PlayerStatsSet(viewsets.ModelViewSet):
+    queryset = PlayerStats.objects.all()
+    serializer_class  = PlayerStatsSerializer
+
+    @action(detail=True, renderer_classes=[renderers.StaticHTMLRenderer])
+    def highlight(self, request, *args, **kwargs):
+        tourn = self.get_object()
+        return Response(tourn)
+
+    def partial_update(self, request, *args, **kwargs):
+        instance = self.get_object()
+        #data = json.loads(request.data)
+        instance.score = request.data['score']
+        instance.spin_success = request.data['spin_success']
+        instance.spin_try = request.data['spin_try']
+        instance.kempa_success = request.data['kempa_success']
+        instance.kempa_try = request.data['kempa_try']
+        instance.shooter_success = request.data['shooter_success']
+        instance.shooter_try = request.data['shooter_try']
+        instance.one_success = request.data['one_success']
+        instance.one_try = request.data['one_try']
+        instance.goal_keeper_success = request.data['goal_keeper_success']
+        instance.block_success = request.data['block_success']
+        instance.suspension = request.data['suspension']
+        instance.redcard = request.data['redcard']
+        instance.save(update_fields=['score', 'spin_success', 'spin_try', 'kempa_success', 'kempa_try', 'shooter_success', 'shooter_try', 'one_success', 'one_try', 'goal_keeper_success', 'block_success', 'suspension', 'redcard'])
+    
+        
+        #serializer = GameRunningSerializer2(instance, data=request.data, partial=True)
+        #serializer.is_valid(raise_exception=True)
+        #serializer.save()
+        return Response(request.data)
 class GameReadOnlyViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Game.objects.all()
     serializer_class  = GameSerializer
