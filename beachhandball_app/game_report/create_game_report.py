@@ -132,9 +132,9 @@ def create_all_tstate_pregame_report_excel(tstate):
             
             # category
             if game.tournament_event.category.abbreviation == 'M': # CATEGORY_CHOICES[0][0]:
-                ws["M3"] = 'X'
+                ws_game["M3"] = 'X'
             elif game.tournament_event.category.abbreviation == 'W': # CATEGORY_CHOICES[1][0]:
-                ws["P3"] = 'X'
+                ws_game["P3"] = 'X'
 
             # court
             ws_game["R8"] = game.court.number

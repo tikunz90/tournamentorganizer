@@ -169,12 +169,7 @@
                 <th>Player</th>
             </tr>
             </thead>
-            {% for pstat in pstats_a.all() %}
-            <tr>
-                <td>{{ pstat.player.number }}</td>
-                <td>{{ pstat.player.name }}, {{ pstat.player.first_name }}</td>
-            </tr>
-            {% endfor %}
+            
           </table>
         </div>
         <div class="col-md-2"></div>
@@ -186,12 +181,7 @@
                 <th>Player</th>
             </tr>
             </thead>
-            {% for player in pstats_b.all() %}
-            <tr>
-                <td>{{ pstat.player.number }}</td>
-                <td>{{ pstat.player.name }}, {{ pstat.player.first_name }}</td>
-            </tr>
-            {% endfor %}
+            
           </table>
         </div>
       </div>
