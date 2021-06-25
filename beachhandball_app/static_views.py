@@ -316,7 +316,10 @@ def create_teamtestdata(request, pk_tevent):
     if not checkLoginIsValid(context['gbo_user']):
         return redirect('login')
 
-    helper.create_teams_testdata(pk_tevent)
+    #helper.create_teams_testdata(pk_tevent)
+
+    tstate = TournamentState.objects.get(id=31)
+    helper.calculate_tstate()
 
     context['segment'] = 'index'
     context['segment_title'] = 'Overview'
