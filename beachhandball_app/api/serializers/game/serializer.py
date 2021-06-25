@@ -23,6 +23,13 @@ class GameRunningSerializer(serializers.ModelSerializer):
         depth = 0
         read_only_fields = fields
 
+class GameRunningSerializer2(serializers.ModelSerializer):
+    class Meta:
+        model = Game
+        fields = ('act_time', 'score_team_a_halftime_1', 'score_team_a_halftime_2', 'score_team_a_penalty', 'score_team_b_halftime_1', 'score_team_b_halftime_2', 'score_team_b_penalty', 'setpoints_team_a', 'setpoints_team_b', 'gamestate', 'gamingstate')
+        depth = 0
+        read_only_fields = fields
+
 
 def serialize_game(game: Game) -> Dict[str, Any]:
     return {

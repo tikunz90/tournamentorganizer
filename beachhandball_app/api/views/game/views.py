@@ -9,7 +9,7 @@ from rest_framework.views import APIView
 from rest_framework import authentication, permissions
 from rest_framework.authentication import SessionAuthentication, BasicAuthentication
 from rest_framework.permissions import IsAuthenticated
-from beachhandball_app.api.serializers.game.serializer import GameRunningSerializer, PlayerStatsSerializer, TeamSerializer
+from beachhandball_app.api.serializers.game.serializer import GameRunningSerializer, GameRunningSerializer2, PlayerStatsSerializer, TeamSerializer
 from beachhandball_app.models.Player import Player, PlayerStats
 from rest_framework import generics, viewsets, renderers
 from rest_framework.decorators import action, api_view, authentication_classes, permission_classes
@@ -91,10 +91,25 @@ class GameViewSet(viewsets.ModelViewSet):
 
     def partial_update(self, request, *args, **kwargs):
         instance = self.get_object()
-        serializer = GameRunningSerializer(instance, data=request.data, partial=True)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response(serializer.data)
+        #data = json.loads(request.data)
+        instance.act_time = request.data['act_time']
+        instance.score_team_a_halftime_1 = request.data['score_team_a_halftime_1']
+        instance.score_team_a_halftime_2 = request.data['score_team_a_halftime_2']
+        instance.score_team_a_penalty = request.data['score_team_a_penalty']
+        instance.score_team_b_penalty = request.data['score_team_b_penalty']
+        instance.score_team_b_halftime_1 = request.data['score_team_b_halftime_1']
+        instance.score_team_b_halftime_2 = request.data['score_team_b_halftime_2']
+        instance.setpoints_team_a = request.data['setpoints_team_a']
+        instance.setpoints_team_b = request.data['setpoints_team_b']
+        instance.gamingstate = request.data['gamingstate']
+        instance.act_time = request.data['act_time']
+        instance.gamestate = request.data['gamestate']
+        instance.scouting_state = request.data['scouting_state']
+        instance.save(update_fields=['act_time', 'score_team_a_halftime_1', 'score_team_a_halftime_2', 'score_team_a_penalty', 'score_team_b_halftime_1', 'score_team_b_halftime_2', 'score_team_b_penalty', 'setpoints_team_a', 'setpoints_team_b', 'gamestate', 'gamingstate'])
+        #serializer = GameRunningSerializer2(instance, data=request.data, partial=True)
+        #serializer.is_valid(raise_exception=True)
+        #serializer.save()
+        return Response(request.data)
 
 class GameReadOnlyViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Game.objects.all()
