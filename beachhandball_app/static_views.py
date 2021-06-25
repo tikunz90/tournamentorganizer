@@ -27,7 +27,7 @@ from .models.Series import Season
 from .models.Game import Game
 from beachhandball_app.forms.basic_setup.forms import TournamentSettingsForm
 from beachhandball_app.api.serializers.game import GameSerializer,GameRunningSerializer, serialize_game
-
+from beachhandball_app.game_report import create_game_report
 from .services.services import SWS
 
 def getContext(request):
@@ -318,8 +318,10 @@ def create_teamtestdata(request, pk_tevent):
 
     #helper.create_teams_testdata(pk_tevent)
 
-    tstate = TournamentState.objects.get(id=31)
-    helper.calculate_tstate()
+    #tstate = TournamentState.objects.get(id=31)
+    #helper.calculate_tstate()
+
+    create_game_report.import_game_report_excel()
 
     context['segment'] = 'index'
     context['segment_title'] = 'Overview'
