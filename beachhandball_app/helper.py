@@ -2,7 +2,7 @@ import unicodedata
 from datetime import datetime
 
 from django.db.models.query import Prefetch
-from beachhandball_app.models.Player import Player
+from beachhandball_app.models.Player import Player, PlayerStats
 from django.db.models.query_utils import Q, check_rel_lookup_compatibility
 from beachhandball_app.models.choices import GAMESTATE_CHOICES
 from beachhandball_app.models.Tournaments import Tournament, TournamentEvent, TournamentSettings, TournamentState, TournamentTeamTransition
@@ -607,6 +607,46 @@ def calculate_tstate(tstate):
                 #tstat.save()
             TeamStats.objects.bulk_update(teamstats, ("ranking_points","rank"))
         #check_tournamentstate_finished(ts.tournament_event, ts)
+    except Exception as e:
+        print(e)
+    finally:
+        print('')
+
+def recalc_global_pstats(tevent_id):
+    try:
+        tevent = TournamentEvent.objects.get(id=tevent_id)
+        player = Player.objects.filter(tournament_event=tevent)
+        player_list = [p for p in player.all()]
+        global_pstats = PlayerStats.objects.select_related('player').filter(tournament_event=tevent, is_ranked=1)
+        gl_pstats = [p for p in global_pstats.all()]
+        pstats = PlayerStats.objects.select_related('player').filter(tournament_event=tevent, is_ranked=0)
+        pstats_list = [ps for ps in pstats.all()]
+
+        for pl in player_list:
+            stats = []
+            gl_stat = next((gstat for gstat in global_pstats if gstat.player.id == pl.id), None)
+            if gl_stat is None:
+                continue
+            for st in pstats:
+                if st.player.id == pl.id:
+                    stats.append(st)
+            gl_stat.score = sum(s.score for s in stats)
+            gl_stat.spin_try = sum(s.spin_try for s in stats)
+            gl_stat.spin_success = sum(s.spin_success for s in stats)
+            gl_stat.kempa_try = sum(s.kempa_try for s in stats)
+            gl_stat.kempa_success = sum(s.kempa_success for s in stats)
+            gl_stat.shooter_try = sum(s.shooter_try for s in stats)
+            gl_stat.shooter_success = sum(s.shooter_success for s in stats)
+            gl_stat.one_try = sum(s.one_try for s in stats)
+            gl_stat.one_success = sum(s.one_success for s in stats)
+            gl_stat.suspension = sum(s.suspension for s in stats)
+            gl_stat.redcard = sum(s.redcard for s in stats)
+            gl_stat.goal_keeper_success = sum(s.goal_keeper_success for s in stats)
+            gl_stat.block_success = sum(s.block_success for s in stats)
+
+        PlayerStats.objects.bulk_update(global_pstats, fields=['score','spin_success','spin_try', 'one_try', 'one_success'])   
+
+
     except Exception as e:
         print(e)
     finally:
