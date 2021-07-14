@@ -2,7 +2,9 @@
 """
 Copyright (c) 2019 - present AppSeed.us
 """
+from django.forms.models import model_to_dict
 
+from beachhandball_app.tasks import update_user_tournament_events_async
 from beachhandball_app.models.Tournaments import Tournament
 from django.shortcuts import render
 from datetime import datetime
@@ -11,7 +13,7 @@ from datetime import datetime
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.models import User, Group
-from authentication.models import GBOUser
+from authentication.models import GBOUser, GBOUserSerializer
 from django.forms.utils import ErrorList
 from django.http import HttpResponse
 from .forms import LoginForm, SignUpForm, SelectTournamentForm
@@ -126,6 +128,7 @@ def login_view(request):
                             tourn.is_active = True
                             tourn.save()
                             #update_user_tournament_events(gbouser, tourn)
+                            update_user_tournament_events_async.delay(model_to_dict(gbouser), model_to_dict(tourn))
                         elif t.count() > 1:
                             for tourn in t:
                                 tourn.is_active = False

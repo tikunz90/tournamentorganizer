@@ -134,9 +134,14 @@ class SWS():
     @staticmethod
     def getTeamById(gbo_user, team_id):
         # request data from sws
+        token = ''
+        if type(gbo_user) is dict:
+            token =gbo_user['token']
+        else:
+            token = gbo_user.token
         endpoint = '/season/team/' + str(team_id)
         headers = SWS.headers
-        headers['Authorization'] = 'Bearer {}'.format(gbo_user.token)
+        headers['Authorization'] = 'Bearer {}'.format(token)
         response = requests.get(SWS.base_url + endpoint, headers=headers)
         if response.json()['isError'] is not True:
             data = response.json()['message']
@@ -147,9 +152,14 @@ class SWS():
     @staticmethod
     def getTeamTournamentById(gbo_user, team_tourn_id):
         # request data from sws
+        token = ''
+        if type(gbo_user) is dict:
+            token =gbo_user['token']
+        else:
+            token = gbo_user.token
         endpoint = '/request/season-team-tournament/' + str(team_tourn_id)
         headers = SWS.headers
-        headers['Authorization'] = 'Bearer {}'.format(gbo_user.token)
+        headers['Authorization'] = 'Bearer {}'.format(token)
         response = requests.get(SWS.base_url + endpoint, headers=headers)
         if response.json()['isError'] is not True:
             data = response.json()['message']
@@ -173,36 +183,56 @@ class SWS():
     @staticmethod
     def getSeasonTeamCupTournamentRanking(gbo_user):
         # request data from sws
+        token = ''
+        if type(gbo_user) is dict:
+            token =gbo_user['token']
+        else:
+            token = gbo_user.token
         endpoint = '/season/team-cup-tournament-ranking/'
         headers = SWS.headers
-        headers['Authorization'] = 'Bearer {}'.format(gbo_user.token)
+        headers['Authorization'] = 'Bearer {}'.format(token)
         response = requests.get(SWS.base_url + endpoint, headers=headers)
         return response.json()
 
     @staticmethod
     def getSeasonTeamCupChampionshipRanking(gbo_user):
         # request data from sws
+        token = ''
+        if type(gbo_user) is dict:
+            token =gbo_user['token']
+        else:
+            token = gbo_user.token
         endpoint = '/season/team-cup-championship-ranking/'
         headers = SWS.headers
-        headers['Authorization'] = 'Bearer {}'.format(gbo_user.token)
+        headers['Authorization'] = 'Bearer {}'.format(token)
         response = requests.get(SWS.base_url + endpoint, headers=headers)
         return response.json()
     
     @staticmethod
     def getSeasonTeamSubCupTournamentRanking(gbo_user):
         # request data from sws
+        token = ''
+        if type(gbo_user) is dict:
+            token =gbo_user['token']
+        else:
+            token = gbo_user.token
         endpoint = '/season/team-cup-tournament-ranking/'
         headers = SWS.headers
-        headers['Authorization'] = 'Bearer {}'.format(gbo_user.token)
+        headers['Authorization'] = 'Bearer {}'.format(token)
         response = requests.get(SWS.base_url + endpoint, headers=headers)
         return response.json()
 
     @staticmethod
     def getTeams(gbo_user):
         # request data from sws
+        token = ''
+        if type(gbo_user) is dict:
+            token =gbo_user['token']
+        else:
+            token = gbo_user.token
         endpoint = '/season/team/'
         headers = SWS.headers
-        headers['Authorization'] = 'Bearer {}'.format(gbo_user.token)
+        headers['Authorization'] = 'Bearer {}'.format(token)
         response = requests.get(SWS.base_url + endpoint, headers=headers)
         return response.json()
     

@@ -4,6 +4,7 @@ Copyright (c) 2019 - present AppSeed.us
 """
 
 from django.db import models
+from rest_framework import serializers
 
 from django.contrib.auth.models import User
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
@@ -23,3 +24,9 @@ class GBOUser(models.Model):
 
     def __str__(self):
         return '{} {}, {} {}'.format(self.user.id, self.user.last_name, self.user.first_name, self.user.email)
+
+
+class GBOUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = GBOUser
+        fields = "__all__"
