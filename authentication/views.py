@@ -125,7 +125,7 @@ def login_view(request):
                             tourn = t.first()
                             tourn.is_active = True
                             tourn.save()
-                            update_user_tournament_events(gbouser, tourn)
+                            #update_user_tournament_events(gbouser, tourn)
                         elif t.count() > 1:
                             for tourn in t:
                                 tourn.is_active = False
