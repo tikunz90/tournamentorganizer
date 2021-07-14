@@ -17,6 +17,8 @@ from django.http import HttpResponse
 from .forms import LoginForm, SignUpForm, SelectTournamentForm
 from django.views.generic import TemplateView
 
+from .tasks import auth_debug_task
+
 from beachhandball_app.services import services as s
 from beachhandball_app.helper import update_user_tournament, update_user_tournament_events
 
@@ -24,6 +26,8 @@ def login_view(request):
     form = LoginForm(request.POST or None)
 
     msg = None
+
+    auth_debug_task.s(request).apply_async()
 
     if request.method == "POST":
 
