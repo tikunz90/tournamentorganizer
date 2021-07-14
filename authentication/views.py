@@ -27,7 +27,7 @@ def login_view(request):
 
     msg = None
 
-    auth_debug_task.s(request).apply_async()
+    auth_debug_task.s('HELLO').apply_async()
 
     if request.method == "POST":
 
