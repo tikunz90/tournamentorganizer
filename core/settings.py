@@ -182,7 +182,7 @@ if 'REDIS_URL' in os.environ:
     REDIS_URL = os.environ['REDIS_URL']
 else:
     REDIS_URL = None
-    
+
 if REDIS_URL is not None:
     CACHES = {
         "default": {
@@ -197,10 +197,10 @@ if REDIS_URL is not None:
 
 BROKER_URL = REDIS_URL
 CELERY_RESULT_BACKEND = REDIS_URL
-CELERY_ACCEPT_CONTENT = ['application/json']
-CELERY_TASK_SERIALIZER = 'json'
-CELERY_RESULT_SERIALIZER = 'json'
-CELERY_TIMEZONE = 'Africa/Nairobi'
+#CELERY_ACCEPT_CONTENT = ['application/json']
+#CELERY_TASK_SERIALIZER = 'json'
+#CELERY_RESULT_SERIALIZER = 'json'
+#CELERY_TIMEZONE = 'Africa/Nairobi'
 
 #LOGGING = {
 #    'version': 1,
