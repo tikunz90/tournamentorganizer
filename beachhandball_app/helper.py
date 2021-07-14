@@ -644,7 +644,7 @@ def recalc_global_pstats(tevent_id):
             gl_stat.goal_keeper_success = sum(s.goal_keeper_success for s in stats)
             gl_stat.block_success = sum(s.block_success for s in stats)
 
-        PlayerStats.objects.bulk_update(global_pstats, fields=['score','spin_success','spin_try', 'one_try', 'one_success'])   
+        PlayerStats.objects.bulk_update(global_pstats, fields=['score','spin_success','spin_try', 'one_try', 'one_success','suspension','redcard', 'block_success', 'goal_keeper_success'])   
 
 
     except Exception as e:

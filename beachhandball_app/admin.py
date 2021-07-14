@@ -41,6 +41,7 @@ class TeamAdmin(admin.ModelAdmin):
     list_display = ( "id", "name", "is_dummy", "tournament_event")
     list_filter = ( "name",)
     search_fields = ("name__startswith", )
+    list_select_related = ('tournament_event', 'tournamentstate', 'category',)
 
 @admin.register(Player)
 class PlayerAdmin(admin.ModelAdmin):

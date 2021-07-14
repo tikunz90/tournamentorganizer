@@ -320,6 +320,8 @@ def create_teamtestdata(request, pk_tevent):
 
     #tstate = TournamentState.objects.get(id=31)
     #helper.calculate_tstate()
+    #create_game_report.import_game_report_excel()
+
     helper.recalc_global_pstats(68)
     helper.recalc_global_pstats(69)
 

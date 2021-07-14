@@ -41,13 +41,11 @@
               </thead>
               <tbody>
               {% for pstat in playerstats_offense.all()[:10] %}
-                {% if pstat.is_ranked == 1 %}
                 <tr>
                   <td>{{ loop.index }}</td>
                   <td>{{ pstat.player.name }}, {{ pstat.player.first_name }} ({{ pstat.player.team.name }})</td>
                   <td>{{ pstat.score }}</td>
                 </tr>
-                {% endif %}
               {% endfor %}
               </tbody>
             </table>
@@ -79,13 +77,11 @@
               </thead>
               <tbody>
               {% for pstat in playerstats_defense.all()[:10] %}
-                {% if pstat.is_ranked == 1 %}
                 <tr>
                   <td>{{ loop.index }}</td>
                   <td>{{ pstat.player.name }}, {{ pstat.player.first_name }} ({{ pstat.player.team.name }})</td>
                   <td>{{ pstat.block_success }}</td>
                 </tr>
-                {% endif %}
               {% endfor %}
               </tbody>
             </table>
@@ -117,13 +113,11 @@
               </thead>
               <tbody>
               {% for pstat in playerstats_goalie.all()[:10] %}
-                {% if pstat.is_ranked == 1 %}
                 <tr>
                   <td>{{ loop.index }}</td>
                   <td>{{ pstat.player.name }}, {{ pstat.player.first_name }} ({{ pstat.player.team.name }})</td>
                   <td>{{ pstat.goal_keeper_success }}</td>
                 </tr>
-                {% endif %}
               {% endfor %}
               </tbody>
             </table>
