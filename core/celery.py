@@ -4,13 +4,17 @@ from django.conf import settings
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'core.settings')
 
-app = Celery('beach')
+app = Celery('core')
 #app.conf.update(BROKER_URL=os.environ['REDIS_URL'],
 #                CELERY_RESULT_BACKEND=os.environ['REDIS_URL'])
 
-app.config_from_object('django.conf:settings')
+app.config_from_object("django.conf:settings", namespace="CELERY")
 app.autodiscover_tasks(lambda: settings.INSTALLED_APPS)
 
-@app.task(bind=True)
-def debug_task(self):
-    print('Request: {0!r}'.format(self.request))
+
+
+@app.task
+def debug_task(message):
+    print('DEBUG: ' + message)
+
+debug_task.delay('CELERY is RUNNING')

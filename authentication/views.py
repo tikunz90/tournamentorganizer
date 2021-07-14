@@ -22,12 +22,14 @@ from .tasks import auth_debug_task
 from beachhandball_app.services import services as s
 from beachhandball_app.helper import update_user_tournament, update_user_tournament_events
 
+from django.core.cache import cache
+
 def login_view(request):
     form = LoginForm(request.POST or None)
 
     msg = None
-
-    auth_debug_task.s('HELLO').apply_async()
+    cache.set('foo', 'bar')
+    auth_debug_task.delay('HELLO')
 
     if request.method == "POST":
 
