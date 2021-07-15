@@ -125,6 +125,57 @@ class StructureSetupDetail(LoginRequiredMixin, UserPassesTestMixin, DetailView):
     def test_func(self):
         return self.request.user.groups.filter(name='tournament_organizer').exists()
 
+class TournamentStageDetail(LoginRequiredMixin, UserPassesTestMixin, DetailView):
+    #model = TournamentStage
+    queryset = TournamentStage.objects.select_related("tournament_event").prefetch_related(
+            Prefetch("tournamentstate_set", queryset=TournamentState.objects.select_related("tournament_event__category").prefetch_related(
+                Prefetch("teamstats_set", queryset=TeamStats.objects.select_related("team").all(), to_attr="stats"),
+                Prefetch("game_set", queryset=Game.objects.all(), to_attr="games"),
+                Prefetch("ttt_origin", queryset=TournamentTeamTransition.objects.select_related("origin_ts_id", "target_ts_id").all(), to_attr="ttt_origin_pre")
+                )
+                , to_attr="tstates")
+                )
+    template_name = 'beachhandball/tournamentevent/tstage_printview.html'
+    login_url = '/login/'
+    redirect_field_name = 'structure_setup'
+
+    def dispatch(self, request, *args, **kwargs):
+        context = getContext(self.request)
+        if not checkLoginIsValid(context['gbo_user']):
+            return redirect('login')
+        self.kwargs['context_data'] = context
+        return super(TournamentStageDetail, self).dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        print('Enter TournamentStageDetail: ', datetime.now())
+        tstage = kwargs["object"]
+        context = self.kwargs['context_data']
+
+        kwargs['tourn'] = context['tourn']
+
+        
+        tstates = []
+        for state in tstage.tstates:
+            if not state.is_final:
+                tstates.append(state)
+        tstage.tstates_wo_final = tstates
+        kwargs['tstage'] = tstage
+        #kwargs['tst_view'] = tevent.tournamentstage_set.all()
+
+        #kwargs['tevent'] = tevent
+
+        #kwargs = static_views.getContext(self.request)
+        kwargs['tournaments_active'] = 'active_detail'
+        kwargs['segment'] = 'structure_setup'
+        kwargs['segment_title'] = 'Structure Setup \ '
+
+        #kwargs['ts_types'] = TournamentStage.objects.filter(tournament_event=tevent)
+        kwargs['teams_appending'] = []#Team.objects.filter(tournament=tevent)
+
+        return super(TournamentStageDetail, self).get_context_data(**kwargs)
+    
+    def test_func(self):
+        return self.request.user.groups.filter(name='tournament_organizer').exists()
 class StageCreateView(BSModalCreateView):
     template_name = 'beachhandball/tournamentevent/create_stage_form.html'
     form_class = TournamentStageForm

@@ -7,7 +7,7 @@ from django.urls import path, re_path
 from beachhandball_app import static_views
 from beachhandball_app.views.basic_setup import CourtCreateView, CourtUpdateView, CourtDeleteView
 from beachhandball_app.views.teams_setup import TeamsSetupDetail
-from beachhandball_app.views.structure_setup import DownloadPreGameView, DownloadPreGameAllView, GameCreateView, GameResultGameView, GameUpGameView, StateFinishView, StructureSetupDetail, StageCreateView, StageDeleteView, StateCreateView, StateDeleteView, StateUpdateView, TTTUpdateView, TeamStatsUpdateTeamView, GameDeleteView
+from beachhandball_app.views.structure_setup import DownloadPreGameView, DownloadPreGameAllView, GameCreateView, GameResultGameView, GameUpGameView, StateFinishView, StructureSetupDetail, StageCreateView, StageDeleteView, StateCreateView, StateDeleteView, StateUpdateView, TTTUpdateView, TeamStatsUpdateTeamView, GameDeleteView, TournamentStageDetail
 from beachhandball_app.views.structure_setup_fb import games_list
 from beachhandball_app.views.results import ResultsDetail
 
@@ -39,6 +39,7 @@ urlpatterns = [
     path('structure_setup/<int:pk>/create_tstage/', StageCreateView.as_view(), name='structure_setup.create_tstage'),
     path('structure_setup/<int:pk_tevent>/delete_tstage/<int:pk>/', StageDeleteView.as_view(), name='structure_setup.delete_tstage'),
     path('structure_setup/<int:pk_tevent>/<int:pk_tstage>/create_state', StateCreateView.as_view(), name='structure_setup.create_tstate'),
+    path('structure_setup/<int:pk_tevent>/<int:pk>/tstage_printview', TournamentStageDetail.as_view(), name='structure_setup.tstage_printview'),
     path('structure_setup/<int:pk_tevent>/<int:pk_tstage>/delete_tstate/<int:pk>/', StateDeleteView.as_view(), name='structure_setup.delete_tstate'),
     path('structure_setup/<int:pk_tevent>/<int:pk_tstage>/update_tstate/<int:pk>/', StateUpdateView.as_view(), name='structure_setup.update_tstate'),
     path('structure_setup/<int:pk_tevent>/<int:pk_tstage>/finish_tstate/<int:pk>/', StateFinishView.as_view(), name='structure_setup.finish_tstate'),
