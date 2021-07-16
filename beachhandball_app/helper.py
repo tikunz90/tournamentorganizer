@@ -630,9 +630,9 @@ def recalc_global_pstats(tevent_id):
         tevent = TournamentEvent.objects.get(id=tevent_id)
         player = Player.objects.filter(tournament_event=tevent)
         player_list = [p for p in player.all()]
-        global_pstats = PlayerStats.objects.select_related('player').filter(tournament_event=tevent, is_ranked=1)
+        global_pstats = PlayerStats.objects.select_related('player').filter(tournament_event=tevent, is_ranked=True)
         gl_pstats = [p for p in global_pstats.all()]
-        pstats = PlayerStats.objects.select_related('player').filter(tournament_event=tevent, is_ranked=0)
+        pstats = PlayerStats.objects.select_related('player').filter(tournament_event=tevent, is_ranked=False)
         pstats_list = [ps for ps in pstats.all()]
 
         for pl in player_list:

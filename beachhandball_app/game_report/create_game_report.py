@@ -244,8 +244,8 @@ def import_game_report_excel():
             ps.kempa_success = 0
             ps.score = 0
 
-        global_ps_a = PlayerStats.objects.filter(tournament_event=game.tournament_event, player__team=game.team_a, is_ranked=1).all()
-        global_ps_b = PlayerStats.objects.filter(tournament_event=game.tournament_event, player__team=game.team_b, is_ranked=1).all()
+        global_ps_a = PlayerStats.objects.filter(tournament_event=game.tournament_event, player__team=game.team_a, is_ranked=True).all()
+        global_ps_b = PlayerStats.objects.filter(tournament_event=game.tournament_event, player__team=game.team_b, is_ranked=True).all()
 
 
         score_a_1 = ws['M40'].value
