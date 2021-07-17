@@ -1,4 +1,5 @@
 from django.contrib.auth.decorators import login_required
+from django.db.models.query import Prefetch
 from django.shortcuts import render, get_object_or_404, redirect
 from django.template import loader
 from django.http import HttpResponse, JsonResponse
@@ -14,7 +15,9 @@ from ..models.Game import Game
 def games_list(request, pk_tstate):
     data = dict()
     if request.method == 'GET':
-        tstate = TournamentState.objects.get(id=pk_tstate)
+        tstate = TournamentState.objects.prefetch_related(
+            Prefetch("game_set", queryset=Game.objects.all(), to_attr="games")
+        ).get(id=pk_tstate)
         games = Game.objects.filter(tournament_state=tstate)
 
         # asyncSettings.dataKey = 'table'
