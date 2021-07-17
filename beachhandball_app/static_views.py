@@ -2,10 +2,12 @@
 """
 Copyright (c) 2019 - present AppSeed.us
 """
+from beachhandball_app.tasks import update_user_tournament_events_async
 from datetime import datetime
 import time
 import json
 from django.db.models.query import Prefetch
+from django.forms.models import model_to_dict
 from rest_framework.renderers import JSONRenderer
 from django.utils.dateparse import parse_datetime
 
@@ -303,8 +305,8 @@ def sync_tournament_data(request):
     if not checkLoginIsValid(context['gbo_user']):
         return redirect('login')
 
-    helper.update_user_tournament_events(context['gbo_user'], context['tourn'])
-
+    #helper.update_user_tournament_events(context['gbo_user'], context['tourn'])
+    update_user_tournament_events_async.delay(model_to_dict(context['gbo_user']), model_to_dict(context['tourn']))
     context['segment'] = 'index'
     context['segment_title'] = 'Overview'
 
