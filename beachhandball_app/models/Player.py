@@ -67,7 +67,7 @@ class PlayerStats(models.Model):
     one_success = models.SmallIntegerField(blank=True, default=0)
     suspension = models.SmallIntegerField(blank=True, default=0)
     redcard = models.SmallIntegerField(blank=True, default=0)
-    is_ranked = models.SmallIntegerField(blank=True, default=False)
+    is_ranked = models.BooleanField(blank=True, default=False)
     games_played = models.SmallIntegerField(blank=True, default=False)
     goal_keeper_success = models.SmallIntegerField(blank=True, default=0)
     block_success = models.SmallIntegerField(blank=True, default=0)

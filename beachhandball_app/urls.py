@@ -50,12 +50,13 @@ urlpatterns = [
     path('structure_setup/<int:pk_tevent>/<int:pk_tstage>/delete_game/<int:pk>/', GameDeleteView.as_view(), name='structure_setup.delete_game'),
     path('structure_setup/<int:pk_tstate>/games/', games_list, name='games_list'),
     path('structure_setup/<int:pk_tevent>/<int:pk_tstage>/update_game/<int:pk>', GameUpGameView.as_view(), name='update_game'),
-    path('structure_setup/<int:pk_tevent>/<int:pk_tstage>/update_game_result/<int:pk>', GameResultGameView.as_view(), name='update_game_result'),
+    path('structure_setup/<int:pk_tevent>/<int:pk_tstage>/update_game_result/<int:pk>/<int:from_gameplan>', GameResultGameView.as_view(), name='update_game_result'),
     path('structure_setup/<int:pk_tevent>/<int:pk_tstage>/download_pre_game/<int:pk>', DownloadPreGameView.as_view(), name='download_pre_game'),
     path('structure_setup/<int:pk_tevent>/<int:pk_tstage>/download_pre_game_all/<int:pk>', DownloadPreGameAllView.as_view(), name='download_pre_game_all'),
     
 
     path('game_plan/', static_views.game_plan, name='game_plan'),
+    path('game_plan/<int:pk_tevent>/<int:pk_tstage>/update_game_result/<int:pk>', GameResultGameView.as_view(), name='update_game_result_from_gameplan'),
     path('results/', static_views.results, name='results'),
     path('results/<int:pk>/', ResultsDetail.as_view(), name='results.detail'),
 

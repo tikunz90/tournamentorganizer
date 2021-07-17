@@ -506,6 +506,9 @@ class GameResultGameView(BSModalUpdateView):
 
     def get_success_url(self):
            pk = self.kwargs["pk_tevent"]
+           from_gameplan = self.kwargs["from_gameplan"]
+           if from_gameplan == 1:
+               return reverse_lazy('game_plan')
            return reverse_querystring("structure_setup.detail", kwargs={"pk": pk}, query_kwargs={'tab': self.kwargs["pk_tstage"], 'tab_tstate': 0})
 
 class GameDeleteView(BSModalDeleteView):

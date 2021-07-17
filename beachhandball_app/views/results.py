@@ -57,9 +57,9 @@ class ResultsDetail(DetailView):
         kwargs['tournaments_active'] = 'active_detail'
         kwargs['segment'] = 'results'
         kwargs['segment_title'] = 'Results \ ' + tevent.name_short
-        kwargs['playerstats_offense'] = tevent.playerstats_set.filter(is_ranked=1).order_by('-score')
-        kwargs['playerstats_defense'] = tevent.playerstats_set.filter(is_ranked=1).order_by('-block_success')
-        kwargs['playerstats_goalie'] = tevent.playerstats_set.filter(is_ranked=1).order_by('-goal_keeper_success')
+        kwargs['playerstats_offense'] = tevent.playerstats_set.filter(is_ranked=True).order_by('-score')
+        kwargs['playerstats_defense'] = tevent.playerstats_set.filter(is_ranked=True).order_by('-block_success')
+        kwargs['playerstats_goalie'] = tevent.playerstats_set.filter(is_ranked=True).order_by('-goal_keeper_success')
         #tstate = TournamentState.objects.get(id=6)
        # kwargs['form_tstate'] = TournamentStateUpdateForm(instance=tstate)
         print('Leave ResultsDetail: ', datetime.now())
