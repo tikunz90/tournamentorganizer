@@ -171,7 +171,8 @@ def select_tourn_view(request):
             tourn = Tournament.objects.get(id=id_tourn)
             tourn.is_active = True
             tourn.save()
-            update_user_tournament_events(guser, tourn)
+            #update_user_tournament_events(guser, tourn)
+            update_user_tournament_events_async.delay(model_to_dict(guser), model_to_dict(tourn))
             return redirect('/')
 
     #return redirect("login", {"form": form, "msg" : msg})
