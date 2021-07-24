@@ -16,7 +16,7 @@ from .models.Series import Series, Season
 admin.site.register(Tournament)
 admin.site.register(TournamentSettings)
 admin.site.register(TournamentEvent)
-admin.site.register(TournamentCategory)
+#admin.site.register(TournamentCategory)
 admin.site.register(TournamentStage)
 admin.site.register(TournamentTeamTransition)
 #admin.site.register(Team)
@@ -29,6 +29,12 @@ admin.site.register(GameAction)
 admin.site.register(TournamentFinalRanking)
 admin.site.register(Series)
 admin.site.register(Season)
+
+@admin.register(TournamentCategory)
+class TournamentCategoryAdmin(admin.ModelAdmin):
+    list_display = ( "id", "name", "abbreviation", "classification", "category", "gbo_category_id")
+    list_filter = ( "name",)
+    search_fields = ("name__startswith", )
 
 @admin.register(Game)
 class GameAdmin(admin.ModelAdmin):

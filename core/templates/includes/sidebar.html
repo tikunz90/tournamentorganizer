@@ -42,7 +42,7 @@
                 <li class="nav-item">
                   <a class="nav-link" href="{{ url('teams_setup.detail', kwargs={'pk': tevent.id}) }}" onclick="modalShowSpinner();">
                     <!--span class="sidebar-mini"> 1234 </!--span-->
-                    <span class="sidebar-normal"> {{ tevent.name_short }}</span>
+                    <span class="sidebar-normal"> {{ tevent.category.name}} {{ tevent.category.classification}}</span>
                   </a>
                 </li>
               {% endfor %}
@@ -71,7 +71,7 @@
                 <li class="nav-item">"
                   <a class="nav-link" href="{{ url('structure_setup.detail', kwargs={'pk': tevent.id}) }}" onclick="modalShowSpinner();">
                     <!--span class="sidebar-mini"> 1234 </!--span-->
-                    <span class="sidebar-normal"> {{ tevent.name_short }}</span>
+                    <span class="sidebar-normal">  {{ tevent.category.name}} {{ tevent.category.classification}}</span>
                   </a>
                 </li>
               {% endfor %}
@@ -105,7 +105,7 @@
                 <li class="nav-item">
                   <a class="nav-link" href="{{ url('results.detail', kwargs={'pk': tevent.id}) }}" onclick="modalShowSpinner();">
                     <!--span class="sidebar-mini"> 1234 </!--span-->
-                    <span class="sidebar-normal"> {{ tevent.name_short }}</span>
+                    <span class="sidebar-normal">  {{ tevent.category.name}} {{ tevent.category.classification}}</span>
                   </a>
                 </li>
               {% endfor %}

@@ -11,6 +11,19 @@ CATEGORY_CLASS_CHOICES = (
         ('Seniors', 'Seniors'),
         ('Junior', 'Junior'),
         ('Mixed', 'Mixed'),
+        ('man', 'man'),
+        ('men', 'men'),
+        ('woman', 'woman'),
+        ('women', 'women'),
+        ('U14', 'U14'),
+        ('U15', 'U15'),
+        ('U16', 'U16'),
+        ('U17', 'U17'),
+        ('U18', 'U18'),
+        ('U19', 'U19'),
+        ('U20', 'U20'),
+        ('U21', 'U21'),
+
     )
 
 
