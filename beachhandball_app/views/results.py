@@ -56,7 +56,7 @@ class ResultsDetail(DetailView):
         #kwargs = static_views.getContext(self.request)
         kwargs['tournaments_active'] = 'active_detail'
         kwargs['segment'] = 'results'
-        kwargs['segment_title'] = 'Results \ ' + tevent.name_short
+        kwargs['segment_title'] = 'Results \ ' + tevent.name_short + ' ' + tevent.category.name + ' ' +tevent.category.classification
         kwargs['playerstats_offense'] = tevent.playerstats_set.filter(is_ranked=True).order_by('-score')
         kwargs['playerstats_defense'] = tevent.playerstats_set.filter(is_ranked=True).order_by('-block_success')
         kwargs['playerstats_goalie'] = tevent.playerstats_set.filter(is_ranked=True).order_by('-goal_keeper_success')

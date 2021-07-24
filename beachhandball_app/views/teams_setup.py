@@ -27,7 +27,7 @@ class TeamsSetupDetail(LoginRequiredMixin, DetailView):
             )
         kwargs['tournaments_active'] = 'active_detail'
         kwargs['segment'] = 'teams_setup'
-        kwargs['segment_title'] = 'Teams Setup \ ' + tevent.name_short
+        kwargs['segment_title'] = 'Teams Setup \ ' + tevent.name_short + ' ' + tevent.category.name + ' ' + tevent.category.classification
 
         kwargs["tevent"] = tevent
         kwargs['teams_accepted'] =[team for team in teams if not team.is_dummy and team.tournament_event.id == tevent.id]# teams.all()
