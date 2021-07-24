@@ -448,7 +448,28 @@ def reverse_querystring(view, urlconf=None, args=None, kwargs=None, current_app=
         return '{}?{}'.format(base_url, urlencode(query_kwargs))
     return base_url
 
+def update_games_after_tstat_chg(tstat):
+    try:
+        games = Game.objects.select_related("team_st_a__team", "team_st_b__team").filter(tournament_event=tstat.tournament_event,
+                                                                                        tournament_state=tstat.tournamentstate,
+                                                                                        gamestate='APPENDING').all()
 
+        bulk_list_games = []    
+        for g in games:
+            game_update = False
+            if g.team_st_a.id == tstat.id:
+                g.team_a = tstat.team
+                game_update = True
+            if g.team_st_b.id == tstat.id:
+                g.team_b = tstat.team
+                game_update = True
+            if game_update:
+                bulk_list_games.append(g)
+        Game.objects.bulk_update(bulk_list_games,("team_a", "team_b"))
+    except Exception as ex:
+        print(ex)
+
+        
 def calculate_tstate(tstate):
     try:
         #ts = TournamentState.objects.get(id=tstate)

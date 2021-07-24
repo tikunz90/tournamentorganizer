@@ -11,7 +11,7 @@ from .models.Player import Player, PlayerStats
 
 from .models.choices import TOURNAMENT_STATE_CHOICES
 
-from .helper import calculate_tstate
+from .helper import calculate_tstate, update_games_after_tstat_chg
 
 @receiver(post_save, sender=Tournament)
 def create_new_tournament(sender, instance, created, **kwargs):
@@ -142,6 +142,11 @@ def ttt_changed(sender, created, **kwargs):
                 ts_tar.team.save()
             ts_tar.save()
 
+@receiver(post_save, sender=TeamStats)
+def teamstat_changed(sender, created, **kwargs):
+    if not created:
+        print('Update TeamStats')
+        update_games_after_tstat_chg(kwargs['instance'])
 
 @receiver(post_save, sender=Game)
 def game_updated(sender, instance, created, **kwargs):
