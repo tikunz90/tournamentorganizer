@@ -1,0 +1,28 @@
+<table id="{{tstate.id}}-games-table" class="table table-striped">
+    <thead>
+    <tr>
+        <th>Startzeit</th>
+        <th>ID</th>
+        <th>Team A</th>
+        <th>Team B</th>
+        <th class="text-center">Court</th>
+        <th class="text-center">HT1</th>
+        <th class="text-center">HT2</th>
+        <th class="text-center">P</th>
+        <th class="text-center">Sets</th>
+    </tr>
+    </thead>
+    {% for game in tstate.games %}
+    <tr>
+        <td>{{ game.starttime.strftime('%H:%M (%d.%m.%Y)') }}</td>
+        <td>{{ game.id_counter }}</td>
+        <td>{% if game.team_st_a.id == game.winner %}<button class="btn btn-outline-info"><i class="material-icons">emoji_events</i><b>{{ game.team_st_a.team }}</b></button>{% else %}{{ game.team_st_a.team }}{% endif %}</td>
+        <td>{% if game.team_st_b.id == game.winner %}<button class="btn btn-outline-info"><i class="material-icons">emoji_events</i><b>{{ game.team_st_b.team }}</b></button>{% else %}{{ game.team_st_b.team }}{% endif %}</td>
+        <td class="text-center">{{ game.court.name }}</td>
+        <td class="text-center">{{ game.score_team_a_halftime_1 }}:{{ game.score_team_b_halftime_1 }}</td>
+        <td class="text-center">{{ game.score_team_a_halftime_2 }}:{{ game.score_team_b_halftime_2 }}</td>
+        <td class="text-center">{{ game.score_team_a_penalty }}:{{ game.score_team_b_penalty }}</td>
+        <td class="text-center">{{ game.setpoints_team_a }}:{{ game.setpoints_team_b }}</td>
+    </tr>
+    {% endfor %}
+</table>

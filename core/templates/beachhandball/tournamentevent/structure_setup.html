@@ -126,7 +126,7 @@
                       <span class="fa fa-plus mr-2"></span> Create State
                   </button>
                   <form action="{{ url('structure_setup.tstage_printview', kwargs={'pk_tevent': tevent.id, 'pk': stage.id}) }}" method='GET'>
-                    <button type='submit' hidden><span class="fa fa-print"></span> Open Print View</button>
+                    <button type='submit' class="btn btn-sm btn-primary"><span class="fa fa-print"></span> Open Print View</button>
                   </form>
                   <button type="button" class="delete-tstage btn btn-sm btn-danger" rel="tooltip" title="Delete Stage" data-form-url="{{ url('structure_setup.delete_tstage', kwargs={'pk_tevent': tevent.id, 'pk': stage.id}) }}">
                       <span class="fa fa-trash"></span>

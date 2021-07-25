@@ -1,9 +1,10 @@
 {% extends "layouts/base-print.html" %}
 
 {% block content %}
-
+<h3>{{ tourn.name }} </h3>
+<h4>{{ tstage.name }} - {{ tstage.tournament_event.category.name }} {{ tstage.tournament_event.category.classification }}</h4>
 {% for tstate in tstage.tstates_wo_final %}
-    <h3>{{ tstate.name }}</h3>
+    {% include "beachhandball/tournamentevent/_tournament_state_item_printview.html" %}
 {% else %}
     <h3>{{ stage.name }}No states exists!</h3>
 {% endfor %}

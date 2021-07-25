@@ -1,0 +1,33 @@
+
+<div class="table-responsive">
+    <table class="table table-striped">
+    <thead>
+        <tr>
+        <th class="text-center">Rank</th>
+        <th>Team</th>
+        <th class="text-center">Games</th>
+        <th class="text-center" colspan="2">Sets</th>
+        <th class="text-center" colspan="2">Goals</th>
+        <th class="text-center">Pts.</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for tstat in tstate.stats %}
+            <tr>
+            <td class="text-center">{{loop.index}}</td>
+            <td>{{ tstat.team.name }} ({{ tstat.team.abbreviation}})</td>
+            <td class="text-center">{{ tstat.number_of_played_games }}</td>
+            <td class="text-center">{{ tstat.sets_win }}:{{ tstat.sets_loose }}</td>
+            <td class="text-center">{{ tstat.sets_win - tstat.sets_loose }}</td>
+            <td class="text-center">{{ tstat.points_made }}:{{ tstat.points_received }}</td>
+            <td class="text-center">{{ tstat.points_made - tstat.points_received }}</td>
+            <td class="text-center"><b>{{ tstat.game_points }}</b></td>
+            </tr>
+        {% endfor %}
+    </tbody>
+    </table>
+</div>
+<h4>Games</h4>
+<div class="table-responsive">
+    {% include "beachhandball/tournamentevent/_games_table_printview.html" %}
+</div>
