@@ -1,3 +1,4 @@
+from django.db.models import fields
 from django.shortcuts import get_object_or_404
 from beachhandball_app.models.Game import Game
 from beachhandball_app.models.Team import Team, TeamStats
@@ -133,6 +134,22 @@ class TeamStatsUpdateTeamForm(BSModalModelForm):
         super(TeamStatsUpdateTeamForm, self).__init__(*args, **kwargs)
         self.fields['team'].queryset = Team.objects.filter(is_dummy=False)
 
+class TeamStatsUpdateInitialTeamForm(forms.ModelForm):
+    disabled_fields = ('rank_initial',)
+    class Meta:
+        model = TeamStats
+        fields = ['id', 'rank_initial', 'team']
+        widgets = {
+            'team': forms.widgets.Select(attrs={'class': "form-control selectpicker", 'data-style':"btn btn-info btn-round"}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        tevent = kwargs.pop('tevent')
+        super(TeamStatsUpdateInitialTeamForm, self).__init__(*args, **kwargs)
+        
+        self.fields['team'].queryset = Team.objects.filter(tournament_event=tevent, is_dummy=False)
+        for field in self.disabled_fields:
+            self.fields[field].disabled = True
 
 """
 

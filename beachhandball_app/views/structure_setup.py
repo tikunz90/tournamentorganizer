@@ -1,10 +1,11 @@
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.db.models.query import Prefetch
 from beachhandball_app.models.choices import GAMESTATE_CHOICES
 import os
 import mimetypes
 from django.db import connection
 from django.http.response import Http404, HttpResponse
-
+from django.views.decorators.clickjacking import xframe_options_exempt
 from django.views.generic.base import View
 from beachhandball_app import helper
 from beachhandball_app.models.Player import PlayerStats
@@ -22,6 +23,8 @@ from django.http import JsonResponse
 from django.template.loader import render_to_string
 from django.contrib.messages.views import SuccessMessageMixin
 from django.conf import settings
+from django.forms import modelformset_factory
+
 from beachhandball_app.helper import reverse_querystring, calculate_tstate
 from beachhandball_app.game_report import create_game_report
 
@@ -33,7 +36,7 @@ from ..models.Tournaments import Court, Tournament, TournamentEvent, TournamentS
 from ..models.Series import Season
 from ..models.Team import Team, TeamStats
 
-from beachhandball_app.forms.structure_setup.forms import GameUpdateForm, GameUpdateResultForm, TTTUpdateForm, TournamentStageForm, TournamentStateFinishForm, TournamentStateForm, TournamentStateUpdateForm, TeamStatsUpdateTeamForm, GameForm
+from beachhandball_app.forms.structure_setup.forms import GameUpdateForm, GameUpdateResultForm, TTTUpdateForm, TeamStatsUpdateInitialTeamForm, TournamentStageForm, TournamentStateFinishForm, TournamentStateForm, TournamentStateUpdateForm, TeamStatsUpdateTeamForm, GameForm
 
 from beachhandball_app import static_views
 
@@ -51,6 +54,21 @@ class StructureSetupDetail(LoginRequiredMixin, UserPassesTestMixin, DetailView):
             return redirect('login')
         self.kwargs['context_data'] = context
         return super(StructureSetupDetail, self).dispatch(request, *args, **kwargs)
+
+    
+    def post(self, request, *args, **kwargs):
+        pk = kwargs.pop('pk')
+        tevent = TournamentEvent.objects.get(id=pk)
+        context = self.kwargs["context_data"]
+        #tstat_forms = context["tstat_forms"]
+        
+        TeamStatFormSet = modelformset_factory(TeamStats, TeamStatsUpdateInitialTeamForm, extra=0)
+        fs = TeamStatFormSet(self.request.POST, form_kwargs={'tevent': tevent}, queryset=TeamStats.objects.filter(tournamentstate_id=25))
+        fs.is_valid()
+        objs = fs.save(commit=False)
+        print('')
+        return super(StructureSetupDetail, self).post(request, *args, **kwargs)
+        return reverse("structure_setup.detail", kwargs={"pk": tevent.id})
 
     def get_context_data(self, **kwargs):
         print('Enter StructureSetupDetail: ', datetime.now())
@@ -75,6 +93,8 @@ class StructureSetupDetail(LoginRequiredMixin, UserPassesTestMixin, DetailView):
                 )
                 , to_attr="tstates")
                 )
+
+        
         #for stage in stages:
         #    print(stage)
         #    print("################")
@@ -101,6 +121,15 @@ class StructureSetupDetail(LoginRequiredMixin, UserPassesTestMixin, DetailView):
                 tstages_pre.append(stage)
 
         kwargs['tstages_pre'] = tstages_pre#[stage for stage in stages if stage.tournament_event.id==tevent.id]
+        
+        TeamStatFormSet = modelformset_factory(TeamStats, TeamStatsUpdateInitialTeamForm, extra=0)
+        tstat_forms = {}
+        for stage in tstages_pre:
+            for state in stage.tstates:
+                
+                tstat_forms[state.id] = TeamStatFormSet(form_kwargs={'tevent': tevent}, queryset=TeamStats.objects.filter(tournamentstate=state))
+        kwargs['tstat_forms'] = tstat_forms
+        
         kwargs['tourn'] = context['tourn']
         #kwargs['tst_view'] = tevent.tournamentstage_set.all()
 
@@ -561,3 +590,33 @@ class GameCreateView(BSModalCreateView):
     def get_success_url(self):
         pk = self.kwargs["pk_tevent"]
         return reverse_querystring("structure_setup.detail", kwargs={"pk": pk}, query_kwargs={'tab': self.kwargs["pk_tstage"], 'tab_tstate': 0})
+
+@login_required(login_url="/login/")
+@user_passes_test(lambda u: u.groups.filter(name='tournament_organizer').exists(),
+login_url="/login/", redirect_field_name='next')
+def update_teamsetup(request, pk_tevent, pk_tstage, pk_tstate):
+    context = getContext(request)
+    if not checkLoginIsValid(context['gbo_user']):
+        return redirect('login')
+
+    tevent = TournamentEvent.objects.get(id=pk_tevent)
+    #helper.update_user_tournament_events(context['gbo_user'], context['tourn'])
+    
+    context['segment'] = 'index'
+    context['segment_title'] = 'Overview'
+
+    #html_template = loader.get_template( 'index.html' )
+    #return HttpResponse(html_template.render(context, request))
+    if request.method == 'POST':
+        TeamStatFormSet = modelformset_factory(TeamStats, TeamStatsUpdateInitialTeamForm, extra=0)
+        
+        #tstat_forms = context["tstat_forms"]
+        
+        
+        fs = TeamStatFormSet(request.POST, form_kwargs={'tevent': tevent}, queryset=TeamStats.objects.filter(tournamentstate_id=pk_tstate))
+        print(fs.is_valid())
+        if fs.is_valid():
+            objs = fs.save(commit=True)
+            for obj in objs:
+                print(obj)
+    return redirect(reverse("structure_setup.detail", kwargs={"pk": pk_tevent}))

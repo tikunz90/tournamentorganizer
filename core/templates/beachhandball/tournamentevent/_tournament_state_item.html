@@ -1,3 +1,13 @@
+{% macro input_field(bound_field, hide_labels, extra_label_classes="", extra_control_classes="") -%}
+
+      <div class="form-group">
+          {{ bound_field }}
+          {% if bound_field.help_text %}
+          <small class="form-text text-muted">{{ field.help_text }}</small>
+          {% endif %}      
+      </div>
+    
+{%- endmacro %}
 
 <div class="col-md">
     <div class="card">
@@ -85,33 +95,31 @@
                             </p>
                             </div>
                             <div class="card-body">
-                            <div class="table-responsive">
-                                <table class="table table-striped">
-                                <thead>
-                                    <tr>
-                                    <th class="text-center">Rank</th>
-                                    <th>Team</th>
-                                    <th>Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {% for tstat in tstate.stats|sort(attribute="rank_initial") %}
+                            <form method="post" action="{{ url('structure_setup.update_teamsetup', kwargs={'pk_tevent':tevent.id, 'pk_tstage':stage.id, 'pk_tstate':tstate.id}) }}">
+                                <input type="hidden" name="csrfmiddlewaretoken" value="{{csrf_token}}">
+                                <div class="table-responsive">
+                                    <table class="table table-striped">
+                                    <thead>
                                         <tr>
-                                        <td class="text-center">{{ tstat.rank_initial }}</td>
-                                        <td>
-                                            {{ tstat.team.name }} ({{ tstat.team.abbreviation}})
-                                        </td>
-                                        
-                                        <td>
-                                            <button type="button" class="update_teamstatsteam btn btn-sm btn-primary" data-form-url="{{ url('structure_setup.update_teamstatsteam', kwargs={'pk_tevent':tevent.id, 'pk_tstage':stage.id, 'pk':tstat.id}) }}" {% if tstate.is_finished %}disabled{% endif %}>
-                                                <span class="fa fa-pencil"></span>
-                                            </button>
-                                        </td>
+                                        <th>id</th>
+                                        <th class="text-center">Rank</th>
+                                        <th>Team</th>
                                         </tr>
-                                    {% endfor %}
-                                </tbody>
-                                </table>
-                            </div>
+                                    </thead>
+                                    <tbody>
+                                        {% for form in tstat_forms[tstate.id] %}
+                                        <tr>
+                                        <td class="text-center">{{ form.initial['id'] }}</td>
+                                        <td class="text-center">{{ form.initial['rank_initial'] }}</td>
+                                        <td class="text-center">{{ input_field(form['team'], form.hide_labels) }}</td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                    </table>
+                                </div>
+                                {{ tstat_forms[tstate.id].management_form }}
+                                <button type="submit" class="btn btn-primary">Save</button>
+                            </form>
                             </div>
                         </div>
                     </div>

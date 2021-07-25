@@ -7,7 +7,7 @@ from django.urls import path, re_path
 from beachhandball_app import static_views
 from beachhandball_app.views.basic_setup import CourtCreateView, CourtUpdateView, CourtDeleteView
 from beachhandball_app.views.teams_setup import TeamsSetupDetail
-from beachhandball_app.views.structure_setup import DownloadPreGameView, DownloadPreGameAllView, GameCreateView, GameResultGameView, GameUpGameView, StateFinishView, StructureSetupDetail, StageCreateView, StageDeleteView, StateCreateView, StateDeleteView, StateUpdateView, TTTUpdateView, TeamStatsUpdateTeamView, GameDeleteView, TournamentStageDetail
+from beachhandball_app.views.structure_setup import DownloadPreGameView, DownloadPreGameAllView, GameCreateView, GameResultGameView, GameUpGameView, StateFinishView, StructureSetupDetail, StageCreateView, StageDeleteView, StateCreateView, StateDeleteView, StateUpdateView, TTTUpdateView, TeamStatsUpdateTeamView, GameDeleteView, TournamentStageDetail, update_teamsetup
 from beachhandball_app.views.structure_setup_fb import games_list
 from beachhandball_app.views.results import ResultsDetail
 
@@ -46,6 +46,7 @@ urlpatterns = [
     path('structure_setup/<int:pk_tevent>/<int:pk_tstage>/update_teamstatsteam/<int:pk>/', TeamStatsUpdateTeamView.as_view(), name='structure_setup.update_teamstatsteam'),
     path('structure_setup/<int:pk_tevent>/<int:pk_tstage>/update_tttransition/<int:pk>/', TTTUpdateView.as_view(), name='structure_setup.update_tttransition'),
     path('structure_setup/<int:pk_tevent>/<int:pk_tstage>/<int:pk_tstate>/create_game/', GameCreateView.as_view(), name='structure_setup.create_game'),
+    path('structure_setup/<int:pk_tevent>/<int:pk_tstage>/<int:pk_tstate>/update_teamsetup/', update_teamsetup, name='structure_setup.update_teamsetup'),
     path('structure_setup/<int:pk_tevent>/<int:pk_tstage>/update_game/<int:pk>/', GameUpGameView.as_view(), name='structure_setup.update_game'),
     path('structure_setup/<int:pk_tevent>/<int:pk_tstage>/delete_game/<int:pk>/', GameDeleteView.as_view(), name='structure_setup.delete_game'),
     path('structure_setup/<int:pk_tstate>/games/', games_list, name='games_list'),
