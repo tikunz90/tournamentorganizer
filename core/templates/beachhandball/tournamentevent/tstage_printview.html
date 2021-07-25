@@ -6,7 +6,7 @@
 {% for tstate in tstage.tstates_wo_final %}
     {% include "beachhandball/tournamentevent/_tournament_state_item_printview.html" %}
 {% else %}
-    <h3>{{ stage.name }}No states exists!</h3>
+    <h3>{{ tstage.name }}No states exists!</h3>
 {% endfor %}
 
 {% endblock content %}

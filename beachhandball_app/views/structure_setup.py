@@ -154,6 +154,67 @@ class StructureSetupDetail(LoginRequiredMixin, UserPassesTestMixin, DetailView):
     def test_func(self):
         return self.request.user.groups.filter(name='tournament_organizer').exists()
 
+
+class TournamentEventDetail(LoginRequiredMixin, UserPassesTestMixin, DetailView):
+    model = TournamentEvent
+    template_name = 'beachhandball/tournamentevent/tevent_printview.html'
+    login_url = '/login/'
+    redirect_field_name = 'structure_setup'
+
+    def dispatch(self, request, *args, **kwargs):
+        context = getContext(self.request)
+        if not checkLoginIsValid(context['gbo_user']):
+            return redirect('login')
+        self.kwargs['context_data'] = context
+        return super(TournamentEventDetail, self).dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        print('Enter TournamentEventDetail: ', datetime.now())
+        tevent = kwargs["object"]
+        context = self.kwargs['context_data']
+
+        kwargs['tourn'] = context['tourn']
+        kwargs['tevent'] = tevent
+
+        stages = TournamentStage.objects.select_related("tournament_event").prefetch_related(
+            Prefetch("tournamentstate_set", queryset=TournamentState.objects.select_related("tournament_event__category").prefetch_related(
+                Prefetch("teamstats_set", queryset=TeamStats.objects.select_related("team").all(), to_attr="stats"),
+                Prefetch("game_set", queryset=Game.objects.all(), to_attr="games"),
+                Prefetch("ttt_origin", queryset=TournamentTeamTransition.objects.select_related("origin_ts_id", "target_ts_id").all(), to_attr="ttt_origin_pre")
+                )
+                , to_attr="tstates")
+                )
+
+        tstages_pre = []
+        tstates_pre = []
+        for stage in stages:
+            if stage.tournament_event.id==tevent.id:
+                tstates = []
+                for state in stage.tstates:
+                    if not state.is_final:
+                        tstates.append(state)
+                        tstates_pre.append(state)
+                stage.tstates_wo_final = tstates
+                tstages_pre.append(stage)
+
+        kwargs['tstages_pre'] = tstages_pre#[stage for stage in stages if stage.tournament_event.id==tevent.id]
+        
+        #kwargs['tst_view'] = tevent.tournamentstage_set.all()
+
+        #kwargs['tevent'] = tevent
+
+        #kwargs = static_views.getContext(self.request)
+        kwargs['tournaments_active'] = 'active_detail'
+        kwargs['segment'] = 'structure_setup'
+        kwargs['segment_title'] = 'Structure Setup \ '
+
+        #kwargs['ts_types'] = TournamentStage.objects.filter(tournament_event=tevent)
+        kwargs['teams_appending'] = []#Team.objects.filter(tournament=tevent)
+
+        return super(TournamentEventDetail, self).get_context_data(**kwargs)
+    
+    def test_func(self):
+        return self.request.user.groups.filter(name='tournament_organizer').exists()
 class TournamentStageDetail(LoginRequiredMixin, UserPassesTestMixin, DetailView):
     #model = TournamentStage
     queryset = TournamentStage.objects.select_related("tournament_event").prefetch_related(

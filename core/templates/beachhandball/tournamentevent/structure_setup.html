@@ -48,6 +48,11 @@
               </div>
             </div>
           </div>
+          <div class="col-lg-2 col-md-2 col-sm-2 align-self-center">
+            <form action="{{ url('structure_setup.tevent_printview', kwargs={'pk': tevent.id}) }}" method='GET'>
+              <button type='submit' class="btn btn-sm btn-primary"><span class="fa fa-print"></span> Open Print View</button>
+            </form>
+          </div>
       </div>
       <hr />
     </div>
