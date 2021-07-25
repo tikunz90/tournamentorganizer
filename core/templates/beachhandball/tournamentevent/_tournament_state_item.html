@@ -109,7 +109,7 @@
                                     <tbody>
                                         {% for form in tstat_forms[tstate.id] %}
                                         <tr>
-                                        <td class="text-center">{{ form.initial['id'] }}</td>
+                                        <td class="text-center">{{ input_field(form['id'], form.hide_labels) }}</td>
                                         <td class="text-center">{{ form.initial['rank_initial'] }}</td>
                                         <td class="text-center">{{ input_field(form['team'], form.hide_labels) }}</td>
                                         </tr>
