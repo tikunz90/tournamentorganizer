@@ -145,7 +145,7 @@ def ttt_changed(sender, created, **kwargs):
 @receiver(post_save, sender=TeamStats)
 def teamstat_changed(sender, created, **kwargs):
     if not created:
-        print('Update TeamStats')
+        print('Update TeamStats: ' + str(kwargs['instance'].name_table))
         update_games_after_tstat_chg(kwargs['instance'])
 
 @receiver(post_save, sender=Game)

@@ -1,3 +1,5 @@
+import traceback
+
 import unicodedata
 from datetime import datetime
 
@@ -288,10 +290,18 @@ def sync_teams(gbouser, tevent, data, cup_type):
         
         teams_data = response['message']
         team_cup_tournament_rankings = data['message']
+        sct_id = 0
+        if cup_type == 'is_cup':
+            sct_id = tevent.season_cup_tournament_id
+        elif cup_type == 'is_gc':
+            sct_id = tevent.season_cup_german_championship_id
+        elif cup_type == 'is_sub':
+            sct_id = tevent.sub_season_cup_tournament_id
+        team_cup_tournament_rankings_filtered = [ranking for ranking in team_cup_tournament_rankings if sct_id == ranking['seasonCupTournament']['id']]
         team_bulk_list = []
         season_cup_tourn_id_for_dummy = 0;
-        for ranking in team_cup_tournament_rankings:
-            print('team ranking')
+        for ranking in team_cup_tournament_rankings_filtered:
+            print('team ranking: ' + ranking['seasonTeam']['team']['name'])
             if cup_type == 'is_cup' and tevent.season_cup_tournament_id != ranking['seasonCupTournament']['id']:
                 continue
             if cup_type == 'is_gc' and tevent.season_cup_german_championship_id != ranking['seasonCupTournament']['id']:
@@ -300,6 +310,7 @@ def sync_teams(gbouser, tevent, data, cup_type):
                 continue
             if tevent.category.gbo_category_id != ranking['seasonTeam']['team']['category']['id']:
                 continue
+            print('MATCH team ranking: ' + ranking['seasonTeam']['team']['name'])
             season_cup_tourn_id_for_dummy = ranking['seasonCupTournament']['id']
             player_bulk_update_list = []
             player_bulk_create_list = []
@@ -362,7 +373,7 @@ def sync_teams(gbouser, tevent, data, cup_type):
                 act_player.gbo_position = season_player['seasonSubject']['subject']['subjectLevel']['name']
                 is_active = False
                 for activeplayer in ranking['seasonPlayersInTournament']:
-                    if activeplayer['seasonPlayer']['id'] == season_player['id']:
+                    if activeplayer['id'] == season_player['id']:
                         is_active = True
                 act_player.is_active = is_active
                 act_player.number = season_player['number']
@@ -419,7 +430,7 @@ def sync_teams(gbouser, tevent, data, cup_type):
             Team.objects.bulk_update(my_dummy_team_data, ("season_cup_german_championship_id",))
         print('SUCCESS')
     except Exception as ex:
-        print(ex)
+        print(traceback.format_exc())
     return
 
 def strip_accents(text):
