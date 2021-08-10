@@ -174,7 +174,7 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 #IWS_BASE_URL = 'https://euve268544.serverprofi24.de:3080'
 
 SWS_BASE_URL = 'https://german-beach-open.app:3060'
-SWS_BASE_URL = 'https://karacho-beach-tournament.de:3060'
+#SWS_BASE_URL = 'https://karacho-beach-tournament.de:3060'
 IWS_BASE_URL = 'https://german-beach-open.app:3080'
 
 GAME_REPORT_DIR = os.path.join(BASE_DIR, 'report')
@@ -199,7 +199,7 @@ if REDIS_URL is not None:
 BROKER_URL = REDIS_URL
 CELERY_BROKER_URL = REDIS_URL
 CELERY_RESULT_BACKEND = REDIS_URL
-CELERY_TASK_ALWAYS_EAGER  = True
+CELERY_TASK_ALWAYS_EAGER  = False #True
 #CELERY_ACCEPT_CONTENT = ['application/json']
 #CELERY_TASK_SERIALIZER = 'json'
 #CELERY_RESULT_SERIALIZER = 'json'
