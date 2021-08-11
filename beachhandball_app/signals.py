@@ -106,9 +106,9 @@ def create_new_tournamentstate(sender, instance, created, **kwargs):
                     te_settings.game_slot_counter = te_settings.game_slot_counter + 1
                     g, cr = Game.objects.get_or_create( tournament=instance.tournament_event.tournament,
                                                         tournament_event=instance.tournament_event,
-                                                        #team_a=team_a,
+                                                        team_a=team_a,
                                                         team_st_a=act_team_stat,
-                                                        #team_b=team_b,
+                                                        team_b=team_b,
                                                         team_st_b=team_stat_b,
                                                         tournament_state=instance,
                                                         court=court,
