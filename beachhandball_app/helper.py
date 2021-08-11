@@ -502,6 +502,18 @@ def calculate_tstate(tstate):
         #games = Game.objects.all().filter(tournament_event=ts.tournament_event,
         #                                  tournament_state=ts,
         #                                  gamestate='FINISHED')
+        
+        # Update Team Ids if stat is changed
+        games_bulk_list = []
+        games_app = Game.objects.select_related("team_st_a__team", "team_st_b__team").filter(tournament_event=tstate.tournament_event,
+                                                                                    tournament_state=tstate,
+                                                                                    gamestate='APPENDING').all()
+        for g in games_app:
+            g.team_a = g.team_st_a.team 
+            g.team_b = g.team_st_b.team
+            games_bulk_list.append(g)
+        Game.objects.bulk_update(games_bulk_list,("team_a", "team_b"))
+        
         games = Game.objects.select_related("team_st_a__team", "team_st_b__team").filter(tournament_event=tstate.tournament_event,
                                                                                     tournament_state=tstate,
                                                                                     gamestate='FINISHED').all()
