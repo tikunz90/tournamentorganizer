@@ -188,7 +188,8 @@ class SWS():
             token =gbo_user['token']
         else:
             token = gbo_user.token
-        endpoint = '/season/team-cup-tournament-ranking/'
+        #endpoint = '/season/team-cup-tournament-ranking/'
+        endpoint = '/season/cup-tournaments/to/'+ str(gbo_user['subject_id']) +'/team-info'
         headers = SWS.headers
         headers['Authorization'] = 'Bearer {}'.format(token)
         response = requests.get(SWS.base_url + endpoint, headers=headers)

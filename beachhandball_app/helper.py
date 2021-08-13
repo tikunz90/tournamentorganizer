@@ -289,7 +289,7 @@ def sync_teams(gbouser, tevent, data, cup_type):
         my_dummy_team_data = [team for team in team_data_q if team.is_dummy and team.tournament_event.id == tevent.id]    
         
         teams_data = response['message']
-        team_cup_tournament_rankings = data['message']
+        
         sct_id = 0
         if cup_type == 'is_cup':
             sct_id = tevent.season_cup_tournament_id
@@ -297,21 +297,24 @@ def sync_teams(gbouser, tevent, data, cup_type):
             sct_id = tevent.season_cup_german_championship_id
         elif cup_type == 'is_sub':
             sct_id = tevent.sub_season_cup_tournament_id
-        team_cup_tournament_rankings_filtered = [ranking for ranking in team_cup_tournament_rankings if sct_id == ranking['seasonCupTournament']['id']]
-        team_bulk_list = []
+        team_info = []
+        for td in data['message']:
+            if td['id'] == sct_id:
+                team_info = td
+
         season_cup_tourn_id_for_dummy = 0;
-        for ranking in team_cup_tournament_rankings_filtered:
+        for ranking in team_info['seasonTeamCupTournamentRankings']:
             print('team ranking: ' + ranking['seasonTeam']['team']['name'])
-            if cup_type == 'is_cup' and tevent.season_cup_tournament_id != ranking['seasonCupTournament']['id']:
-                continue
-            if cup_type == 'is_gc' and tevent.season_cup_german_championship_id != ranking['seasonCupTournament']['id']:
-                continue
-            if cup_type == 'is_sub' and tevent.sub_season_cup_tournament_id != ranking['seasonCupTournament']['id']:
-                continue
+            #if cup_type == 'is_cup' and tevent.season_cup_tournament_id != ranking['seasonCupTournament']['id']:
+            #    continue
+            #if cup_type == 'is_gc' and tevent.season_cup_german_championship_id != ranking['seasonCupTournament']['id']:
+            #    continue
+            #if cup_type == 'is_sub' and tevent.sub_season_cup_tournament_id != ranking['seasonCupTournament']['id']:
+            #    continue
             if tevent.category.gbo_category_id != ranking['seasonTeam']['team']['category']['id']:
                 continue
             print('MATCH team ranking: ' + ranking['seasonTeam']['team']['name'])
-            season_cup_tourn_id_for_dummy = ranking['seasonCupTournament']['id']
+            #season_cup_tourn_id_for_dummy = ranking['seasonCupTournament']['id']
             player_bulk_update_list = []
             player_bulk_create_list = []
             coach_bulk_update_list = []
@@ -354,6 +357,7 @@ def sync_teams(gbouser, tevent, data, cup_type):
             for st in teams_data:
                 if st['id'] == act_team.season_team_id:
                     season_team = st
+                    break
 
             if season_team is None:
                 return
@@ -373,8 +377,9 @@ def sync_teams(gbouser, tevent, data, cup_type):
                 act_player.gbo_position = season_player['seasonSubject']['subject']['subjectLevel']['name']
                 is_active = False
                 for activeplayer in ranking['seasonPlayersInTournament']:
-                    if activeplayer['id'] == season_player['id']:
+                    if activeplayer['seasonPlayer']['id'] == season_player['id']:
                         is_active = True
+                        break
                 act_player.is_active = is_active
                 act_player.number = season_player['number']
                 act_player.season_team_id = act_team.season_team_id
@@ -417,10 +422,10 @@ def sync_teams(gbouser, tevent, data, cup_type):
 
         for dummy in my_dummy_team_data:
             if cup_type == 'is_cup':
-                dummy.season_cup_tournament_id = season_cup_tourn_id_for_dummy
+                dummy.season_cup_tournament_id = sct_id #season_cup_tourn_id_for_dummy
                 continue
             if cup_type == 'is_gc':
-                dummy.season_cup_german_championship_id = season_cup_tourn_id_for_dummy
+                dummy.season_cup_german_championship_id = sct_id #season_cup_tourn_id_for_dummy
                 continue
             if cup_type == 'is_sub':
                 continue
