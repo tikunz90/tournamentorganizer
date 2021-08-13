@@ -22,6 +22,8 @@ urlpatterns = [
 
     path('sync_tournament_data/', static_views.sync_tournament_data, name='sync_tournament_data'),
 
+    path('running_game/<int:pk_tourn>/<int:courtid>/', static_views.running_game, name='game_list'),
+
     path('game_plan/ajax/update-game-date/<int:pk>/', static_views.UpdateGameFromList.as_view(), name='ajax-update-game-date'),
     path('game_plan/ajax/update-game-court/<int:pk>/', static_views.UpdateGameCourtFromList.as_view(), name='ajax-update-game-court'),
 

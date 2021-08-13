@@ -1,0 +1,27 @@
+<head>
+    <link href="/static/assets/css/material-dashboard.css?v=2.1.2" rel="stylesheet" />
+</head>
+
+
+<body>
+     <table class="table">
+        <tr>
+            <th></th>
+            <th>1.</th>
+            <th>2.</th>
+            <th>P</th>
+        </tr>
+        <tr>
+            <td>{{ game.team_a.name }}</td>
+            <td>{{ game.score_team_a_halftime_1 }}</td>
+            <td>{{ game.score_team_a_halftime_2 }}</td>
+            <td>{{ game.score_team_a_penalty }}</td>
+        </tr>
+        <tr>
+            <td>{{ game.team_b.name }}</td>
+            <td>{{ game.score_team_b_halftime_1 }}</td>
+            <td>{{ game.score_team_b_halftime_2 }}</td>
+            <td>{{ game.score_team_b_penalty }}</td>
+        </tr>
+    </table> 
+</body>

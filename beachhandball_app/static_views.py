@@ -335,3 +335,15 @@ def create_teamtestdata(request, pk_tevent):
     html_template = loader.get_template( 'index.html' )
     return HttpResponse(html_template.render(context, request))
 
+def running_game(request, pk_tourn, courtid):
+    #context = getContext(request)
+    #if not checkLoginIsValid(context['gbo_user']):
+    #    return redirect('login')
+    context = {}
+    games = Game.objects.select_related("team_st_a__team", "team_st_b__team").filter(tournament=pk_tourn,
+                                                                                        court=courtid,
+                                                                                        gamestate='RUNNING').first()
+    context['game'] = games
+    html_template = loader.get_template( 'beachhandball/running_game.html' )
+    return HttpResponse(html_template.render(context, request))
+
