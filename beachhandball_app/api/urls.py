@@ -15,7 +15,7 @@ urlpatterns = [
 
     # GAME
     path('games/', GameViewSet.as_view({'get': 'list', 'post': 'create'})),
-    path('games/<int:pk_tourn>/scouting_pending/', GameList.as_view(), name='game_list'),
+    path('games/<int:pk_tourn>/<int:courtid>/scouting_pending/', GameList.as_view(), name='game_list'),
     path('games/<int:pk>/', GameViewSet.as_view({'get': 'retrieve', 'put': 'update', 'patch': 'partial_update'})),
     path('games/running/', RunningGames, name='get_running_games'),
     path('games/running/dm/', RunningGamesDM, name='get_running_games_dm'),

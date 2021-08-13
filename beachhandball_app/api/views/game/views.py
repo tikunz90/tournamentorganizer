@@ -153,9 +153,9 @@ class GameList(generics.ListAPIView):
     #queryset = Game.objects.all()
     serializer_class = GameSerializer
 
-    def list(self, request, pk_tourn):
+    def list(self, request, pk_tourn, courtid):
         tourn_id = self.kwargs['pk_tourn']
-        queryset = Game.objects.select_related('tournament', 'tournament_event__category','tournament_state', 'team_st_a__team', 'team_st_b__team', 'team_a', 'team_b', 'court', 'ref_a', 'ref_b').filter(Q(tournament=tourn_id) & (Q(gamestate='APPENDING') | Q(gamestate='RUNNING')))[:2]
+        queryset = Game.objects.select_related('tournament', 'tournament_event__category','tournament_state', 'team_st_a__team', 'team_st_b__team', 'team_a', 'team_b', 'court', 'ref_a', 'ref_b').filter(Q(tournament=tourn_id) & Q(court=courtid) & (Q(gamestate='APPENDING') | Q(gamestate='RUNNING')))[:5]
         serializer = GameSerializer(queryset, many=True)
         return Response(serializer.data)
 
