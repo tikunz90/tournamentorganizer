@@ -77,6 +77,8 @@ class PlayerStats(models.Model):
     season_cup_tournament_id = models.IntegerField(null=True, default=0)
     season_cup_german_championship_id = models.IntegerField(null=True, default=0)
 
+    gbo_category_id = models.IntegerField(default=0)
+    
     @staticmethod
     def calc_score(ps):
         score = 0
