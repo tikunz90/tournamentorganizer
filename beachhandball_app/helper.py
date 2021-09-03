@@ -674,7 +674,20 @@ def calculate_tstate(tstate):
     finally:
         print('')
 
+def create_global_pstats(tevent_id):
+    try:
+        tevent = TournamentEvent.objects.get(id=tevent_id)
+        player = Player.objects.filter(tournament_event=tevent)
+        player_list = [p for p in player.all()]
+        for pl in player_list:
+            ps, cr = PlayerStats.objects.get_or_create(tournament_event=tevent,
+            player=pl, is_ranked=True)
+    except Exception as e:
+        print(e)
+    finally:
+        print('')
 def recalc_global_pstats(tevent_id):
+    print('recalc_global_pstats tevent_id=' + str(tevent_id))
     try:
         tevent = TournamentEvent.objects.get(id=tevent_id)
         player = Player.objects.filter(tournament_event=tevent)
@@ -705,8 +718,12 @@ def recalc_global_pstats(tevent_id):
             gl_stat.redcard = sum(s.redcard for s in stats)
             gl_stat.goal_keeper_success = sum(s.goal_keeper_success for s in stats)
             gl_stat.block_success = sum(s.block_success for s in stats)
+            gl_stat.season_cup_tournament_id = tevent.season_cup_tournament_id
+            gl_stat.season_player_id = pl.season_player_id
+            gl_stat.season_team_id = pl.season_team_id
+            gl_stat.gbo_category_id = tevent.category.gbo_category_id
 
-        PlayerStats.objects.bulk_update(global_pstats, fields=['score','spin_success','spin_try', 'one_try', 'one_success','suspension','redcard', 'block_success', 'goal_keeper_success'])   
+        PlayerStats.objects.bulk_update(global_pstats, fields=['score','spin_success','spin_try', 'one_try', 'one_success','suspension','redcard', 'block_success', 'goal_keeper_success', 'season_cup_tournament_id', 'season_player_id','season_team_id', 'gbo_category_id'])   
 
 
     except Exception as e:

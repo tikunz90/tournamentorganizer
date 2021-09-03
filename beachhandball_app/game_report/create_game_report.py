@@ -203,7 +203,7 @@ def import_game_report_excel():
 
     files = [f for f in os.listdir(os.path.join(settings.GAME_REPORT_DIR, 'post')) if f.endswith('.xlsx')]
 
-    tourn = Tournament.objects.get(id=21)
+    tourn = Tournament.objects.get(id=28)
 
     for file in files:
         wb = load_workbook(filename = os.path.join(settings.GAME_REPORT_DIR, 'post', file))
@@ -297,11 +297,19 @@ def import_game_report_excel():
                         pstat.score += act_points
                         pstat_gl.score += act_points
                         score_a_1_act += act_points
+                        if act_points == 1:
+                            act_points = 0
                     else:
                         print('No PlayerStat found')
                 else:
                     error_found = True
                     print('Playernumber not found '+ str(number))
+            if act_points == 2:
+                act_points = 0
+        act_points = 0
+        for iRow in range(1,21):
+            act_points += 1
+            act_row = set1_start_row + iRow
             if not ws['L' + str(act_row)].value is None:
                 #player of a scored
                 number = int(ws['L' + str(act_row)].value)
@@ -323,6 +331,8 @@ def import_game_report_excel():
                         pstat.score += act_points
                         pstat_gl.score += act_points
                         score_b_1_act += act_points
+                        if act_points == 1:
+                            act_points = 0
                     else:
                         print('No PlayerStat found')
                 else:
@@ -331,6 +341,7 @@ def import_game_report_excel():
             if act_points == 2:
                 act_points = 0
 
+        act_points = 0
         for iRow in range(1,21):
             act_points += 1
             act_row = set1_start_row + iRow
@@ -357,11 +368,19 @@ def import_game_report_excel():
                         pstat.score += act_points
                         pstat_gl.score += act_points
                         score_a_1_act += act_points
+                        if act_points == 1:
+                            act_points = 0
                     else:
                         print('No PlayerStat found')
                 else:
                     error_found = True
                     print('Playernumber not found '+ str(number))
+            if act_points == 2:
+                act_points = 0
+        act_points = 0
+        for iRow in range(1,21):
+            act_points += 1
+            act_row = set1_start_row + iRow
             if not ws['O' + str(act_row)].value is None:
                 #player of a scored
                 number = int(ws['O' + str(act_row)].value)
@@ -383,6 +402,8 @@ def import_game_report_excel():
                         pstat.score += act_points
                         pstat_gl.score += act_points
                         score_b_1_act += act_points
+                        if act_points == 1:
+                            act_points = 0
                     else:
                         print('No PlayerStat found')
                 else:
@@ -426,12 +447,20 @@ def import_game_report_excel():
                         pstat.score += act_points
                         pstat_gl.score += act_points
                         score_a_2_act += act_points
+                        if act_points == 1:
+                            act_points = 0
                     else:
                         print('No PlayerStat found')
                         error_found = True
                 else:
                     error_found = True
-                    print('Playernumber not found '+ str(number))
+                    print('Playernumber not found '+ str(number))          
+            if act_points == 2:
+                act_points = 0
+        act_points = 0
+        for iRow in range(1,21):
+            act_points += 1
+            act_row = set1_start_row + iRow
             if not ws['S' + str(act_row)].value is None:
                 #player of a scored
                 number = int(ws['S' + str(act_row)].value)
@@ -453,11 +482,13 @@ def import_game_report_excel():
                         pstat.score += act_points
                         pstat_gl.score += act_points
                         score_b_2_act += act_points
+                        if act_points == 1:
+                            act_points = 0
                     else:
                         print('No PlayerStat found')
             if act_points == 2:
                 act_points = 0
-
+        act_points = 0
         for iRow in range(1,21):
             act_points += 1
             act_row = set1_start_row + iRow
@@ -484,11 +515,19 @@ def import_game_report_excel():
                         pstat.score += act_points
                         pstat_gl.score += act_points
                         score_a_2_act += act_points
+                        if act_points == 1:
+                            act_points = 0
                     else:
                         print('No PlayerStat found')
                 else:
                     error_found = True
                     print('Playernumber not found '+ str(number))
+            if act_points == 2:
+                act_points = 0
+        act_points = 0
+        for iRow in range(1,21):
+            act_points += 1
+            act_row = set1_start_row + iRow
             if not ws['V' + str(act_row)].value is None:
                 #player of a scored
                 number = int(ws['V' + str(act_row)].value)
@@ -510,6 +549,8 @@ def import_game_report_excel():
                         pstat.score += act_points
                         pstat_gl.score += act_points
                         score_b_2_act += act_points
+                        if act_points == 1:
+                            act_points = 0
                     else:
                         print('No PlayerStat found')
                 else:
@@ -532,6 +573,7 @@ def import_game_report_excel():
             if not ws.cell(column=iRow, row=48).value is None and not ws.cell(column=iRow, row=50).value is None:
                 #player of a scored
                 number = int(ws.cell(column=iRow, row=48).value)
+                print(number)
                 score = int(ws.cell(column=iRow, row=50).value)
                 if not score is None:
                     player = next(pl for pl in players_a if pl.number == number)
