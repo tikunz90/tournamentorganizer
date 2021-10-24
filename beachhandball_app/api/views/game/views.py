@@ -13,13 +13,17 @@ from rest_framework.permissions import IsAuthenticated
 from beachhandball_app.api.serializers.game.serializer import GameRunningSerializer, GameRunningSerializer2, PlayerStatsSerializer, TeamSerializer
 from beachhandball_app.models.Player import Player, PlayerStats
 from rest_framework import generics, viewsets, renderers
-from rest_framework.decorators import action, api_view, authentication_classes, permission_classes
+from rest_framework.decorators import action, api_view, authentication_classes, permission_classes, renderer_classes
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 from beachhandball_app.models.Game import Game, GameAction
 from beachhandball_app.api.serializers.game import GameSerializer, GameActionSerializer
 from django.utils import six
 from beachhandball_app.api.drf_optimize import OptimizeRelatedModelViewSetMetaclass
+from rest_framework.renderers import JSONRenderer
+from django.views.decorators.cache import cache_page
+
+from beachhandball_app.models.Tournaments import TournamentEvent
 
 
 @api_view(['GET'])
@@ -42,6 +46,26 @@ def RunningGames(request):
         data2['team_st_a'] = game2.team_a.name
         data2['team_st_b'] = game2.team_b.name
         return Response([data, data2])
+
+@api_view(['GET'])
+@authentication_classes([SessionAuthentication, BasicAuthentication])
+@permission_classes([IsAuthenticated])
+@cache_page(30)
+@renderer_classes([JSONRenderer])
+def hello_world(request, tevent_id, amount):
+    print( 'ENTER tevent=' + str(tevent_id) + ' amount=' + str(amount))
+    tevent = TournamentEvent.objects.get(id=tevent_id)
+    
+    if amount <= 0:
+        global_pstats = PlayerStats.objects.filter(tournament_event=tevent, is_ranked=True).order_by('-score')
+    else:
+        global_pstats = PlayerStats.objects.filter(tournament_event=tevent, is_ranked=True).order_by('-score')[:amount]
+    print('After objects')
+    ser = PlayerStatsSerializer(global_pstats, many=True)
+    print('After Serializing')
+    resp =  Response({"message": "Hello, world!", "pstats": ser.data})
+    print('After response')
+    return resp
 
 @api_view(['GET'])
 #@authentication_classes([SessionAuthentication, BasicAuthentication])
@@ -145,6 +169,34 @@ class PlayerStatsSet(viewsets.ModelViewSet):
         #serializer.is_valid(raise_exception=True)
         #serializer.save()
         return Response(request.data)
+
+@api_view(['GET'])
+@authentication_classes([SessionAuthentication, BasicAuthentication])
+@permission_classes([IsAuthenticated])
+@cache_page(30)
+@renderer_classes([JSONRenderer])
+def get_pstats_tevent(request, tevent_id, amount):
+    print( 'ENTER tevent=' + str(tevent_id) + ' amount=' + str(amount))
+    status = 'OK'
+    message = ''
+    try:
+        tevent = TournamentEvent.objects.get(id=tevent_id)
+        
+        if amount <= 0:
+            global_pstats = PlayerStats.objects.filter(tournament_event=tevent, is_ranked=True).order_by('-score')
+            message = 'Amount is <= 0'
+        else:
+            global_pstats = PlayerStats.objects.filter(tournament_event=tevent, is_ranked=True).order_by('-score')[:amount]
+        print('After objects')
+        ser = PlayerStatsSerializer(global_pstats, many=True)
+        data = ser.data
+    except Exception as ex:
+        print(ex)
+        data = ''
+        message = str(ex)
+        status = 'ERROR'
+
+    return Response({"status": status, "message": message, "pstats": data})
 class GameReadOnlyViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Game.objects.all()
     serializer_class  = GameSerializer

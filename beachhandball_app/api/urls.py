@@ -5,7 +5,7 @@ from django.contrib import admin
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from django.views.generic import TemplateView
 from .views import login_by_token
-from .views.game.views import GameViewSet, GameActionViewSet, PlayerStatsSet, PlayerStatsViewSet, RunningGamesDM, ScoutingReportViewSet, RunningGames, TeamViewSet, GameList, StartGameScouting
+from .views.game.views import GameViewSet, GameActionViewSet, PlayerStatsSet, PlayerStatsViewSet, RunningGamesDM, ScoutingReportViewSet, RunningGames, TeamViewSet, GameList, StartGameScouting, hello_world, get_pstats_tevent
 
 from rest_framework import renderers
 from rest_framework.authtoken import views
@@ -20,8 +20,10 @@ urlpatterns = [
     path('games/running/', RunningGames, name='get_running_games'),
     path('games/running/dm/', RunningGamesDM, name='get_running_games_dm'),
 
-    path('player_stats/<int:pk>/', PlayerStatsSet.as_view({'get': 'retrieve', 'put': 'update', 'patch': 'partial_update'})),
+    path('hello_world/<int:tevent_id>/<int:amount>/', hello_world, name='hello_world'), 
 
+    path('player_stats/<int:pk>/', PlayerStatsSet.as_view({'get': 'retrieve', 'put': 'update', 'patch': 'partial_update'})),
+    path('player_stats_by_tevent/<int:tevent_id>/<int:amount>/', get_pstats_tevent, name='get_pstats_tevent'),
     # GAME
     path('gameaction/', GameActionViewSet.as_view({'get': 'list', 'post': 'create'})),
     path('gameaction/<int:pk>/', GameActionViewSet.as_view({'get': 'retrieve'})),
