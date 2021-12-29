@@ -2,10 +2,12 @@
 from beachhandball_app.api.serializers.player.serializer import PlayerSerializer
 import json
 from django.db.models import Q
+from datetime import datetime
 
 from django.db.models.query import Prefetch
 from beachhandball_app.models.Team import Team
 from django.http.response import JsonResponse
+from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework import authentication, permissions
 from rest_framework.authentication import SessionAuthentication, BasicAuthentication
@@ -173,15 +175,24 @@ class PlayerStatsSet(viewsets.ModelViewSet):
 @api_view(['GET'])
 @authentication_classes([SessionAuthentication, BasicAuthentication])
 @permission_classes([IsAuthenticated])
-@cache_page(30)
+@cache_page(5)
 @renderer_classes([JSONRenderer])
 def get_pstats_tevent(request, tevent_id, amount):
-    print( 'ENTER tevent=' + str(tevent_id) + ' amount=' + str(amount))
-    status = 'OK'
+    print( '[' + str(datetime.now()) + '] ' + 'ENTER tevent=' + str(tevent_id) + ' amount=' + str(amount))
+    statusCode = status.HTTP_200_OK
+    isError = False
     message = ''
+    data = {}
     try:
-        tevent = TournamentEvent.objects.get(id=tevent_id)
-        
+        tevent = TournamentEvent.objects.select_related('category').get(id=tevent_id)
+        data['tevent'] = tevent.name
+        data['category_name'] = tevent.category.name
+        data['gbo_category_id'] = tevent.category.gbo_category_id
+        data['season_tournament_id'] = tevent.season_tournament_id
+        data['season_cup_german_championship_id'] = tevent.season_cup_german_championship_id
+        data['sub_season_cup_tournament_id'] = tevent.sub_season_cup_tournament_id
+        data['season_cup_tournament_id'] = tevent.season_cup_tournament_id
+        data['season_tournament_category_id'] = tevent.season_tournament_category_id
         if amount <= 0:
             global_pstats = PlayerStats.objects.filter(tournament_event=tevent, is_ranked=True).order_by('-score')
             message = 'Amount is <= 0'
@@ -189,14 +200,16 @@ def get_pstats_tevent(request, tevent_id, amount):
             global_pstats = PlayerStats.objects.filter(tournament_event=tevent, is_ranked=True).order_by('-score')[:amount]
         print('After objects')
         ser = PlayerStatsSerializer(global_pstats, many=True)
-        data = ser.data
+        data['pstats'] = ser.data
     except Exception as ex:
         print(ex)
-        data = ''
         message = str(ex)
-        status = 'ERROR'
-
-    return Response({"status": status, "message": message, "pstats": data})
+        statusCode = status.HTTP_500_INTERNAL_SERVER_ERROR
+        isError = True
+    
+    resp = Response({"isError": isError, "errorCode": statusCode, "message": [data], "info": message})
+    print( '[' + str(datetime.now()) + '] ' + 'EXIT tevent=' + str(tevent_id) + ' amount=' + str(amount))
+    return resp
 class GameReadOnlyViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Game.objects.all()
     serializer_class  = GameSerializer
