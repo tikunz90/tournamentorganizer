@@ -8,6 +8,7 @@ from beachhandball_app.tasks import update_user_tournament_events_async
 from beachhandball_app.models.Tournaments import Tournament
 from django.shortcuts import render
 from datetime import datetime
+import time
 
 # Create your views here.
 from django.shortcuts import render, redirect
@@ -27,11 +28,13 @@ from beachhandball_app.helper import update_user_tournament, update_user_tournam
 from django.core.cache import cache
 
 def login_view(request):
+    begin_func = time.time()
     form = LoginForm(request.POST or None)
 
     msg = None
-    cache.set('foo', 'bar')
-    auth_debug_task.delay('HELLO')
+    season = s.SWS.getSeasonActive()
+    #cache.set('foo', 'bar')
+    #auth_debug_task.delay('HELLO')
 
     if request.method == "POST":
 
@@ -85,11 +88,14 @@ def login_view(request):
                     token = result['message']['token'].split(' ')[1],
                     validUntil = datetime.utcfromtimestamp(result['message']['expiresIn'] / 1000))
                     guser.subject_id = s.SWS.getGBOUserId(guser)
-                    guser.gbo_data = s.SWS.getTournamentByUser(guser)
-                    guser.gbo_gc_data = s.SWS.getTournamentGermanChampionshipByUser(guser)
-                    guser.gbo_sub_data = s.SWS.getTournamentSubByUser(guser)
+                    guser.season_active = s.SWS.getSeasonActive()
+                    #guser.gbo_data_all, execution_time = s.SWS.syncAllTournamentData(guser)
+                    guser.gbo_data_all, execution_time = s.SWS.syncTournamentData(guser)
+                    #guser.gbo_data = s.SWS.getTournamentByUser(guser)
+                    #guser.gbo_gc_data = s.SWS.getTournamentGermanChampionshipByUser(guser)
+                    #guser.gbo_sub_data = s.SWS.getTournamentSubByUser(guser)
                     guser.save()
-                    to_group = Group.objects.get(name='tournament_organizer')
+                    to_group = Group.objects.get_or_create(name='tournament_organizer')
                     to_group.user_set.add(user)
                 
                 user = authenticate(username=username, password=password)
@@ -109,31 +115,40 @@ def login_view(request):
                         if gbouser.is_online:
                             gbouser.token = result['message']['token'].split(' ')[1]
                             gbouser.validUntil = datetime.utcfromtimestamp(result['message']['expiresIn'] / 1000)
-
+                            gbouser.season_active = s.SWS.getSeasonActive()
                             #gbouser.subject_id =45
-
-                            gbouser.gbo_data = s.SWS.syncTournamentData(gbouser)
-                            gbouser.gbo_gc_data = s.SWS.syncTournamentGCData(gbouser)
-                            gbouser.gbo_sub_data = s.SWS.syncTournamentSubData(gbouser)
+                            #gbouser.gbo_data_all, execution_time = s.SWS.syncAllTournamentData(gbouser)
+                            gbouser.gbo_data_all, execution_time = s.SWS.syncTournamentData(gbouser)
+                            #gbouser.gbo_data, execution_time1 = s.SWS.syncTournamentData(gbouser)
+                            #gbouser.gbo_gc_data, execution_time2 = s.SWS.syncTournamentGCData(gbouser)
+                            #gbouser.gbo_sub_data, execution_time3 = s.SWS.syncTournamentSubData(gbouser)
+                            print('Executiontime syncAllTournamentData: ' + str(execution_time))
+                            #print('Executiontime syncTournamentData: ' + str(execution_time1))
+                            #print('Executiontime syncTournamentGCData: ' + str(execution_time2))
+                            #print('Executiontime syncTournamentSubData: ' + str(execution_time3))
                             gbouser.save() 
                         
-                        update_user_tournament(gbouser)
-                        t = Tournament.objects.filter(organizer=gbouser.subject_id)
+                        tourns, execution_time = update_user_tournament(gbouser)
+                        print('Executiontime update_user_tournament: ' + str(execution_time))
+                        # TODO prefetch
+                        #t = Tournament.objects.filter(organizer=gbouser.subject_id)
                         
-                        if t.count() <= 0:
+                        if len(tourns) <= 0:
                             msg ='No Tournament Data available! SubjectID: ' + str(gbouser.subject_id)
                             return render(request, "accounts/login.html", {"form": form, "msg" : msg})
-                        elif t.count() == 1:
-                            tourn = t.first()
+                        elif len(tourns) == 1:
+                            tourn = tourns[0]
                             tourn.is_active = True
                             tourn.save()
-                            #update_user_tournament_events(gbouser, tourn)
-                            update_user_tournament_events_async.delay(model_to_dict(gbouser), model_to_dict(tourn))
-                        elif t.count() > 1:
-                            for tourn in t:
+                            update_user_tournament_events(gbouser, tourn)
+                            #update_user_tournament_events_async.delay(model_to_dict(gbouser), model_to_dict(tourn))
+                        elif len(tourns) > 1:
+                            for tourn in tourns:
                                 tourn.is_active = False
                                 tourn.save()
                             login(request, user)
+                            execution_time_func = time.time() - begin_func
+                            print('Login execution_time = ' + str(execution_time_func))
                             return redirect("login_select_tourn")
 
                     else:
@@ -150,16 +165,17 @@ def login_view(request):
         else:
             msg = 'Error validating the form'    
 
+    execution_time_func = time.time() - begin_func
+    print('Login execution_time = ' + str(execution_time_func))
     #return redirect("login", {"form": form, "msg" : msg})
-    return render(request, "accounts/login.html", {"form": form, "msg" : msg})
+    return render(request, "accounts/login.html", {"form": form, "msg" : msg, "season": season})
 
 
 def select_tourn_view(request):
     guser = GBOUser.objects.filter(user=request.user).first()
     
-
     msg = None
-
+    form = None
     if request.method == "GET":
         print("select_tourn_view GET")
         form = SelectTournamentForm(request.GET, gbo_organizer=guser.subject_id)
@@ -171,8 +187,8 @@ def select_tourn_view(request):
             tourn = Tournament.objects.get(id=id_tourn)
             tourn.is_active = True
             tourn.save()
-            #update_user_tournament_events(guser, tourn)
-            update_user_tournament_events_async.delay(model_to_dict(guser), model_to_dict(tourn))
+            update_user_tournament_events(guser, tourn)
+            #update_user_tournament_events_async.delay(model_to_dict(guser), model_to_dict(tourn))
             return redirect('/')
 
     #return redirect("login", {"form": form, "msg" : msg})

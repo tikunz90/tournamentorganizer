@@ -1,17 +1,26 @@
 
   <footer class="footer">
     <div class="container">
-      <nav class="float-left">
+      <nav class="col-lg-4 col-md-6 col-sm-8 ml-auto mr-auto">
         <ul>
           <li>
             <a target="_blank" rel="noopener noreferrer"
                href="#">
-               Tournament Organizer
+               
             </a>
           </li>
         </ul>
       </nav>
-      <div class="copyright float-right">
+      <div class="col-lg-4 col-md-6 col-sm-8 ml-auto mr-auto">
+        <small>
+          Series Organizer: 
+          {% if season %}
+          {{ season['subject']['user']['name'] }} {{ season['subject']['user']['family_name'] }}
+          (<a class="text-decoration-underline" href="mailto:{{ season['subject']['user']['email'] }}"><b>{{ season['subject']['user']['email'] }}</b></a>)
+          {% endif %}
+        </small>
+      </div>
+      <div class="copyright col-lg-4 col-md-6 col-sm-8 ml-auto mr-auto">
         &copy; <a class="text-white" 
                   target="_blank" rel="noopener noreferrer" 
                   href="#">German Beach Sports UG</a> 

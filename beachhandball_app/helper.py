@@ -1,6 +1,7 @@
 import traceback
 
 import unicodedata
+import time
 from datetime import datetime
 
 from django.db.models.query import Prefetch
@@ -18,23 +19,37 @@ from django.urls import reverse
 from beachhandball_app.services.services import SWS
 
 def update_user_tournament(gbouser):
-    print("ENTER update_user_tournamet")
+    begin = time.time()
+    print("ENTER update_user_tournament")
 
     print("season_cup_tournament...")
     gbo_data = gbouser.gbo_data
+    gbo_data = gbouser.gbo_data_all
     if not gbo_data['isError']:
         gbo_data = gbo_data['message']
 
+        # tourns = Tournament.objects.filter(organizer=gbouser.subject_id)
+        tourns_q = Tournament.objects.prefetch_related(
+        Prefetch("tournamentsettings_set", queryset=TournamentSettings.objects.all(), to_attr="settings")).filter(organizer=gbouser.subject_id)
+        tourns = [t for t in tourns_q]
+        tourns_cup = [t for t in tourns if t.season_cup_tournament_id != 0]
+        tourns_subcup = [t for t in tourns if t.sub_season_cup_tournament_id != 0]
+        tourns_dm = [t for t in tourns if t.season_cup_german_championship_id != 0]
         for gbot in gbo_data:
             tourn_found = False
             
             season_tourn = gbot['seasonTournament']
+            season_tourn_subject_id = season_tourn['seasonSubject']['subject']['id']
+            if season_tourn_subject_id != gbouser.subject_id:
+                continue
             gbo_tourn = season_tourn['tournament']
 
             to_tourn = None
-            tourns = Tournament.objects.filter(organizer=gbouser.subject_id, season_cup_tournament_id=gbot['id'])
-            tourns_by_season_cup_id = Tournament.objects.filter(season_cup_tournament_id=gbot['id'])
-            for t in tourns:
+
+            tourns_by_season_cup_id = [t for t in tourns if t.season_cup_tournament_id == gbot['id']]
+
+            # Find existing Tournament object and update
+            for t in tourns_cup:
                 if t.season_tournament_id == season_tourn['id']:
                     print("Found season_tourn")
                     to_tourn = t
@@ -47,7 +62,7 @@ def update_user_tournament(gbouser):
                     t.save()
                     ts, cr = TournamentSettings.objects.get_or_create(tournament=t)
                     ts.save()
-            if not tourn_found and tourns_by_season_cup_id.count() == 0:
+            if not tourn_found and len(tourns_by_season_cup_id) == 0:
                 #create tournament
                 new_t = Tournament(organizer=gbouser.subject_id,
                 name=gbo_tourn['name'],
@@ -58,9 +73,13 @@ def update_user_tournament(gbouser):
                 ts, cr = TournamentSettings.objects.get_or_create(tournament=new_t)
                 ts.save()
                 to_tourn = new_t
+                tourns.append(new_t)
             else:
                 print("Tournament exists but is assigned to other user")
 
+    end = time.time()
+    execution_time = end - begin
+    return tourns, execution_time
     print("season_cup_german_championship")
     gbo_data = gbouser.gbo_gc_data
     if not gbo_data['isError']:
@@ -102,7 +121,9 @@ def update_user_tournament(gbouser):
             else:
                 print("Tournament exists but is assigned to other user")
     print("sub-season")
-    return
+    end = time.time()
+    execution_time = end - begin
+    return tourns, execution_time
     gbo_data = gbouser.gbo_sub_data
     if not gbo_data['isError']:
         gbo_data = gbo_data['message']
@@ -144,6 +165,7 @@ def update_user_tournament(gbouser):
                 print("Tournament exists but is assigned to other user")
 
 def update_user_tournament_events(gbouser, to_tourn):
+    begin = time.time()
     print("ENTER update_user_tournament_events")
     try:
         if type(gbouser) is GBOUser:
@@ -152,7 +174,7 @@ def update_user_tournament_events(gbouser, to_tourn):
             to_tourn = to_tourn.__dict__
         cup_type = 'is_cup'
         if to_tourn['season_cup_tournament_id'] != 0:
-            gbo_data = gbouser['gbo_data']
+            gbo_data = gbouser['gbo_data_all']
             cup_type = 'is_cup'
         elif to_tourn['season_cup_german_championship_id'] != 0:
             gbo_data = gbouser['gbo_gc_data']
@@ -169,9 +191,9 @@ def update_user_tournament_events(gbouser, to_tourn):
             for gbot in gbo_data:
                 print('gbo_data')
                 season_tourn = gbot['seasonTournament']
-                if cup_type == 'is_cup' and season_tourn['tournament']['id'] != to_tourn['season_tournament_id']:
+                if cup_type == 'is_cup' and season_tourn['id'] != to_tourn['season_tournament_id']:
                     continue
-                elif cup_type == 'is_gc' and season_tourn['tournament']['id'] != to_tourn['season_german_championship_id']:
+                elif cup_type == 'is_gc' and season_tourn['id'] != to_tourn['season_german_championship_id']:
                     continue
                 elif cup_type == 'is_sub':
                     continue
@@ -182,7 +204,7 @@ def update_user_tournament_events(gbouser, to_tourn):
                 start_ts = int(season_tourn['seasonTournamentWeeks'][0]['seasonWeek']['start_at_ts'])/1000
                 end_ts = int(season_tourn['seasonTournamentWeeks'][0]['seasonWeek']['end_at_ts'])/1000
 
-                # scann categories and update/create events
+                # scan categories and update/create events
                 for cat in season_tourn['seasonTournamentCategories']:
                     print('category ' + str(cat['category']))
                     tcat = None
@@ -210,7 +232,9 @@ def update_user_tournament_events(gbouser, to_tourn):
                         tevents = TournamentEvent.objects.filter(tournament_id=to_tourn['id'],season_tournament_category_id=tcat.season_tournament_category_id, season_cup_german_championship_id=gbot['id'])
                     elif cup_type == 'is_sub':
                         tevents = TournamentEvent.objects.filter(tournament_id=to_tourn['id'],season_tournament_category_id=tcat.season_tournament_category_id, sub_season_cup_tournament_id=gbot['id'])
-                    
+                    else:
+                        tevents = TournamentEvent.objects.none()
+                    te = TournamentEvent()
                     if tevents.count() == 0:  
                         if cup_type == 'is_cup':
                             te = TournamentEvent(tournament_id=to_tourn['id'],
@@ -258,37 +282,37 @@ def update_user_tournament_events(gbouser, to_tourn):
                     te.save()
 
                     # team
-                    if cup_type == 'is_cup':
-                        data = SWS.getSeasonTeamCupTournamentRanking(gbouser)
-                    elif cup_type == 'is_gc':
-                        data = SWS.getSeasonTeamCupChampionshipRanking(gbouser)
-                    elif cup_type == 'is_sub':
-                        data = SWS.getSeasonTeamSubCupTournamentRanking(gbouser)
-                    
-                    if data['isError'] is True:
-                        print(data['message'])
-                        continue
+                    #if cup_type == 'is_cup':
+                    #    data = SWS.getSeasonTeamCupTournamentRanking(gbouser)
+                    #elif cup_type == 'is_gc':
+                    #    data = SWS.getSeasonTeamCupChampionshipRanking(gbouser)
+                    #elif cup_type == 'is_sub':
+                    #    data = SWS.getSeasonTeamSubCupTournamentRanking(gbouser)
+                    #else:
+                    #    data = {}
+                    #
+                    #if data['isError'] is True:
+                    #    print(data['message'])
+                    #    continue
+                    data = gbot['seasonTeamCupTournamentRankings']
                     sync_teams(gbouser, te, data, cup_type)              
     except Exception as ex:
         print(ex)               
     print("EXIT update_user_tournament_events")
+    end = time.time()
+    execution_time = end - begin
+    return execution_time
 
 
 def sync_teams(gbouser, tevent, data, cup_type):
     print('ENTER sync_teams')
-    try:
-        response = SWS.getTeams(gbouser)
-        if response['isError'] is True:
-            return
-        
-        team_data_q = Team.objects.select_related("tournament_event").prefetch_related(
+    try:        
+        team_data_q = Team.objects.select_related("tournament_event").filter(tournament_event=tevent).prefetch_related(
             Prefetch("player_set", queryset=Player.objects.select_related("tournament_event").all(), to_attr="players"),
             Prefetch("coach_set", queryset=Coach.objects.select_related("tournament_event").all(), to_attr="coaches")
         ).all()
-        my_team_data = [team for team in team_data_q if not team.is_dummy and team.tournament_event.id == tevent.id]
+        my_team_data = [team for team in team_data_q if not team.is_dummy]
         my_dummy_team_data = [team for team in team_data_q if team.is_dummy and team.tournament_event.id == tevent.id]    
-        
-        teams_data = response['message']
         
         sct_id = 0
         if cup_type == 'is_cup':
@@ -297,20 +321,11 @@ def sync_teams(gbouser, tevent, data, cup_type):
             sct_id = tevent.season_cup_german_championship_id
         elif cup_type == 'is_sub':
             sct_id = tevent.sub_season_cup_tournament_id
-        team_info = []
-        for td in data['message']:
-            if td['id'] == sct_id:
-                team_info = td
 
         season_cup_tourn_id_for_dummy = 0;
-        for ranking in team_info['seasonTeamCupTournamentRankings']:
+        for ranking in data: #team_info['seasonTeamCupTournamentRankings']:
             print('team ranking: ' + ranking['seasonTeam']['team']['name'])
-            #if cup_type == 'is_cup' and tevent.season_cup_tournament_id != ranking['seasonCupTournament']['id']:
-            #    continue
-            #if cup_type == 'is_gc' and tevent.season_cup_german_championship_id != ranking['seasonCupTournament']['id']:
-            #    continue
-            #if cup_type == 'is_sub' and tevent.sub_season_cup_tournament_id != ranking['seasonCupTournament']['id']:
-            #    continue
+
             if tevent.category.gbo_category_id != ranking['seasonTeam']['team']['category']['id']:
                 continue
             print('MATCH team ranking: ' + ranking['seasonTeam']['team']['name'])
@@ -334,6 +349,8 @@ def sync_teams(gbouser, tevent, data, cup_type):
             elif act_team is None and  cup_type == 'is_sub':
                 act_team, cr = Team.objects.get_or_create(season_team_sub_cup_tournament_ranking_id=ranking['id'],
                     tournament_event=tevent)
+            else:
+                continue
             
             act_team.gbo_team = ranking['seasonTeam']['team']['id']
             act_team.season_team_id = ranking['seasonTeam']['id']
@@ -353,17 +370,17 @@ def sync_teams(gbouser, tevent, data, cup_type):
             #team_bulk_list.append(act_team)
             act_team.save()
 
-            season_team = None
-            for st in teams_data:
-                if st['id'] == act_team.season_team_id:
-                    season_team = st
-                    break
-
-            if season_team is None:
-                return
+            season_team = ranking['seasonTeam']
+            ##for st in teams_data:
+            ##    if st['id'] == act_team.season_team_id:
+            ##        season_team = st
+            ##        break
+##
+            ##if season_team is None:
+            ##    return
 
             for season_player in season_team['seasonPlayers']:
-                print('CheckPlayer:' + str(act_team.season_team_id) + ' ' + str(season_player['id']))
+                print('CheckPlayer:' + str(act_team.season_team_id) + ' id:' + str(season_player['id']) + ' #' + str(season_player['number'])+ ' Name: ' + str(season_player['seasonSubject']['subject']['user']['name']) + ' ' + str(season_player['seasonSubject']['subject']['user']['family_name']))
                 cr = False
                 act_player = next((x for x in players_list if x.tournament_event.id==tevent.id and x.season_team_id==act_team.season_team_id and x.season_player_id==season_player['id']), None)
                 if act_player is None:
@@ -391,24 +408,26 @@ def sync_teams(gbouser, tevent, data, cup_type):
                 #act_player.save()
             
             # Coaches
-            for season_coach in season_team['seasonCoaches']:
-                cr = False
-                act_coach = next((x for x in coaches_list if x.tournament_event.id==tevent.id and x.season_team_id==act_team.season_team_id and x.season_coach_id==season_coach['id']), None)
-                if act_coach is None:
-                    act_coach = Coach(tournament_event=tevent, season_team_id=act_team.season_team_id, season_coach_id=season_coach['id'])
-                    cr = True
-                act_coach.tournament_event = tevent
-                act_coach.team = act_team
-                act_coach.name = strip_accents(season_coach['seasonSubject']['subject']['user']['family_name'])
-                act_coach.first_name = strip_accents(season_coach['seasonSubject']['subject']['user']['name'])
-                act_coach.gbo_position = season_coach['seasonSubject']['subject']['subjectLevel']['name']
-                act_coach.season_team_id = act_team.season_team_id
-                act_coach.season_coach_id = season_coach['id']
-                if cr:
-                    coach_bulk_create_list.append(act_coach)
-                else:
-                    coach_bulk_update_list.append(act_coach)
-                #act_coach.save()
+            if 'seasonCoaches' in season_team:
+                for season_coach in season_team['seasonCoaches']:
+                    print('CheckPlayer:' + str(act_team.season_team_id) + ' id:' + str(seasonCoaches['id']) + ' Name: ' + str(seasonCoaches['seasonSubject']['subject']['user']['name']) + ' ' + str(seasonCoaches['seasonSubject']['subject']['user']['family_name']))
+                    cr = False
+                    act_coach = next((x for x in coaches_list if x.tournament_event.id==tevent.id and x.season_team_id==act_team.season_team_id and x.season_coach_id==season_coach['id']), None)
+                    if act_coach is None:
+                        act_coach = Coach(tournament_event=tevent, season_team_id=act_team.season_team_id, season_coach_id=season_coach['id'])
+                        cr = True
+                    act_coach.tournament_event = tevent
+                    act_coach.team = act_team
+                    act_coach.name = strip_accents(season_coach['seasonSubject']['subject']['user']['family_name'])
+                    act_coach.first_name = strip_accents(season_coach['seasonSubject']['subject']['user']['name'])
+                    act_coach.gbo_position = season_coach['seasonSubject']['subject']['subjectLevel']['name']
+                    act_coach.season_team_id = act_team.season_team_id
+                    act_coach.season_coach_id = season_coach['id']
+                    if cr:
+                        coach_bulk_create_list.append(act_coach)
+                    else:
+                        coach_bulk_update_list.append(act_coach)
+                    #act_coach.save()
             if len(player_bulk_create_list) > 0:
                 Player.objects.bulk_create(player_bulk_create_list)
             if len(player_bulk_update_list) > 0:
@@ -528,14 +547,14 @@ def calculate_tstate(tstate):
         team_st_bulk_list = []
         num_finished_games = 0
         for g in games:
-            #teama_stats = TeamStats.objects.filter(tournament_event=g.tournament,
+            #team_a_stats = TeamStats.objects.filter(tournament_event=g.tournament,
             #                                       tournamentstate=g.tournament_state,
             #                                       team=g.team_a)[:1].get()
-            #teamb_stats = TeamStats.objects.filter(tournament_event=g.tournament,
+            #team_b_stats = TeamStats.objects.filter(tournament_event=g.tournament,
             #                                       tournamentstate=g.tournament_state,
             #                                       team=g.team_b)[:1].get()
-            teama_stats = g.team_st_a
-            teamb_stats = g.team_st_b
+            team_a_stats = g.team_st_a
+            team_b_stats = g.team_st_b
             iSetH = 0
             iSetA = 0
             if getIntVal(g.score_team_a_halftime_1) > getIntVal(
@@ -564,25 +583,25 @@ def calculate_tstate(tstate):
                 games_bulk_list.append(g)
                 continue
 
-            actGamesWinA = getIntVal(teama_stats.game_points)
-            nPlayedGamesA = getIntVal(teama_stats.number_of_played_games)
-            actGamesWinB = getIntVal(teamb_stats.game_points)
-            nPlayedGamesB = getIntVal(teamb_stats.number_of_played_games)
+            actGamesWinA = getIntVal(team_a_stats.game_points)
+            nPlayedGamesA = getIntVal(team_a_stats.number_of_played_games)
+            actGamesWinB = getIntVal(team_b_stats.game_points)
+            nPlayedGamesB = getIntVal(team_b_stats.number_of_played_games)
 
-            teama_stats.number_of_played_games = nPlayedGamesA + 1
-            teamb_stats.number_of_played_games = nPlayedGamesB + 1
+            team_a_stats.number_of_played_games = nPlayedGamesA + 1
+            team_b_stats.number_of_played_games = nPlayedGamesB + 1
 
             if iSetH > iSetA:
-                teama_stats.game_points = actGamesWinA + 2
-                teama_stats.ranking_points = actGamesWinA + 2
+                team_a_stats.game_points = actGamesWinA + 2
+                team_a_stats.ranking_points = actGamesWinA + 2
             else:
-                teamb_stats.game_points = actGamesWinB + 2
-                teamb_stats.ranking_points = actGamesWinB + 2
+                team_b_stats.game_points = actGamesWinB + 2
+                team_b_stats.ranking_points = actGamesWinB + 2
 
-            actSetsWinA = getIntVal(teama_stats.sets_win)
-            actSetsLooseA = getIntVal(teama_stats.sets_loose)
-            actPointsMadeA = getIntVal(teama_stats.points_made)
-            actPointsRecA = getIntVal(teama_stats.points_received)
+            actSetsWinA = getIntVal(team_a_stats.sets_win)
+            actSetsLooseA = getIntVal(team_a_stats.sets_loose)
+            actPointsMadeA = getIntVal(team_a_stats.points_made)
+            actPointsRecA = getIntVal(team_a_stats.points_received)
 
             pointsMa = getIntVal(g.score_team_a_halftime_1) + \
                        getIntVal(g.score_team_a_halftime_2) + \
@@ -592,48 +611,48 @@ def calculate_tstate(tstate):
                        getIntVal(g.score_team_b_halftime_2) + \
                        getIntVal(g.score_team_b_penalty)
 
-            teama_stats.sets_win = actSetsWinA + iSetH
-            teama_stats.sets_loose = actSetsLooseA + iSetA
-            teama_stats.points_made = actPointsMadeA + pointsMa
-            teama_stats.points_received = actPointsRecA + pointsMb
+            team_a_stats.sets_win = actSetsWinA + iSetH
+            team_a_stats.sets_loose = actSetsLooseA + iSetA
+            team_a_stats.points_made = actPointsMadeA + pointsMa
+            team_a_stats.points_received = actPointsRecA + pointsMb
 
-            actSetsWinB = getIntVal(teamb_stats.sets_win)
-            actSetsLooseB = getIntVal(teamb_stats.sets_loose)
-            actPointsMadeB = getIntVal(teamb_stats.points_made)
-            actPointsRecB = getIntVal(teamb_stats.points_received)
+            actSetsWinB = getIntVal(team_b_stats.sets_win)
+            actSetsLooseB = getIntVal(team_b_stats.sets_loose)
+            actPointsMadeB = getIntVal(team_b_stats.points_made)
+            actPointsRecB = getIntVal(team_b_stats.points_received)
 
-            teamb_stats.sets_win = actSetsWinB + iSetA
-            teamb_stats.sets_loose = actSetsLooseB + iSetH
-            teamb_stats.points_made = actPointsMadeB + pointsMb
-            teamb_stats.points_received = actPointsRecB + pointsMa
+            team_b_stats.sets_win = actSetsWinB + iSetA
+            team_b_stats.sets_loose = actSetsLooseB + iSetH
+            team_b_stats.points_made = actPointsMadeB + pointsMb
+            team_b_stats.points_received = actPointsRecB + pointsMa
 
             ts_a_found = False
             ts_b_found = False
             for ts in team_st_bulk_list:
-                if ts.id == teama_stats.id:
-                    ts.number_of_played_games += teama_stats.number_of_played_games
-                    ts.game_points += teama_stats.game_points
-                    ts.ranking_points += teama_stats.ranking_points
-                    ts.sets_win        += teama_stats.sets_win
-                    ts.sets_loose      += teama_stats.sets_loose
-                    ts.points_made     += teama_stats.points_made
-                    ts.points_received += teama_stats.points_received
+                if ts.id == team_a_stats.id:
+                    ts.number_of_played_games += team_a_stats.number_of_played_games
+                    ts.game_points += team_a_stats.game_points
+                    ts.ranking_points += team_a_stats.ranking_points
+                    ts.sets_win        += team_a_stats.sets_win
+                    ts.sets_loose      += team_a_stats.sets_loose
+                    ts.points_made     += team_a_stats.points_made
+                    ts.points_received += team_a_stats.points_received
                     ts_a_found = True
-                if ts.id == teamb_stats.id:
-                    ts.number_of_played_games += teamb_stats.number_of_played_games
-                    ts.game_points += teamb_stats.game_points
-                    ts.ranking_points += teamb_stats.ranking_points
-                    ts.sets_win        += teamb_stats.sets_win
-                    ts.sets_loose      += teamb_stats.sets_loose
-                    ts.points_made     += teamb_stats.points_made
-                    ts.points_received += teamb_stats.points_received
+                if ts.id == team_b_stats.id:
+                    ts.number_of_played_games += team_b_stats.number_of_played_games
+                    ts.game_points += team_b_stats.game_points
+                    ts.ranking_points += team_b_stats.ranking_points
+                    ts.sets_win        += team_b_stats.sets_win
+                    ts.sets_loose      += team_b_stats.sets_loose
+                    ts.points_made     += team_b_stats.points_made
+                    ts.points_received += team_b_stats.points_received
                     ts_b_found = True
             if not ts_a_found:
-                team_st_bulk_list.append(teama_stats)
+                team_st_bulk_list.append(team_a_stats)
             if not ts_b_found:
-                team_st_bulk_list.append(teamb_stats)
-            #teama_stats.save()
-            #teamb_stats.save()
+                team_st_bulk_list.append(team_b_stats)
+            #team_a_stats.save()
+            #team_b_stats.save()
             g.gamingstate = 'Finished'
             g.calc_winner()
             games_bulk_list.append(g)
@@ -773,7 +792,7 @@ def check_direct_compare(ts):
                     teamstat.save()
 
             elif teamst.count() > 2:
-                print("Oh my goood")
+                print("Oh my god")
 
 def check_all_tournamentstate_finshed(tevent, states):
     #tstates = stages.tstates #TournamentState.objects.filter(tournament_event=tevent)

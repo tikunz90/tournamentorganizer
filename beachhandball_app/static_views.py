@@ -42,7 +42,7 @@ def getContext(request):
         return context
     else:
         context['gbo_user'] = guser
-        context['season_active'] = SWS.getSeasonActive(guser)
+        context['season_active'] = guser.season_active['name'] #SWS.getSeasonActive(guser)
         context['token'] = guser.token
     
     t = Tournament.objects.prefetch_related(
@@ -305,8 +305,8 @@ def sync_tournament_data(request):
     if not checkLoginIsValid(context['gbo_user']):
         return redirect('login')
 
-    #helper.update_user_tournament_events(context['gbo_user'], context['tourn'])
-    update_user_tournament_events_async.delay(model_to_dict(context['gbo_user']), model_to_dict(context['tourn']))
+    helper.update_user_tournament_events(context['gbo_user'], context['tourn'])
+    #update_user_tournament_events_async.delay(model_to_dict(context['gbo_user']), model_to_dict(context['tourn']))
     context['segment'] = 'index'
     context['segment_title'] = 'Overview'
 

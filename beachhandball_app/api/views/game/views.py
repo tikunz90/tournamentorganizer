@@ -1,31 +1,33 @@
 # snippets/views.py
-from beachhandball_app.api.serializers.player.serializer import PlayerSerializer
+
 import json
-from django.db.models import Q
 from datetime import datetime
 
 from django.db.models.query import Prefetch
-from beachhandball_app.models.Team import Team
 from django.http.response import JsonResponse
+from django.shortcuts import get_object_or_404
+from django.utils import six
+from django.views.decorators.cache import cache_page
+from django.db.models import Q
+
+from beachhandball_app.models.Team import Team
+from beachhandball_app.api.serializers.game.serializer import GameRunningSerializer, GameRunningSerializer2, PlayerStatsSerializer, TeamSerializer
+from beachhandball_app.models.Player import Player, PlayerStats
+from beachhandball_app.models.Game import Game, GameAction
+from beachhandball_app.api.serializers.game import GameSerializer, GameActionSerializer
+from beachhandball_app.api.drf_optimize import OptimizeRelatedModelViewSetMetaclass
+from beachhandball_app.models.Tournaments import TournamentEvent
+from beachhandball_app.api.serializers.player.serializer import PlayerSerializer
+
 from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework import authentication, permissions
 from rest_framework.authentication import SessionAuthentication, BasicAuthentication
 from rest_framework.permissions import IsAuthenticated
-from beachhandball_app.api.serializers.game.serializer import GameRunningSerializer, GameRunningSerializer2, PlayerStatsSerializer, TeamSerializer
-from beachhandball_app.models.Player import Player, PlayerStats
 from rest_framework import generics, viewsets, renderers
 from rest_framework.decorators import action, api_view, authentication_classes, permission_classes, renderer_classes
 from rest_framework.response import Response
-from django.shortcuts import get_object_or_404
-from beachhandball_app.models.Game import Game, GameAction
-from beachhandball_app.api.serializers.game import GameSerializer, GameActionSerializer
-from django.utils import six
-from beachhandball_app.api.drf_optimize import OptimizeRelatedModelViewSetMetaclass
 from rest_framework.renderers import JSONRenderer
-from django.views.decorators.cache import cache_page
-
-from beachhandball_app.models.Tournaments import TournamentEvent
 
 
 @api_view(['GET'])
@@ -56,6 +58,7 @@ def RunningGames(request):
 @renderer_classes([JSONRenderer])
 def hello_world(request, tevent_id, amount):
     print( 'ENTER tevent=' + str(tevent_id) + ' amount=' + str(amount))
+    
     tevent = TournamentEvent.objects.get(id=tevent_id)
     
     if amount <= 0:
@@ -69,6 +72,11 @@ def hello_world(request, tevent_id, amount):
     print('After response')
     return resp
 
+"""Returns running games for DM as JSON response
+
+Returns:
+    Response: Contains data as JSON string
+"""
 @api_view(['GET'])
 #@authentication_classes([SessionAuthentication, BasicAuthentication])
 #@permission_classes([IsAuthenticated])

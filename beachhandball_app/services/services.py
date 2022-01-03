@@ -1,5 +1,6 @@
 from django.conf import settings as conf_settings
 import requests
+import time
 
 from beachhandball_app.models.Tournaments import Tournament, TournamentEvent
 
@@ -36,7 +37,12 @@ class SWS():
         subject_id = -1
         if response.json()['isError'] is not True:
             data = response.json()['message']
-            subject_id = data[0]['id']
+            subject_id = 0
+            for user in data:
+                authgroup_id = user['authGroup']['id']
+                if authgroup_id != 4:
+                    continue
+                subject_id = user['id']
         return subject_id
 
     @staticmethod
@@ -44,20 +50,30 @@ class SWS():
         return 0
     
     @staticmethod
-    def getSeasonActive(gbo_user):
-        if not gbo_user.is_online:
-            return 'offline'
+    def getSeasonActive():
         endpoint = '/gbo/seasons/active'
         headers = SWS.headers
-        headers['Authorization'] = 'Bearer {}'.format(gbo_user.token)
+        #headers['Authorization'] = 'Bearer {}'.format(gbo_user.token)
         response = requests.get(SWS.base_url + endpoint, headers=headers)
         act_season = ''
         if response.json()['isError'] is not True:
-            data = response.json()['message']
-            act_season = data[0]['name']
+            act_season = response.json()['message'][0]
         else:
-            act_season = 'error'
+            act_season = {'isError': True}
         return act_season
+
+    @staticmethod
+    def getSeasons(gbo_user):
+        if not gbo_user.is_online:
+            return 'offline'
+        endpoint = '/gbo/seasons/'
+        headers = SWS.headers
+        headers['Authorization'] = 'Bearer {}'.format(gbo_user.token)
+        response = requests.get(SWS.base_url + endpoint, headers=headers)
+        seasons = []
+        if response.json()['isError'] is not True:
+            seasons = response.json()['message']
+        return seasons
 
     @staticmethod
     def getTournamentByUser(gbo_user):
@@ -105,31 +121,56 @@ class SWS():
         return data
 
     @staticmethod
-    def syncTournamentData(gbo_user):
+    def syncAllTournamentData(gbo_user):
         # request data from sws
-        endpoint = '/season/cup-tournaments/to/' + str(gbo_user.subject_id)
+        begin = time.time()
+        endpoint = '/season/cup-tournaments/'
         headers = SWS.headers
         headers['Authorization'] = 'Bearer {}'.format(gbo_user.token)
         response = requests.get(SWS.base_url + endpoint, headers=headers)
-        return response.json()
+        result = response.json()
+        end = time.time()
+        execution_time = end - begin
+        return result, execution_time
+
+    @staticmethod
+    def syncTournamentData(gbo_user):
+        # request data from sws
+        begin = time.time()
+        endpoint = '/season/cup-tournaments/to/' + str(gbo_user.subject_id) + '/team-info?season=' + str(gbo_user.season_active['id'])
+        headers = SWS.headers
+        headers['Authorization'] = 'Bearer {}'.format(gbo_user.token)
+        response = requests.get(SWS.base_url + endpoint, headers=headers)
+        result = response.json()
+        end = time.time()
+        execution_time = end - begin
+        return result, execution_time
 
     @staticmethod
     def syncTournamentGCData(gbo_user):
         # request data from sws
-        endpoint = '/season/cup-german-championship/to/' + str(gbo_user.subject_id)
+        begin = time.time()
+        endpoint = '/season/cup-german-championship/to/' + str(gbo_user.subject_id) + '/team-info'
         headers = SWS.headers
         headers['Authorization'] = 'Bearer {}'.format(gbo_user.token)
         response = requests.get(SWS.base_url + endpoint, headers=headers)
-        return response.json()
+        result = response.json()
+        end = time.time()
+        execution_time = end - begin
+        return result, execution_time
 
     @staticmethod
     def syncTournamentSubData(gbo_user):
         # request data from sws
-        endpoint = '/season/cup-german-championship/to/' + str(gbo_user.subject_id)
+        begin = time.time()
+        endpoint = '/season/cup-german-championship/to/' + str(gbo_user.subject_id) + '/team-info'
         headers = SWS.headers
         headers['Authorization'] = 'Bearer {}'.format(gbo_user.token)
         response = requests.get(SWS.base_url + endpoint, headers=headers)
-        return response.json()
+        result = response.json()
+        end = time.time()
+        execution_time = end - begin
+        return result, execution_time
 
     @staticmethod
     def getTeamById(gbo_user, team_id):

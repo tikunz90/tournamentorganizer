@@ -3,7 +3,6 @@ from rest_framework.response import Response
 from rest_framework import authentication, permissions
 from rest_framework.authtoken.models import Token
 from django.contrib.auth.models import User
-
 class LoginByToken(APIView):
     """
     View to list all users in the system.

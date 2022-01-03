@@ -1,0 +1,74 @@
+from django.views.decorators.cache import cache_page
+from django.db.models.query import Prefetch
+
+from rest_framework import status
+from rest_framework.views import APIView
+from rest_framework import authentication, permissions
+from rest_framework.authentication import SessionAuthentication, BasicAuthentication
+from rest_framework.permissions import IsAuthenticated
+from rest_framework import generics, viewsets, renderers
+from rest_framework.decorators import action, api_view, authentication_classes, permission_classes, renderer_classes
+from rest_framework.response import Response
+from rest_framework.renderers import JSONRenderer
+
+from beachhandball_app.models.Tournaments import Tournament, TournamentEvent, TournamentSettings, TournamentStage, TournamentState, Court, Referee
+from beachhandball_app.models.Game import Game
+from beachhandball_app.models.Team import TeamStats
+from beachhandball_app.models.Player import PlayerStats
+from beachhandball_app.api.serializers.tournament import TournamentSerializer, serialize_tournament
+
+@api_view(['GET'])
+#@authentication_classes([SessionAuthentication, BasicAuthentication])
+#@permission_classes([IsAuthenticated])
+@cache_page(60 * 2)
+@renderer_classes([JSONRenderer])
+def get_tournament_info(request, season_tournament_id):
+    print( 'ENTER get_tournament_info season_tournament_id=' + str(season_tournament_id))
+    isError = False
+    errorCode = 200
+    #t = Tournament.objects.get(season_cup_tournament_id=season_tournament_id)
+    #t_q = Tournament.objects.prefetch_related(
+    #    Prefetch("tournamentsettings_set", queryset=TournamentSettings.objects.all(), to_attr="settings"),
+    #    Prefetch("tournamentevent_set", queryset=TournamentEvent.objects.all(), to_attr="events")
+    #    ).filter(season_cup_tournament_id=season_tournament_id).first()
+    #sets = [s for s in t_q.tournamentsettings_set.all()]
+    #events = [e for e in t_q.tournamentevent_set.all()]
+
+    tourn_data = Tournament.objects.prefetch_related(
+            Prefetch("game_set", queryset=Game.objects.select_related("tournament", "tournament_event__category", "team_a", "team_b", "team_st_a__team", "team_st_b__team", "ref_a", "ref_b", "tournament_state__tournament_stage", "court")
+                , to_attr="all_games"),
+            Prefetch("tournamentevent_set", queryset=TournamentEvent.objects.select_related("tournament", "category").prefetch_related(
+                Prefetch("tournamentstage_set", queryset=TournamentStage.objects.select_related("tournament_event__category").prefetch_related(
+                    Prefetch("tournamentstate_set", queryset=TournamentState.objects.select_related("tournament_event__category", "tournament_stage").prefetch_related(
+                        Prefetch("teamstats_set", queryset=TeamStats.objects.select_related("team").order_by("rank")
+                        , to_attr="all_team_stats"))
+                            , to_attr="all_tstates"))
+                                , to_attr="all_tstages"),
+                Prefetch("playerstats_set", queryset=PlayerStats.objects.select_related("player__team").filter(is_ranked=True).order_by("-score"), to_attr="top10_player_stats_offense"),
+                Prefetch("playerstats_set", queryset=PlayerStats.objects.select_related("player__team").filter(is_ranked=True).order_by("-block_success"), to_attr="top10_player_stats_defense"),
+                Prefetch("playerstats_set", queryset=PlayerStats.objects.select_related("player__team").filter(is_ranked=True).order_by("-goal_keeper_success"), to_attr="top10_player_stats_gk")),
+                to_attr="all_tevents"),
+            Prefetch("court_set", queryset=Court.objects.select_related("tournament")
+                , to_attr="all_courts"),
+            Prefetch("referee_set", queryset=Referee.objects.select_related("tournament")
+                , to_attr="all_refs")
+                ).filter(season_cup_tournament_id=season_tournament_id).first()
+
+    #global_pstats = PlayerStats.objects.filter(tournament_event=tevent, is_ranked=True).order_by('-score')[:amount]
+    #print('After objects')
+    #ser = PlayerStatsSerializer(global_pstats, many=True)
+
+    #tSerializer = TournamentSerializer(t)
+    t_as_dict = serialize_tournament(tourn_data)
+    #tevent = TournamentEvent.objects.get(id=tevent_id)
+    #
+    #if amount <= 0:
+    #    global_pstats = PlayerStats.objects.filter(tournament_event=tevent, is_ranked=True).order_by('-score')
+    #else:
+    #    global_pstats = PlayerStats.objects.filter(tournament_event=tevent, is_ranked=True).order_by('-score')[:amount]
+    #print('After objects')
+    #ser = PlayerStatsSerializer(global_pstats, many=True)
+    #print('After Serializing')
+    #resp =  Response({"message": "Hello, world!", "pstats": ser.data})
+    #print('After response')
+    return Response({"isError": isError, "errorCode": errorCode, "message": t_as_dict})

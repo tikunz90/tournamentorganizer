@@ -92,7 +92,7 @@ class PlayerStats(models.Model):
         return '{} {} ({})'.format(self.player.first_name, self.player.name, self.id)
 
     def __str__(self):
-        return '#{} {} {} ({})'.format(self.number, self.player.first_name, self.player.name, self.id)
+        return '#{} {} {} ({})'.format(self.player.number, self.player.first_name, self.player.name, self.id)
 
     class Meta:
         db_table = 'bh_player_game_stats'

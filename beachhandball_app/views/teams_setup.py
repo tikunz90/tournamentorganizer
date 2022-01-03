@@ -24,7 +24,7 @@ class TeamsSetupDetail(LoginRequiredMixin, DetailView):
         teams = Team.objects.select_related("tournament_event", "category").prefetch_related(
             Prefetch("player_set", queryset=Player.objects.select_related("tournament_event__category", "position"), to_attr="players"),
             Prefetch("coach_set", queryset=Coach.objects.select_related("tournament_event__category"), to_attr="coaches")
-            )
+            ).all()
         kwargs['tournaments_active'] = 'active_detail'
         kwargs['segment'] = 'teams_setup'
         kwargs['segment_title'] = 'Teams Setup \ ' + tevent.name_short + ' ' + tevent.category.name + ' ' + tevent.category.classification

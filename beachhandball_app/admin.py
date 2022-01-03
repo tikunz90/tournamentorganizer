@@ -9,7 +9,7 @@ from .models.General import TournamentCategory
 from .models.Tournaments import Referee, Tournament, TournamentEvent, TournamentFinalRanking, TournamentSettings, TournamentTeamTransition, Court
 from .models.Tournaments import TournamentStage, TournamentState
 from .models.Team import Team, TeamStats
-from .models.Player import Player, PlayerStats
+from .models.Player import Player, PlayerStats, PlayerPosition
 from .models.Game import Game, GameAction
 from .models.Series import Series, Season
 
@@ -23,6 +23,7 @@ admin.site.register(TournamentTeamTransition)
 admin.site.register(TeamStats)
 #admin.site.register(Player)
 #admin.site.register(PlayerStats)
+admin.site.register(PlayerPosition)
 admin.site.register(TournamentState)
 #admin.site.register(Game)
 admin.site.register(GameAction)

@@ -149,14 +149,14 @@
                 </tr>
               </thead>
               <tbody>
-              {% for team in tevent.team_set.all() %}
-                {% if not team.is_dummy %}
-                <tr>
-                  <td class="text-center">{{team.name}}</td>
-                  <td>GER</td>
-                </tr>
-                {% endif %}
-              {% endfor %}
+              <!-- {% for team in tevent.team_set.all() %} -->
+                <!-- {% if not team.is_dummy %} -->
+                <!-- <tr> -->
+                  <!-- <td class="text-center">{{team.name}}</td> -->
+                  <!-- <td>GER</td> -->
+                <!-- </tr> -->
+                <!-- {% endif %} -->
+              <!-- {% endfor %} -->
               </tbody>
             </table>
           </div>
@@ -184,23 +184,23 @@
                 </tr>
               </thead>
               <tbody>
-              {% for team in teams_accepted %}
-                <tr>
-                  <td class="text-center">{{team.name}}</td>
-                  <td>{{team.nationality}}</td>
-                  <td class="td-actions text-right">
-                    <button type="button" rel="tooltip" class="btn btn-info">
-                      <i class="material-icons">person</i>
-                    </button>
-                    <button type="button" rel="tooltip" class="btn btn-success">
-                      <i class="material-icons">edit</i>
-                    </button>
-                    <button type="button" rel="tooltip" class="btn btn-danger">
-                      <i class="material-icons">close</i>
-                    </button>
-                  </td>
-                </tr>
-              {% endfor %}
+              <!-- {% for team in teams_accepted %} -->
+                <!-- <tr> -->
+                  <!-- <td class="text-center">{{team.name}}</td> -->
+                  <!-- <td>{{team.nationality}}</td> -->
+                  <!-- <td class="td-actions text-right"> -->
+                    <!-- <button type="button" rel="tooltip" class="btn btn-info"> -->
+                      <!-- <i class="material-icons">person</i> -->
+                    <!-- </button> -->
+                    <!-- <button type="button" rel="tooltip" class="btn btn-success"> -->
+                      <!-- <i class="material-icons">edit</i> -->
+                    <!-- </button> -->
+                    <!-- <button type="button" rel="tooltip" class="btn btn-danger"> -->
+                      <!-- <i class="material-icons">close</i> -->
+                    <!-- </button> -->
+                  <!-- </td> -->
+                <!-- </tr> -->
+              <!-- {% endfor %} -->
               </tbody>
             </table>
           </div>

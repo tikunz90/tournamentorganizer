@@ -9,6 +9,16 @@
     <div class="container">
       <div class="row">
         <div class="col-lg-4 col-md-6 col-sm-8 ml-auto mr-auto">
+          <h2 class="text-center">
+            {% if season %}
+              {{ season['name'] }}
+            {% endif %}
+          </h2>
+        </div>
+        
+      </div>
+      <div class="row">
+        <div class="col-lg-4 col-md-6 col-sm-8 ml-auto mr-auto">
 
           <form role="form" method="post" action="">
 

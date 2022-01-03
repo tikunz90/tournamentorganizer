@@ -1,3 +1,26 @@
 {
-    "python.pythonPath": "venv\\Scripts\\python.exe"
+    "python.pythonPath": "venv\\Scripts\\python.exe",
+    "cSpell.words": [
+        "abbrv",
+        "courtid",
+        "gbot",
+        "gbouser",
+        "gstat",
+        "guser",
+        "Kack",
+        "kempa",
+        "pstat",
+        "recalc",
+        "tcat",
+        "tcats",
+        "tevent",
+        "tevents",
+        "tourn",
+        "tourns",
+        "tstages",
+        "tstat",
+        "tstate",
+        "tstates",
+        "tstats"
+    ]
 }
