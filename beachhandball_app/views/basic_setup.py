@@ -7,12 +7,12 @@ from django.urls import reverse_lazy
 from beachhandball_app.static_views import getContext
 from bootstrap_modal_forms.generic import BSModalCreateView, BSModalDeleteView, BSModalUpdateView
 
-from ..models.Tournaments import Court, Tournament
+from ..models.Tournaments import Court, Tournament, TournamentEvent
 from beachhandball_app.forms.basic_setup.forms import CourtForm, CourtUpdateForm
 
 
-class CourtCreateView(LoginRequiredMixin, UserPassesTestMixin, BSModalCreateView):
-    template_name = 'beachhandball/templates/create_form.html'
+class CourtCreateView(BSModalCreateView):
+    template_name = 'beachhandball/basic_setup/create_court_form.html'
     form_class = CourtForm
     success_message = 'Success: Court was created.'
 
@@ -22,6 +22,18 @@ class CourtCreateView(LoginRequiredMixin, UserPassesTestMixin, BSModalCreateView
         context['form'].fields['tournament'].queryset = Tournament.objects.filter(organizer=user_context['gbo_user'].subject_id)
         return context
     
+    def get_initial(self):
+        tourn = get_object_or_404(Tournament, id=self.kwargs.get('pk_tourn'))
+        return {
+            'tourn':tourn,
+        }
+    def form_valid(self, form):
+        # This method is called when valid form data has been POSTed.
+        # It should return an HttpResponse.
+        if form.is_valid():
+            form.save()
+        return super().form_valid(form)
+        
     def get_success_url(self):
         return reverse("basic_setup")
 

@@ -881,7 +881,25 @@ def create_teams_testdata(tevent):
                                                     gbo_team=0,
                                                     category=tcat)
         act_team_st.save()
-        for i in range(1, 11):
+        for i in range(1, 21):
+            act_player, cr = Player.objects.get_or_create(tournament_event=tevent,
+                                                            first_name=f'FName{i}',
+                                                            name=f'Name{i}',
+                                                            team=act_team_st,
+                                                            number=i)
+            act_player.save()
+    # girls
+    tcat = TournamentCategory.objects.get(id=2)
+    names = ('wDreamTeam', 'wThe Beachers','wSuperStars','wBeach Easy Team','wDumpHeads','wFlyingKack','wThe Gang','wLoosers',)
+    abb = ('DT', 'TBS','SuS','BET','DH','FK','TGA','Loo',)
+    for iTeam in range(0, max_teams):
+        act_team_st, cr = Team.objects.get_or_create(tournament_event=tevent,
+                                                    name=names[iTeam],
+                                                    abbreviation=abb[iTeam],
+                                                    gbo_team=0,
+                                                    category=tcat)
+        act_team_st.save()
+        for i in range(1, 21):
             act_player, cr = Player.objects.get_or_create(tournament_event=tevent,
                                                             first_name=f'FName{i}',
                                                             name=f'Name{i}',

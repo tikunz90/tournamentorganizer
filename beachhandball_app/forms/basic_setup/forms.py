@@ -16,10 +16,16 @@ class TournamentSettingsForm(ModelForm):
            #'actual_game_slot': forms.widgets.DateTimeInput(attrs={'class': "form-control datetimepicker"}),
         }
 
-class CourtForm(BSModalModelForm):
+class CourtForm(ModelForm):
 
     def clean(self):
         cleaned_data = super(CourtForm, self).clean()
+        tournament = cleaned_data['tournament']
+        name = cleaned_data['name']
+        number = cleaned_data['number']
+        
+        if Court.objects.filter(tournament = tournament, name = name, number=number).exists():
+            self.add_error('name', 'Already exists!')
         return cleaned_data
        
     class Meta:

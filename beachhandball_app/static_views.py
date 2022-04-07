@@ -27,7 +27,7 @@ from .models.Tournaments import Court, Referee, Tournament, TournamentEvent, Tou
 from .models.Team import Team, TeamStats
 from .models.Series import Season
 from .models.Game import Game
-from beachhandball_app.forms.basic_setup.forms import TournamentSettingsForm
+from beachhandball_app.forms.basic_setup.forms import CourtForm, TournamentSettingsForm
 from beachhandball_app.api.serializers.game import GameSerializer,GameRunningSerializer, serialize_game
 from beachhandball_app.game_report import create_game_report
 from .services.services import SWS
@@ -160,18 +160,32 @@ def basic_setup(request):
     if not checkLoginIsValid(context['gbo_user']):
         return redirect('login')
 
-    if request.method == 'POST':
+    formCourt = None
+    context['form_sender'] = ''
+    if request.method == 'POST' and request.POST.get('form_sender') == 'tourn_settings':
+        context['form_sender'] = 'tourn_settings'
+        formCourt = CourtForm()
         form = TournamentSettingsForm(request.POST, instance=context['tourn_settings'])
         if form.is_valid():
             form.save()
     
+    if request.method == 'POST' and request.POST.get('form_sender') == 'court_create':
+        context['form_sender'] = 'court_create'
+        form = TournamentSettingsForm(instance=context['tourn_settings'])
+        formCourt = CourtForm(request.POST)
+        if formCourt.is_valid():
+            formCourt.save()
+    
     if request.method == 'GET':
         form = TournamentSettingsForm(instance=context['tourn_settings'])
+    if request.method == 'GET' and formCourt is None:
+        formCourt = CourtForm()
 
     context['segment'] = 'basic_setup'
     context['segment_title'] = 'Basic Setup'
 
     context['tourn_settings_form'] = form
+    context['court_form'] = formCourt
 
     html_template = loader.get_template( 'beachhandball/basic_setup.html' )
     return HttpResponse(html_template.render(context, request))

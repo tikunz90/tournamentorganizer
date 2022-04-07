@@ -54,23 +54,39 @@
     <div class="card-body ">
         <ul class="nav nav-pills nav-pills-icons" role="tablist">
           <li class="nav-item">
+            {% if form_sender == '' %}
             <a class="nav-link active" data-toggle="tab" href="#referees" role="tablist">
+            {% else %}
+            <a class="nav-link" data-toggle="tab" href="#referees" role="tablist">
+            {% endif %}
                 <i class="material-icons">sports</i> Referees
             </a>
           </li>
           <li class="nav-item">
+            {% if form_sender == 'court_create' %}
+            <a class="nav-link active" data-toggle="tab" href="#courts" role="tablist">
+            {% else %}
             <a class="nav-link" data-toggle="tab" href="#courts" role="tablist">
+            {% endif %}
                 <i class="material-icons">dashboard</i> Courts
             </a>
           </li>
           <li class="nav-item">
+            {% if form_sender == 'tourn_settings' %}
+            <a class="nav-link active" data-toggle="tab" href="#tsettings" role="tablist">
+            {% else %}
             <a class="nav-link" data-toggle="tab" href="#tsettings" role="tablist">
+            {% endif %}
                 <i class="material-icons">settings</i> Settings
             </a>
           </li>
         </ul>
         <div class="tab-content tab-space">
+          {% if form_sender == '' %}
           <div class="tab-pane active" id="referees">
+          {% else %}
+          <div class="tab-pane" id="referees">
+          {% endif %}
               <div class="card ">
                 <div class="card-body">            
                   <h3>List of registered Referees</h3>
@@ -95,7 +111,11 @@
                 </div>
               </div>
           </div>
+          {% if form_sender == 'court_create' %}
+          <div class="tab-pane active" id="courts">
+          {% else %}
           <div class="tab-pane" id="courts">
+          {% endif %}
               <div class="card ">
                 <div class="card-body">            
                   <h3>Add and edit courts for Tournament Events</h3>
@@ -125,18 +145,49 @@
                     {% endfor %}
                   </div>
 
-                  <div class="row">
-                      <div class="col-md-6 col-lg-6">
-                        <button type="button" class="create-court btn btn-sm btn-primary" rel="tooltip" title="Create new Court" data-form-url="{{ url('basic_setup.create_court', kwargs={ 'pk_tourn':tourn.id}) }}">
-                            <span class="fa fa-plus mr-2"></span> Create Court
-                        </button> 
-                      </div>
-                  </div>
 
                 </div>
               </div>
+              <div class="col-md-12" id="court_form">
+                <form id="create-court-form" method="post" action="">
+                  <input type="hidden" name="csrfmiddlewaretoken" value="{{csrf_token}}">
+                
+                  <div class="modal-header">
+                    <h3 class="modal-title">Create Court</h3>
+                  </div>
+                
+                  <div class="modal-body">
+                    {% if court_form.errors %}
+                      {% for key, value in court_form.errors.items() %}
+                        <div class="alert alert-danger">
+                            <strong>{{ court_form.fields[key].label }} {{ value }}</strong>
+                        </div>
+                      {% endfor %}
+                    {% endif %}
+                    <div class="{% if court_form.non_field_errors %}invalid{% endif %} mb-2">
+                      {% for error in court_form.non_field_errors() %}
+                        {{ error }}
+                      {% endfor %}
+                    </div>
+                    {% for name, field in court_form.fields.items() %}
+                        {{ input_field(court_form[name], court_form.hide_labels) }}
+                    {% endfor %}
+                    <input type="hidden" placeholder="" value="court_create" name='form_sender'>
+                  </div>
+                
+                  <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary" onclick="">Create</button>
+                  </div>
+                
+                </form>
+                
+              </div>
           </div>
+          {% if form_sender == 'tourn_settings' %}
+          <div class="tab-pane active" id="tsettings">
+          {% else %}
           <div class="tab-pane" id="tsettings">
+          {% endif %}
             <div class="card card-body">
             <form id="tourn-settings-form" method="post" action="">
               <input type="hidden" name="csrfmiddlewaretoken" value="{{csrf_token}}">
@@ -156,7 +207,7 @@
                 {% for name, field in tourn_settings_form.fields.items() %}
                     {{ input_field(tourn_settings_form[name], tourn_settings_form.hide_labels) }}
                 {% endfor %}
-
+                <input type="hidden" placeholder="" value="tourn_settings" name='form_sender'>
               </div>
 
               <div class="modal-footer">
@@ -198,10 +249,18 @@
     // Create tstate synchronous
     function createCourtModalForm() {
       $(".create-court").each(function () {
-          $(this).modalForm({formURL: $(this).data("form-url")});
+          $(this).modalForm({modalID: "#create-modal", formURL: $(this).data("form-url"), asyncUpdate: true});
       });
     }
     createCourtModalForm();
+
+    function createCourtSyncModalForm() {
+      $("#create-court-sync").modalForm({
+          formURL: "{{ url('basic_setup.create_court', kwargs={'pk_tourn': tourn.id}) }}",
+          modalID: "#create-modal"
+      });
+    }
+    //createCourtSyncModalForm();
 
     function updateCourtModalForm() {
       $(".update-court").each(function () {
