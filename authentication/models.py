@@ -18,7 +18,7 @@ class GBOUser(models.Model):
     gbo_data = jsonfield.JSONField()
     gbo_gc_data = jsonfield.JSONField()
     gbo_sub_data = jsonfield.JSONField()
-    token = models.TextField(max_length=512)
+    token = models.TextField(max_length=1024)
     validUntil = UnixDateTimeField(null=False, default=0)
     subject_id = models.IntegerField(null=True)
     is_online = models.BooleanField(default=True)
