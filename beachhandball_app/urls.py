@@ -17,8 +17,11 @@ urlpatterns = [
 
     # The home page
     path('', static_views.index, name='index'),
+    #path('test', static_views.test, name='test'),
     #re_path(r'^.*\.*', static_views.pages, name='pages'),
     path('ajax/data/', static_views.getData, name='get_data'),
+
+    path('setup-wizard/<int:pk_tevent>/', static_views.setup_wizard, name='setup_wizard'),
 
     path('sync_tournament_data/', static_views.sync_tournament_data, name='sync_tournament_data'),
 

@@ -125,18 +125,18 @@
                         <div class="card card-stats">
                           <div class="card-header card-header-warning card-header-icon">
                             <div class="card-icon">
-                              <i class="material-icons">pin_drop</i>
+                              <!--i class="material-icons">pin_drop</i-->
                             </div>
                             <p class="card-category">{{ court.name }}</p>
                             <h3 class="card-title">{{ court.number }}</h3>
                           </div>
                           <div class="card-footer">
                             <div class="stats">
-                              <button type="button" class="update-court btn btn-success btn-link" rel="tooltip" title="Edit Court" data-form-url="{{ url('basic_setup.update_court', kwargs={ 'pk_tourn':tourn.id, 'pk': court.id}) }}">
+                              <!--button type="button" class="update-court btn btn-success btn-link" rel="tooltip" title="Edit Court" data-form-url="{{ url('basic_setup.update_court', kwargs={ 'pk_tourn':tourn.id, 'pk': court.id}) }}">
                                 <i class="material-icons">edit</i>
-                              </button>
+                              </button-->
                               <button type="button" rel="tooltip" class="delete-court btn btn-danger btn-link" rel="tooltip" title="Delete Court"  data-form-url="{{ url('basic_setup.delete_court', kwargs={ 'pk_tourn':tourn.id, 'pk': court.id}) }}">
-                                <i class="material-icons">close</i>
+                                Delete<i class="material-icons">close</i>
                               </button>
                             </div>
                           </div>
@@ -144,8 +144,6 @@
                       </div>
                     {% endfor %}
                   </div>
-
-
                 </div>
               </div>
               <div class="col-md-12" id="court_form">

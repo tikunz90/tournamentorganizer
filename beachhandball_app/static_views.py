@@ -154,6 +154,23 @@ def index(request):
 @login_required(login_url="/login/")
 @user_passes_test(lambda u: u.groups.filter(name='tournament_organizer').exists(),
 login_url="/login/", redirect_field_name='next')
+def setup_wizard(request, pk_tevent):
+    context = getContext(request)
+    if not checkLoginIsValid(context['gbo_user']):
+        return redirect('login')
+    for te in context['events']:
+        if te.id == pk_tevent:
+            context['tevent'] = te
+            break
+    context['segment'] = 'index'
+    context['segment_title'] = 'Overview'
+
+    html_template = loader.get_template( 'forms-setup-wizard.html' )
+    return HttpResponse(html_template.render(context, request))
+
+@login_required(login_url="/login/")
+@user_passes_test(lambda u: u.groups.filter(name='tournament_organizer').exists(),
+login_url="/login/", redirect_field_name='next')
 def basic_setup(request):
     
     context = getContext(request)

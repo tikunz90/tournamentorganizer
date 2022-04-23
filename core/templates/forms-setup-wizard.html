@@ -1,0 +1,810 @@
+{% extends "layouts/base.html" %}
+
+{% block title %} Forms Validation {% endblock title %}
+
+<!-- Specific Page CSS goes HERE  -->
+{% block stylesheets %}{% endblock stylesheets %}
+
+{% block content %}
+
+  <div class="col-md-12 col-12 mr-auto ml-auto">
+    <!--      Wizard container        -->
+    <div class="wizard-container">
+      <div class="card card-wizard" data-color="rose" id="wizardProfile">
+        <form action="" method="">
+          <!--        You can switch " data-color="primary" "  with one of the next bright colors: "green", "orange", "red", "blue"       -->
+          <div class="card-header text-center">
+            <h3 class="card-title">
+              Setup Wizard for {{ tevent.name_short }}
+            </h3>
+            <h5 class="card-description">This information will create basic tournament framework.</h5>
+          </div>
+          <div class="wizard-navigation">
+            <ul class="nav nav-pills">
+              <li class="nav-item">
+                <a class="nav-link active" href="#tabStart" data-toggle="tab" role="tab">
+                  Start
+                </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="#tabStructure" data-toggle="tab" role="tab">
+                  Structure
+                </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="#tabTeams" data-toggle="tab" role="tab">
+                  Teams
+                </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="#tabGamePlan" data-toggle="tab" role="tab">
+                  Game Plan
+                </a>
+              </li>
+            </ul>
+          </div>
+          <div class="card-body">
+            <div class="tab-content">
+
+              <div class="tab-pane active" id="tabStart">
+                <h5 class="info-text"> Let's start with setting up your tournament</h5>
+                <h4 class="info-text"> In the <b>Structure</b> menu you have to define the groups, knockout-stage, finals and placements rounds.</h4>
+                <h4 class="info-text"> In the <b>Teams</b> menu you can assign registered teams to the groups.</h4>
+                <h4 class="info-text"> In the <b>Game Plan</b> menu you can create an automatic generated game plan.</h4>
+                <h5 class="info-text"> All settings in the wizard can be fine tuned later in the sidebar menus for individually changes.</h5>
+              </div>
+
+
+              <div class="tab-pane" id="tabStructure">
+                <h5 class="info-text"> Define number and size of groups</h5>
+
+                
+                <div class="row justify-content-center">
+                  <div class="col-sm-6">
+
+                    <div class="input-group form-control-lg">
+                      <div class="input-group-prepend">
+                        <span class="input-group-text">
+                          <i class="material-icons">groups</i>
+                        </span>
+                      </div>
+                      <div class="form-group">
+                        <label class="form-label">Max. number of Teams</label>
+                        <input type="number" id="wz-max_num_teams" class="input_group form-control" value="2" min="2" max="64" required>
+                      </div>
+                    </div>
+
+                    <div class="input-group form-control-lg">
+                      <div class="input-group-prepend">
+                        <span class="input-group-text">
+                          <i class="material-icons">numbers</i>
+                        </span>
+                      </div>
+                      <div class="form-group">
+                        <label class="form-label">Number of groups</label>
+                        <input type="number" id="wz-num_of_groups" class="input_group form-control" value="2" min="1" max="32" required>
+                      </div>
+                    </div>
+
+
+                    <div class="input-group form-control-lg">
+                      <div class="input-group-prepend">
+                        <span class="input-group-text">
+                          <i class="material-icons">line_style</i>
+                        </span>
+                      </div>
+                      <div class="form-group row">
+                        <div class="col-8">
+                        <label for="wz-sel-teams-knockout" class="">Number of teams can reach Knockout-Stage?</label>
+                        
+                        </div>
+                        <div class="col-4">
+                          <select class="input_group form-control" id="wz-sel-teams-knockout">
+                            <option selected value="2">2</option>
+                            <option value="4">4</option>
+                            <option value="8">8</option>
+                            <option value="16">16</option>
+                            <option value="32">32</option>
+                          </select>
+                        </div>
+                      </div>
+                    </div>
+                    
+
+                    <div class="input-group form-control-lg">
+                      <div class="input-group-prepend">
+                        <span class="input-group-text">
+                          <i class="material-icons">format_list_numbered</i>
+                        </span>
+                      </div>
+                      <div class="form-group row">
+                        <div class="col-8">
+                        <label for="wz-sel-teams-getting-ranked" class="">Number of teams getting ranked?</label>
+                        
+                        </div>
+                        <div class="col-4">
+                          <select class="input_group form-control" id="wz-sel-teams-getting-ranked">
+                            <option selected value="2">2</option>
+                            <option value="4">4</option>
+                            <option value="8">8</option>
+                            <option value="16">16</option>
+                            <option value="32">32</option>
+                          </select>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div class="col-sm-4">
+                  </div>
+                  
+                </div>
+
+                <div class="row justify-content-center">
+                  <div class="col">
+                    <div class="input-group form-control-lg">
+                      <div class="input-group-prepend">
+                        <span class="input-group-text">
+                          <i class="material-icons">numbers</i>
+                        </span>
+                      </div>
+
+                      <div class="form-group">
+                        <label class="form-label font-weight-bold">Resulting number of games</label>
+                        <div class="table-responsive">
+                          <table class="table align-items-center mb-0">
+                            <thead>
+                              <tr>
+                                <th class="text-primary text-xxs font-weight-bold opacity-3 ps-2">Total</th>
+                                <th class="text-secondary text-xxs font-weight-bolder opacity-7">Group-Stage</th>
+                                <th class="text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Knockout-Stage</th>
+                                <th class="text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Placement</th>
+                                <th class="text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Final</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              <tr>
+                                <td>
+                                  <input type="number" id="wz-res_num_of_games_total" class="input_group form-control input-lg text-primary text-xxs font-weight-bold opacity-3 ps-2" value="0" disabled>
+                                </td>
+                                <td>
+                                  <input type="number" id="wz-res_num_of_games_group" class="input_group form-control" value="0" disabled>
+                                </td>
+                                <td>
+                                  <input type="number" id="wz-res_num_of_games_ko" class="input_group form-control" value="0" disabled>
+                                </td>
+                                <td>
+                                  <input type="number" id="wz-res_num_of_games_placement" class="input_group form-control" value="0" disabled>
+                                </td>
+                                <td>
+                                  <input type="number" id="wz-res_num_of_games_final" class="input_group form-control" value="0" disabled>
+                                </td>
+                                
+                              </tr>  
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    </div>
+
+                  </div>
+                </div>
+
+                <div class="row justify-content-center">
+                  <div class="d-flex justify-content-lg-start justify-content-center p-2">
+                    <span class="material-icons my-auto">
+                      
+                      </span>
+                      <h1>Overview Structure</h1>
+                  </div>
+                </div>
+
+                <div class="row justify-content-center">
+                  <div class="d-flex justify-content-lg-start justify-content-center p-2">
+                    <span class="material-icons my-auto">
+                      format_list_numbered
+                      </span>
+                      <h3>Group-Stage</h3>
+                  </div>
+                </div>
+                <div class="row justify-content-center" id="wz-ovw-groups">
+                </div>
+
+                <!-- KO and Placement -->
+                <div class="container">
+
+                  <div class="row">
+                    <div class="col">
+                      <div class="card">
+                        <div class="card-header">
+                          <!--h4 class="card-title">Collapsible Accordion</h4-->
+                        </div>
+                        <div class="card-body">
+                          <div id="accordion" role="tablist">
+
+
+                            <div class="card-collapse">
+                              <div class="card-header" role="tab" id="headingKO">
+                                <h5 class="mb-0">
+                                  <a data-toggle="collapse" href="#collapseKO" aria-expanded="true" aria-controls="collapseKO" class="collapsed">
+                                    <span class="material-icons align-middle mb-1">
+                                      sports_mma
+                                    </span>
+                                      Knockout-Stage
+                                    <i class="material-icons">keyboard_arrow_down</i>
+                                  </a>
+                                </h5>
+                              </div>
+                              <div id="collapseKO" class="collapse show" role="tabpanel" aria-labelledby="headingKO" data-parent="#accordion" style="">
+                                <div class="card-body">
+                                  <div class="container justify-content-center" id="wz-ovw-knockout">
+                                    <div id="templateKO_level" class="row container">
+                                      <div class="row justify-content-center mx-auto">
+                                        <h3 id="templateKO_header">Best of 16</h3>
+                                      </div>
+                                      <div id="templateKO_items" class="row justify-content-center mx-auto">
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+
+
+                            <div class="card-collapse">
+                              <div class="card-header" role="tab" id="headingPlacement">
+                                <h5 class="mb-0">
+                                  <a class="collapsed" data-toggle="collapse" href="#collapsePlacement" aria-expanded="false" aria-controls="collapsePlacement">
+                                    <span class="material-icons align-middle mb-1">
+                                      format_list_numbered
+                                    </span>
+                                    Placement-Stage
+                                    <i class="material-icons">keyboard_arrow_down</i>
+                                  </a>
+                                </h5>
+                              </div>
+                              <div id="collapsePlacement" class="collapse" role="tabpanel" aria-labelledby="headingPlacement" data-parent="#accordion">
+                                <div class="card-body">
+                                  <div class="card-body">
+                                    <div class="container justify-content-center" id="wz-ovw-placement">
+                                      
+                                    </div>
+                                    
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!--div class="card ">
+                    <div class="card-header ">
+                      <h4 class="card-title">Navigation Pills -
+                        <small class="description">Horizontal Tabs</small>
+                      </h4>
+                    </div>
+                    <div class="card-body ">
+                      <ul class="nav nav-tabs internal-nav nav-pills-warning flex-column flex-sm-row" role="tablist">
+                        <li class="nav-item col">
+                          <a class="nav-link active" data-toggle="tab" href="#linkKO" role="tablist">
+                            <span class="material-icons align-middle mb-1">
+                              sports_mma
+                            </span>
+                             Knockout-Stage
+                          </a>
+                        </li>
+                        <li class="nav-item col">
+                          <a class="nav-link" data-toggle="tab" href="#linkPlacement" role="tablist">
+                            <span class="material-icons align-middle mb-1">
+                              format_list_numbered
+                            </span>
+                            Placement
+                          </a>
+                        </li>
+                      </ul>
+                      <div class="tab-content tab-space">
+                        <div class="tab-pane active" id="linkKO">
+                          
+                          
+                          <div class="container justify-content-center" id="wz-ovw-knockout">
+                            <div id="templateKO_level" class="row container">
+                              <div class="row justify-content-center mx-auto">
+                                <h3 id="templateKO_header">Best of 16</h3>
+                              </div>
+                              <div id="templateKO_items" class="row justify-content-center mx-auto">
+                              </div>
+                            </div>
+                          </div>
+                          
+                          <div class="row justify-content-center">
+                            <div class="d-flex justify-content-lg-start justify-content-center p-2">
+                              <span class="material-icons my-auto">
+                                emoji_events
+                                </span>
+                                <h3>Finals</h3>
+                            </div>
+                          </div>
+                          <div class="row justify-content-center" id="wz-ovw-finals">
+                          </div>
+                        </div>
+                        <div class="tab-pane" id="linkPlacement">
+                          Efficiently unleash cross-media information without cross-media value. Quickly maximize timely deliverables for real-time schemas.
+                          <br />
+                          <br />Dramatically maintain clicks-and-mortar solutions without functional solutions.
+                        </div>
+                      </div>
+                    </div>
+                  </div-->
+                </div>
+
+                <div class="row justify-content-center">
+                  <div class="d-flex justify-content-lg-start justify-content-center p-2">
+                    <span class="material-icons my-auto">
+                      emoji_events
+                      </span>
+                      <h3>Finals</h3>
+                  </div>
+                </div>
+                <div class="row justify-content-center" id="wz-ovw-finals">
+                </div>
+                
+                
+
+                <div class="row justify-content-left">
+                  <div class="d-flex justify-content-sm-start justify-content-center p-2">
+                    <span class="material-icons">arrow_upward</span>
+                      <p>Teams transits to next stage</p>
+                  </div>
+                </div>
+                <div class="row justify-content-left">
+                  <div class="d-flex justify-content-sm-start justify-content-center p-2">
+                    <span class="material-icons">clear</span>
+                      <p>Teams out of tournament</p>
+                  </div>
+                </div>
+                <div class="row justify-content-left">
+                  <div class="d-flex justify-content-sm-start justify-content-center p-2">
+                    <span class="badge rounded-pill bg-dark text-light text-bold m-1">4.</span>
+                      <p>Teams achieves rank</p>
+                  </div>
+                </div>
+              </div>
+              
+
+              <div class="tab-pane" id="tabTeams">
+                <h5 class="info-text">After Group-Stage it is possible to play a Main-Round to find teams for the Knockout-Stage. Do nothing here if teams should transit directly to Knockout-Stage.</h5>
+                <div id="myKanban"></div>
+              </div>
+
+
+              <div class="tab-pane" id="tabGamePlan">
+                <h5 class="info-text">Teams in the Knockout-Stage fight for the finals.</h5>
+
+                <div class="row justify-content-center">
+                  <div class="col-sm-6">
+                    <div class="input-group form-control-lg">
+                      <div class="input-group-prepend">
+                        <span class="input-group-text">
+                          <i class="material-icons">stadium</i>
+                        </span>
+                      </div>
+                      <div class="form-group">
+                        <label class="form-label">Number of Courts</label>
+                        <input type="number" class="form-control" value="1" min="1" max="64">
+                      </div>
+                    </div>
+
+                    <div class="input-group form-control-lg">
+                      <div class="input-group-prepend">
+                        <span class="input-group-text">
+                          <i class="material-icons">start</i>
+                        </span>
+                      </div>
+                      <div class="form-group">
+                        <label>Start Datetime of first game</label>
+                        <input type="datetime-local" class="form-control">
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+
+              </div>
+            </div>
+          </div>
+          <div class="card-footer">
+            <div class="mr-auto">
+              <input type="button" class="btn btn-previous btn-fill btn-default btn-wd disabled" name="previous" value="Previous">
+            </div>
+            <div class="ml-auto">
+              <input type="button" class="btn btn-next btn-fill btn-rose btn-wd" name="next" value="Next">
+              <input type="button" class="btn btn-finish btn-fill btn-rose btn-wd" name="finish" value="Finish" style="display: none;">
+            </div>
+            <div class="clearfix"></div>
+          </div>
+
+          <div id="templateGroup" class="col-md-3 mb-2" hidden>
+            <div class="card shadow-lg">
+              <span id="templateGroup_name" class="badge rounded-pill bg-secondary text-light w-30 mt-n2 mx-auto">Group C</span>
+              <div id="templateGroup_body" class="card-body pt-0">              
+                <div class="row justify-content-center mx-auto">
+                  <span class="badge rounded-pill bg-info text-light m-1">1. Team</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div id="templateTeamItem" class="row justify-content-center mx-auto" hidden>
+            <span id="templateTeamItem_icon" class="material-icons">arrow_upward</span>
+            <span id="templateTeamItem_rank" class="badge rounded-pill bg-dark text-light text-bold m-1" hidden></span>
+            <span id="templateTeamItem_name" class="badge rounded-pill bg-light text-dark m-1">1. Team</span>
+          </div>
+
+
+          <div id="templateKO_level" class="justify-content-center" hidden>
+            <div class="row justify-content-center mx-auto">
+              <h3 id="templateKO_header" class="col-12 text-center">Best of 16</h3>
+            </div>
+            <div id="templateKO_items" class="row justify-content-center mx-auto">
+            </div>
+          </div>
+
+          <div id="templatePL_level" class="justify-content-center" hidden>
+            <div class="row">
+              <div class="col">
+                <div class="card">
+                  <div class="card-header">
+                    <h3 id="templatePL_header" class="card-title text-center">Best of 16</h3>
+                  </div>
+                  <div class="card-body" id="templatePL_body">
+                    
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+          </div>
+
+          <div id="templatePL_items" class="row justify-content-center mx-auto" hidden>
+          </div>
+
+          <div id="templatePLsub_level" class="justify-content-center" hidden>
+            <div class="row justify-content-center mx-auto">
+              <h3 id="templatePLsub_header" class="col-12 text-center">Best of 16</h3>
+            </div>
+            <div id="templatePLsub_items" class="row justify-content-center mx-auto">
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+    <!-- wizard container -->
+  </div>
+
+{% endblock content %}
+
+{% block javascripts %}
+
+<script>
+  $(document).ready(function() {
+    console.log("Wizard Loaded");
+
+    bh.wzUpdateStructure();
+
+    $('.input_group').on('change keyup', function() {
+      bh.wzUpdateStructure();
+    }); 
+    // Initialise the wizard
+    //demo.initMaterialWizard();
+    // Code for the Validator
+    var $validator = $('.card-wizard form').validate({
+      rules: {
+        max_num_teams: {
+          required: true,
+          min: 2
+        }
+      },
+
+      highlight: function(element) {
+        $(element).closest('.form-group').removeClass('has-success').addClass('has-danger');
+      },
+      success: function(element) {
+        $(element).closest('.form-group').removeClass('has-danger').addClass('has-success');
+      },
+      errorPlacement: function(error, element) {
+        $(element).append(error);
+      }
+    });
+
+
+
+    // Wizard Initialization
+    $('.card-wizard').bootstrapWizard({
+      'tabClass': 'nav nav-pills',
+      'nextSelector': '.btn-next',
+      'previousSelector': '.btn-previous',
+
+      onNext: function(tab, navigation, index) {
+        var $valid = $('.card-wizard form').valid();
+        if (!$valid) {
+          $validator.focusInvalid();
+          return false;
+        }
+      },
+
+      onInit: function(tab, navigation, index) {
+        //check number of tabs and fill the entire row
+        var $total = navigation.find('li').length;
+        var $wizard = navigation.closest('.card-wizard');
+
+        $first_li = navigation.find('li:first-child a').html();
+        $moving_div = $('<div class="moving-tab">' + $first_li + '</div>');
+        $('.card-wizard .wizard-navigation').append($moving_div);
+
+        refreshAnimation($wizard, index);
+
+        $('.moving-tab').css('transition', 'transform 0s');
+      },
+
+      onTabClick: function(tab, navigation, index) {
+        var $valid = $('.card-wizard form').valid();
+
+        if (!$valid) {
+          return false;
+        } else {
+          return true;
+        }
+      },
+
+      onTabShow: function(tab, navigation, index) {
+        var $total = navigation.find('li').length;
+        var $current = index + 1;
+
+        var $wizard = navigation.closest('.card-wizard');
+
+        // If it's the last tab then hide the last button and show the finish instead
+        if ($current >= $total) {
+          $($wizard).find('.btn-next').hide();
+          $($wizard).find('.btn-finish').show();
+        } else {
+          $($wizard).find('.btn-next').show();
+          $($wizard).find('.btn-finish').hide();
+        }
+
+        button_text = navigation.find('li:nth-child(' + $current + ') a').html();
+
+        setTimeout(function() {
+          $('.moving-tab').text(button_text);
+        }, 150);
+
+        var checkbox = $('.footer-checkbox');
+
+        if (!index == 0) {
+          $(checkbox).css({
+            'opacity': '0',
+            'visibility': 'hidden',
+            'position': 'absolute'
+          });
+        } else {
+          $(checkbox).css({
+            'opacity': '1',
+            'visibility': 'visible'
+          });
+        }
+
+        refreshAnimation($wizard, index);
+      }
+    });
+
+
+    // Prepare the preview for profile picture
+    $("#wizard-picture").change(function() {
+      readURL(this);
+    });
+
+    $('[data-toggle="wizard-radio"]').click(function() {
+      wizard = $(this).closest('.card-wizard');
+      wizard.find('[data-toggle="wizard-radio"]').removeClass('active');
+      $(this).addClass('active');
+      $(wizard).find('[type="radio"]').removeAttr('checked');
+      $(this).find('[type="radio"]').attr('checked', 'true');
+    });
+
+    $('[data-toggle="wizard-checkbox"]').click(function() {
+      if ($(this).hasClass('active')) {
+        $(this).removeClass('active');
+        $(this).find('[type="checkbox"]').removeAttr('checked');
+      } else {
+        $(this).addClass('active');
+        $(this).find('[type="checkbox"]').attr('checked', 'true');
+      }
+    });
+
+    $('.set-full-height').css('height', 'auto');
+
+    //Function to show image before upload
+
+    function readURL(input) {
+      if (input.files && input.files[0]) {
+        var reader = new FileReader();
+
+        reader.onload = function(e) {
+          $('#wizardPicturePreview').attr('src', e.target.result).fadeIn('slow');
+        }
+        reader.readAsDataURL(input.files[0]);
+      }
+    }
+
+    $(window).resize(function() {
+      $('.card-wizard').each(function() {
+        $wizard = $(this);
+
+        index = $wizard.bootstrapWizard('currentIndex');
+        refreshAnimation($wizard, index);
+
+        $('.moving-tab').css({
+          'transition': 'transform 0s'
+        });
+      });
+    });
+
+    function refreshAnimation($wizard, index) {
+      $total = $wizard.find('.nav li').length;
+      $li_width = 100 / $total;
+
+      total_steps = $wizard.find('.nav li').length;
+      move_distance = $wizard.width() / total_steps;
+      index_temp = index;
+      vertical_level = 0;
+
+      mobile_device = $(document).width() < 600 && $total > 3;
+
+      if (mobile_device) {
+        move_distance = $wizard.width() / 2;
+        index_temp = index % 2;
+        $li_width = 50;
+      }
+
+      $wizard.find('.nav li').css('width', $li_width + '%');
+
+      step_width = move_distance;
+      move_distance = move_distance * index_temp;
+
+      $current = index + 1;
+
+      if ($current == 1 || (mobile_device == true && (index % 2 == 0))) {
+        move_distance -= 8;
+      } else if ($current == total_steps || (mobile_device == true && (index % 2 == 1))) {
+        move_distance += 8;
+      }
+
+      if (mobile_device) {
+        vertical_level = parseInt(index / 2);
+        vertical_level = vertical_level * 38;
+      }
+
+      $wizard.find('.moving-tab').css('width', step_width);
+      $('.moving-tab').css({
+        'transform': 'translate3d(' + move_distance + 'px, ' + vertical_level + 'px, 0)',
+        'transition': 'all 0.5s cubic-bezier(0.29, 1.42, 0.79, 1)'
+
+      });
+    }
+    setTimeout(function() {
+      $('.card.card-wizard').addClass('active');
+    }, 600);
+
+    
+  });
+
+  var KanbanTest = new jKanban({
+    element: "#myKanban",
+    gutter: "10px",
+    widthBoard: "450px",
+    itemHandleOptions:{
+      enabled: true,
+    },
+    click: function(el) {
+      console.log("Trigger on all items click!");
+    },
+    context: function(el, e) {
+      console.log("Trigger on all items right-click!");
+    },
+    dropEl: function(el, target, source, sibling){
+      console.log(target.parentElement.getAttribute('data-id'));
+      console.log(el, target, source, sibling)
+    },
+    buttonClick: function(el, boardId) {
+      console.log(el);
+      console.log(boardId);
+      // create a form to enter element
+      var formItem = document.createElement("form");
+      formItem.setAttribute("class", "itemform");
+      formItem.innerHTML =
+        '<div class="form-group"><textarea class="form-control" rows="2" autofocus></textarea></div><div class="form-group"><button type="submit" class="btn btn-primary btn-xs pull-right">Submit</button><button type="button" id="CancelBtn" class="btn btn-default btn-xs pull-right">Cancel</button></div>';
+
+      KanbanTest.addForm(boardId, formItem);
+      formItem.addEventListener("submit", function(e) {
+        e.preventDefault();
+        var text = e.target[0].value;
+        KanbanTest.addElement(boardId, {
+          title: text
+        });
+        formItem.parentNode.removeChild(formItem);
+      });
+      document.getElementById("CancelBtn").onclick = function() {
+        formItem.parentNode.removeChild(formItem);
+      };
+    },
+    itemAddOptions: {
+      enabled: true,
+      content: '+ Add New Card',
+      class: 'custom-button',
+      footer: true
+    },
+    boards: [
+      {
+        id: "_todo",
+        title: "To Do (Can drop item only in working)",
+        class: "info,good",
+        dragTo: ["_working"],
+        item: [
+          {
+            id: "_test_delete",
+            title: "Try drag this (Look the console)",
+            drag: function(el, source) {
+              console.log("START DRAG: " + el.dataset.eid);
+            },
+            dragend: function(el) {
+              console.log("END DRAG: " + el.dataset.eid);
+            },
+            drop: function(el) {
+              console.log("DROPPED: " + el.dataset.eid);
+            }
+          },
+          {
+            title: "Try Click This!",
+            click: function(el) {
+              alert("click");
+            },
+            context: function(el, e){
+              alert("right-click at (" + `${e.pageX}` + "," + `${e.pageX}` + ")")
+            },
+            class: ["peppe", "bello"]
+          }
+        ]
+      },
+      {
+        id: "_working",
+        title: "Working (Try drag me too)",
+        class: "warning",
+        item: [
+          {
+            title: "Do Something!"
+          },
+          {
+            title: "Run?"
+          }
+        ]
+      },
+      {
+        id: "_done",
+        title: "Done (Can drop item only in working)",
+        class: "success",
+        dragTo: ["_working"],
+        item: [
+          {
+            title: "All right"
+          },
+          {
+            title: "Ok!"
+          }
+        ]
+      }
+    ]
+  });
+</script>
+
+{% endblock javascripts %}
