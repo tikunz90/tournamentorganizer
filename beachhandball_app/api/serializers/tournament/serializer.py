@@ -109,18 +109,21 @@ def serialize_teamstat(stat: TeamStats) -> Dict[str, Any]:
     }
 
 def serialize_team(team: Team) -> Dict[str, Any]:
-    return {
-        'id': team.id,
-        'name': team.name,
-        'abbreviation': team.abbreviation,
-        'gbo_team': team.gbo_team,
-        'season_team_id': team.season_team_id,
-        'season_team_cup_tournament_ranking_id': team.season_team_cup_tournament_ranking_id,
-        'season_team_cup_championship_ranking_id': team.season_team_cup_championship_ranking_id,
-        'season_team_sub_cup_tournament_ranking_id': team.season_team_sub_cup_tournament_ranking_id,
-        'season_cup_tournament_id': team.season_cup_tournament_id,
-        'is_dummy': team.is_dummy,
-    }
+    if team is not None:
+        return {
+            'id': team.id,
+            'name': team.name,
+            'abbreviation': team.abbreviation,
+            'gbo_team': team.gbo_team,
+            'season_team_id': team.season_team_id,
+            'season_team_cup_tournament_ranking_id': team.season_team_cup_tournament_ranking_id,
+            'season_team_cup_championship_ranking_id': team.season_team_cup_championship_ranking_id,
+            'season_team_sub_cup_tournament_ranking_id': team.season_team_sub_cup_tournament_ranking_id,
+            'season_cup_tournament_id': team.season_cup_tournament_id,
+            'is_dummy': team.is_dummy,
+        }
+    else:
+        return { 'id': -1 }
 
 def serialize_playerstat(stat: PlayerStats) -> Dict[str, Any]:
     return {

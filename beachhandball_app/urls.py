@@ -40,6 +40,7 @@ urlpatterns = [
 
     path('structure_setup/', static_views.structure_setup, name='structure_setup'),
     path('structure_setup/<int:pk>/', StructureSetupDetail.as_view(), name='structure_setup.detail'),
+    path('structure_setup/<int:pk_tevent>/delete_structure/', static_views.delete_structure, name='structure_setup.delete_all'),
     #path('structure_setup/<int:pk>/create_tstage/', StructureSetupCreateTournamentStage.as_view(), name='structure_setup.create_tstage'),
     path('structure_setup/<int:pk>/create_tstage/', StageCreateView.as_view(), name='structure_setup.create_tstage'),
     path('structure_setup/<int:pk_tevent>/delete_tstage/<int:pk>/', StageDeleteView.as_view(), name='structure_setup.delete_tstage'),

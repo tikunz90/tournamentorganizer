@@ -11,7 +11,8 @@
     <!--      Wizard container        -->
     <div class="wizard-container">
       <div class="card card-wizard" data-color="rose" id="wizardProfile">
-        <form action="" method="">
+        <form action={{ url('setup_wizard', args=[tevent.id]) }} method="post">
+          <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
           <!--        You can switch " data-color="primary" "  with one of the next bright colors: "green", "orange", "red", "blue"       -->
           <div class="card-header text-center">
             <h3 class="card-title">
@@ -27,18 +28,18 @@
                 </a>
               </li>
               <li class="nav-item">
-                <a class="nav-link" href="#tabStructure" data-toggle="tab" role="tab">
-                  Structure
+                <a class="nav-link" href="#tabKO" data-toggle="tab" role="tab">
+                  Knockout Stage
                 </a>
               </li>
               <li class="nav-item">
-                <a class="nav-link" href="#tabTeams" data-toggle="tab" role="tab">
-                  Teams
+                <a class="nav-link" href="#tabGroupStage" data-toggle="tab" role="tab">
+                  Group Stage
                 </a>
               </li>
               <li class="nav-item">
-                <a class="nav-link" href="#tabGamePlan" data-toggle="tab" role="tab">
-                  Game Plan
+                <a class="nav-link" href="#tabResult" data-toggle="tab" role="tab">
+                  Result
                 </a>
               </li>
             </ul>
@@ -47,15 +48,80 @@
             <div class="tab-content">
 
               <div class="tab-pane active" id="tabStart">
-                <h5 class="info-text"> Let's start with setting up your tournament</h5>
-                <h4 class="info-text"> In the <b>Structure</b> menu you have to define the groups, knockout-stage, finals and placements rounds.</h4>
-                <h4 class="info-text"> In the <b>Teams</b> menu you can assign registered teams to the groups.</h4>
-                <h4 class="info-text"> In the <b>Game Plan</b> menu you can create an automatic generated game plan.</h4>
-                <h5 class="info-text"> All settings in the wizard can be fine tuned later in the sidebar menus for individually changes.</h5>
+                <h3 class="info-text"> Let's start with setting up your tournament</h3>
+                <h4 class="info-text"> How many teams you want to host on your tournament?</h4>
+                <div class="input-group form-control-lg">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text">
+                      <i class="material-icons">groups</i>
+                    </span>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Max. number of Teams</label>
+                    <input type="number" name="max_num_teams" id="wz-max_num_teams" class="input_group form-control" value="2" min="2" max="64" required>
+                  </div>
+                </div>
+
+                <h5 class="info-text">Choose minimum 2 and maximum 64 teams</h5>
+                
               </div>
 
 
-              <div class="tab-pane" id="tabStructure">
+              <div class="tab-pane" id="tabKO">
+                <h5 class="info-text">As next step we need to define the Knockout and Placement stage.</h5>
+                <p class="text-left">Define how many teams will play knockout games for the final. 2 means only 2 teams from the group stage will proceed to knockout stage, therefore this 2 teams will play directly the final. With 4 teams selected, Knockout Stage will start at the Semi-Finals, 8 teams means Quarter-Finals and so on...</p>
+                <div class="input-group form-control-lg">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text">
+                      <i class="material-icons">line_style</i>
+                    </span>
+                  </div>
+                  <div class="form-group row">
+                    <div class="col-8">
+                    <label for="wz-sel-teams-knockout" class="">Number of teams can reach Knockout-Stage?</label>
+                    
+                    </div>
+                    <div class="col-4">
+                      <select name="sel_teams_knockout" class="input_group form-control" id="wz-sel-teams-knockout">
+                        <option selected value="2">2</option>
+                        <option value="4">4</option>
+                        <option value="8">8</option>
+                        <option value="16">16</option>
+                        <option value="32">32</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+                
+                <h5 class="info-text">Define until which rank you want to play Placement games</h5>
+                <p class="text-left">The losing teams from Knockout Stage will continue playing for lower placements.</p>
+
+                <div class="input-group form-control-lg">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text">
+                      <i class="material-icons">format_list_numbered</i>
+                    </span>
+                  </div>
+                  <div class="form-group row">
+                    <div class="col-8">
+                    <label for="wz-sel-teams-getting-ranked" class="">Number of teams getting ranked?</label>
+                    
+                    </div>
+                    <div class="col-4">
+                      <select name="sel_teams_getting_ranked" class="input_group form-control" id="wz-sel-teams-getting-ranked">
+                        <option selected value="2">2</option>
+                        <option value="4">4</option>
+                        <option value="8">8</option>
+                        <option value="16">16</option>
+                        <option value="32">32</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+
+              <div class="tab-pane" id="tabGroupStage">
                 <h5 class="info-text"> Define number and size of groups</h5>
 
                 
@@ -65,74 +131,17 @@
                     <div class="input-group form-control-lg">
                       <div class="input-group-prepend">
                         <span class="input-group-text">
-                          <i class="material-icons">groups</i>
-                        </span>
-                      </div>
-                      <div class="form-group">
-                        <label class="form-label">Max. number of Teams</label>
-                        <input type="number" id="wz-max_num_teams" class="input_group form-control" value="2" min="2" max="64" required>
-                      </div>
-                    </div>
-
-                    <div class="input-group form-control-lg">
-                      <div class="input-group-prepend">
-                        <span class="input-group-text">
                           <i class="material-icons">numbers</i>
                         </span>
                       </div>
                       <div class="form-group">
                         <label class="form-label">Number of groups</label>
-                        <input type="number" id="wz-num_of_groups" class="input_group form-control" value="2" min="1" max="32" required>
+                        <input type="number" name="num_of_groups" id="wz-num_of_groups" class="input_group form-control" value="2" min="1" max="32" required>
                       </div>
                     </div>
 
 
-                    <div class="input-group form-control-lg">
-                      <div class="input-group-prepend">
-                        <span class="input-group-text">
-                          <i class="material-icons">line_style</i>
-                        </span>
-                      </div>
-                      <div class="form-group row">
-                        <div class="col-8">
-                        <label for="wz-sel-teams-knockout" class="">Number of teams can reach Knockout-Stage?</label>
-                        
-                        </div>
-                        <div class="col-4">
-                          <select class="input_group form-control" id="wz-sel-teams-knockout">
-                            <option selected value="2">2</option>
-                            <option value="4">4</option>
-                            <option value="8">8</option>
-                            <option value="16">16</option>
-                            <option value="32">32</option>
-                          </select>
-                        </div>
-                      </div>
-                    </div>
                     
-
-                    <div class="input-group form-control-lg">
-                      <div class="input-group-prepend">
-                        <span class="input-group-text">
-                          <i class="material-icons">format_list_numbered</i>
-                        </span>
-                      </div>
-                      <div class="form-group row">
-                        <div class="col-8">
-                        <label for="wz-sel-teams-getting-ranked" class="">Number of teams getting ranked?</label>
-                        
-                        </div>
-                        <div class="col-4">
-                          <select class="input_group form-control" id="wz-sel-teams-getting-ranked">
-                            <option selected value="2">2</option>
-                            <option value="4">4</option>
-                            <option value="8">8</option>
-                            <option value="16">16</option>
-                            <option value="32">32</option>
-                          </select>
-                        </div>
-                      </div>
-                    </div>
                   </div>
                   
                   <div class="col-sm-4">
@@ -140,6 +149,17 @@
                   
                 </div>
 
+                <p>Keep in mind that amount of groups is limited by number of teams can reach Knockout Stage which you have selected before.</p>
+
+                
+              </div>
+              
+              <div class="tab-pane" id="tabResult">
+                <h5 class="info-text">Checkout the result of your settings.</h5>
+                <p>Individual changes can be done later...</p>
+                <p>If you are happy with it, push CREATE button in the low right corner.</p>
+
+                <!-- Eval number of games-->
                 <div class="row justify-content-center">
                   <div class="col">
                     <div class="input-group form-control-lg">
@@ -371,46 +391,6 @@
                       <p>Teams achieves rank</p>
                   </div>
                 </div>
-              </div>
-              
-
-              <div class="tab-pane" id="tabTeams">
-                <h5 class="info-text">After Group-Stage it is possible to play a Main-Round to find teams for the Knockout-Stage. Do nothing here if teams should transit directly to Knockout-Stage.</h5>
-                <div id="myKanban"></div>
-              </div>
-
-
-              <div class="tab-pane" id="tabGamePlan">
-                <h5 class="info-text">Teams in the Knockout-Stage fight for the finals.</h5>
-
-                <div class="row justify-content-center">
-                  <div class="col-sm-6">
-                    <div class="input-group form-control-lg">
-                      <div class="input-group-prepend">
-                        <span class="input-group-text">
-                          <i class="material-icons">stadium</i>
-                        </span>
-                      </div>
-                      <div class="form-group">
-                        <label class="form-label">Number of Courts</label>
-                        <input type="number" class="form-control" value="1" min="1" max="64">
-                      </div>
-                    </div>
-
-                    <div class="input-group form-control-lg">
-                      <div class="input-group-prepend">
-                        <span class="input-group-text">
-                          <i class="material-icons">start</i>
-                        </span>
-                      </div>
-                      <div class="form-group">
-                        <label>Start Datetime of first game</label>
-                        <input type="datetime-local" class="form-control">
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
 
               </div>
             </div>
@@ -421,7 +401,7 @@
             </div>
             <div class="ml-auto">
               <input type="button" class="btn btn-next btn-fill btn-rose btn-wd" name="next" value="Next">
-              <input type="button" class="btn btn-finish btn-fill btn-rose btn-wd" name="finish" value="Finish" style="display: none;">
+              <input type="submit" class="btn btn-finish btn-fill btn-rose btn-wd" name="finish" value="Create" style="display: none;">
             </div>
             <div class="clearfix"></div>
           </div>
@@ -699,112 +679,6 @@
     
   });
 
-  var KanbanTest = new jKanban({
-    element: "#myKanban",
-    gutter: "10px",
-    widthBoard: "450px",
-    itemHandleOptions:{
-      enabled: true,
-    },
-    click: function(el) {
-      console.log("Trigger on all items click!");
-    },
-    context: function(el, e) {
-      console.log("Trigger on all items right-click!");
-    },
-    dropEl: function(el, target, source, sibling){
-      console.log(target.parentElement.getAttribute('data-id'));
-      console.log(el, target, source, sibling)
-    },
-    buttonClick: function(el, boardId) {
-      console.log(el);
-      console.log(boardId);
-      // create a form to enter element
-      var formItem = document.createElement("form");
-      formItem.setAttribute("class", "itemform");
-      formItem.innerHTML =
-        '<div class="form-group"><textarea class="form-control" rows="2" autofocus></textarea></div><div class="form-group"><button type="submit" class="btn btn-primary btn-xs pull-right">Submit</button><button type="button" id="CancelBtn" class="btn btn-default btn-xs pull-right">Cancel</button></div>';
-
-      KanbanTest.addForm(boardId, formItem);
-      formItem.addEventListener("submit", function(e) {
-        e.preventDefault();
-        var text = e.target[0].value;
-        KanbanTest.addElement(boardId, {
-          title: text
-        });
-        formItem.parentNode.removeChild(formItem);
-      });
-      document.getElementById("CancelBtn").onclick = function() {
-        formItem.parentNode.removeChild(formItem);
-      };
-    },
-    itemAddOptions: {
-      enabled: true,
-      content: '+ Add New Card',
-      class: 'custom-button',
-      footer: true
-    },
-    boards: [
-      {
-        id: "_todo",
-        title: "To Do (Can drop item only in working)",
-        class: "info,good",
-        dragTo: ["_working"],
-        item: [
-          {
-            id: "_test_delete",
-            title: "Try drag this (Look the console)",
-            drag: function(el, source) {
-              console.log("START DRAG: " + el.dataset.eid);
-            },
-            dragend: function(el) {
-              console.log("END DRAG: " + el.dataset.eid);
-            },
-            drop: function(el) {
-              console.log("DROPPED: " + el.dataset.eid);
-            }
-          },
-          {
-            title: "Try Click This!",
-            click: function(el) {
-              alert("click");
-            },
-            context: function(el, e){
-              alert("right-click at (" + `${e.pageX}` + "," + `${e.pageX}` + ")")
-            },
-            class: ["peppe", "bello"]
-          }
-        ]
-      },
-      {
-        id: "_working",
-        title: "Working (Try drag me too)",
-        class: "warning",
-        item: [
-          {
-            title: "Do Something!"
-          },
-          {
-            title: "Run?"
-          }
-        ]
-      },
-      {
-        id: "_done",
-        title: "Done (Can drop item only in working)",
-        class: "success",
-        dragTo: ["_working"],
-        item: [
-          {
-            title: "All right"
-          },
-          {
-            title: "Ok!"
-          }
-        ]
-      }
-    ]
-  });
 </script>
 
 {% endblock javascripts %}

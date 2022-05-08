@@ -266,6 +266,7 @@ class TournamentStageDetail(LoginRequiredMixin, UserPassesTestMixin, DetailView)
     
     def test_func(self):
         return self.request.user.groups.filter(name='tournament_organizer').exists()
+
 class StageCreateView(BSModalCreateView):
     template_name = 'beachhandball/tournamentevent/create_stage_form.html'
     form_class = TournamentStageForm

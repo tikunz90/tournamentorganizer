@@ -22,7 +22,7 @@
   <div class="row">
   {% if events %}
   {% for tevent in events %}
-    <div class="col-md-6">
+    <div class="col-md-4">
       <div class="card card-product">
         <div class="card-header card-header-image" data-header-animation="true">
           <a href="{{ url('structure_setup.detail', kwargs={'pk': tevent.id }) }}">
@@ -41,9 +41,7 @@
           <h3 class="card-title">
             <a href="{{ url('structure_setup.detail', kwargs={'pk': tevent.id }) }}">{{ tevent.name }} ({{ tevent.id }})</a>
           </h3>
-          {% if tevent.tournamentstage_set.count() == 0 %}
-            <a class="btn btn-primary w-100" href="{{ url('setup_wizard', kwargs={'pk_tevent': tevent.id }) }}">Setup Wizard</a>
-          {% endif %}
+          
           {% if tevent.is_in_configuration %}
           <div>
           <h6 class="card-subtitle"><i class="material-icons">engineering</i>Event is under construction!!</h6>

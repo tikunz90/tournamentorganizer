@@ -165,8 +165,32 @@ def setup_wizard(request, pk_tevent):
     context['segment'] = 'index'
     context['segment_title'] = 'Overview'
 
+    if request.method == 'POST':
+        print('')
+
     html_template = loader.get_template( 'forms-setup-wizard.html' )
     return HttpResponse(html_template.render(context, request))
+
+@login_required(login_url="/login/")
+@user_passes_test(lambda u: u.groups.filter(name='tournament_organizer').exists(),
+login_url="/login/", redirect_field_name='structure_setup')
+def delete_structure(request, pk_tevent):
+    context = getContext(request)
+    if not checkLoginIsValid(context['gbo_user']):
+        return redirect('login')
+    for te in context['events']:
+        if te.id == pk_tevent:
+            context['tevent'] = te
+            break
+    context['segment'] = 'structure_setup'
+    context['segment_title'] = 'Structure Setup'
+
+    if request.method == 'POST':
+        print('Delete all strucutre')
+        redirect('structure_setup.detail', pk=pk_tevent)
+    elif request.method == 'GET':
+        html_template = loader.get_template( 'beachhandball/tournamentevent/delete_structure_confirmation.html' )
+        return HttpResponse(html_template.render(context, request))
 
 @login_required(login_url="/login/")
 @user_passes_test(lambda u: u.groups.filter(name='tournament_organizer').exists(),

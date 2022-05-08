@@ -12,6 +12,7 @@
 <h2>Structure Setup - 
   <small class="description">create Structure with Tournament Stages and States...</small>
 </h2>
+
 <div class="row">
   <div class="col-md-12 ml-auto mr-auto">
     <div class="page-categories">
@@ -43,6 +44,10 @@
                     <i class="material-icons">swap_horiz</i> Change Order
                   </a>
                 </div>
+
+                <a id="delete-structure" class="dropdown-item" href="{{ url('structure_setup.delete_all', kwargs={'pk_tevent': tevent.id}) }}">
+                  <i class="material-icons">delete</i> Delete Structure
+                </a>
                 
                 
               </div>
@@ -94,7 +99,10 @@
         </li>
         {% endwith %}
       {% else %}
-        <li>No Stages defined. Please add</li>
+        <li>No Stages defined. Please add or run wizard</li>
+        {% if tevent.tournamentstage_set.count() == 0 %}
+          <a class="btn btn-primary w-100" href="{{ url('setup_wizard', kwargs={'pk_tevent': tevent.id }) }}">Structure Wizard</a>
+        {% endif %}
       {% endfor %}
     </ul>
     <div class="tab-content tab-space tab-subcategories">

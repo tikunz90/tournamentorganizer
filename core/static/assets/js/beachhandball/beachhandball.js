@@ -64,6 +64,10 @@ bh = {
         var teams_next_stage = Math.floor(sel_val / num_groups);
         $("#wz-sel-teams-knockout").empty();
         var sel_val_ranked = $("#wz-sel-teams-getting-ranked").val();
+        if(sel_val_ranked > sel_val)
+        {
+            sel_val_ranked = sel_val;
+        }
         $("#wz-sel-teams-getting-ranked").empty();
         var num_choices = Math.floor(Math.log(num_teams)/Math.log(2));
         for(let i = 1; i <= num_choices; i++)
@@ -80,12 +84,15 @@ bh = {
             if((Math.pow(2,i)) == sel_val_ranked)
             {
                 opt = '<option selected value=' + Math.pow(2,i) + '>' + Math.pow(2,i) + '</option>';
+                $("#wz-sel-teams-getting-ranked").append(opt);
             }
-            else{
+            else if((Math.pow(2,i)) <= sel_val){
                 opt = '<option value=' + Math.pow(2,i) + '>' + Math.pow(2,i) + '</option>';
+                $("#wz-sel-teams-getting-ranked").append(opt);
             }
-            $("#wz-sel-teams-getting-ranked").append(opt);
+            
         }
+        
 
         
         console.log("wzCalcGroups: #groups:" + num_groups + " teams p gr: " + teams_per_group);
@@ -155,8 +162,10 @@ bh = {
         var row = document.getElementById(idRow);
         $(row).empty();
         var num_teams_soll = $("#wz-sel-teams-knockout").val();
+        var num_teams_getting_ranked = $("#wz-sel-teams-getting-ranked").val();
         var levels = (Math.log(num_teams_soll) / Math.log(2)) - 1; // -1 because final is seperated by
-        for(let i = levels; i >= 1; i--)
+        var levels_ranked = (Math.log(num_teams_getting_ranked) / Math.log(2)) - 1;
+        for(let i = levels_ranked; i >= 1; i--)
         {
             var tLevel= $("#templatePL_level").clone();
             $(tLevel).attr("id", 'level_' + i);
@@ -165,7 +174,7 @@ bh = {
             var width = 3;
             var offset = 0;
             var actNaming = PLACEMENT_NAMES[Math.pow(2, i)] + ' ';
-            var lastNaming = '';
+            var lastNaming = KNOCKOUT_NAMES[Math.pow(2, i+1)] + ' ';
             $(tLevel).find("#templatePL_header").text('Placement for rank ' + (Math.pow(2, i)+1) + ' to ' + ((2*Math.pow(2, i))));
             var tLevel_items = $("#templatePL_items").clone();
             $(tLevel_items).removeAttr('hidden');
@@ -220,9 +229,66 @@ bh = {
     wzCalcPlacementLevel(bodyLevel, levels, bestRankWinner, namingParent){
         if(levels == 1)
             return;
+
+        var width = 3;
+        var offset = 0;
+        if(levels <= 3)
+        {
+            width = 5;
+            offset = 1;
+        }
         //var bestRankWinner = Math.pow(2, levels);
-        var bestRankLoser= bestRankWinner + bestRankWinner/2;
+        var bestRankLoser= (bestRankWinner+Math.pow(2, levels-1));
         var subLevel = Math.pow(2, levels-2);
+
+        if(true)
+        {
+            // Losing part
+            var tLoser= $("#templatePLsub_level").clone();
+            $(tLoser).attr("id", 'level_l_' + bestRankLoser);
+            $(tLoser).removeAttr('hidden');
+            $(tLoser).find("#templatePLsub_header").text('Placement for rank ' + (bestRankLoser+1) +' to ' + (bestRankLoser+Math.pow(2, levels-1)));
+            var tLoser_items = $(tLoser).find("#templatePLsub_items");
+            var actNamingLoser = 'P' + (bestRankLoser+1) + 'to' + (bestRankLoser+Math.pow(2, levels-1)) + ' ';
+            for(var j = 1; j <= subLevel; j++)
+            {
+                var templateGroup = $("#templateGroup").clone();
+                $(templateGroup).attr("id", 'pl_level_l_' + levels + '_' + j);
+                $(templateGroup).removeAttr('hidden');
+                $(templateGroup).find("#templateGroup_name").text(actNamingLoser + j);
+                $(templateGroup).attr("class", 'col-md-' + width + ' offset-md-' + offset);
+                var body = $(templateGroup).find("#templateGroup_body");
+                body.empty();
+                for (let iTeam = 0; iTeam < 2; iTeam++) {
+                    var tTeamItem = $("#templateTeamItem").clone();
+                    $(tTeamItem).attr("id", 'pl_level_teamitem_l_' + j + '_' + iTeam);
+                    $(tTeamItem).removeAttr('hidden');
+                    var NameExtension = '. Loser ' + namingParent + '' + ((j-1)*2 + iTeam + 1);
+                    
+                    if( iTeam == 0 && subLevel > 1)
+                    {
+                        $(tTeamItem).find("#templateTeamItem_icon").text('arrow_upward');
+                    }
+                    else if(subLevel > 1)
+                    {
+                        $(tTeamItem).find("#templateTeamItem_icon").text('clear');
+                    }
+                    else if(subLevel == 1)
+                    {
+                        $(tTeamItem).find("#templateTeamItem_icon").attr('hidden', 'hidden');
+                        $(tTeamItem).find("#templateTeamItem_rank").text((bestRankLoser+1+iTeam)+'.');
+                        $(tTeamItem).find("#templateTeamItem_rank").removeAttr('hidden');
+                    }
+                    
+                    $(tTeamItem).find("#templateTeamItem_name").text((iTeam+1) + NameExtension);
+                    body.append(tTeamItem);
+                }
+                $(tLoser_items).append(templateGroup);
+                wzNumOfGamesPlacement++;
+            }
+            bodyLevel.append(tLoser);
+            bh.wzCalcPlacementLevel(bodyLevel, subLevel, bestRankLoser, actNamingLoser);
+        }
 
         // Winning part
         var tWinning= $("#templatePLsub_level").clone();
@@ -232,17 +298,11 @@ bh = {
         var tWinning_items = $(tWinning).find("#templatePLsub_items");
         var actNaming = 'P' + (bestRankWinner+1) + 'to' + (bestRankWinner+Math.pow(2, levels-1)) + ' ';
         var lastNaming = '';
-        var width = 3;
-        var offset = 0;
-        if(levels <= 3)
-        {
-            width = 5;
-            offset = 1;
-        }
+        
         for(var j = 1; j <= subLevel; j++)
         {
             var templateGroup = $("#templateGroup").clone();
-            $(templateGroup).attr("id", 'pl_level_' + levels + '_' + j);
+            $(templateGroup).attr("id", 'pl_level_w_' + levels + '_' + j);
             $(templateGroup).removeAttr('hidden');
             $(templateGroup).find("#templateGroup_name").text(actNaming + j);
             $(templateGroup).attr("class", 'col-md-' + width + ' offset-md-' + offset);
@@ -276,6 +336,9 @@ bh = {
             wzNumOfGamesPlacement++;
         }
         bodyLevel.append(tWinning);
+
+        
+
         bh.wzCalcPlacementLevel(bodyLevel, levels-1, bestRankWinner, actNaming);
 
     },
