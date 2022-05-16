@@ -8,7 +8,7 @@
 {% block content %}
 
   <div class="col-md-12 col-12 mr-auto ml-auto">
-    <h3>Are you sure deleteing full strucutre of {{ tevent.name_short }}???</h3>
+    <h3>Are you sure deleting full structure of <b>{{ tevent.name_short }}</b>???</h3>
   </div>
   <form id="" action={{ url('structure_setup.delete_all', args=[tevent.id]) }} method="post">
     <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">

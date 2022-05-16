@@ -167,8 +167,8 @@
                   </div>
                   
                   </td>
-                  <td class="text-center" data-content="{{ game.team_st_a.team }}">{% if game.team_st_a.id == game.winner %}<button class="btn btn-outline-info"><i class="material-icons">emoji_events</i><b>{{ game.team_st_a.team }}</b></button>{% else %}{{ game.team_st_a.team }}{% endif %}</td>
-                  <td class="text-center" data-content="{{ game.team_st_b.team }}">{% if game.team_st_b.id == game.winner %}<button class="btn btn-outline-info"><i class="material-icons">emoji_events</i><b>{{ game.team_st_b.team }}</b></button></b>{% else %}{{ game.team_st_b.team }}{% endif %}</td>
+                  <td class="text-center" data-content="{{ game.team_st_a.team }}">{% if game.team_st_a.id == game.winner %}<button class="btn btn-outline-info"><i class="material-icons">emoji_events</i><b>{{ game.team_st_a.team }}</b></button>{% else %}({{ game.team_st_a.id }} {{ game.team_st_a.team.id }}){{ game.team_st_a.team }}{% endif %}</td>
+                  <td class="text-center" data-content="{{ game.team_st_b.team }}">{% if game.team_st_b.id == game.winner %}<button class="btn btn-outline-info"><i class="material-icons">emoji_events</i><b>{{ game.team_st_b.team }}</b></button></b>{% else %}({{ game.team_st_b.id }}){{ game.team_st_b.team }}{% endif %}</td>
                   <td id="game-list-td-court-{{ game.id }}" class="game-list-court-td text-center" data-content="{{ game.court.id }}">
                     <div class="game-list-court-label">{{ game.court.name }}</div>
                     <div class="game-list-court-select" data-game_id="{{ game.id }}" hidden>
@@ -185,7 +185,7 @@
                   <td class="text-center" data-content="sets">{{ game.setpoints_team_a }}:{{ game.setpoints_team_b }}</td>
                   <td class="text-center" data-content="{{ game.gamestate }}">{{ game.gamestate }}</td>
                   <td class="td-actions text-right">
-                    <button type="button" class="update_game btn btn-success btn-link" rel="tooltip" title="Edit Game" data-form-url='{{ url("update_game", kwargs={"pk_tevent":game.tournament_event.id, "pk_tstage": game.tournament_state.tournament_stage.id, "pk":  game.id}) }}' data-list-url="{{ url('game_plan') }}" onclick="modalShowSpinner();">
+                    <button type="button" class="update_game btn btn-success btn-link" rel="tooltip" title="Edit Game" data-form-url='{{ url("update_game", kwargs={"pk_tevent":game.tournament_event.id, "pk_tstage": game.tournament_state.tournament_stage.id, "pk":  game.id, "from_gameplan": 1}) }}' data-list-url="{{ url('game_plan') }}" onclick="modalShowSpinner();">
                         <i class="material-icons">edit</i>
                     </button>
                     <button type="button" rel="tooltip" class="download-pregame-report btn btn-info btn-link" rel="tooltip" title="Download Pre-Game Report" data-form-url="{{ url('download_pre_game', kwargs={'pk_tevent':game.tournament_event.id, 'pk_tstage': game.tournament_state.tournament_stage.id, 'pk':  game.id}) }}" data-list-url="{{ url('game_plan') }}">
@@ -285,6 +285,27 @@
             "<\/script>"
           ].join();
 
+
+          function updateGameModalForm() {
+            $(".update_game").each(function () {
+              console.debug('#' + $(this).closest('table')[0].id);
+                $(this).modalForm({
+                  modalID: "#game-modal",
+                  formURL: $(this).data("form-url"),
+                 asyncUpdate: false,
+                 asyncSettings: {
+                    closeOnSubmit: true,
+                    successMessage: asyncSuccessMessage2,
+                    dataUrl: $(this).data("list-url"),
+                    dataElementId: '#' + $(this).closest('table')[0].id,
+                    dataKey: "table",
+                    addModalFormFunction: reinstantiateModalForms
+                  }
+              });
+            });
+          }
+          updateGameModalForm();
+        
     function updateGameResultModalForm() {
             $(".update-game-result").each(function () {
               console.debug('#' + $(this).closest('table')[0].id);
@@ -306,6 +327,7 @@
           updateGameResultModalForm();
     function reinstantiateModalForms() {
             updateGameResultModalForm();
+            updateGameModalForm();
           }
     function getUpdateGameDateTime(game_id) {
         return $.ajax({

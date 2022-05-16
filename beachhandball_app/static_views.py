@@ -2,6 +2,7 @@
 """
 Copyright (c) 2019 - present AppSeed.us
 """
+from django.urls import reverse
 from beachhandball_app.tasks import update_user_tournament_events_async
 from datetime import datetime
 import time
@@ -18,7 +19,7 @@ from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from django.shortcuts import render, get_object_or_404, redirect
 from django.template import loader
-from django.http import HttpResponse, JsonResponse
+from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django import template
 from django.db.models import Q
 
@@ -187,7 +188,7 @@ def delete_structure(request, pk_tevent):
 
     if request.method == 'POST':
         print('Delete all strucutre')
-        redirect('structure_setup.detail', pk=pk_tevent)
+        return HttpResponseRedirect(reverse("structure_setup.detail", kwargs={"pk": pk_tevent}))
     elif request.method == 'GET':
         html_template = loader.get_template( 'beachhandball/tournamentevent/delete_structure_confirmation.html' )
         return HttpResponse(html_template.render(context, request))

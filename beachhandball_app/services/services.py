@@ -18,7 +18,7 @@ class SWS():
         endpoint = '/gbo/users/login'
         response = requests.post(SWS.base_url + endpoint,
         json={'email': user, 'password': pw},
-        headers=SWS.headers)
+        headers=SWS.headers, verify=conf_settings.SWS_VERIFY_SSL)
         if response.json()['isError'] is not True:
             data = response.json()
             print("Session to gbo created")
@@ -33,7 +33,7 @@ class SWS():
         endpoint = '/gbo/subjects/email/{}'.format(gbo_user.gbo_user)
         headers = SWS.headers
         headers['Authorization'] = 'Bearer {}'.format(gbo_user.token)
-        response = requests.get(SWS.base_url + endpoint, headers=headers)
+        response = requests.get(SWS.base_url + endpoint, headers=headers, verify=conf_settings.SWS_VERIFY_SSL)
         subject_id = -1
         if response.json()['isError'] is not True:
             data = response.json()['message']
@@ -54,7 +54,7 @@ class SWS():
         endpoint = '/gbo/seasons/active'
         headers = SWS.headers
         #headers['Authorization'] = 'Bearer {}'.format(gbo_user.token)
-        response = requests.get(SWS.base_url + endpoint, headers=headers)
+        response = requests.get(SWS.base_url + endpoint, headers=headers, verify=conf_settings.SWS_VERIFY_SSL)
         act_season = ''
         if response.json()['isError'] is not True:
             act_season = response.json()['message'][0]
@@ -69,7 +69,7 @@ class SWS():
         endpoint = '/gbo/seasons/'
         headers = SWS.headers
         headers['Authorization'] = 'Bearer {}'.format(gbo_user.token)
-        response = requests.get(SWS.base_url + endpoint, headers=headers)
+        response = requests.get(SWS.base_url + endpoint, headers=headers, verify=conf_settings.SWS_VERIFY_SSL)
         seasons = []
         if response.json()['isError'] is not True:
             seasons = response.json()['message']
@@ -80,7 +80,7 @@ class SWS():
         endpoint = '/season/cup-tournaments/to/' + str(gbo_user.subject_id)
         headers = SWS.headers
         headers['Authorization'] = 'Bearer {}'.format(gbo_user.token)
-        response = requests.get(SWS.base_url + endpoint, headers=headers)
+        response = requests.get(SWS.base_url + endpoint, headers=headers, verify=conf_settings.SWS_VERIFY_SSL)
         act_season = ''
         if response.json()['isError'] is not True:
             data = response.json()['message']
@@ -95,7 +95,7 @@ class SWS():
         endpoint = '/season/cup-german-championship/to/' + str(gbo_user.subject_id)
         headers = SWS.headers
         headers['Authorization'] = 'Bearer {}'.format(gbo_user.token)
-        response = requests.get(SWS.base_url + endpoint, headers=headers)
+        response = requests.get(SWS.base_url + endpoint, headers=headers, verify=conf_settings.SWS_VERIFY_SSL)
         act_season = ''
         if response.json()['isError'] is not True:
             data = response.json()['message']
@@ -110,7 +110,7 @@ class SWS():
         endpoint = '/season/cup-german-championship/to/' + str(gbo_user.subject_id)
         headers = SWS.headers
         headers['Authorization'] = 'Bearer {}'.format(gbo_user.token)
-        response = requests.get(SWS.base_url + endpoint, headers=headers)
+        response = requests.get(SWS.base_url + endpoint, headers=headers, verify=conf_settings.SWS_VERIFY_SSL)
         act_season = ''
         if response.json()['isError'] is not True:
             data = response.json()['message']
@@ -127,7 +127,7 @@ class SWS():
         endpoint = '/season/cup-tournaments/'
         headers = SWS.headers
         headers['Authorization'] = 'Bearer {}'.format(gbo_user.token)
-        response = requests.get(SWS.base_url + endpoint, headers=headers)
+        response = requests.get(SWS.base_url + endpoint, headers=headers, verify=conf_settings.SWS_VERIFY_SSL)
         result = response.json()
         end = time.time()
         execution_time = end - begin
@@ -140,7 +140,7 @@ class SWS():
         endpoint = '/season/cup-tournaments/to/' + str(gbo_user.subject_id) + '/team-info?season=' + str(gbo_user.season_active['id'])
         headers = SWS.headers
         headers['Authorization'] = 'Bearer {}'.format(gbo_user.token)
-        response = requests.get(SWS.base_url + endpoint, headers=headers)
+        response = requests.get(SWS.base_url + endpoint, headers=headers, verify=conf_settings.SWS_VERIFY_SSL)
         result = response.json()
         end = time.time()
         execution_time = end - begin
@@ -153,7 +153,7 @@ class SWS():
         endpoint = '/season/cup-german-championship/to/' + str(gbo_user.subject_id) + '/team-info'
         headers = SWS.headers
         headers['Authorization'] = 'Bearer {}'.format(gbo_user.token)
-        response = requests.get(SWS.base_url + endpoint, headers=headers)
+        response = requests.get(SWS.base_url + endpoint, headers=headers, verify=conf_settings.SWS_VERIFY_SSL)
         result = response.json()
         end = time.time()
         execution_time = end - begin
@@ -166,7 +166,7 @@ class SWS():
         endpoint = '/season/cup-german-championship/to/' + str(gbo_user.subject_id) + '/team-info'
         headers = SWS.headers
         headers['Authorization'] = 'Bearer {}'.format(gbo_user.token)
-        response = requests.get(SWS.base_url + endpoint, headers=headers)
+        response = requests.get(SWS.base_url + endpoint, headers=headers, verify=conf_settings.SWS_VERIFY_SSL)
         result = response.json()
         end = time.time()
         execution_time = end - begin
@@ -183,7 +183,7 @@ class SWS():
         endpoint = '/season/team/' + str(team_id)
         headers = SWS.headers
         headers['Authorization'] = 'Bearer {}'.format(token)
-        response = requests.get(SWS.base_url + endpoint, headers=headers)
+        response = requests.get(SWS.base_url + endpoint, headers=headers, verify=conf_settings.SWS_VERIFY_SSL)
         if response.json()['isError'] is not True:
             data = response.json()['message']
         else:
@@ -201,7 +201,7 @@ class SWS():
         endpoint = '/request/season-team-tournament/' + str(team_tourn_id)
         headers = SWS.headers
         headers['Authorization'] = 'Bearer {}'.format(token)
-        response = requests.get(SWS.base_url + endpoint, headers=headers)
+        response = requests.get(SWS.base_url + endpoint, headers=headers, verify=conf_settings.SWS_VERIFY_SSL)
         if response.json()['isError'] is not True:
             data = response.json()['message']
         else:
@@ -214,7 +214,7 @@ class SWS():
         endpoint = '/season/team-cup-tournament-ranking/' + str(tourn_id)
         headers = SWS.headers
         headers['Authorization'] = 'Bearer {}'.format(gbo_user.token)
-        response = requests.get(SWS.base_url + endpoint, headers=headers)
+        response = requests.get(SWS.base_url + endpoint, headers=headers, verify=conf_settings.SWS_VERIFY_SSL)
         if response.json()['isError'] is not True:
             data = response.json()['message']
         else:
@@ -233,7 +233,7 @@ class SWS():
         endpoint = '/season/cup-tournaments/to/'+ str(gbo_user['subject_id']) +'/team-info'
         headers = SWS.headers
         headers['Authorization'] = 'Bearer {}'.format(token)
-        response = requests.get(SWS.base_url + endpoint, headers=headers)
+        response = requests.get(SWS.base_url + endpoint, headers=headers, verify=conf_settings.SWS_VERIFY_SSL)
         return response.json()
 
     @staticmethod
@@ -247,7 +247,7 @@ class SWS():
         endpoint = '/season/team-cup-championship-ranking/'
         headers = SWS.headers
         headers['Authorization'] = 'Bearer {}'.format(token)
-        response = requests.get(SWS.base_url + endpoint, headers=headers)
+        response = requests.get(SWS.base_url + endpoint, headers=headers, verify=conf_settings.SWS_VERIFY_SSL)
         return response.json()
     
     @staticmethod
@@ -261,7 +261,7 @@ class SWS():
         endpoint = '/season/team-cup-tournament-ranking/'
         headers = SWS.headers
         headers['Authorization'] = 'Bearer {}'.format(token)
-        response = requests.get(SWS.base_url + endpoint, headers=headers)
+        response = requests.get(SWS.base_url + endpoint, headers=headers, verify=conf_settings.SWS_VERIFY_SSL)
         return response.json()
 
     @staticmethod
@@ -275,6 +275,6 @@ class SWS():
         endpoint = '/season/team/'
         headers = SWS.headers
         headers['Authorization'] = 'Bearer {}'.format(token)
-        response = requests.get(SWS.base_url + endpoint, headers=headers)
+        response = requests.get(SWS.base_url + endpoint, headers=headers, verify=conf_settings.SWS_VERIFY_SSL)
         return response.json()
     
