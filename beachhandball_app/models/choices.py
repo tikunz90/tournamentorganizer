@@ -32,6 +32,14 @@ COLOR_CHOICES = [
         ("#FFF200", "yellow")
     ]
 
+COLOR_CHOICES_DICT =	{
+  "white": "#FFFFFF",
+  "black": "#000000",
+  "persianblue": "#2A25BE",
+  "red": "#FF0005",
+  "yellow": "#FFF200",
+}
+
 TOURNAMENT_STAGE_TYPE_CHOICES = (
         ('GROUP_STAGE', 'GROUP_STAGE'),
         ('MAIN_ROUND', 'MAIN_ROUND'),

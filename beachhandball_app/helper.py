@@ -8,8 +8,8 @@ from django.db.models.query import Prefetch
 from authentication.models import GBOUser, GBOUserSerializer
 from beachhandball_app.models.Player import Player, PlayerStats
 from django.db.models.query_utils import Q, check_rel_lookup_compatibility
-from beachhandball_app.models.choices import GAMESTATE_CHOICES
-from beachhandball_app.models.Tournaments import Tournament, TournamentEvent, TournamentSettings, TournamentState, TournamentTeamTransition
+from beachhandball_app.models.choices import GAMESTATE_CHOICES, TOURNAMENT_STAGE_TYPE_CHOICES
+from beachhandball_app.models.Tournaments import Tournament, TournamentEvent, TournamentSettings, TournamentStage, TournamentState, TournamentTeamTransition
 from beachhandball_app.models.Game import Game
 from beachhandball_app.models.Team import Coach, TeamStats, Team
 from beachhandball_app.models.General import TournamentCategory
@@ -906,7 +906,6 @@ def create_teams_testdata(tevent):
                                                             team=act_team_st,
                                                             number=i)
             act_player.save()
-
 
 def get_game_winner(game):
     if game.winner_halftime_1 == game.winner_halftime_2:

@@ -12,7 +12,7 @@
         </tr>
     </thead>
     <tbody>
-        {% for tstat in tstate.stats %}
+        {% for tstat in tstate.stats|sort(attribute='rank', reverse = False)  %}
             <tr>
             <td class="text-center">{{loop.index}}</td>
             <td>{{ tstat.team.name }} ({{ tstat.team.abbreviation}})</td>

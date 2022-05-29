@@ -13,6 +13,7 @@
       <div class="card card-wizard" data-color="rose" id="wizardProfile">
         <form action={{ url('setup_wizard', args=[tevent.id]) }} method="post">
           <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+          <input type="hidden" name="structure-data" id="wz-structure-data" value="">
           <!--        You can switch " data-color="primary" "  with one of the next bright colors: "green", "orange", "red", "blue"       -->
           <div class="card-header text-center">
             <h3 class="card-title">

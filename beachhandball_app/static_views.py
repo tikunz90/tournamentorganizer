@@ -13,7 +13,7 @@ from rest_framework.renderers import JSONRenderer
 from django.utils.dateparse import parse_datetime
 
 from django.views.generic import TemplateView
-from beachhandball_app import helper
+from beachhandball_app import helper, wizard
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
@@ -24,7 +24,7 @@ from django import template
 from django.db.models import Q
 
 from authentication.models import GBOUser
-from .models.Tournaments import Court, Referee, Tournament, TournamentEvent, TournamentSettings, TournamentState
+from .models.Tournaments import Court, Referee, Tournament, TournamentEvent, TournamentSettings, TournamentStage, TournamentState
 from .models.Team import Team, TeamStats
 from .models.Series import Season
 from .models.Game import Game
@@ -167,7 +167,9 @@ def setup_wizard(request, pk_tevent):
     context['segment_title'] = 'Overview'
 
     if request.method == 'POST':
-        print('')
+        structure_data = json.loads(request.POST['structure-data'])
+        result = wizard.wizard_create_structure(te, structure_data)
+        return HttpResponseRedirect(reverse("structure_setup.detail", kwargs={"pk": pk_tevent}))
 
     html_template = loader.get_template( 'forms-setup-wizard.html' )
     return HttpResponse(html_template.render(context, request))
@@ -188,6 +190,7 @@ def delete_structure(request, pk_tevent):
 
     if request.method == 'POST':
         print('Delete all strucutre')
+        TournamentStage.objects.filter(tournament_event=context['tevent']).delete()
         return HttpResponseRedirect(reverse("structure_setup.detail", kwargs={"pk": pk_tevent}))
     elif request.method == 'GET':
         html_template = loader.get_template( 'beachhandball/tournamentevent/delete_structure_confirmation.html' )
