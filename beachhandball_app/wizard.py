@@ -89,6 +89,15 @@ def wizard_create_structure(tevent, structure_data):
     tstageFinal.tournament_stage = TOURNAMENT_STAGE_TYPE_CHOICES[4][1]
     tstageFinal.order = 3
     tstageFinal.save()
+    colorIdx = 0
+    state, cr = TournamentState.objects.get_or_create(tournament_event=tevent,
+                tournament_state='FINAL',
+                tournament_stage=tstageFinal,
+                name="Final",
+                abbreviation="F",
+                max_number_teams=2, 
+                color=COLOR_CHOICES[colorIdx][0])
+    state.save()
 
     #tttWinner, cr = TournamentTeamTransition.objects.get_or_create(tournament_event=tevent,
     #origin_ts_id=1,

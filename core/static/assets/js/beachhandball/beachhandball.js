@@ -42,7 +42,8 @@ bh = {
         "placement": "",
         "finals": "",
         "transistions": {
-            "groups_to_ko":{}
+            "groups_to_ko":{},
+            "ko_to_pl":{}
         }},
 
     wzUpdateStructure: function(){ 
@@ -492,7 +493,7 @@ bh = {
         var lastNaming = '';
         for(let i = koData.levels; i > 1; i--)
         {
-            levelData = {"idx":i, "header": "", "actNaming":"", "groups":[] };
+            levelData = {"idx":i, "header": "", "actNaming":"", "groups":[], "transistions": [] };
             var transFromGroup = bh.structureData.transistions.groups_to_ko;
             var tLevel= $("#templateKO_level").clone();
             $(tLevel).attr("id", 'level_' + i);
@@ -516,6 +517,7 @@ bh = {
             levelData.header = header;
             var tLevel_items = $(tLevel).find("#templateKO_items");
             var num_of_states = Math.pow(2, i-1);
+            var next_group_counter = 0;
             for(var j = 1; j <= num_of_states; j++)
             {
                 actGroup = {"idx":j, "name":levelData.actNaming + j, "teams": [] };
@@ -527,37 +529,25 @@ bh = {
                 var body = $(templateGroup).find("#templateGroup_body");
                 body.empty();
                 for (let iTeam = 0; iTeam < 2; iTeam++) {
-                    actTeam = {"idx":iTeam, "name":(iTeam+1) + '. TeamDummy', "rank": 0, "transition": { "origin_rank": 0, "origin_group_id": j, "origin_group_name": levelData.actNaming + j, "target_rank": 0, "target_group_id": 0} };
+                    actTeam = {"idx":iTeam, "name":(iTeam+1) + '. TeamDummy', "rank": 0, "transition": { "origin_rank": 0, "origin_group_id": j, "origin_group_name": levelData.actNaming + j, "target_rank": 0, "target_lvl_id": 0, "target_group_id": 0} };
                     var tTeamItem = $("#templateTeamItem").clone();
                     $(tTeamItem).attr("id", 'ko_teamitem_' + j + '_' + iTeam);
                     $(tTeamItem).removeAttr('hidden');
 
-                    // transition
-                    var tar_gr_id = (j-1) + iTeam * num_of_states;
-                    if(num_of_states / 2 >= 2)
-                    {
-                        if(tar_gr_id < num_of_states / 2)
-                        {
-                            actTeam.transition.target_rank = 1;
-                            actTeam.transition.target_group_id = tar_gr_id;
-                            //transitions["ko_grp_" + tar_gr_id].push(actTeam.transition);
-                            //console.log('FIRST ko_counter=' + ko_counter + ' tar_gr_id=' + actTeam.transition.target_group_id);
-                            //ko_counter++;
-                        }
-                        else if(tar_gr_id >= num_of_states / 2 && tar_gr_id < num_of_states)
-                        {
-                            actTeam.transition.target_rank = 2;
-                            tar_gr_id = (num_of_states-1) - tar_gr_id ;
-                            actTeam.transition.target_group_id = tar_gr_id;
-                            //transitions["ko_grp_" + tar_gr_id].push(actTeam.transition);
-                            //console.log('2nd: ko_counter=' + ko_counter + ' tar_gr_id=' + actTeam.transition.target_group_id);
-                        }
-                        else
-                        {
-                            //console.log('OUT');  
-                        }
-                    }
+                    actTeam.transition.target_lvl_id = i - 1;
 
+                    // transition
+                    if(iTeam === 0)
+                    {
+                        actTeam.transition.target_rank = 1;
+                        actTeam.transition.target_group_id = next_group_counter;
+                        if(i > 2)
+                            next_group_counter++;
+                    }
+                    else
+                    {
+                        //console.log('OUT');  
+                    }
                     var NameExtension = (iTeam+1) + '. Winner ' + lastNaming + '' + ((j-1)*2 + iTeam + 1);
                     if(lastNaming == '')
                     {
@@ -581,6 +571,7 @@ bh = {
                     actTeam.name = NameExtension;
                     $(tTeamItem).find("#templateTeamItem_name").text(actTeam.name);
                     actGroup["teams"].push(actTeam);
+                    levelData.transistions.push(actTeam.transition);
                     body.append(tTeamItem);
                 }
                 $(tLevel_items).append(templateGroup);
