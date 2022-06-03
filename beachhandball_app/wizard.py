@@ -143,32 +143,27 @@ def wizard_create_structure(tevent, structure_data):
         trans = [t["transition"] for t in gr["teams"] if t["transition"]["origin_rank"] == 1 and t["transition"]["target_group_id"] == 999][0]
         tstat_rank = [t for t in tstats_final_ranking if t.rank_initial == 1][0]
         
-        tttWinner = TournamentTeamTransition(tournament_event=tevent,
-                                                origin_ts_id=state,
-                                                origin_rank=1,
-                                                target_ts_id=ts_final_ranking,
-                                                target_rank=trans["target_rank"])
+        tttWinner = [t for t in ttt if t.origin_rank == 1][0]
+        tttWinner.target_ts_id = ts_final_ranking
         tstat_rank.name_table = '{}. {}'.format(tttWinner.origin_rank, tttWinner.origin_ts_id)
         if tstat_rank.team.is_dummy is True:
             tstat_rank.team.name = '{}. {}'.format(tttWinner.origin_rank, tttWinner.origin_ts_id)
             tstat_rank.team.abbreviation = '{}. {}'.format(tttWinner.origin_rank, tttWinner.origin_ts_id.abbreviation)
-            teams_final_ranking.append(tstat_rank.team)
-
+        tttWinner.save()
+        tstat_rank.team.save()
+        tstat_rank.save()
         trans = [t["transition"] for t in gr["teams"] if t["transition"]["origin_rank"] == 2 and t["transition"]["target_group_id"] == 999][0]
         tstat_rank = [t for t in tstats_final_ranking if t.rank_initial == 2][0]
-        ttt2nd = TournamentTeamTransition(tournament_event=tevent,
-                                                origin_ts_id=state,
-                                                origin_rank=2,
-                                                target_ts_id=ts_final_ranking,
-                                                target_rank=2)
-        tstat_rank.name_table = '{}. {}'.format(tttWinner.origin_rank, tttWinner.origin_ts_id)
+        ttt2nd = [t for t in ttt if t.origin_rank == 2][0]
+        ttt2nd.target_ts_id = ts_final_ranking
+        tstat_rank.name_table = '{}. {}'.format(ttt2nd.origin_rank, ttt2nd.origin_ts_id)
         if tstat_rank.team.is_dummy is True:
-            tstat_rank.team.name = '{}. {}'.format(tttWinner.origin_rank, tttWinner.origin_ts_id)
-            tstat_rank.team.abbreviation = '{}. {}'.format(tttWinner.origin_rank, tttWinner.origin_ts_id.abbreviation)
-            teams_final_ranking.append(tstat_rank.team)
+            tstat_rank.team.name = '{}. {}'.format(ttt2nd.origin_rank, ttt2nd.origin_ts_id)
+            tstat_rank.team.abbreviation = '{}. {}'.format(ttt2nd.origin_rank, ttt2nd.origin_ts_id.abbreviation)
+        ttt2nd.save()
+        tstat_rank.team.save()
+        tstat_rank.save()
 
-    transitions.append(tttWinner)
-    transitions.append(ttt2nd)
 
     #Team.objects.bulk_update(teams_final_ranking, ['name', 'abbreviation'])
     #TeamStats.objects.bulk_update(tstats_final_ranking, ['name_table'])
