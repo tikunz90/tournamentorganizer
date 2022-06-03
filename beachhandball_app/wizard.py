@@ -174,7 +174,7 @@ def wizard_create_structure(tevent, structure_data):
 def create_states_sublevel(tevent, tstage, sublevel, hierarchy, ts_final_ranking, tstats_final_ranking, tttParent, transitions):
     states = []
     colorIdx = 0
-    
+    tttSubParent = []
     for gr in sublevel["groups"]:
         if colorIdx > 4:
             colorIdx = 4
@@ -187,9 +187,16 @@ def create_states_sublevel(tevent, tstage, sublevel, hierarchy, ts_final_ranking
         colorIdx += 1
         if len(sublevel["sublevel"]) == 0:
             handle_transitions_ranking(ts_final_ranking, tstats_final_ranking, tttAct)
+        tttSubParent += tttAct
     
-    for sublevel in sublevel["sublevel"]:
-        states = states + create_states_sublevel(tevent, tstage, sublevel, hierarchy, ts_final_ranking, tstats_final_ranking);
+    sublevel_counter = 0
+    for sub in sublevel["sublevel"]:
+        if sublevel_counter == 0:
+            trans = sublevel["transitions_l"]
+        else:
+            trans = sublevel["transitions_w"]
+        states = states + create_states_sublevel(tevent, tstage, sub, hierarchy, ts_final_ranking, tstats_final_ranking, tttSubParent, trans);
+        sublevel_counter += 1
     
     return states
 

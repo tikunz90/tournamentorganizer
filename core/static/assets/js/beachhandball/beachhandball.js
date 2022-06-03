@@ -135,7 +135,7 @@ bh = {
             body.empty();
             var addedResidue = false;
             for (let iTeam = 0; iTeam < teams_per_group; iTeam++) {
-                actTeam = {"idx":iTeam, "name":(iTeam+1) + '. TeamDummy', "rank": 0, "transition": { "origin_rank": 0, "origin_group_id": i, "origin_group_name": actGroup.name, "target_rank": 0, "target_group_id": 0} };
+                actTeam = {"idx":iTeam, "name":(iTeam+1) + '. TeamDummy', "rank": 0, "transition": { "origin_rank": iTeam + 1, "origin_group_id": i, "origin_group_name": actGroup.name, "target_rank": 0, "target_group_id": 0} };
                 actTeam.rank = iTeam + 1;
                 actTeam.transition.origin_rank = actTeam.rank;
                 
@@ -463,7 +463,7 @@ bh = {
             var body = $(templateGroup).find("#templateGroup_body");
             body.empty();
             for (let iTeam = 0; iTeam < 2; iTeam++) {
-                actTeam = {"idx":iTeam, "name":(iTeam+1) + '. TeamDummy', "rank": (iTeam + 1), "transition": { "origin_rank": 0, "origin_group_id": j-1, "origin_group_name": actNaming + ' ' + j, "target_rank": 0, "target_lvl_id": 0, "target_group_id": 0} };
+                actTeam = {"idx":iTeam, "name":(iTeam+1) + '. TeamDummy', "rank": (iTeam + 1), "transition": { "origin_rank": iTeam + 1, "origin_group_id": j-1, "origin_group_name": actNaming + ' ' + j, "target_rank": 0, "target_lvl_id": 0, "target_group_id": 0} };
                 var tTeamItem = $("#templateTeamItem").clone();
                 $(tTeamItem).attr("id", 'pl_level_teamitem_' + j + '_' + iTeam);
                 $(tTeamItem).removeAttr('hidden');
@@ -629,7 +629,7 @@ bh = {
                 var body = $(templateGroup).find("#templateGroup_body");
                 body.empty();
                 for (let iTeam = 0; iTeam < 2; iTeam++) {
-                    actTeam = {"idx":iTeam, "name":(iTeam+1) + '. TeamDummy', "rank": 0, "transition": { "origin_rank": 0, "origin_group_id": j-1, "origin_group_name": levelData.actNaming + ' ' + j, "target_rank": 0, "target_lvl_id": 0, "target_group_id": 0} };
+                    actTeam = {"idx":iTeam, "name":(iTeam+1) + '. TeamDummy', "rank": 0, "transition": { "origin_rank": iTeam + 1, "origin_group_id": j-1, "origin_group_name": levelData.actNaming + ' ' + j, "target_rank": 0, "target_lvl_id": 0, "target_group_id": 0} };
                     var tTeamItem = $("#templateTeamItem").clone();
                     $(tTeamItem).attr("id", 'ko_teamitem_' + j + '_' + iTeam);
                     $(tTeamItem).removeAttr('hidden');
