@@ -118,11 +118,12 @@ def wizard_create_structure(tevent, structure_data):
             if colorIdx > 4:
                 colorIdx = 4
             for gr in lvl["groups"]:
-                create_state_from_group(tstagePlace, tevent, 'LOOSER_ROUND', gr, colorIdx, gr["name"], gr["name"], hierarchy_counter)
+                state, team_stats, tttAct = create_state_from_group(tstagePlace, tevent, 'LOOSER_ROUND', gr, colorIdx, gr["name"], gr["name"], hierarchy_counter)
                 colorIdx += 1
-
+            if len(lvl["sublevel"]) == 0:
+                handle_transitions_ranking(ts_final_ranking, tstats_final_ranking, tttAct)
             for sublevel in lvl["sublevel"]:
-                tstatesPlace = tstatesPlace + create_states_sublevel(tevent, tstagePlace, sublevel, hierarchy_counter);
+                tstatesPlace = tstatesPlace + create_states_sublevel(tevent, tstagePlace, sublevel, hierarchy_counter, ts_final_ranking, tstats_final_ranking);
             hierarchy_counter += 1
             colorIdx += 1
 
@@ -140,29 +141,8 @@ def wizard_create_structure(tevent, structure_data):
 
         handle_transitions_ko(state, transToFinal, ts, tttToFinal)
 
-        trans = [t["transition"] for t in gr["teams"] if t["transition"]["origin_rank"] == 1 and t["transition"]["target_group_id"] == 999][0]
-        tstat_rank = [t for t in tstats_final_ranking if t.rank_initial == 1][0]
-        
-        tttWinner = [t for t in ttt if t.origin_rank == 1][0]
-        tttWinner.target_ts_id = ts_final_ranking
-        tstat_rank.name_table = '{}. {}'.format(tttWinner.origin_rank, tttWinner.origin_ts_id)
-        if tstat_rank.team.is_dummy is True:
-            tstat_rank.team.name = '{}. {}'.format(tttWinner.origin_rank, tttWinner.origin_ts_id)
-            tstat_rank.team.abbreviation = '{}. {}'.format(tttWinner.origin_rank, tttWinner.origin_ts_id.abbreviation)
-        tttWinner.save()
-        tstat_rank.team.save()
-        tstat_rank.save()
-        trans = [t["transition"] for t in gr["teams"] if t["transition"]["origin_rank"] == 2 and t["transition"]["target_group_id"] == 999][0]
-        tstat_rank = [t for t in tstats_final_ranking if t.rank_initial == 2][0]
-        ttt2nd = [t for t in ttt if t.origin_rank == 2][0]
-        ttt2nd.target_ts_id = ts_final_ranking
-        tstat_rank.name_table = '{}. {}'.format(ttt2nd.origin_rank, ttt2nd.origin_ts_id)
-        if tstat_rank.team.is_dummy is True:
-            tstat_rank.team.name = '{}. {}'.format(ttt2nd.origin_rank, ttt2nd.origin_ts_id)
-            tstat_rank.team.abbreviation = '{}. {}'.format(ttt2nd.origin_rank, ttt2nd.origin_ts_id.abbreviation)
-        ttt2nd.save()
-        tstat_rank.team.save()
-        tstat_rank.save()
+        #trans = [t["transition"] for t in gr["teams"] if t["transition"]["origin_rank"] == 1 and t["transition"]["target_group_id"] == 999][0]
+        handle_transitions_ranking(ts_final_ranking, tstats_final_ranking, ttt)
 
 
     #Team.objects.bulk_update(teams_final_ranking, ['name', 'abbreviation'])
@@ -175,17 +155,19 @@ def wizard_create_structure(tevent, structure_data):
     print('EXIT wizard_create_structure ' + str(datetime.now()))
     return 0
 
-def create_states_sublevel(tevent, tstage, sublevel, hierarchy):
+def create_states_sublevel(tevent, tstage, sublevel, hierarchy, ts_final_ranking, tstats_final_ranking):
     states = []
     colorIdx = 0
     
     for gr in sublevel["groups"]:
         if colorIdx > 4:
             colorIdx = 4
-        create_state_from_group(tstage, tevent, 'LOOSER_ROUND', gr, colorIdx, gr["name"], gr["name"], hierarchy)
+        state, team_stats, tttAct = create_state_from_group(tstage, tevent, 'LOOSER_ROUND', gr, colorIdx, gr["name"], gr["name"], hierarchy)
         colorIdx += 1
+    if len(sublevel["sublevel"]) == 0:
+        handle_transitions_ranking(ts_final_ranking, tstats_final_ranking, tttAct)
     for sublevel in sublevel["sublevel"]:
-        states = states + create_states_sublevel(tevent, tstage, sublevel, hierarchy);
+        states = states + create_states_sublevel(tevent, tstage, sublevel, hierarchy, ts_final_ranking, tstats_final_ranking);
     
     return states
 
@@ -238,3 +220,28 @@ def handle_transitions_ko(state, trans, team_stats, tttLastState):
         tstat.team.save()
         tstat.save()
         actTTT.save()
+
+def handle_transitions_ranking(ts_final_ranking, tstats_final_ranking, ttt):
+    #trans = [t["transition"] for t in gr["teams"] if t["transition"]["origin_rank"] == 1 and t["transition"]["target_group_id"] == 999][0]
+    tstat_rank = [t for t in tstats_final_ranking if t.rank_initial == 1][0]
+    
+    tttWinner = [t for t in ttt if t.origin_rank == 1][0]
+    tttWinner.target_ts_id = ts_final_ranking
+    tstat_rank.name_table = '{}. {}'.format(tttWinner.origin_rank, tttWinner.origin_ts_id)
+    if tstat_rank.team.is_dummy is True:
+        tstat_rank.team.name = '{}. {}'.format(tttWinner.origin_rank, tttWinner.origin_ts_id)
+        tstat_rank.team.abbreviation = '{}. {}'.format(tttWinner.origin_rank, tttWinner.origin_ts_id.abbreviation)
+    tttWinner.save()
+    tstat_rank.team.save()
+    tstat_rank.save()
+    #trans = [t["transition"] for t in gr["teams"] if t["transition"]["origin_rank"] == 2 and t["transition"]["target_group_id"] == 999][0]
+    tstat_rank = [t for t in tstats_final_ranking if t.rank_initial == 2][0]
+    ttt2nd = [t for t in ttt if t.origin_rank == 2][0]
+    ttt2nd.target_ts_id = ts_final_ranking
+    tstat_rank.name_table = '{}. {}'.format(ttt2nd.origin_rank, ttt2nd.origin_ts_id)
+    if tstat_rank.team.is_dummy is True:
+        tstat_rank.team.name = '{}. {}'.format(ttt2nd.origin_rank, ttt2nd.origin_ts_id)
+        tstat_rank.team.abbreviation = '{}. {}'.format(ttt2nd.origin_rank, ttt2nd.origin_ts_id.abbreviation)
+    ttt2nd.save()
+    tstat_rank.team.save()
+    tstat_rank.save()
