@@ -15,7 +15,7 @@ class Team(models.Model):
     tournament_event = models.ForeignKey('TournamentEvent', blank=True, null=True, on_delete=models.CASCADE)
     tournamentstate = models.ForeignKey('TournamentState', blank=True, null=True, on_delete=models.CASCADE)
     name = models.CharField(db_column='name', max_length=50)
-    abbreviation = models.CharField(max_length=8, null=True)
+    abbreviation = models.CharField(max_length=32, null=True)
     gbo_team = models.IntegerField(null=True)
     season_team_id = models.IntegerField(null=True)
     season_team_cup_tournament_ranking_id = models.IntegerField(default=0)

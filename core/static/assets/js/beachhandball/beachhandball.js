@@ -41,7 +41,7 @@ bh = {
         "ko": "",
         "placement": "",
         "finals": "",
-        "transistions": {
+        "transitions": {
             "groups_to_ko":{},
             "ko_to_pl":{}
         }},
@@ -168,7 +168,8 @@ bh = {
                     }
                     else
                     {
-                        //console.log('OUT');  
+                        actTeam.transition.target_rank = -1;
+                        actTeam.transition.target_group_id = 999; 
                     }
                 }
                 else // from group directly to final
@@ -220,13 +221,13 @@ bh = {
             groupData.items.push(actGroup);
             $(row).append(templateGroup);
         }
-        bh.structureData.transistions.groups_to_ko = transitions;
+        bh.structureData.transitions.groups_to_ko = transitions;
         $('#wz-res_num_of_games_group').val(wzNumOfGamesGroup);
     },
 
     wzCalcPlacement: function(idRow){
         console.log("wzCalcPlacement: " + idRow);
-        plData = {"levels_ranked":0, "num_teams_getting_ranked":0, "level": [] };
+        var plData = {"levels_ranked":0, "num_teams_getting_ranked":0, "level": [] };
         wzNumOfGamesPlacement = 0;
         var row = document.getElementById(idRow);
         $(row).empty();
@@ -237,21 +238,29 @@ bh = {
         
         for(let i = plData.levels_ranked; i >= 1; i--)
         {
-            levelData = {"idx": i, "name":"", "actNaming":"", "bestRankWinner": 0, "bestRankLoser":0, "num_groups":0, "groups": [], "sublevel":[]};
+            // this instance is the first instance when losers  come from knockout stage
+            levelData = {"idx": i, "name":"", "actNaming":"", "bestRankWinner": 0, "bestRankLoser":0, "num_groups":0, "groups": [], "sublevel":[], "transitions_w":[], "transitions_l":[]};
             var tLevel= $("#templatePL_level").clone();
+            
+            var actTransFromKO = bh.structureData.transitions.ko_to_pl[KNOCKOUT_NAMES[Math.pow(2, i+1)]];
+
             $(tLevel).attr("id", 'level_' + i);
             $(tLevel).removeAttr('hidden');
-            levelData.bestRankWinner = Math.pow(2, i-1) + 1;
+            levelData.bestRankWinner = (Math.pow(2, i)+1); //Math.pow(2, i-1) + 1;
+            levelData.bestRankLoser = ((2*Math.pow(2, i)));
             var width = 3;
             var offset = 0;
             levelData.actNaming = PLACEMENT_NAMES[Math.pow(2, i)] + ' ';
-            var lastNaming = KNOCKOUT_NAMES[Math.pow(2, i+1)] + ' ';
             levelData.name = 'Placement for rank ' + (Math.pow(2, i)+1) + ' to ' + ((2*Math.pow(2, i)));
             $(tLevel).find("#templatePL_header").text(levelData.name);
             var tLevel_items = $("#templatePL_items").clone();
             $(tLevel_items).removeAttr('hidden');
             $(tLevel_items).attr("id", 'level_items_' + i);
             levelData.num_groups = Math.pow(2, i-1);
+            var next_group_counter_winning = 0;
+            var next_group_counter_losing = 0;
+            var act_target_rank_winning = 1;
+            var act_target_rank_losing= 1;
             for(var j = 1; j <= levelData.num_groups; j++)
             {
                 actGroup = {"idx":j, "name":levelData.actNaming + j, "teams": [] };
@@ -263,32 +272,53 @@ bh = {
                 var body = $(templateGroup).find("#templateGroup_body");
                 body.empty();
                 for (let iTeam = 0; iTeam < 2; iTeam++) {
-                    actTeam = {"idx":iTeam, "name":"", "rank": 0 };
+                    actTeam = {"idx":iTeam, "name":(iTeam+1) + '. TeamDummy', "rank": 0, "transition": { "origin_rank": iTeam + 1, "origin_group_id": j, "origin_group_name": levelData.actNaming + j, "target_rank": 0, "target_lvl_id": 0, "target_group_id": 0} };
                     actTeam.rank = 1+iTeam;
                     var tTeamItem = $("#templateTeamItem").clone();
                     $(tTeamItem).attr("id", 'pl_teamitem_' + j + '_' + iTeam);
                     $(tTeamItem).removeAttr('hidden');
-                    var NameExtension = '. Loser ' + lastNaming + '' + ((j-1)*2 + iTeam + 1);
-                    if(lastNaming == '')
-                    {
-                        NameExtension = '. TeamDummy';
-                    }
+
+                    actTeam.transition.target_lvl_id = j - 1;
+
+                    var trans_from_ko = actTransFromKO.items.find(trans => trans.target_group_id == (j-1) && trans.target_rank == actTeam.rank);
+                    var NameExtension = (iTeam+1) + '. Loser ' + trans_from_ko.origin_group_name;                
+
                     if( iTeam == 0 && Math.pow(2, i-1) > 1)
                     {
                         $(tTeamItem).find("#templateTeamItem_icon").text('arrow_upward');
+                        actTeam.transition.target_rank = act_target_rank_winning;
+                        actTeam.transition.target_group_id = next_group_counter_winning;
+                        levelData.transitions_w.push(actTeam.transition);
+                        next_group_counter_winning++;
+                        if(next_group_counter_winning >= Math.pow(2, i-2) && act_target_rank_winning == 1)
+                        {
+                            act_target_rank_winning = 2;
+                            next_group_counter_winning = 0;
+                        }
                     }
                     else if(Math.pow(2, i-1) > 1)
                     {
                         $(tTeamItem).find("#templateTeamItem_icon").text('clear');
+                        actTeam.transition.target_rank = act_target_rank_losing;
+                        actTeam.transition.target_group_id = next_group_counter_losing;
+                        levelData.transitions_l.push(actTeam.transition);
+                        next_group_counter_losing++;
+                        if(next_group_counter_losing >= Math.pow(2, i-2) && act_target_rank_losing == 1)
+                        {
+                            act_target_rank_losing = 2;
+                            next_group_counter_losing = 0;
+                        }
                     }
                     else if(Math.pow(2, i-1) == 1)
                     {
-                        actTeam.rank = levelData.bestRankWinner+1+iTeam;
+                        actTeam.rank = levelData.bestRankWinner+iTeam;
+                        actTeam.transition.target_rank = actTeam.rank;
+                        actTeam.transition.target_group_id = 999;
                         $(tTeamItem).find("#templateTeamItem_icon").attr('hidden', 'hidden');
                         $(tTeamItem).find("#templateTeamItem_rank").text((actTeam.rank) +'.');
                         $(tTeamItem).find("#templateTeamItem_rank").removeAttr('hidden');
                     }
-                    actTeam.name = (iTeam+1) + NameExtension;
+                    actTeam.name = NameExtension;
                     $(tTeamItem).find("#templateTeamItem_name").text(actTeam.name);
                     body.append(tTeamItem);
                     actGroup["teams"].push(actTeam);
@@ -298,7 +328,7 @@ bh = {
                 wzNumOfGamesPlacement++;
             }
             $(tLevel).find("#templatePL_body").append(tLevel_items);
-            bh.wzCalcPlacementLevel($(tLevel).find("#templatePL_body"), i, Math.pow(2, i), levelData.actNaming, levelData);
+            bh.wzCalcPlacementLevel($(tLevel).find("#templatePL_body"), i, levelData.bestRankWinner, levelData.actNaming, levelData);
             $(row).append(tLevel);
             plData["level"].push(levelData);
         }
@@ -307,9 +337,9 @@ bh = {
     },
 
     wzCalcPlacementLevel(bodyLevel, levels, bestRankWinner, namingParent, levelData){
-        if(levels == 1)
+        if(levels <= 1)
             return;
-        sublevelData = {"idx": 0, "name":"", "actNaming":"", "bestRankWinner": 0, "bestRankLoser":0, "num_groups":0, "groups": [], "sublevel":[]};
+        var sublevelDataLoser = {"idx": 0, "name":"Losing", "actNaming":"", "bestRank": 0, "worstRank":0, "num_groups":0, "groups": [], "sublevel":[], "transitions_w":[], "transitions_l":[]};
         var width = 3;
         var offset = 0;
         if(levels <= 3)
@@ -317,118 +347,179 @@ bh = {
             width = 5;
             offset = 1;
         }
-        //var bestRankWinner = Math.pow(2, levels);
-        sublevelData.bestRankLoser= (bestRankWinner+Math.pow(2, levels-1));
-        sublevelData.idx = Math.pow(2, levels-2);
+        sublevelDataLoser.bestRank = bestRankWinner + Math.pow(2, levels-1);
+        sublevelDataLoser.worstRank = (sublevelDataLoser.bestRank - 1 + Math.pow(2, levels-1));
+        sublevelDataLoser.idx = Math.pow(2, levels-2);
 
-        if(true)
+        // Losing part
+        var tLoser= $("#templatePLsub_level").clone();
+        $(tLoser).attr("id", 'level_l_' + sublevelDataLoser.bestRank);
+        $(tLoser).removeAttr('hidden');
+        sublevelDataLoser.name = 'Placement for rank ' + sublevelDataLoser.bestRank +' to ' + sublevelDataLoser.worstRank;
+        $(tLoser).find("#templatePLsub_header").text(sublevelDataLoser.name);
+        var tLoser_items = $(tLoser).find("#templatePLsub_items");
+        var actNamingLoser = 'P' + sublevelDataLoser.bestRank + 'to' + sublevelDataLoser.worstRank;
+        var next_group_counter_winning = 0;
+        var next_group_counter_losing = 0;
+        var act_target_rank_winning = 1;
+        var act_target_rank_losing= 1;
+        for(var j = 1; j <= sublevelDataLoser.idx; j++)
         {
-            // Losing part
-            var tLoser= $("#templatePLsub_level").clone();
-            $(tLoser).attr("id", 'level_l_' + sublevelData.bestRankLoser);
-            $(tLoser).removeAttr('hidden');
-            sublevelData.name = 'Placement for rank ' + (sublevelData.bestRankLoser+1) +' to ' + (sublevelData.bestRankLoser+Math.pow(2, levels-1));
-            $(tLoser).find("#templatePLsub_header").text(sublevelData.name);
-            var tLoser_items = $(tLoser).find("#templatePLsub_items");
-            var actNamingLoser = 'P' + (sublevelData.bestRankLoser+1) + 'to' + (sublevelData.bestRankLoser+Math.pow(2, levels-1)) + ' ';
-            for(var j = 1; j <= sublevelData.idx; j++)
-            {
-                actGroup = {"idx":j, "name":actNamingLoser + j, "teams": [] };
-                var templateGroup = $("#templateGroup").clone();
-                $(templateGroup).attr("id", 'pl_level_l_' + levels + '_' + j);
-                $(templateGroup).removeAttr('hidden');
-                $(templateGroup).find("#templateGroup_name").text(actGroup.name);
-                $(templateGroup).attr("class", 'col-md-' + width + ' offset-md-' + offset);
-                var body = $(templateGroup).find("#templateGroup_body");
-                body.empty();
-                for (let iTeam = 0; iTeam < 2; iTeam++) {
-                    actTeam = {"idx":iTeam, "name":"", "rank": 0 };
-                    var tTeamItem = $("#templateTeamItem").clone();
-                    $(tTeamItem).attr("id", 'pl_level_teamitem_l_' + j + '_' + iTeam);
-                    $(tTeamItem).removeAttr('hidden');
-                    var NameExtension = '. Loser ' + namingParent + '' + ((j-1)*2 + iTeam + 1);
-                    
-                    if( iTeam == 0 && sublevelData.idx > 1)
-                    {
-                        $(tTeamItem).find("#templateTeamItem_icon").text('arrow_upward');
-                    }
-                    else if(sublevelData.idx > 1)
-                    {
-                        $(tTeamItem).find("#templateTeamItem_icon").text('clear');
-                    }
-                    else if(sublevelData.idx == 1)
-                    {
-                        actTeam.rank = (sublevelData.bestRankLoser+1+iTeam)+'.';
-                        $(tTeamItem).find("#templateTeamItem_icon").attr('hidden', 'hidden');
-                        $(tTeamItem).find("#templateTeamItem_rank").text(actTeam.name);
-                        $(tTeamItem).find("#templateTeamItem_rank").removeAttr('hidden');
-                    }
-                    actTeam.name = (iTeam+1) + NameExtension;
-                    $(tTeamItem).find("#templateTeamItem_name").text(actTeam.name);
-                    body.append(tTeamItem);
-                    actGroup["teams"].push(actTeam);
-                }
-                $(tLoser_items).append(templateGroup);
-                sublevelData["groups"].push(actGroup);
-                wzNumOfGamesPlacement++;
-            }
-            bodyLevel.append(tLoser);
-            bh.wzCalcPlacementLevel(bodyLevel, sublevelData.idx, sublevelData.bestRankLoser, actNamingLoser, sublevelData);
-        }
-
-        // Winning part
-        var tWinning= $("#templatePLsub_level").clone();
-        $(tWinning).attr("id", 'level_w_' + bestRankWinner);
-        $(tWinning).removeAttr('hidden');
-        $(tWinning).find("#templatePLsub_header").text('Placement for rank ' + (bestRankWinner+1) +' to ' + (bestRankWinner+Math.pow(2, levels-1)));
-        var tWinning_items = $(tWinning).find("#templatePLsub_items");
-        var actNaming = 'P' + (bestRankWinner+1) + 'to' + (bestRankWinner+Math.pow(2, levels-1)) + ' ';
-        var lastNaming = '';
-        
-        for(var j = 1; j <= sublevelData.idx; j++)
-        {
-            actGroup = {"idx":j, "name":actNaming + j, "teams": [] };
+            actGroup = {"idx":j, "name":actNamingLoser + ' ' + j, "teams": [] };
             var templateGroup = $("#templateGroup").clone();
-            $(templateGroup).attr("id", 'pl_level_w_' + levels + '_' + j);
+            $(templateGroup).attr("id", 'pl_level_l_' + levels + '_' + j);
             $(templateGroup).removeAttr('hidden');
-            $(templateGroup).find("#templateGroup_name").text(actNaming + j);
+            $(templateGroup).find("#templateGroup_name").text(actGroup.name);
             $(templateGroup).attr("class", 'col-md-' + width + ' offset-md-' + offset);
             var body = $(templateGroup).find("#templateGroup_body");
             body.empty();
             for (let iTeam = 0; iTeam < 2; iTeam++) {
-                actTeam = {"idx":iTeam, "name":"", "rank": 0 };
+                actTeam = {"idx":iTeam, "name":(iTeam+1) + '. TeamDummy', "rank": (iTeam + 1), "transition": { "origin_rank": iTeam + 1, "origin_group_id": j, "origin_group_name": actNamingLoser + ' ' + j, "target_rank": 0, "target_lvl_id": 0, "target_group_id": 0} };
+                var tTeamItem = $("#templateTeamItem").clone();
+                $(tTeamItem).attr("id", 'pl_level_teamitem_l_' + j + '_' + iTeam);
+                $(tTeamItem).removeAttr('hidden');
+
+                actTeam.transition.target_lvl_id = j - 1;
+
+                var trans_from_pl = levelData.transitions_l.find(trans => trans.target_group_id == (j-1) && trans.target_rank == actTeam.rank);
+                var NameExtension = (iTeam+1) + '. Loser ' + trans_from_pl.origin_group_name;
+
+                if( iTeam == 0 && sublevelDataLoser.idx > 1)
+                {
+                    $(tTeamItem).find("#templateTeamItem_icon").text('arrow_upward');
+                    actTeam.transition.target_rank = act_target_rank_winning;
+                    actTeam.transition.target_group_id = next_group_counter_winning;
+                    sublevelDataLoser.transitions_w.push(actTeam.transition);
+                    next_group_counter_winning++;
+                    if(next_group_counter_winning >= sublevelDataLoser.idx / 2 && act_target_rank_winning == 1)
+                    {
+                        act_target_rank_winning = 2;
+                        next_group_counter_winning = 0;
+                    }
+                }
+                else if(sublevelDataLoser.idx > 1)
+                {
+                    $(tTeamItem).find("#templateTeamItem_icon").text('clear');
+                    actTeam.transition.target_rank = act_target_rank_losing;
+                    actTeam.transition.target_group_id = next_group_counter_losing;
+                    sublevelDataLoser.transitions_l.push(actTeam.transition);
+                    next_group_counter_losing++;
+                    if(next_group_counter_losing >= sublevelDataLoser.idx / 2 && act_target_rank_losing == 1)
+                    {
+                        act_target_rank_losing = 2;
+                        next_group_counter_losing = 0;
+                    }
+                }
+                else if(sublevelDataLoser.idx == 1)
+                {
+                    actTeam.rank = (sublevelDataLoser.bestRank+iTeam);
+                    actTeam.transition.target_rank = (sublevelDataLoser.bestRank+iTeam);
+                    actTeam.transition.target_group_id = 999;
+                    $(tTeamItem).find("#templateTeamItem_icon").attr('hidden', 'hidden');
+                    $(tTeamItem).find("#templateTeamItem_rank").text( (sublevelDataLoser.bestRank+iTeam)+'.');
+                    $(tTeamItem).find("#templateTeamItem_rank").removeAttr('hidden');
+                }
+                actTeam.name = NameExtension;
+                $(tTeamItem).find("#templateTeamItem_name").text(actTeam.name);
+                body.append(tTeamItem);
+                actGroup["teams"].push(actTeam);
+            }
+            $(tLoser_items).append(templateGroup);
+            sublevelDataLoser["groups"].push(actGroup);
+            wzNumOfGamesPlacement++;
+        }
+        bodyLevel.append(tLoser);
+        //var next_best_losing_rank = sublevelDataLoser.bestRank + (sublevelDataLoser.worstRank - sublevelDataLoser.bestRank + 1) / 2;
+        bh.wzCalcPlacementLevel(bodyLevel, levels-1, sublevelDataLoser.bestRank, actNamingLoser, sublevelDataLoser);
+        levelData["sublevel"].push(sublevelDataLoser);
+
+        // Winning part
+        var sublevelDataWinner = {"idx": 0, "name":"Winning", "actNaming":"", "bestRank": 0, "worstRank":0, "num_groups":0, "groups": [], "sublevel":[], "transitions_w":[], "transitions_l":[]};
+        sublevelDataWinner.bestRank = bestRankWinner;
+        sublevelDataWinner.worstRank = sublevelDataLoser.bestRank - 1;//(sublevelDataWinner.bestRank - 1 + Math.pow(2, levels-1));
+        sublevelDataWinner.idx = Math.pow(2, levels-2);
+        sublevelDataWinner.name = 'Placement for rank ' + sublevelDataWinner.bestRank +' to ' + sublevelDataWinner.worstRank;
+
+        var tWinning= $("#templatePLsub_level").clone();
+        $(tWinning).attr("id", 'level_w_' + sublevelDataWinner.bestRank);
+        $(tWinning).removeAttr('hidden');
+        $(tWinning).find("#templatePLsub_header").text(sublevelDataWinner.name);
+        var tWinning_items = $(tWinning).find("#templatePLsub_items");
+        var actNaming = 'P' + sublevelDataWinner.bestRank + 'to' + sublevelDataWinner.worstRank;
+        var lastNaming = '';
+        
+        next_group_counter_winning = 0;
+        next_group_counter_losing = 0;
+        act_target_rank_winning = 1;
+        act_target_rank_losing= 1;
+        for(var j = 1; j <= sublevelDataWinner.idx; j++)
+        {
+            actGroup = {"idx":j, "name":actNaming + ' ' + j, "teams": [] };
+            var templateGroup = $("#templateGroup").clone();
+            $(templateGroup).attr("id", 'pl_level_w_' + levels + '_' + j);
+            $(templateGroup).removeAttr('hidden');
+            $(templateGroup).find("#templateGroup_name").text(actNaming + ' ' + j);
+            $(templateGroup).attr("class", 'col-md-' + width + ' offset-md-' + offset);
+            var body = $(templateGroup).find("#templateGroup_body");
+            body.empty();
+            for (let iTeam = 0; iTeam < 2; iTeam++) {
+                actTeam = {"idx":iTeam, "name":(iTeam+1) + '. TeamDummy', "rank": (iTeam + 1), "transition": { "origin_rank": 0, "origin_group_id": j, "origin_group_name": actNaming + ' ' + j, "target_rank": 0, "target_lvl_id": 0, "target_group_id": 0} };
                 var tTeamItem = $("#templateTeamItem").clone();
                 $(tTeamItem).attr("id", 'pl_level_teamitem_' + j + '_' + iTeam);
                 $(tTeamItem).removeAttr('hidden');
-                var NameExtension = '. Winner ' + namingParent + '' + ((j-1)*2 + iTeam + 1);
+
+                actTeam.transition.target_lvl_id = j - 1;
+
+                var trans_from_pl = levelData.transitions_w.find(trans => trans.target_group_id == (j-1) && trans.target_rank == actTeam.rank);
+                var NameExtension = (iTeam+1) + '. Winner ' + trans_from_pl.origin_group_name;
                 
-                if( iTeam == 0 && sublevelData.idx > 1)
+                if( iTeam == 0 && sublevelDataWinner.idx > 1)
                 {
                     $(tTeamItem).find("#templateTeamItem_icon").text('arrow_upward');
+                    actTeam.transition.target_rank = act_target_rank_winning;
+                    actTeam.transition.target_group_id = next_group_counter_winning;
+                    sublevelDataWinner.transitions_w.push(actTeam.transition);
+                    next_group_counter_winning++;
+                    if(next_group_counter_winning >= sublevelDataWinner.idx / 2 && act_target_rank_winning == 1)
+                    {
+                        act_target_rank_winning = 2;
+                        next_group_counter_winning = 0;
+                    }
                 }
-                else if(sublevelData.idx > 1)
+                else if(sublevelDataWinner.idx > 1)
                 {
                     $(tTeamItem).find("#templateTeamItem_icon").text('clear');
+                    actTeam.transition.target_rank = act_target_rank_losing;
+                    actTeam.transition.target_group_id = next_group_counter_losing;
+                    sublevelDataWinner.transitions_l.push(actTeam.transition);
+                    next_group_counter_losing++;
+                    if(next_group_counter_losing >= sublevelDataWinner.idx / 2 && act_target_rank_losing == 1)
+                    {
+                        act_target_rank_losing = 2;
+                        next_group_counter_losing = 0;
+                    }
                 }
-                else if(sublevelData.idx == 1)
+                else if(sublevelDataWinner.idx == 1)
                 {
-                    actTeam.rank = (sublevelData.bestRankWinner+1+iTeam)+'.';
+                    actTeam.rank = (sublevelDataWinner.bestRank+iTeam);
+                    actTeam.transition.target_rank = (sublevelDataWinner.bestRank + iTeam);
+                    actTeam.transition.target_group_id = 999;
                     $(tTeamItem).find("#templateTeamItem_icon").attr('hidden', 'hidden');
-                    $(tTeamItem).find("#templateTeamItem_rank").text((sublevelData.bestRankWinner+1+iTeam)+'.');
+                    $(tTeamItem).find("#templateTeamItem_rank").text((sublevelDataWinner.bestRank + iTeam)+'.');
                     $(tTeamItem).find("#templateTeamItem_rank").removeAttr('hidden');
                 }
-                actTeam.name = (iTeam+1) + NameExtension;
+                actTeam.name = NameExtension;
                 $(tTeamItem).find("#templateTeamItem_name").text(actTeam.name);
                 body.append(tTeamItem);
                 actGroup["teams"].push(actTeam);
             }
             $(tWinning_items).append(templateGroup);
-            sublevelData["groups"].push(actGroup);
+            sublevelDataWinner["groups"].push(actGroup);
             wzNumOfGamesPlacement++;
         }
         bodyLevel.append(tWinning);
-        bh.wzCalcPlacementLevel(bodyLevel, levels-1, bestRankWinner, actNaming, sublevelData);
-        levelData["sublevel"].push(sublevelData);
+        bh.wzCalcPlacementLevel(bodyLevel, levels-1, sublevelDataWinner.bestRank, actNaming, sublevelDataWinner);
+        levelData["sublevel"].push(sublevelDataWinner);
     },
 
     wzCalcFinals: function(idRow) {
@@ -452,7 +543,7 @@ bh = {
         var body = $(templateGroup).find("#templateGroup_body");
         body.empty();
         for (let iTeam = 0; iTeam < 2; iTeam++) {
-            actTeam = {"idx":iTeam, "name":"", "rank": 0 };
+            actTeam = {"idx":iTeam, "name":(iTeam+1) + '. TeamDummy', "rank": 0, "transition": { "origin_rank": iTeam+1, "origin_group_id": 0, "origin_group_name": actGroup.name, "target_rank": 0, "target_lvl_id": 0, "target_group_id": 0} };
             var tTeamItem = $("#templateTeamItem").clone();
             $(tTeamItem).attr("id", 'f_teamitem_' + iTeam);
             $(tTeamItem).removeAttr('hidden');
@@ -469,6 +560,9 @@ bh = {
                 tempName = (iTeam + 1) + '. Winner SF' + (iTeam + 1);
             actTeam.rank = (1+iTeam);
             actTeam.name = tempName;
+            actTeam.rank = (1+iTeam);
+            actTeam.transition.target_rank = actTeam.rank;
+            actTeam.transition.target_group_id = 999;
             $(tTeamItem).find("#templateTeamItem_name").text(tempName);
             body.append(tTeamItem);
             actGroup["teams"].push(actTeam);
@@ -482,7 +576,8 @@ bh = {
 
     wzCalcKnockout: function(idRow){
         console.log("wzCalcKnockout: " + idRow);
-        koData = {"levels":0, "num_teams_soll":0, "level": [] };
+        var koData = {"levels":0, "num_teams_soll":0, "level": [] };
+        var transitions_pl = {};
         wzNumOfGamesKO = 0;
         var row = document.getElementById(idRow);
         $(row).empty();
@@ -493,8 +588,9 @@ bh = {
         var lastNaming = '';
         for(let i = koData.levels; i > 1; i--)
         {
-            levelData = {"idx":i, "header": "", "actNaming":"", "groups":[], "transistions": [] };
-            var transFromGroup = bh.structureData.transistions.groups_to_ko;
+            var levelData = {"idx":i, "header": "", "actNaming":"", "groups":[], "transitions": [] };
+            var transFromGroup = bh.structureData.transitions.groups_to_ko;
+            transitions_pl[KNOCKOUT_NAMES[Math.pow(2, i)]] = {"idx": i, "items": []};
             var tLevel= $("#templateKO_level").clone();
             $(tLevel).attr("id", 'level_' + i);
             $(tLevel).removeAttr('hidden');
@@ -512,15 +608,18 @@ bh = {
                 width = 5;
                 offset = 1;
             }
-            levelData.actNaming = KNOCKOUT_NAMES[Math.pow(2, i)] + ' ';
+            levelData.actNaming = KNOCKOUT_NAMES[Math.pow(2, i)];
             $(tLevel).find("#templateKO_header").text(header);
             levelData.header = header;
             var tLevel_items = $(tLevel).find("#templateKO_items");
             var num_of_states = Math.pow(2, i-1);
             var next_group_counter = 0;
+            var next_group_counter_pl = 0;
+            var act_target_rank_ko = 1;
+            var act_target_rank_placement = 1;
             for(var j = 1; j <= num_of_states; j++)
             {
-                actGroup = {"idx":j, "name":levelData.actNaming + j, "teams": [] };
+                var actGroup = {"idx":j, "name":levelData.actNaming + ' ' + j, "teams": [] };
                 var templateGroup = $("#templateGroup").clone();
                 $(templateGroup).attr("id", 'ko_grp_' + (j-1));
                 $(templateGroup).removeAttr('hidden');
@@ -529,7 +628,7 @@ bh = {
                 var body = $(templateGroup).find("#templateGroup_body");
                 body.empty();
                 for (let iTeam = 0; iTeam < 2; iTeam++) {
-                    actTeam = {"idx":iTeam, "name":(iTeam+1) + '. TeamDummy', "rank": 0, "transition": { "origin_rank": 0, "origin_group_id": j, "origin_group_name": levelData.actNaming + j, "target_rank": 0, "target_lvl_id": 0, "target_group_id": 0} };
+                    actTeam = {"idx":iTeam, "name":(iTeam+1) + '. TeamDummy', "rank": 0, "transition": { "origin_rank": 0, "origin_group_id": j, "origin_group_name": levelData.actNaming + ' ' + j, "target_rank": 0, "target_lvl_id": 0, "target_group_id": 0} };
                     var tTeamItem = $("#templateTeamItem").clone();
                     $(tTeamItem).attr("id", 'ko_teamitem_' + j + '_' + iTeam);
                     $(tTeamItem).removeAttr('hidden');
@@ -539,15 +638,28 @@ bh = {
                     // transition
                     if(iTeam === 0)
                     {
-                        actTeam.transition.target_rank = 1;
+                        actTeam.transition.target_rank = act_target_rank_ko;
                         actTeam.transition.target_group_id = next_group_counter;
-                        if(i > 2)
-                            next_group_counter++;
+                        next_group_counter++;
+                        if(next_group_counter >= Math.pow(2, i-2) && act_target_rank_ko == 1)
+                        {
+                            act_target_rank_ko = 2;
+                            next_group_counter = 0;
+                        }
                     }
                     else
                     {
-                        //console.log('OUT');  
+                        actTeam.transition.target_rank = act_target_rank_placement;
+                        actTeam.transition.target_group_id = next_group_counter_pl;
+                        transitions_pl[levelData.actNaming].items.push(actTeam.transition);
+                        next_group_counter_pl++;
+                        if(next_group_counter_pl >= Math.pow(2, i-2) && act_target_rank_placement == 1)
+                        {
+                            act_target_rank_placement = 2;
+                            next_group_counter_pl = 0;
+                        }
                     }
+                    
                     var NameExtension = (iTeam+1) + '. Winner ' + lastNaming + '' + ((j-1)*2 + iTeam + 1);
                     if(lastNaming == '')
                     {
@@ -571,7 +683,7 @@ bh = {
                     actTeam.name = NameExtension;
                     $(tTeamItem).find("#templateTeamItem_name").text(actTeam.name);
                     actGroup["teams"].push(actTeam);
-                    levelData.transistions.push(actTeam.transition);
+                    levelData.transitions.push(actTeam.transition);
                     body.append(tTeamItem);
                 }
                 $(tLevel_items).append(templateGroup);
@@ -583,6 +695,7 @@ bh = {
             lastNaming = levelData.actNaming;
         }
         bh.structureData.ko = koData;
+        bh.structureData.transitions.ko_to_pl = transitions_pl;
         $('#wz-res_num_of_games_ko').val(wzNumOfGamesKO);
     },
 

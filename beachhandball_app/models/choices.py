@@ -14,6 +14,15 @@ TOURNAMENT_STATE_CHOICES = (
         ('GROUPD', 'GROUPD'),
         ('GROUPE', 'GROUPE'),
         ('GROUPF', 'GROUPF'),
+        ('GROUPG', 'GROUPG'),
+        ('GROUPH', 'GROUPH'),
+        ('GROUPI', 'GROUPI'),
+        ('GROUPJ', 'GROUPJ'),
+        ('GROUPK', 'GROUPK'),
+        ('GROUPL', 'GROUPL'),
+        ('GROUPM', 'GROUPM'),
+        ('GROUPN', 'GROUPN'),
+        ('GROUPO', 'GROUPO'),
         ('INTERROUND_A', 'INTERROUND_A'),
         ('INTERROUND_B', 'INTERROUND_B'),
         ('LOOSER_ROUND', 'LOOSER_ROUND'),
@@ -25,19 +34,23 @@ TOURNAMENT_STATE_CHOICES = (
     )
 
 COLOR_CHOICES = [
-        ("#FFFFFF", "white"),
+        ("#BABABA", "gray"),
         ("#000000", "black"),
         ("#2A25BE", "Persian Blue"),
         ("#FF0005", "red"),
-        ("#FFF200", "yellow")
+        ("#FFF200", "yellow"),
+        ("#FFFFFF", "white"),
+        ("#EFC501", "gold"),
     ]
 
 COLOR_CHOICES_DICT =	{
-  "white": "#FFFFFF",
+  "gray": "#BABABA",
   "black": "#000000",
   "persianblue": "#2A25BE",
   "red": "#FF0005",
   "yellow": "#FFF200",
+  "white": "#FFFFFF",
+  "gold": "#EFC501",
 }
 
 TOURNAMENT_STAGE_TYPE_CHOICES = (
@@ -60,7 +73,7 @@ NATIONALITY_CHOICES = (
     ('ESP', 'Spain'),
     ('DNK', 'Denmark'),
     ('POL', 'Poland'),
-    ('CHE', 'Switzerland'),
+    ('SUI', 'Switzerland'),
     ('USA', 'United States')
 )
 

@@ -185,6 +185,9 @@ class TournamentState(models.Model):
     tournament_event = models.ForeignKey('TournamentEvent', null=True, on_delete=models.CASCADE)
     tournament_state = models.CharField(max_length=20, choices=TOURNAMENT_STATE_CHOICES, blank=True)
     tournament_stage = models.ForeignKey('TournamentStage', null=True, on_delete=models.CASCADE)
+    
+    index = models.SmallIntegerField(default=0)
+    
     name = models.CharField(db_column='name', max_length=50)
     abbreviation = models.CharField(max_length=10, null=True)
     max_number_teams = models.SmallIntegerField(default=0)
@@ -219,8 +222,7 @@ class TournamentState(models.Model):
                                  self.comment)
 
     def __str__(self):
-        return "{} {}: {} {}".format(self.tournament_event.category,
-                                     self.tournament_state,
+        return "{} - {} {}".format(self.tournament_event.category.abbreviation,
                                      self.name,
                                      self.comment)
 
