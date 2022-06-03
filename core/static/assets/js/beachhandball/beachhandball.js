@@ -586,6 +586,7 @@ bh = {
         koData.levels = (Math.log(koData.num_teams_soll) / Math.log(2)); // -1 because final is seperated by
         var actNaming = '';
         var lastNaming = '';
+        var lastTransitions = [];
         for(let i = koData.levels; i > 1; i--)
         {
             var levelData = {"idx":i, "header": "", "actNaming":"", "groups":[], "transitions": [] };
@@ -623,12 +624,12 @@ bh = {
                 var templateGroup = $("#templateGroup").clone();
                 $(templateGroup).attr("id", 'ko_grp_' + (j-1));
                 $(templateGroup).removeAttr('hidden');
-                $(templateGroup).find("#templateGroup_name").text(levelData.actNaming);
+                $(templateGroup).find("#templateGroup_name").text(actGroup.name);
                 $(templateGroup).attr("class", 'col-md-' + width + ' offset-md-' + offset);
                 var body = $(templateGroup).find("#templateGroup_body");
                 body.empty();
                 for (let iTeam = 0; iTeam < 2; iTeam++) {
-                    actTeam = {"idx":iTeam, "name":(iTeam+1) + '. TeamDummy', "rank": 0, "transition": { "origin_rank": 0, "origin_group_id": j, "origin_group_name": levelData.actNaming + ' ' + j, "target_rank": 0, "target_lvl_id": 0, "target_group_id": 0} };
+                    actTeam = {"idx":iTeam, "name":(iTeam+1) + '. TeamDummy', "rank": 0, "transition": { "origin_rank": 0, "origin_group_id": j-1, "origin_group_name": levelData.actNaming + ' ' + j, "target_rank": 0, "target_lvl_id": 0, "target_group_id": 0} };
                     var tTeamItem = $("#templateTeamItem").clone();
                     $(tTeamItem).attr("id", 'ko_teamitem_' + j + '_' + iTeam);
                     $(tTeamItem).removeAttr('hidden');
@@ -660,12 +661,16 @@ bh = {
                         }
                     }
                     
-                    var NameExtension = (iTeam+1) + '. Winner ' + lastNaming + '' + ((j-1)*2 + iTeam + 1);
-                    if(lastNaming == '')
+                    if(i == koData.levels)
                     {
                         NameExtension = '. TeamDummy';
                         // get name from transition
                         var actTrans = transFromGroup["ko_grp_" + (j-1)].find(e => e.target_rank === iTeam + 1);
+                        NameExtension = actTrans.origin_rank + '. ' + actTrans.origin_group_name;
+                    }
+                    else
+                    {
+                        var actTrans = lastTransitions.find(e => e.target_rank === iTeam + 1 && e.target_group_id == (j-1));
                         NameExtension = actTrans.origin_rank + '. ' + actTrans.origin_group_name;
                     }
                     if( iTeam == 0)
@@ -693,6 +698,7 @@ bh = {
             $(row).append(tLevel);
             koData["level"].push(levelData);
             lastNaming = levelData.actNaming;
+            lastTransitions = levelData.transitions
         }
         bh.structureData.ko = koData;
         bh.structureData.transitions.ko_to_pl = transitions_pl;

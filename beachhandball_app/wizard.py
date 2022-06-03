@@ -58,6 +58,9 @@ def wizard_create_structure(tevent, structure_data):
 
     colorIdx = 0
     firstKoLevel = True
+    last_trans_from_wizard = []
+    tttLastState = {}
+    tttNewState = {}
     with transaction.atomic():
         for lvl in ko_data["level"]:
             if colorIdx > 4:
@@ -68,29 +71,26 @@ def wizard_create_structure(tevent, structure_data):
                 tstate_choice = 'QUARTERFINALS'
             elif lvl["idx"] == 2:
                 tstate_choice = 'SEMIFINALS'
+            
             for gr in lvl["groups"]:
                 if colorIdx > 4:
                     colorIdx = 4
-                state, team_stats, team_transitions = create_state_from_group(tstageKO, tevent, tstate_choice, gr, colorIdx, lvl["header"] + ' ' + str(gr["idx"]), lvl["actNaming"] + ' ' + str(gr["idx"]), hierarchy_counter)
+                state, team_stats, tttAct = create_state_from_group(tstageKO, tevent, tstate_choice, gr, colorIdx, lvl["header"] + ' ' + str(gr["idx"]), lvl["actNaming"] + ' ' + str(gr["idx"]), hierarchy_counter)
+                
                 if firstKoLevel:
                     # handle transitions from group
+                    tttTemp = tttGroup
                     trans = structure_data["transitions"]["groups_to_ko"]["ko_grp_" + str(gr["idx"]-1)]
-                    
-                    for tstat in team_stats:
-                        actTrans = [tr for tr in trans if tr["target_rank"] == tstat.rank][0]
-                        actTTT = [tr for tr in tttGroup[actTrans["origin_group_id"]] if tr.origin_rank == actTrans["origin_rank"]][0]
-                        actTTT.target_ts_id = state
-                        tstat.name_table = '{}. {}'.format(actTTT.origin_rank, actTTT.origin_ts_id)
-                        if tstat.team.is_dummy is True:
-                            tstat.team.name = '{}. {}'.format(actTTT.origin_rank, actTTT.origin_ts_id)
-                            tstat.team.abbreviation = '{}. {}'.format(actTTT.origin_rank, actTTT.origin_ts_id.abbreviation)
-                        tstat.team.save()
-                        tstat.save()
-                        actTTT.save()
-
-                    
+                else:
+                    tttTemp = tttLastState
+                    trans =[tr for tr in last_trans_from_wizard if tr["origin_rank"] == 1 and tr["target_group_id"] == gr["idx"]-1]
+                
+                handle_transitions_ko(state, trans, team_stats, tttTemp)
+                tttNewState[gr["idx"]-1] = tttAct
                 #state.save()
                 colorIdx += 1
+            last_trans_from_wizard = lvl["transitions"]
+            tttLastState = tttNewState
             hierarchy_counter += 1
             if firstKoLevel:
                 firstKoLevel = False
@@ -223,3 +223,17 @@ def create_state_from_group(stage, tevent, tstate_choice, gr, colorIdx, name, ab
         team_transitions.append(ttt)
         i += 1
     return (state, team_stats, team_transitions)
+
+def handle_transitions_ko(state, trans, team_stats, tttLastState):
+                   
+    for tstat in team_stats:
+        actTrans = [tr for tr in trans if tr["target_rank"] == tstat.rank][0]
+        actTTT = [tr for tr in tttLastState[actTrans["origin_group_id"]] if tr.origin_rank == actTrans["origin_rank"]][0]
+        actTTT.target_ts_id = state
+        tstat.name_table = '{}. {}'.format(actTTT.origin_rank, actTTT.origin_ts_id)
+        if tstat.team.is_dummy is True:
+            tstat.team.name = '{}. {}'.format(actTTT.origin_rank, actTTT.origin_ts_id)
+            tstat.team.abbreviation = '{}. {}'.format(actTTT.origin_rank, actTTT.origin_ts_id.abbreviation)
+        tstat.team.save()
+        tstat.save()
+        actTTT.save()
