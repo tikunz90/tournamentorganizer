@@ -61,6 +61,8 @@ def wizard_create_structure(tevent, structure_data):
     last_trans_from_wizard = []
     tttLastState = {}
     tttNewState = {}
+    tttToFinal = {}
+    transToFinal = []
     with transaction.atomic():
         for lvl in ko_data["level"]:
             if colorIdx > 4:
@@ -95,6 +97,8 @@ def wizard_create_structure(tevent, structure_data):
             if firstKoLevel:
                 firstKoLevel = False
             colorIdx = 0
+    tttToFinal = tttLastState
+    transToFinal = last_trans_from_wizard
 
     ####################################################
     # PLACEMENT
@@ -133,6 +137,8 @@ def wizard_create_structure(tevent, structure_data):
     tstageFinal.save()
     for gr in final_data["groups"]:
         state, ts, ttt = create_state_from_group(tstageFinal, tevent, 'FINAL', gr, 6, "Final", "F", 100)
+
+        handle_transitions_ko(state, transToFinal, ts, tttToFinal)
 
         trans = [t["transition"] for t in gr["teams"] if t["transition"]["origin_rank"] == 1 and t["transition"]["target_group_id"] == 999][0]
         tstat_rank = [t for t in tstats_final_ranking if t.rank_initial == 1][0]
