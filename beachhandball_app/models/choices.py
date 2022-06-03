@@ -33,6 +33,16 @@ TOURNAMENT_STATE_CHOICES = (
         ('FINAL_RANKING', 'FINAL_RANKING'),
     )
 
+KNOCKOUT_NAMES = {
+    2: 'F',
+    4: 'SF',
+    8: 'QF',
+    16: 'R16',
+    32: 'R32',
+    64: 'R64',
+    128: 'R128'
+}
+
 COLOR_CHOICES = [
         ("#BABABA", "gray"),
         ("#000000", "black"),
