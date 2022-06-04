@@ -12,6 +12,12 @@
 <h2>Game Plan</h2>
 <hr>
 <div class="col-lg-12 col-md-12 col-sm-12">
+  <div>
+    {% if games|length == 0 %}
+      <h3>No Games defined. Please add or run wizard</h3>
+      <a class="btn btn-primary w-100" href="{{ url('setup_wizard_gameplan') }}">GamePlan Wizard</a>
+    {% endif %}
+  </div>
   <div class="card card-stats">
     <div class="card-header">
       <a class="btn btn-primary" data-toggle="collapse" href="#panel-filter" role="button" aria-expanded="false" aria-controls="collapseExample">

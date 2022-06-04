@@ -22,6 +22,7 @@ urlpatterns = [
     path('ajax/data/', static_views.getData, name='get_data'),
 
     path('setup-wizard/<int:pk_tevent>/', static_views.setup_wizard, name='setup_wizard'),
+    path('setup-wizard/game-plan/', static_views.setup_wizard_gameplan, name='setup_wizard_gameplan'),
 
     path('sync_tournament_data/', static_views.sync_tournament_data, name='sync_tournament_data'),
 
@@ -64,6 +65,7 @@ urlpatterns = [
     
 
     path('game_plan/', static_views.game_plan, name='game_plan'),
+    path('game_plan/delete_all/', static_views.delete_gameplan, name='game_plan.delete_all'),
     path('game_plan/<int:pk_tevent>/<int:pk_tstage>/update_game_result/<int:pk>', GameResultGameView.as_view(), name='update_game_result_from_gameplan'),
     path('results/', static_views.results, name='results'),
     path('results/<int:pk>/', ResultsDetail.as_view(), name='results.detail'),

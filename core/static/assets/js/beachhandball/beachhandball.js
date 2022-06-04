@@ -705,6 +705,10 @@ bh = {
         $('#wz-res_num_of_games_ko').val(wzNumOfGamesKO);
     },
 
+    wzUpdateGamePlan: function(){
+        
+    },
+
     addCourt_Click: function(){
         console.log("addCourt_Click");
         

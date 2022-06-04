@@ -199,6 +199,44 @@ def delete_structure(request, pk_tevent):
 @login_required(login_url="/login/")
 @user_passes_test(lambda u: u.groups.filter(name='tournament_organizer').exists(),
 login_url="/login/", redirect_field_name='next')
+def setup_wizard_gameplan(request):
+    context = getContext(request)
+    if not checkLoginIsValid(context['gbo_user']):
+        return redirect('login')
+
+    context['segment'] = 'game_plan'
+    context['segment_title'] = 'Game Plan'
+
+    if request.method == 'POST':
+        gameplan_data = json.loads(request.POST['gameplan-data'])
+        result = wizard.wizard_create_gameplan(gameplan_data)
+        return HttpResponseRedirect(reverse("game_plan"))
+
+    html_template = loader.get_template( 'forms-setup-wizard-gameplan.html' )
+    return HttpResponse(html_template.render(context, request))
+
+@login_required(login_url="/login/")
+@user_passes_test(lambda u: u.groups.filter(name='tournament_organizer').exists(),
+login_url="/login/", redirect_field_name='structure_setup')
+def delete_gameplan(request):
+    context = getContext(request)
+    if not checkLoginIsValid(context['gbo_user']):
+        return redirect('login')
+
+    context['segment'] = 'structure_setup'
+    context['segment_title'] = 'Structure Setup'
+
+    if request.method == 'POST':
+        print('Delete all games')
+        #TournamentStage.objects.filter(tournament_event=context['tevent']).delete()
+        return HttpResponseRedirect(reverse("game_plan"))
+    elif request.method == 'GET':
+        html_template = loader.get_template( 'beachhandball/delete_gameplan_confirmation.html' )
+        return HttpResponse(html_template.render(context, request))
+
+@login_required(login_url="/login/")
+@user_passes_test(lambda u: u.groups.filter(name='tournament_organizer').exists(),
+login_url="/login/", redirect_field_name='next')
 def basic_setup(request):
     
     context = getContext(request)

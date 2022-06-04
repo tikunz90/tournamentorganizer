@@ -288,3 +288,8 @@ def handle_transitions_ranking(ts_final_ranking, tstats_final_ranking, ttt):
     ttt2nd.save()
     tstat_rank.team.save()
     tstat_rank.save()
+
+
+
+def wizard_create_gameplan(gameplan_data):
+    return 0
