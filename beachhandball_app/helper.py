@@ -6,10 +6,11 @@ from datetime import datetime
 
 from django.db.models.query import Prefetch
 from authentication.models import GBOUser, GBOUserSerializer
+from beachhandball_app.api.serializers.tournament.serializer import serialize_tournament
 from beachhandball_app.models.Player import Player, PlayerStats
 from django.db.models.query_utils import Q, check_rel_lookup_compatibility
 from beachhandball_app.models.choices import GAMESTATE_CHOICES, TOURNAMENT_STAGE_TYPE_CHOICES
-from beachhandball_app.models.Tournaments import Tournament, TournamentEvent, TournamentSettings, TournamentStage, TournamentState, TournamentTeamTransition
+from beachhandball_app.models.Tournaments import Court, Referee, Tournament, TournamentEvent, TournamentSettings, TournamentStage, TournamentState, TournamentTeamTransition
 from beachhandball_app.models.Game import Game
 from beachhandball_app.models.Team import Coach, TeamStats, Team
 from beachhandball_app.models.General import TournamentCategory
@@ -866,7 +867,26 @@ def check_tournamentstate_finished(tevent, ts):
             ts.transitions_done = True
         ts.save(update_fields=['transitions_done'])
 
-
+def get_tournament_info_json(tourn):
+    tourn_data = Tournament.objects.prefetch_related(
+            Prefetch("game_set", queryset=Game.objects.select_related("tournament", "tournament_event__category", "team_a", "team_b", "team_st_a__team", "team_st_b__team", "ref_a", "ref_b", "tournament_state__tournament_stage", "court")
+                , to_attr="all_games"),
+            Prefetch("tournamentevent_set", queryset=TournamentEvent.objects.select_related("tournament", "category").prefetch_related(
+                Prefetch("tournamentstage_set", queryset=TournamentStage.objects.select_related("tournament_event__category").prefetch_related(
+                    Prefetch("tournamentstate_set", queryset=TournamentState.objects.select_related("tournament_event__category", "tournament_stage").prefetch_related(
+                        Prefetch("teamstats_set", queryset=TeamStats.objects.select_related("team").order_by("rank")
+                        , to_attr="all_team_stats"))
+                            , to_attr="all_tstates"))
+                                , to_attr="all_tstages"),),
+                to_attr="all_tevents"),
+            Prefetch("court_set", queryset=Court.objects.select_related("tournament")
+                , to_attr="all_courts"),
+            Prefetch("referee_set", queryset=Referee.objects.select_related("tournament")
+                , to_attr="all_refs")
+                ).filter(id=tourn.id).first()
+    if tourn_data is None:
+        return '{}'
+    return serialize_tournament(tourn_data)
 
 def create_teams_testdata(tevent):
     tevent = TournamentEvent.objects.get(id=tevent)

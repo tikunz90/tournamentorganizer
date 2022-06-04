@@ -26,15 +26,19 @@ def serialize_tournament(tournament: Tournament) -> Dict[str, Any]:
     }
 
 def serialize_tournament_event(tournamentEvent: TournamentEvent, games) -> Dict[str, Any]:
-    return {
+    data = {
         'id': tournamentEvent.id,
         'name': tournamentEvent.name,
         'category': serialize_tournament_category(tournamentEvent.category),
-        'stages': [serialize_tournament_stage(stage, [g for g in games if g.tournament_event_id == tournamentEvent.id]) for stage in tournamentEvent.all_tstages],
-        'top10_player_stats_offense': [serialize_playerstat(stat) for stat in tournamentEvent.top10_player_stats_offense[:10]],
-        'top10_player_stats_defense': [serialize_playerstat(stat) for stat in tournamentEvent.top10_player_stats_defense[:10]],
-        'top10_player_stats_gk': [serialize_playerstat(stat) for stat in tournamentEvent.top10_player_stats_gk[:10]]
+        'stages': [serialize_tournament_stage(stage, [g for g in games if g.tournament_event_id == tournamentEvent.id]) for stage in tournamentEvent.all_tstages]
     }
+    if hasattr(tournamentEvent, 'top10_player_stats_offense'):
+        data['top10_player_stats_offense'] = [serialize_playerstat(stat) for stat in tournamentEvent.top10_player_stats_offense[:10]]
+    if hasattr(tournamentEvent, 'top10_player_stats_defense'):
+        data['top10_player_stats_defense'] = [serialize_playerstat(stat) for stat in tournamentEvent.top10_player_stats_defense[:10]]
+    if hasattr(tournamentEvent, 'top10_player_stats_gk'):
+        data['top10_player_stats_gk'] = [serialize_playerstat(stat) for stat in tournamentEvent.top10_player_stats_gk[:10]]
+    return data
 
 def serialize_tournament_category(category: TournamentCategory) -> Dict[str, Any]:
     return {

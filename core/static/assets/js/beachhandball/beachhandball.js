@@ -705,8 +705,25 @@ bh = {
         $('#wz-res_num_of_games_ko').val(wzNumOfGamesKO);
     },
 
+    tournamentData: "",
+
     wzUpdateGamePlan: function(){
-        
+        console.log("wzUpdateGamePlan");
+        bh.wzgpUpdateStart("wzgp-events-total");
+    },
+
+    wzgpUpdateStart: function(idRow){
+
+        var row = document.getElementById(idRow);
+        $(row).empty();
+
+        bh.tournamentData.events.forEach(event => {
+            var templateTotal = $("#templateEvent_total_games").clone();
+            $(templateTotal).attr("id", 'total_' + event.id);
+            $(templateTotal).removeAttr('hidden');
+            $(templateTotal).find("#template_name").text('Resulting games of ' + event.name + ' ' + event.category.name);
+            $(row).append(templateTotal);
+        });
     },
 
     addCourt_Click: function(){

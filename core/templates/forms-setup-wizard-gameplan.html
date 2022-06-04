@@ -65,6 +65,9 @@
 
                 <h5 class="info-text">Choose minimum 1 and maximum 64 courts</h5>
                 
+                <div class="row justify-content-center" id="wzgp-events-total">
+                </div>
+
               </div>
 
 
@@ -424,40 +427,56 @@
           </div>
 
 
-          <div id="templateKO_level" class="justify-content-center" hidden>
-            <div class="row justify-content-center mx-auto">
-              <h3 id="templateKO_header" class="col-12 text-center">Best of 16</h3>
-            </div>
-            <div id="templateKO_items" class="row justify-content-center mx-auto">
-            </div>
-          </div>
+          <div id="templateEvent_total_games" class="row justify-content-center" hidden>
+            <div class="col">
+              <div class="input-group form-control-lg">
+                <div class="input-group-prepend">
+                  <span class="input-group-text">
+                    <i class="material-icons">numbers</i>
+                  </span>
+                </div>
 
-          <div id="templatePL_level" class="justify-content-center" hidden>
-            <div class="row">
-              <div class="col">
-                <div class="card">
-                  <div class="card-header">
-                    <h3 id="templatePL_header" class="card-title text-center">Best of 16</h3>
-                  </div>
-                  <div class="card-body" id="templatePL_body">
-                    
+                <div class="form-group">
+                  <label id="template_name" class="form-label font-weight-bold">Resulting number of games</label>
+                  <div class="table-responsive">
+                    <table class="table align-items-center mb-0">
+                      <thead>
+                        <tr>
+                          <th class="text-primary text-xxs font-weight-bold opacity-3 ps-2">Total</th>
+                          <th class="text-secondary text-xxs font-weight-bolder opacity-7">Group-Stage</th>
+                          <th class="text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Knockout-Stage</th>
+                          <th class="text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Placement</th>
+                          <th class="text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Final</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td>
+                            <input type="number" id="wz-res_num_of_games_total" class="input_group form-control input-lg text-primary text-xxs font-weight-bold opacity-3 ps-2" value="0" disabled>
+                          </td>
+                          <td>
+                            <input type="number" id="wz-res_num_of_games_group" class="input_group form-control" value="0" disabled>
+                          </td>
+                          <td>
+                            <input type="number" id="wz-res_num_of_games_ko" class="input_group form-control" value="0" disabled>
+                          </td>
+                          <td>
+                            <input type="number" id="wz-res_num_of_games_placement" class="input_group form-control" value="0" disabled>
+                          </td>
+                          <td>
+                            <input type="number" id="wz-res_num_of_games_final" class="input_group form-control" value="0" disabled>
+                          </td>
+                          
+                        </tr>  
+                      </tbody>
+                    </table>
                   </div>
                 </div>
               </div>
+
             </div>
-            
           </div>
 
-          <div id="templatePL_items" class="row justify-content-center mx-auto" hidden>
-          </div>
-
-          <div id="templatePLsub_level" class="justify-content-center" hidden>
-            <div class="row justify-content-center mx-auto">
-              <h3 id="templatePLsub_header" class="col-12 text-center">Best of 16</h3>
-            </div>
-            <div id="templatePLsub_items" class="row justify-content-center mx-auto">
-            </div>
-          </div>
         </form>
       </div>
     </div>
@@ -468,10 +487,12 @@
 
 {% block javascripts %}
 
+<div style="display: none" id="tournament-data" data-json="{{ tournament_data }}"></div>
 <script>
   $(document).ready(function() {
     console.log("Wizard GamePlan Loaded");
-
+    bh.tournamentData = JSON.parse(document.getElementById('tournament-data').getAttribute('data-json'));
+    console.log("bh.tournamentData=" + bh.tournamentData);
     bh.wzUpdateGamePlan();
 
     $('.input_group').on('change keyup', function() {
