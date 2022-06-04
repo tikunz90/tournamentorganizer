@@ -706,10 +706,16 @@ bh = {
     },
 
     tournamentData: "",
+    numCourts: 0,
+    minutesPerGame: 0,
+    DateTimeFirstGame: "",
+    DateTimeLastGame: "",
+    gameDays: [],
 
     wzUpdateGamePlan: function(){
         console.log("wzUpdateGamePlan");
         bh.wzgpUpdateStart("wzgp-events-total");
+        bh.wzgpUpdateGameDays("wzgp-gamedays");
     },
 
     wzgpUpdateStart: function(idRow){
@@ -717,13 +723,114 @@ bh = {
         var row = document.getElementById(idRow);
         $(row).empty();
 
+        bh.numCourts = $("#wzgp-num_courts").val();
+        bh.minutesPerGame = $("#wzgp-time-slot").val();
+        
+        var num_games_total = 0;
+        var num_games_group = 0;
+        var num_games_ko = 0;
+        var num_games_pl = 0;
+        var num_games_f = 0;
+
+        var templateTotal = $("#templateEvent_total_games").clone();
+        $(templateTotal).attr("id", 'total_0');
+        $(templateTotal).removeAttr('hidden');
+        $(templateTotal).find("#template_name").text('Resulting games');
+        var table = $(templateTotal).find("#wzgp-table-gamecounts");
         bh.tournamentData.events.forEach(event => {
-            var templateTotal = $("#templateEvent_total_games").clone();
-            $(templateTotal).attr("id", 'total_' + event.id);
-            $(templateTotal).removeAttr('hidden');
-            $(templateTotal).find("#template_name").text('Resulting games of ' + event.name + ' ' + event.category.name);
-            $(row).append(templateTotal);
+
+            event.stages.forEach(stage => {
+                var stage_counter = 0;
+                stage.states.forEach(state => {
+                    var n = state.ranking.length - 1;
+                    stage_counter += (n*n + n) / 2;
+                })
+
+                if(stage.tournament_stage === "GROUP_STAGE")
+                {
+                    num_games_group = stage_counter;
+                }
+                else if(stage.tournament_stage === "KNOCKOUT_STAGE")
+                {
+                    num_games_ko = stage_counter;
+                }
+                else if(stage.tournament_stage === "PLAYOFF_STAGE")
+                {
+                    num_games_pl = stage_counter;
+                }
+                else if(stage.tournament_stage === "FINAL")
+                {
+                    num_games_f = stage_counter;
+                }
+
+
+            });
+            
         });
+        $(row).append(templateTotal);
+        num_games_total = num_games_group + num_games_ko + num_games_pl + num_games_f;
+
+        var total_time_min = num_games_total * bh.minutesPerGame / bh.numCourts;
+        var total_time_hours = Math.floor(total_time_min / 60);
+        var remaining_minutes = total_time_min - total_time_hours*60;
+
+        $('#wz-res_num_of_games_total').val(num_games_total);
+        $('#wz-res_num_of_games_group').val(num_games_group);
+        $('#wz-res_num_of_games_ko').val(num_games_ko);
+        $('#wz-res_num_of_games_placement').val(num_games_pl);
+        $('#wz-res_num_of_games_final').val(num_games_f);
+        $('#wz-res_time').text(total_time_hours + 'h ' + remaining_minutes + ' m');
+    },
+
+    wzgpUpdateGameDays: function(idRow){
+        var row = document.getElementById(idRow);
+        $(row).empty();
+
+        var dateFirstGame = moment($("#wzgp-GameDays_DateTimeFirstGame").val(), "MM/DD/YYYY HH:mm");
+        bh.DateTimeFirstGame = dateFirstGame.format("MM/DD/YYYY HH:mm");
+        var dateLastGame = moment($("#wzgp-GameDays_DateTimeLastGame").val(), "MM/DD/YYYY HH:mm");
+        bh.DateTimeLastGame = dateLastGame.format("MM/DD/YYYY HH:mm");
+
+        if(dateLastGame.isBefore(dateFirstGame))
+        {
+            $(row).append('<h3>Last game is before first!</h3>');
+            return;
+        }
+        else if(dateLastGame.diff(dateFirstGame, 'days') > 8)
+        {
+            $(row).append('<h3>Are you crazy? More than 8 Game Days, serious?</h3>');
+            return;
+        }
+
+        bh.gameDays = [];
+
+        for(var i = 0; i <= dateLastGame.diff(dateFirstGame, 'days');i++)
+        {
+            var actMoment = moment(dateFirstGame).add(i, 'days');
+            var endMoment = moment(actMoment).add(8, 'hours');
+            if(i == dateLastGame.diff(dateFirstGame, 'days'))
+            {
+                endMoment = moment(dateLastGame);
+            }
+            var gameDay = {"id": i, "starttime": actMoment.format("MM/DD/YYYY HH:mm"), "endtime": endMoment.format("MM/DD/YYYY HH:mm")};
+
+            var templateGD = $("#templateGameDay").clone();
+            $(templateGD).attr("id", 'gameday_' + i);
+            $(templateGD).removeAttr('hidden');
+            $(templateGD).find("#templateGameDay_title").text('Day ' + (i+1) + ' - ' + actMoment.format("DD.MM."));
+            $(templateGD).find("#template_info").text("");
+
+            $(templateGD).find("#timeFirst_h").val(actMoment.hour());
+            $(templateGD).find("#timeFirst_m").val(actMoment.minutes());
+
+            $(templateGD).find("#timeLast_h").val(endMoment.hour());
+            $(templateGD).find("#timeLast_m").val(endMoment.minutes());
+            
+
+            $(row).append(templateGD);
+            bh.gameDays.push(gameDay);
+        }
+
     },
 
     addCourt_Click: function(){

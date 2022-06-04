@@ -29,8 +29,8 @@
                 </a>
               </li>
               <li class="nav-item">
-                <a class="nav-link" href="#tabKO" data-toggle="tab" role="tab">
-                  Knockout Stage
+                <a class="nav-link" href="#tabGameDays" data-toggle="tab" role="tab">
+                  Game Days
                 </a>
               </li>
               <li class="nav-item">
@@ -61,9 +61,23 @@
                     <label class="form-label">number of courts</label>
                     <input type="number" name="num_courts" id="wzgp-num_courts" class="input_group form-control" value="1" min="1" max="64" required>
                   </div>
+                  <h5 class="info-text">Choose minimum 1 and maximum 64 courts</h5>
                 </div>
 
-                <h5 class="info-text">Choose minimum 1 and maximum 64 courts</h5>
+                <h4 class="info-text">Define timeslot per round in minutes</h4>
+                <div class="input-group form-control-lg">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text">
+                      <i class="material-icons">watch</i>
+                    </span>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">minutes per game</label>
+                    <input type="number" name="num_courts" id="wzgp-time-slot" class="input_group form-control" value="30" min="20" max="60" required>
+                  </div>
+                  <h5 class="info-text">Choose minimum 20 and maximum 60 minutes</h5>
+                </div>
+                
                 
                 <div class="row justify-content-center" id="wzgp-events-total">
                 </div>
@@ -71,57 +85,44 @@
               </div>
 
 
-              <div class="tab-pane" id="tabKO">
-                <h5 class="info-text">As next step we need to define the Knockout and Placement stage.</h5>
-                <p class="text-left">Define how many teams will play knockout games for the final. 2 means only 2 teams from the group stage will proceed to knockout stage, therefore this 2 teams will play directly the final. With 4 teams selected, Knockout Stage will start at the Semi-Finals, 8 teams means Quarter-Finals and so on...</p>
-                <div class="input-group form-control-lg">
-                  <div class="input-group-prepend">
-                    <span class="input-group-text">
-                      <i class="material-icons">line_style</i>
-                    </span>
-                  </div>
-                  <div class="form-group row">
-                    <div class="col-8">
-                    <label for="wz-sel-teams-knockout" class="">Number of teams can reach Knockout-Stage?</label>
-                    
-                    </div>
-                    <div class="col-4">
-                      <select name="sel_teams_knockout" class="input_group form-control" id="wz-sel-teams-knockout">
-                        <option selected value="2">2</option>
-                        <option value="4">4</option>
-                        <option value="8">8</option>
-                        <option value="16">16</option>
-                        <option value="32">32</option>
-                      </select>
-                    </div>
-                  </div>
-                </div>
+              <div class="tab-pane" id="tabGameDays">
+                <h5 class="info-text">As next step we need to define the game days.</h5>
+                <p class="text-left">Tell me at which day and time you want to play the first game round. (Hit Enter after date selection)</p>
                 
-                <h5 class="info-text">Define until which rank you want to play Placement games</h5>
-                <p class="text-left">The losing teams from Knockout Stage will continue playing for lower placements.</p>
-
-                <div class="input-group form-control-lg">
-                  <div class="input-group-prepend">
-                    <span class="input-group-text">
-                      <i class="material-icons">format_list_numbered</i>
-                    </span>
-                  </div>
-                  <div class="form-group row">
-                    <div class="col-8">
-                    <label for="wz-sel-teams-getting-ranked" class="">Number of teams getting ranked?</label>
-                    
+                <div class="row">
+                  <div class="col-md">
+                    <div class="input-group form-control-lg">
+                      <div class="input-group-prepend">
+                        <span class="input-group-text">
+                          <i class="material-icons">schedule</i>
+                        </span>
+                      </div>
+                      <div class="form-group">
+                        <label class="form-label">datetime of first game</label>
+                        <input type="text" id="wzgp-GameDays_DateTimeFirstGame" class="input_group form-control datetimepicker" value="01/06/2022 08:00">
+                      </div>
                     </div>
-                    <div class="col-4">
-                      <select name="sel_teams_getting_ranked" class="input_group form-control" id="wz-sel-teams-getting-ranked">
-                        <option selected value="2">2</option>
-                        <option value="4">4</option>
-                        <option value="8">8</option>
-                        <option value="16">16</option>
-                        <option value="32">32</option>
-                      </select>
+                  </div>
+                  <div class="col-md">
+                    <div class="input-group form-control-lg">
+                      <div class="input-group-prepend">
+                        <span class="input-group-text">
+                          <i class="material-icons">bedtime</i>
+                        </span>
+                      </div>
+                      <div class="form-group">
+                        <label class="form-label">datetime of last game</label>
+                        <input type="text" id="wzgp-GameDays_DateTimeLastGame" class="input_group form-control datetimepicker" value="01/06/2022 09:00">
+                      </div>
                     </div>
                   </div>
                 </div>
+                <div class="row justify-content-center" id="wzgp-gamedays">
+                  
+
+                  
+                </div>
+
               </div>
 
 
@@ -304,64 +305,6 @@
                     </div>
                   </div>
 
-                  <!--div class="card ">
-                    <div class="card-header ">
-                      <h4 class="card-title">Navigation Pills -
-                        <small class="description">Horizontal Tabs</small>
-                      </h4>
-                    </div>
-                    <div class="card-body ">
-                      <ul class="nav nav-tabs internal-nav nav-pills-warning flex-column flex-sm-row" role="tablist">
-                        <li class="nav-item col">
-                          <a class="nav-link active" data-toggle="tab" href="#linkKO" role="tablist">
-                            <span class="material-icons align-middle mb-1">
-                              sports_mma
-                            </span>
-                             Knockout-Stage
-                          </a>
-                        </li>
-                        <li class="nav-item col">
-                          <a class="nav-link" data-toggle="tab" href="#linkPlacement" role="tablist">
-                            <span class="material-icons align-middle mb-1">
-                              format_list_numbered
-                            </span>
-                            Placement
-                          </a>
-                        </li>
-                      </ul>
-                      <div class="tab-content tab-space">
-                        <div class="tab-pane active" id="linkKO">
-                          
-                          
-                          <div class="container justify-content-center" id="wz-ovw-knockout">
-                            <div id="templateKO_level" class="row container">
-                              <div class="row justify-content-center mx-auto">
-                                <h3 id="templateKO_header">Best of 16</h3>
-                              </div>
-                              <div id="templateKO_items" class="row justify-content-center mx-auto">
-                              </div>
-                            </div>
-                          </div>
-                          
-                          <div class="row justify-content-center">
-                            <div class="d-flex justify-content-lg-start justify-content-center p-2">
-                              <span class="material-icons my-auto">
-                                emoji_events
-                                </span>
-                                <h3>Finals</h3>
-                            </div>
-                          </div>
-                          <div class="row justify-content-center" id="wz-ovw-finals">
-                          </div>
-                        </div>
-                        <div class="tab-pane" id="linkPlacement">
-                          Efficiently unleash cross-media information without cross-media value. Quickly maximize timely deliverables for real-time schemas.
-                          <br />
-                          <br />Dramatically maintain clicks-and-mortar solutions without functional solutions.
-                        </div>
-                      </div>
-                    </div>
-                  </div-->
                 </div>
 
                 <div class="row justify-content-center">
@@ -439,14 +382,15 @@
                 <div class="form-group">
                   <label id="template_name" class="form-label font-weight-bold">Resulting number of games</label>
                   <div class="table-responsive">
-                    <table class="table align-items-center mb-0">
+                    <table id="wzgp-table-gamecounts" class="table align-items-center mb-0">
                       <thead>
                         <tr>
-                          <th class="text-primary text-xxs font-weight-bold opacity-3 ps-2">Total</th>
-                          <th class="text-secondary text-xxs font-weight-bolder opacity-7">Group-Stage</th>
-                          <th class="text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Knockout-Stage</th>
-                          <th class="text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Placement</th>
-                          <th class="text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Final</th>
+                          <th class="text-primary" scope="col">Total</th>
+                          <th class="text-primary" scope="col">Group-Stage</th>
+                          <th class="text-primary" scope="col">Knockout-Stage</th>
+                          <th class="text-primary" scope="col">Placement</th>
+                          <th class="text-primary" scope="col">Final</th>
+                          <th class="text-primary" scope="col">Exp. time</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -466,8 +410,11 @@
                           <td>
                             <input type="number" id="wz-res_num_of_games_final" class="input_group form-control" value="0" disabled>
                           </td>
+                          <td>
+                            <span id="wz-res_time"></span>
+                          </td>
                           
-                        </tr>  
+                        </tr>
                       </tbody>
                     </table>
                   </div>
@@ -477,6 +424,41 @@
             </div>
           </div>
 
+          <div id="templateGameDay" class="col-md" hidden>
+            <div class="card">
+                <div class="card-header card-header-icon">
+                    <div class="card-icon">
+                        <i class="material-icons">event</i>
+                    </div>
+                    <h4 id="templateGameDay_title" class="card-title">Day 2</h4>
+                </div>
+                <div class="card-body">
+                  <div class="row">
+                    <h5 id="template_info" class="card-title">Day 2</h5>
+                  </div>
+                  <div class="row">
+                    <div class="col-md">
+                      <h4>First Game:</h4>
+                      <input type="number" name="timeFirst_h" id="timeFirst_h" class="" value="8" min="0" max="23">
+                      <input type="number" name="timeFirst_m" id="timeFirst_m" class="" value="0" min="0" max="59">
+                    </div>
+                    <div class="col-md">
+                      <h4>Last Game:</h4>
+                      <input type="number" name="timeLast_h" id="timeLast_h" class="" value="18" min="0" max="23">
+                      <input type="number" name="timeLast_m" id="timeLast_m" class="" value="0" min="0" max="59">
+                    </div>
+                  </div>
+
+                  
+
+                  <div id="template_gameslots" class="row">
+                  </div>
+
+                </div>
+                <div class="card-footer">
+                </div>
+            </div>
+          </div>
         </form>
       </div>
     </div>
@@ -491,13 +473,18 @@
 <script>
   $(document).ready(function() {
     console.log("Wizard GamePlan Loaded");
+    md.initFormExtendedDatetimepickers();
     bh.tournamentData = JSON.parse(document.getElementById('tournament-data').getAttribute('data-json'));
     console.log("bh.tournamentData=" + bh.tournamentData);
     bh.wzUpdateGamePlan();
 
     $('.input_group').on('change keyup', function() {
       bh.wzUpdateGamePlan();
-    }); 
+    });
+
+    $("#wzgp-GameDays_DateTimeFirstGame").on("change.datetimepicker", ({date, oldDate}) => {              
+      console.log("date:" + date);
+    });
     // Initialise the wizard
     //demo.initMaterialWizard();
     // Code for the Validator
