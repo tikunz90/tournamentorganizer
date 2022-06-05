@@ -29,16 +29,6 @@
                 </a>
               </li>
               <li class="nav-item">
-                <a class="nav-link" href="#tabGameDays" data-toggle="tab" role="tab">
-                  Game Days
-                </a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="#tabGroupStage" data-toggle="tab" role="tab">
-                  Group Stage
-                </a>
-              </li>
-              <li class="nav-item">
                 <a class="nav-link" href="#tabResult" data-toggle="tab" role="tab">
                   Result
                 </a>
@@ -50,47 +40,10 @@
 
               <div class="tab-pane active" id="tabStart">
                 <h3 class="info-text"> Let's start with setting up your tournament</h3>
-                <h4 class="info-text"> How many courts you want to use on your tournament?</h4>
-                <div class="input-group form-control-lg">
-                  <div class="input-group-prepend">
-                    <span class="input-group-text">
-                      <i class="material-icons">dashboard</i>
-                    </span>
-                  </div>
-                  <div class="form-group">
-                    <label class="form-label">number of courts</label>
-                    <input type="number" name="num_courts" id="wzgp-num_courts" class="input_group form-control" value="1" min="1" max="64" required>
-                  </div>
-                  <h5 class="info-text">Choose minimum 1 and maximum 64 courts</h5>
-                </div>
-
-                <h4 class="info-text">Define timeslot per round in minutes</h4>
-                <div class="input-group form-control-lg">
-                  <div class="input-group-prepend">
-                    <span class="input-group-text">
-                      <i class="material-icons">watch</i>
-                    </span>
-                  </div>
-                  <div class="form-group">
-                    <label class="form-label">minutes per game</label>
-                    <input type="number" name="num_courts" id="wzgp-time-slot" class="input_group form-control" value="30" min="20" max="60" required>
-                  </div>
-                  <h5 class="info-text">Choose minimum 20 and maximum 60 minutes</h5>
-                </div>
-                
-                
-                <div class="row justify-content-center" id="wzgp-events-total">
-                </div>
-
-              </div>
-
-
-              <div class="tab-pane" id="tabGameDays">
-                <h5 class="info-text">As next step we need to define the game days.</h5>
-                <p class="text-left">Tell me at which day and time you want to play the first game round. (Hit Enter after date selection)</p>
                 
                 <div class="row">
                   <div class="col-md">
+                    <h4 class="info-text">Select time of your first game round.</h4>
                     <div class="input-group form-control-lg">
                       <div class="input-group-prepend">
                         <span class="input-group-text">
@@ -103,240 +56,53 @@
                       </div>
                     </div>
                   </div>
+                  
                   <div class="col-md">
+                    <h4 class="info-text">How many courts you want to use on your tournament?</h4>
                     <div class="input-group form-control-lg">
                       <div class="input-group-prepend">
                         <span class="input-group-text">
-                          <i class="material-icons">bedtime</i>
+                          <i class="material-icons">dashboard</i>
                         </span>
                       </div>
                       <div class="form-group">
-                        <label class="form-label">datetime of last game</label>
-                        <input type="text" id="wzgp-GameDays_DateTimeLastGame" class="input_group form-control datetimepicker" value="01/06/2022 09:00">
+                        <label class="form-label">number of courts</label>
+                        <input type="number" name="num_courts" id="wzgp-num_courts" class="input_group form-control" value="1" min="1" max="64" required>
                       </div>
+                      <h5 class="info-text">Choose minimum 1 and maximum 64 courts</h5>
                     </div>
                   </div>
-                </div>
-                <div class="row justify-content-center" id="wzgp-gamedays">
-                  
 
-                  
-                </div>
-
-              </div>
-
-
-              <div class="tab-pane" id="tabGroupStage">
-                <h5 class="info-text"> Define number and size of groups</h5>
-
-                
-                <div class="row justify-content-center">
-                  <div class="col-sm-6">
-
+                  <div class="col-md">
+                    <h4 class="info-text">Define timeslot per round in minutes</h4>
                     <div class="input-group form-control-lg">
                       <div class="input-group-prepend">
                         <span class="input-group-text">
-                          <i class="material-icons">numbers</i>
+                          <i class="material-icons">watch</i>
                         </span>
                       </div>
                       <div class="form-group">
-                        <label class="form-label">Number of groups</label>
-                        <input type="number" name="num_of_groups" id="wz-num_of_groups" class="input_group form-control" value="2" min="1" max="32" required>
+                        <label class="form-label">minutes per game</label>
+                        <input type="number" name="num_courts" id="wzgp-time-slot" class="input_group form-control" value="30" min="20" max="60" required>
                       </div>
+                      <h5 class="info-text">Choose minimum 20 and maximum 60 minutes</h5>
                     </div>
-
-
-                    
                   </div>
-                  
-                  <div class="col-sm-4">
-                  </div>
-                  
+                </div>
+                
+                
+                <div class="row justify-content-center" id="wzgp-events-total">
                 </div>
 
-                <p>Keep in mind that amount of groups is limited by number of teams can reach Knockout Stage which you have selected before.</p>
-
-                
               </div>
               
               <div class="tab-pane" id="tabResult">
-                <h5 class="info-text">Checkout the result of your settings.</h5>
-                <p>Individual changes can be done later...</p>
+                <h5 class="info-text">Here are the game days. You can change the individual start and end times of each day.</h5>
                 <p>If you are happy with it, push CREATE button in the low right corner.</p>
-
-                <!-- Eval number of games-->
-                <div class="row justify-content-center">
-                  <div class="col">
-                    <div class="input-group form-control-lg">
-                      <div class="input-group-prepend">
-                        <span class="input-group-text">
-                          <i class="material-icons">numbers</i>
-                        </span>
-                      </div>
-
-                      <div class="form-group">
-                        <label class="form-label font-weight-bold">Resulting number of games</label>
-                        <div class="table-responsive">
-                          <table class="table align-items-center mb-0">
-                            <thead>
-                              <tr>
-                                <th class="text-primary text-xxs font-weight-bold opacity-3 ps-2">Total</th>
-                                <th class="text-secondary text-xxs font-weight-bolder opacity-7">Group-Stage</th>
-                                <th class="text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Knockout-Stage</th>
-                                <th class="text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Placement</th>
-                                <th class="text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Final</th>
-                              </tr>
-                            </thead>
-                            <tbody>
-                              <tr>
-                                <td>
-                                  <input type="number" id="wz-res_num_of_games_total" class="input_group form-control input-lg text-primary text-xxs font-weight-bold opacity-3 ps-2" value="0" disabled>
-                                </td>
-                                <td>
-                                  <input type="number" id="wz-res_num_of_games_group" class="input_group form-control" value="0" disabled>
-                                </td>
-                                <td>
-                                  <input type="number" id="wz-res_num_of_games_ko" class="input_group form-control" value="0" disabled>
-                                </td>
-                                <td>
-                                  <input type="number" id="wz-res_num_of_games_placement" class="input_group form-control" value="0" disabled>
-                                </td>
-                                <td>
-                                  <input type="number" id="wz-res_num_of_games_final" class="input_group form-control" value="0" disabled>
-                                </td>
-                                
-                              </tr>  
-                            </tbody>
-                          </table>
-                        </div>
-                      </div>
-                    </div>
-
-                  </div>
-                </div>
-
-                <div class="row justify-content-center">
-                  <div class="d-flex justify-content-lg-start justify-content-center p-2">
-                    <span class="material-icons my-auto">
-                      
-                      </span>
-                      <h1>Overview Structure</h1>
-                  </div>
-                </div>
-
-                <div class="row justify-content-center">
-                  <div class="d-flex justify-content-lg-start justify-content-center p-2">
-                    <span class="material-icons my-auto">
-                      format_list_numbered
-                      </span>
-                      <h3>Group-Stage</h3>
-                  </div>
-                </div>
-                <div class="row justify-content-center" id="wz-ovw-groups">
-                </div>
-
-                <!-- KO and Placement -->
-                <div class="container">
-
-                  <div class="row">
-                    <div class="col">
-                      <div class="card">
-                        <div class="card-header">
-                          <!--h4 class="card-title">Collapsible Accordion</h4-->
-                        </div>
-                        <div class="card-body">
-                          <div id="accordion" role="tablist">
-
-
-                            <div class="card-collapse">
-                              <div class="card-header" role="tab" id="headingKO">
-                                <h5 class="mb-0">
-                                  <a data-toggle="collapse" href="#collapseKO" aria-expanded="true" aria-controls="collapseKO" class="collapsed">
-                                    <span class="material-icons align-middle mb-1">
-                                      sports_mma
-                                    </span>
-                                      Knockout-Stage
-                                    <i class="material-icons">keyboard_arrow_down</i>
-                                  </a>
-                                </h5>
-                              </div>
-                              <div id="collapseKO" class="collapse show" role="tabpanel" aria-labelledby="headingKO" data-parent="#accordion" style="">
-                                <div class="card-body">
-                                  <div class="container justify-content-center" id="wz-ovw-knockout">
-                                    <div id="templateKO_level" class="row container">
-                                      <div class="row justify-content-center mx-auto">
-                                        <h3 id="templateKO_header">Best of 16</h3>
-                                      </div>
-                                      <div id="templateKO_items" class="row justify-content-center mx-auto">
-                                      </div>
-                                    </div>
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-
-
-                            <div class="card-collapse">
-                              <div class="card-header" role="tab" id="headingPlacement">
-                                <h5 class="mb-0">
-                                  <a class="collapsed" data-toggle="collapse" href="#collapsePlacement" aria-expanded="false" aria-controls="collapsePlacement">
-                                    <span class="material-icons align-middle mb-1">
-                                      format_list_numbered
-                                    </span>
-                                    Placement-Stage
-                                    <i class="material-icons">keyboard_arrow_down</i>
-                                  </a>
-                                </h5>
-                              </div>
-                              <div id="collapsePlacement" class="collapse" role="tabpanel" aria-labelledby="headingPlacement" data-parent="#accordion">
-                                <div class="card-body">
-                                  <div class="card-body">
-                                    <div class="container justify-content-center" id="wz-ovw-placement">
-                                      
-                                    </div>
-                                    
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                </div>
-
-                <div class="row justify-content-center">
-                  <div class="d-flex justify-content-lg-start justify-content-center p-2">
-                    <span class="material-icons my-auto">
-                      emoji_events
-                      </span>
-                      <h3>Finals</h3>
-                  </div>
-                </div>
-                <div class="row justify-content-center" id="wz-ovw-finals">
-                </div>
                 
-                
-
-                <div class="row justify-content-left">
-                  <div class="d-flex justify-content-sm-start justify-content-center p-2">
-                    <span class="material-icons">arrow_upward</span>
-                      <p>Teams transits to next stage</p>
-                  </div>
+                <div class="row">
                 </div>
-                <div class="row justify-content-left">
-                  <div class="d-flex justify-content-sm-start justify-content-center p-2">
-                    <span class="material-icons">clear</span>
-                      <p>Teams out of tournament</p>
-                  </div>
-                </div>
-                <div class="row justify-content-left">
-                  <div class="d-flex justify-content-sm-start justify-content-center p-2">
-                    <span class="badge rounded-pill bg-dark text-light text-bold m-1">4.</span>
-                      <p>Teams achieves rank</p>
-                  </div>
+                <div class="row justify-content-center" id="wzgp-gamedays">
                 </div>
 
               </div>
@@ -391,6 +157,7 @@
                           <th class="text-primary" scope="col">Placement</th>
                           <th class="text-primary" scope="col">Final</th>
                           <th class="text-primary" scope="col">Exp. time</th>
+                          <th class="text-primary" scope="col">Estimated #GameDays</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -412,6 +179,9 @@
                           </td>
                           <td>
                             <span id="wz-res_time"></span>
+                          </td>
+                          <td>
+                            <span id="wz-res_est_gamedays"></span>
                           </td>
                           
                         </tr>
@@ -449,15 +219,62 @@
                     </div>
                   </div>
 
-                  
+                  <hr>
 
-                  <div id="template_gameslots" class="row">
+                  <div id="wz-game-slots"></div>
+
+                  <div id="template_gameslot">
+                    <div class="row">
+                      <div class="col-2">
+                        <h5 id="template_time">10:00</h5>
+                      </div>
+                      <div class="col-10">
+                        <ul id="template_list" class="list-group list-group-flush"> 
+                          <li id="template_slot" class="list-group-item list-group-item-primary d-flex justify-content-between align-items-center">M-Group A<span id="template_court"  class="badge badge-primary badge-pill">C1</span></li>
+                          <li id="template_slot" class="list-group-item list-group-item-primary d-flex justify-content-between align-items-center">M-Group B<span id="template_court"  class="badge badge-primary badge-pill">C2</span></li>
+                          <li id="template_slot" class="list-group-item list-group-item-primary d-flex justify-content-between align-items-center">M-Group C<span id="template_court"  class="badge badge-primary badge-pill">C3</span></li>
+                        </ul>
+                      </div>
+                    </div>
+                    <hr>
+                  </div>
+                  <div id="template_gameslot">
+                    <div class="row">
+                      <div class="col-2">
+                        <h5 id="template_time">10:30</h5>
+                      </div>
+                      <div class="col-10">
+                        <ul id="template_list" class="list-group list-group-flush"> 
+                          <li id="template_slot" class="list-group-item list-group-item-secondary d-flex justify-content-between align-items-center">W-Group A<span id="template_court"  class="badge badge-primary badge-pill">C1</span></li>
+                          <li id="template_slot" class="list-group-item list-group-item-secondary d-flex justify-content-between align-items-center">W-Group B<span id="template_court"  class="badge badge-primary badge-pill">C2</span></li>
+                          <li id="template_slot" class="list-group-item list-group-item-secondary d-flex justify-content-between align-items-center">W-Group C<span id="template_court"  class="badge badge-primary badge-pill">C3</span></li>
+                        </ul>
+                      </div>
+                    </div>
+                    <hr>
                   </div>
 
                 </div>
                 <div class="card-footer">
                 </div>
             </div>
+          </div>
+
+
+          <div id="template_gameslot" hidden>
+            <div class="row">
+              <div class="col-2">
+                <h5 id="template_time">10:00</h5>
+              </div>
+              <div class="col-10">
+                <ul id="template_list" class="list-group list-group-flush">       
+                </ul>
+              </div>
+            </div>
+            <hr>
+          </div>
+          <div hidden>
+            <li id="template_slot" class="list-group-item list-group-item-primary d-flex justify-content-between align-items-center" hidden>M-Group A<span id="template_court"  class="badge badge-primary badge-pill">C1</span></li>
           </div>
         </form>
       </div>

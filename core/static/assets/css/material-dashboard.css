@@ -3729,7 +3729,7 @@ tbody.collapse.show {
   padding: 0.75rem 1.25rem;
   margin-bottom: 0;
   background-color: inherit;
-  border: 0 solid rgba(0, 0, 0, 0.125); }
+  border: 0.125px solid rgba(0, 0, 0, .125); }
   .list-group-item:first-child {
     border-top-left-radius: 0;
     border-top-right-radius: 0; }

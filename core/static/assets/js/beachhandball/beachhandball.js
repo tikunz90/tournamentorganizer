@@ -708,6 +708,7 @@ bh = {
     tournamentData: "",
     numCourts: 0,
     minutesPerGame: 0,
+    numGameDays: 0,
     DateTimeFirstGame: "",
     DateTimeLastGame: "",
     gameDays: [],
@@ -716,12 +717,16 @@ bh = {
         console.log("wzUpdateGamePlan");
         bh.wzgpUpdateStart("wzgp-events-total");
         bh.wzgpUpdateGameDays("wzgp-gamedays");
+        bh.calculateGamePlan("wzgp-gamedays");
     },
 
     wzgpUpdateStart: function(idRow){
 
         var row = document.getElementById(idRow);
         $(row).empty();
+
+        var dateFirstGame = moment($("#wzgp-GameDays_DateTimeFirstGame").val(), "MM/DD/YYYY HH:mm");
+        bh.DateTimeFirstGame = dateFirstGame.format("MM/DD/YYYY HH:mm");
 
         bh.numCourts = $("#wzgp-num_courts").val();
         bh.minutesPerGame = $("#wzgp-time-slot").val();
@@ -744,6 +749,20 @@ bh = {
                 stage.states.forEach(state => {
                     var n = state.ranking.length - 1;
                     stage_counter += (n*n + n) / 2;
+
+                    state["wz-games"] = [];
+
+                    var teams = [];
+                    state.ranking.forEach(ranking => { teams.push(JSON.parse(JSON.stringify(ranking)));});
+
+                    while(teams.length > 1) {
+                        var actTeam = teams[0];
+                        var actTeamCounter = 0;
+                        teams.shift();
+                        teams.forEach(t => {
+                            var game = {};
+                        });
+                    }
                 })
 
                 if(stage.tournament_stage === "GROUP_STAGE")
@@ -773,6 +792,7 @@ bh = {
         var total_time_min = num_games_total * bh.minutesPerGame / bh.numCourts;
         var total_time_hours = Math.floor(total_time_min / 60);
         var remaining_minutes = total_time_min - total_time_hours*60;
+        bh.numGameDays = Math.ceil(total_time_min / 60 / 12);
 
         $('#wz-res_num_of_games_total').val(num_games_total);
         $('#wz-res_num_of_games_group').val(num_games_group);
@@ -780,38 +800,24 @@ bh = {
         $('#wz-res_num_of_games_placement').val(num_games_pl);
         $('#wz-res_num_of_games_final').val(num_games_f);
         $('#wz-res_time').text(total_time_hours + 'h ' + remaining_minutes + ' m');
+        $('#wz-res_est_gamedays').text(bh.numGameDays);
     },
 
     wzgpUpdateGameDays: function(idRow){
         var row = document.getElementById(idRow);
         $(row).empty();
 
-        var dateFirstGame = moment($("#wzgp-GameDays_DateTimeFirstGame").val(), "MM/DD/YYYY HH:mm");
-        bh.DateTimeFirstGame = dateFirstGame.format("MM/DD/YYYY HH:mm");
+        var dateFirstGame = moment(bh.DateTimeFirstGame, "MM/DD/YYYY HH:mm");
         var dateLastGame = moment($("#wzgp-GameDays_DateTimeLastGame").val(), "MM/DD/YYYY HH:mm");
         bh.DateTimeLastGame = dateLastGame.format("MM/DD/YYYY HH:mm");
 
-        if(dateLastGame.isBefore(dateFirstGame))
-        {
-            $(row).append('<h3>Last game is before first!</h3>');
-            return;
-        }
-        else if(dateLastGame.diff(dateFirstGame, 'days') > 8)
-        {
-            $(row).append('<h3>Are you crazy? More than 8 Game Days, serious?</h3>');
-            return;
-        }
-
         bh.gameDays = [];
 
-        for(var i = 0; i <= dateLastGame.diff(dateFirstGame, 'days');i++)
+        for(var i = 0; i < bh.numGameDays;i++)
         {
             var actMoment = moment(dateFirstGame).add(i, 'days');
             var endMoment = moment(actMoment).add(8, 'hours');
-            if(i == dateLastGame.diff(dateFirstGame, 'days'))
-            {
-                endMoment = moment(dateLastGame);
-            }
+
             var gameDay = {"id": i, "starttime": actMoment.format("MM/DD/YYYY HH:mm"), "endtime": endMoment.format("MM/DD/YYYY HH:mm")};
 
             var templateGD = $("#templateGameDay").clone();
@@ -820,17 +826,71 @@ bh = {
             $(templateGD).find("#templateGameDay_title").text('Day ' + (i+1) + ' - ' + actMoment.format("DD.MM."));
             $(templateGD).find("#template_info").text("");
 
-            $(templateGD).find("#timeFirst_h").val(actMoment.hour());
-            $(templateGD).find("#timeFirst_m").val(actMoment.minutes());
+            var inputTimeFirst_h = $(templateGD).find("#timeFirst_h");          
+            var inputTimeFirst_m = $(templateGD).find("#timeFirst_m");
 
-            $(templateGD).find("#timeLast_h").val(endMoment.hour());
-            $(templateGD).find("#timeLast_m").val(endMoment.minutes());
+            var inputTimeLast_h = $(templateGD).find("#timeLast_h");
+            var inputTimeLast_m = $(templateGD).find("#timeLast_m");
+
+            inputTimeFirst_h.val(actMoment.hour());
+            inputTimeFirst_h.attr('name', 'first_h_' + i);
+            inputTimeFirst_m.val(actMoment.minutes());
+            inputTimeFirst_m.attr('name', 'first_m_' + i);
+
+            inputTimeLast_h.val(endMoment.hour());
+            inputTimeLast_h.attr('name', 'last_h_' + i);
+            inputTimeLast_m.val(endMoment.minutes());
+            inputTimeLast_m.attr('name', 'last_m_' + i);
+
+            inputTimeFirst_h.on("change", bh.onChange_GameDay);
+            inputTimeFirst_m.on("change", bh.onChange_GameDay);
+            inputTimeLast_h.on("change", bh.onChange_GameDay);
+            inputTimeLast_m.on("change", bh.onChange_GameDay);
             
 
             $(row).append(templateGD);
             bh.gameDays.push(gameDay);
         }
 
+    },
+
+    calculateGamePlan: function(idGameDays) {
+        var row = document.getElementById(idGameDays);
+
+        for(var i = 0; i < bh.numGameDays;i++)
+        {
+            var gameDay = $('#gameday_' + i);
+            var gameSlots = gameDay.find('#wz-game-slots');
+            gameSlots.empty();
+        }
+    },
+    calculateGameDaySlots: function(idGameDay) {
+
+    },
+
+    onChange_GameDay: function() { 
+        console.log("onChange_GameDay " + this.getAttribute('name'));
+        //console.log(arguments);
+        //console.log(this);
+
+        var split = this.getAttribute('name').split("_");
+        var gd_id = split[2];
+
+        var gameday = bh.gameDays.find(gd => gd.id === parseInt(gd_id));
+        var timeKey = "starttime";
+        if(split[0] === "last")
+        {
+            timeKey = "endtime";
+        }
+
+        var actMoment = moment(gameday[timeKey], "MM/DD/YYYY HH:mm");
+
+        if(split[1] === "h")
+            actMoment.set('hour', this.value);
+        else if(split[1] === "m")
+            actMoment.set('minute', this.value);
+        
+        gameday[timeKey] = actMoment.format("MM/DD/YYYY HH:mm");
     },
 
     addCourt_Click: function(){
