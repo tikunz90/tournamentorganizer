@@ -713,6 +713,12 @@ bh = {
     DateTimeLastGame: "",
     gameDays: [],
 
+    num_games_total: 0,
+    num_games_group: 0,
+    num_games_ko: 0,
+    num_games_pl: 0,
+    num_games_f: 0,
+
     wzUpdateGamePlan: function(){
         console.log("wzUpdateGamePlan");
         bh.wzgpUpdateStart("wzgp-events-total");
@@ -731,11 +737,11 @@ bh = {
         bh.numCourts = $("#wzgp-num_courts").val();
         bh.minutesPerGame = $("#wzgp-time-slot").val();
         
-        var num_games_total = 0;
-        var num_games_group = 0;
-        var num_games_ko = 0;
-        var num_games_pl = 0;
-        var num_games_f = 0;
+        bh.num_games_total = 0;
+        bh.num_games_group = 0;
+        bh.num_games_ko = 0;
+        bh.num_games_pl = 0;
+        bh.num_games_f = 0;
 
         var templateTotal = $("#templateEvent_total_games").clone();
         $(templateTotal).attr("id", 'total_0');
@@ -746,6 +752,7 @@ bh = {
 
             event.stages.forEach(stage => {
                 var stage_counter = 0;
+                stage["wz-games"] = [];
                 stage.states.forEach(state => {
                     var n = state.ranking.length - 1;
                     stage_counter += (n*n + n) / 2;
@@ -760,26 +767,58 @@ bh = {
                         var actTeamCounter = 0;
                         teams.shift();
                         teams.forEach(t => {
-                            var game = {};
+                            var game = {"tournament_id": bh.tournamentData.id, "tournament_event_id": event.id, "tournament_stage_id": stage.id, "tournament_state_id": state.id, "starttime": "", "team_st_a_id": 0, "team_st_b_id": 0, "team_a_id": 0, "team_b_id": 0, "slot_name": "", "court": ""};
+                            if(actTeamCounter % 2 === 0) {
+                                game.team_st_a_id = actTeam.id;
+                                game.team_st_b_id = t.id;
+                            }
+                            else {
+                                game.team_st_a_id = t.id;
+                                game.team_st_b_id = actTeam.id;
+                            }
+                            var cat_name = event.category.name;
+                            game.slot_name = cat_name.charAt(0).toUpperCase() + '-' + state.abbreviation;
+                            state["wz-games"].push(game);
+                            actTeamCounter += 1;
+                            bh.num_games_total++;
                         });
                     }
-                })
+                });
+
+                var allGamesListed = false;
+                while(!allGamesListed)
+                {
+                    var stateDoneCounter = 0;
+                    for(var i = 0; i < stage.states.length;i++) {
+                        if(stage.states[i]["wz-games"].length > 0)
+                        {
+                            stage["wz-games"].push(stage.states[i]["wz-games"].shift());
+                        }
+                        else{
+                            stateDoneCounter++;
+                        }            
+                    }
+                    if(stage.states.length === stateDoneCounter)
+                    {
+                        allGamesListed = true;
+                    }
+                }
 
                 if(stage.tournament_stage === "GROUP_STAGE")
                 {
-                    num_games_group = stage_counter;
+                    bh.num_games_group = stage_counter;
                 }
                 else if(stage.tournament_stage === "KNOCKOUT_STAGE")
                 {
-                    num_games_ko = stage_counter;
+                    bh.num_games_ko = stage_counter;
                 }
                 else if(stage.tournament_stage === "PLAYOFF_STAGE")
                 {
-                    num_games_pl = stage_counter;
+                    bh.num_games_pl = stage_counter;
                 }
                 else if(stage.tournament_stage === "FINAL")
                 {
-                    num_games_f = stage_counter;
+                    bh.num_games_f = stage_counter;
                 }
 
 
@@ -787,18 +826,18 @@ bh = {
             
         });
         $(row).append(templateTotal);
-        num_games_total = num_games_group + num_games_ko + num_games_pl + num_games_f;
+        console.log("total games:" + (bh.num_games_group + bh.num_games_ko + bh.num_games_pl + bh.num_games_f));
 
-        var total_time_min = num_games_total * bh.minutesPerGame / bh.numCourts;
+        var total_time_min = bh.num_games_total * bh.minutesPerGame / bh.numCourts;
         var total_time_hours = Math.floor(total_time_min / 60);
         var remaining_minutes = total_time_min - total_time_hours*60;
         bh.numGameDays = Math.ceil(total_time_min / 60 / 12);
 
-        $('#wz-res_num_of_games_total').val(num_games_total);
-        $('#wz-res_num_of_games_group').val(num_games_group);
-        $('#wz-res_num_of_games_ko').val(num_games_ko);
-        $('#wz-res_num_of_games_placement').val(num_games_pl);
-        $('#wz-res_num_of_games_final').val(num_games_f);
+        $('#wz-res_num_of_games_total').val(bh.num_games_total);
+        $('#wz-res_num_of_games_group').val(bh.num_games_group);
+        $('#wz-res_num_of_games_ko').val(bh.num_games_ko);
+        $('#wz-res_num_of_games_placement').val(bh.num_games_pl);
+        $('#wz-res_num_of_games_final').val(bh.num_games_f);
         $('#wz-res_time').text(total_time_hours + 'h ' + remaining_minutes + ' m');
         $('#wz-res_est_gamedays').text(bh.numGameDays);
     },
@@ -818,7 +857,7 @@ bh = {
             var actMoment = moment(dateFirstGame).add(i, 'days');
             var endMoment = moment(actMoment).add(8, 'hours');
 
-            var gameDay = {"id": i, "starttime": actMoment.format("MM/DD/YYYY HH:mm"), "endtime": endMoment.format("MM/DD/YYYY HH:mm")};
+            var gameDay = {"id": i, "starttime": actMoment.format("MM/DD/YYYY HH:mm"), "endtime": endMoment.format("MM/DD/YYYY HH:mm"), "game_slots": []};
 
             var templateGD = $("#templateGameDay").clone();
             $(templateGD).attr("id", 'gameday_' + i);
@@ -857,11 +896,87 @@ bh = {
     calculateGamePlan: function(idGameDays) {
         var row = document.getElementById(idGameDays);
 
+        var total_num_games = bh.num_games_total;
+        var total_num_games_group = bh.num_games_group;
+        var num_courts = bh.numCourts;
+        var eventCounter = 0;
+        
+        var gameday_counter = 0;
+        var end_time = moment(bh.gameDays[gameday_counter].endtime, "MM/DD/YYYY HH:mm");
+        var act_time = moment(bh.gameDays[gameday_counter].starttime, "MM/DD/YYYY HH:mm");
+        var act_game_slot = { "starttime": act_time.format("HH:mm"), "games": [] };
+        var slotCounter = 1;
+        
+        var minutes_per_slot = parseInt(bh.minutesPerGame);
+        while(total_num_games > 0){
+            while(total_num_games_group > 0)
+            {
+                if(bh.tournamentData.events[eventCounter % bh.tournamentData.events.length].stages.length > 0)
+                {
+                    var gamesGroup = bh.tournamentData.events[eventCounter % bh.tournamentData.events.length].stages.find((stage) => stage.tournament_stage=="GROUP_STAGE")["wz-games"];
+
+                    if(gamesGroup.length > 0)
+                    {
+                        var actGame = gamesGroup.shift();
+                        actGame.court = "C" + slotCounter;
+                        act_game_slot.games.push(actGame);
+                        total_num_games_group--;
+                        slotCounter++;
+                    }
+
+                    if(act_game_slot.games.length >= num_courts){
+                        bh.gameDays[gameday_counter].game_slots.push(act_game_slot);
+                        act_time.add(minutes_per_slot, 'minutes');
+                        act_game_slot = { "starttime": act_time.format("HH:mm"), "games": [] };
+                        slotCounter = 1;
+                        if(end_time.isBefore(act_time))
+                        {
+                            gameday_counter++;
+                            end_time = moment(bh.gameDays[gameday_counter].endtime, "MM/DD/YYYY HH:mm");
+                            act_time = moment(bh.gameDays[gameday_counter].starttime, "MM/DD/YYYY HH:mm");
+                            act_game_slot = { "starttime": act_time.format("HH:mm"), "games": [] };
+                        }
+                    }
+                }
+
+                eventCounter++;
+            }
+            total_num_games = 0;
+        }
         for(var i = 0; i < bh.numGameDays;i++)
         {
+            var gameDayData = bh.gameDays[i];
             var gameDay = $('#gameday_' + i);
             var gameSlots = gameDay.find('#wz-game-slots');
             gameSlots.empty();
+            var slotCounter = 0;
+            gameDayData.game_slots.forEach(slot => {
+                var templateSlot = $('#template_gameslot').clone();
+                $(templateSlot).attr("id", 'slot_' + i);
+                $(templateSlot).removeAttr('hidden');
+                $(templateSlot).find("#template_time").text(slot.starttime);
+                
+                var slotList = $(templateSlot).find("#template_list");
+                slot.games.forEach(game => {
+                    var templateSlotItem = $('#template_slot').clone();
+                    $(templateSlotItem).attr("id", 'slot_' + i);
+                    $(templateSlotItem).removeAttr('hidden');
+                    $(templateSlotItem).text(game.slot_name);
+                    $(templateSlotItem).find("#template_court").text(game.court);
+
+                    if(slotCounter % 2 == 0){
+                        $(templateSlotItem).addClass("list-group-item-primary");
+                    }
+                    else {
+                        $(templateSlotItem).addClass("list-group-item-secondary");
+                    }
+
+                    slotList.append(templateSlotItem);
+                });
+                gameSlots.append(templateSlot);
+                slotCounter++;
+            });
+            
         }
     },
     calculateGameDaySlots: function(idGameDay) {
