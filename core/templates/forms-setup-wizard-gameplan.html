@@ -13,7 +13,9 @@
       <div class="card card-wizard" data-color="rose" id="wizardProfile">
         <form action={{ url('setup_wizard_gameplan') }} method="post">
           <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
-          <input type="hidden" name="gameplan-data" id="wz-gameplan-data" value="">
+          <input type="hidden" name="gameplan-data-all-games" id="wz-gameplan-data-all-games" value="">
+          <input type="hidden" name="gameplan-data-gamedays" id="wz-gameplan-data-gamedays" value="">
+          <input type="hidden" name="gameplan-data-num-courts" id="wz-gameplan-data-num-courts" value="">
           <!--        You can switch " data-color="primary" "  with one of the next bright colors: "green", "orange", "red", "blue"       -->
           <div class="card-header text-center">
             <h3 class="card-title">

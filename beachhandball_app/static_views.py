@@ -209,8 +209,8 @@ def setup_wizard_gameplan(request):
     context['tournament_data'] = ''
 
     if request.method == 'POST':
-        gameplan_data = json.loads(request.POST['gameplan-data'])
-        result = wizard.wizard_create_gameplan(gameplan_data)
+        gameplan_data_all_games = json.loads(request.POST['gameplan-data-all-games'])
+        result = wizard.wizard_create_gameplan(context['tourn'], gameplan_data_all_games, request.POST['gameplan-data-num-courts'])
         return HttpResponseRedirect(reverse("game_plan"))
 
     context['tournament_data'] = json.dumps(helper.get_tournament_info_json(context['tourn']), default=str, separators=(',', ':'), indent=None)
@@ -231,7 +231,7 @@ def delete_gameplan(request):
 
     if request.method == 'POST':
         print('Delete all games')
-        #TournamentStage.objects.filter(tournament_event=context['tevent']).delete()
+        Game.objects.filter(tournament=context['tourn']).delete()
         return HttpResponseRedirect(reverse("game_plan"))
     elif request.method == 'GET':
         html_template = loader.get_template( 'beachhandball/delete_gameplan_confirmation.html' )

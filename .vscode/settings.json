@@ -8,6 +8,8 @@
         "gameday",
         "gamedays",
         "gameplan",
+        "gamestate",
+        "gamingstate",
         "gbot",
         "gbouser",
         "GROUPSTAGE",

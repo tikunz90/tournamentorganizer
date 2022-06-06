@@ -173,8 +173,8 @@
                   </div>
                   
                   </td>
-                  <td class="text-center" data-content="{{ game.team_st_a.team }}">{% if game.team_st_a.id == game.winner %}<button class="btn btn-outline-info"><i class="material-icons">emoji_events</i><b>{{ game.team_st_a.team }}</b></button>{% else %}({{ game.team_st_a.id }} {{ game.team_st_a.team.id }}){{ game.team_st_a.team }}{% endif %}</td>
-                  <td class="text-center" data-content="{{ game.team_st_b.team }}">{% if game.team_st_b.id == game.winner %}<button class="btn btn-outline-info"><i class="material-icons">emoji_events</i><b>{{ game.team_st_b.team }}</b></button></b>{% else %}({{ game.team_st_b.id }}){{ game.team_st_b.team }}{% endif %}</td>
+                  <td class="text-center" data-content="{{ game.team_st_a.team }}">{% if game.team_st_a.id == game.winner %}<button class="btn btn-outline-info"><i class="material-icons">emoji_events</i><b>{{ game.team_st_a.team }}</b></button>{% else %}{{ game.team_st_a.team }}{% endif %}</td>
+                  <td class="text-center" data-content="{{ game.team_st_b.team }}">{% if game.team_st_b.id == game.winner %}<button class="btn btn-outline-info"><i class="material-icons">emoji_events</i><b>{{ game.team_st_b.team }}</b></button></b>{% else %}{{ game.team_st_b.team }}{% endif %}</td>
                   <td id="game-list-td-court-{{ game.id }}" class="game-list-court-td text-center" data-content="{{ game.court.id }}">
                     <div class="game-list-court-label">{{ game.court.name }}</div>
                     <div class="game-list-court-select" data-game_id="{{ game.id }}" hidden>

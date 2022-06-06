@@ -712,6 +712,7 @@ bh = {
     DateTimeFirstGame: "",
     DateTimeLastGame: "",
     gameDays: [],
+    GamesAll: [],
 
     num_games_total: 0,
     num_games_group: 0,
@@ -725,6 +726,10 @@ bh = {
         bh.wzgpUpdateGameDays("wzgp-gamedays");
         bh.calculateGamePlan();
         bh.updateUIGameDays("wzgp-gamedays");
+
+        $('#wz-gameplan-data-all-games').val(JSON.stringify(bh.GamesAll));
+        $('#wz-gameplan-data-gamedays').val(JSON.stringify(bh.gameDays));
+        $('#wz-gameplan-data-num-courts').val(bh.numCourts);
     },
 
     wzgpUpdateStart: function(idRow){
@@ -787,11 +792,15 @@ bh = {
                             var game = {"tournament_id": bh.tournamentData.id, "tournament_event_id": event.id, "tournament_stage_id": stage.id, "tournament_state_id": state.id, "starttime": "", "team_st_a_id": 0, "team_st_b_id": 0, "team_a_id": 0, "team_b_id": 0, "slot_name": "", "court": ""};
                             if(actTeamCounter % 2 === 0) {
                                 game.team_st_a_id = actTeam.id;
+                                game.team_a_id = actTeam.team.id;
                                 game.team_st_b_id = t.id;
+                                game.team_b_id = t.team.id;
                             }
                             else {
                                 game.team_st_a_id = t.id;
+                                game.team_a_id = t.team.id;
                                 game.team_st_b_id = actTeam.id;
+                                game.team_b_id = actTeam.team.id;
                             }
                             var cat_name = event.category.name;
                             game.slot_name = cat_name.charAt(0).toUpperCase() + '-' + state.abbreviation;
@@ -930,7 +939,7 @@ bh = {
                     if(gamesGroup.length > 0)
                     {
                         var actGame = gamesGroup.shift();
-                        actGame.startTime = act_time.format("YYYY-MM-DD HH:mm:ss");
+                        actGame.starttime = act_time.unix(); //act_time.format("YYYY-MM-DD HH:mm:ss");
                         actGame.court = "C" + slotCounter;
                         act_game_slot.games.push(actGame);
                         bh.GamesAll.push(actGame);
@@ -979,7 +988,7 @@ bh = {
                         if(statesKOActHierarchy.hierarchy == stageKO.actHierarchy)
                         {
                             actGame = stageKO["wz-games"].shift();
-                            actGame.startTime = act_time.format("YYYY-MM-DD HH:mm:ss");
+                            actGame.starttime = act_time.unix(); //act_time.format("YYYY-MM-DD HH:mm:ss");
                             actGame.court = "C" + slotCounter;
                             act_game_slot.games.push(actGame);
                             bh.GamesAll.push(actGame);
@@ -1033,7 +1042,7 @@ bh = {
                         if(statesPLActHierarchy.hierarchy == stagePL.actHierarchy)
                         {
                             actGame = stagePL["wz-games"].shift();
-                            actGame.startTime = act_time.format("YYYY-MM-DD HH:mm:ss");
+                            actGame.starttime = act_time.unix(); //act_time.format("YYYY-MM-DD HH:mm:ss");
                             actGame.court = "C" + slotCounter;
                             act_game_slot.games.push(actGame);
                             bh.GamesAll.push(actGame);
@@ -1085,7 +1094,7 @@ bh = {
                     if(gamesFinal.length > 0)
                     {
                         var actGame = gamesFinal.shift();
-                        actGame.startTime = act_time.format("YYYY-MM-DD HH:mm:ss");
+                        actGame.starttime = act_time.unix(); //act_time.format("YYYY-MM-DD HH:mm:ss");
                         actGame.court = "C" + slotCounter;
                         act_game_slot.games.push(actGame);
                         bh.GamesAll.push(actGame);

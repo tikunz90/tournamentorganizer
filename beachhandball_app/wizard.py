@@ -2,8 +2,9 @@ from datetime import datetime
 from django.db import transaction
 from django.db.models.signals import post_save
 from beachhandball_app import signals
+from beachhandball_app.models.Game import Game
 from beachhandball_app.models.Team import Team, TeamStats
-from beachhandball_app.models.Tournaments import TournamentStage, TournamentState, TournamentTeamTransition
+from beachhandball_app.models.Tournaments import Court, TournamentStage, TournamentState, TournamentTeamTransition
 from beachhandball_app.models.choices import COLOR_CHOICES, COLOR_CHOICES_DICT, KNOCKOUT_NAMES, TOURNAMENT_STAGE_TYPE_CHOICES, TOURNAMENT_STATE_CHOICES
 
 
@@ -291,5 +292,29 @@ def handle_transitions_ranking(ts_final_ranking, tstats_final_ranking, ttt):
 
 
 
-def wizard_create_gameplan(gameplan_data):
+def wizard_create_gameplan(tourn, gameplan_data, num_courts):
+    courts = {}
+    for i in range(1, int(num_courts)+1):
+        court, cr = Court.objects.get_or_create(tournament=tourn, name='C' + str(i), number=i)
+        courts[i] = court
+    games = []
+    game_counter = 1
+    for g in gameplan_data:
+        actCourt = courts[int(g['court'][1:])]
+        game_obj = Game(tournament=tourn,
+            tournament_event_id=g['tournament_event_id'],
+            tournament_state_id=g['tournament_state_id'],
+            starttime=datetime.utcfromtimestamp(g['starttime']),
+            team_a_id=g['team_a_id'],
+            team_b_id=g['team_b_id'],
+            team_st_a_id=g['team_st_a_id'],
+            team_st_b_id=g['team_st_b_id'],
+            court=actCourt,
+            gamestate='APPENDING',
+            scouting_state='APPENDING',
+            gamingstate='Ready',
+            id_counter=game_counter)
+        game_counter += 1
+        games.append(game_obj)
+    Game.objects.bulk_create(games)
     return 0
