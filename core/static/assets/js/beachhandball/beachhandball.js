@@ -724,6 +724,7 @@ bh = {
         bh.wzgpUpdateStart("wzgp-events-total");
         bh.wzgpUpdateGameDays("wzgp-gamedays");
         bh.calculateGamePlan();
+        bh.updateUIGameDays("wzgp-gamedays");
     },
 
     wzgpUpdateStart: function(idRow){
@@ -814,19 +815,19 @@ bh = {
 
                 if(stage.tournament_stage === "GROUP_STAGE")
                 {
-                    bh.num_games_group = stage_counter;
+                    bh.num_games_group += stage_counter;
                 }
                 else if(stage.tournament_stage === "KNOCKOUT_STAGE")
                 {
-                    bh.num_games_ko = stage_counter;
+                    bh.num_games_ko += stage_counter;
                 }
                 else if(stage.tournament_stage === "PLAYOFF_STAGE")
                 {
-                    bh.num_games_pl = stage_counter;
+                    bh.num_games_pl += stage_counter;
                 }
                 else if(stage.tournament_stage === "FINAL")
                 {
-                    bh.num_games_f = stage_counter;
+                    bh.num_games_f += stage_counter;
                 }
 
 
@@ -839,7 +840,49 @@ bh = {
         var total_time_min = bh.num_games_total * bh.minutesPerGame / bh.numCourts;
         var total_time_hours = Math.floor(total_time_min / 60);
         var remaining_minutes = total_time_min - total_time_hours*60;
-        bh.numGameDays = Math.ceil(total_time_min / 60 / 12);
+        bh.numGameDays = Math.ceil(total_time_min / 60 / 10);
+
+        var dateFirstGame = moment(bh.DateTimeFirstGame, "MM/DD/YYYY HH:mm");
+        if(bh.gameDays.length == 0) {
+            for(var i = 0; i < bh.numGameDays;i++)
+            {
+                var actMoment = moment(dateFirstGame).add(i, 'days');
+                var endMoment = moment(actMoment).add(8, 'hours');
+
+                var gameDay = {"id": i, "starttime": actMoment.format("MM/DD/YYYY HH:mm"), "endtime": endMoment.format("MM/DD/YYYY HH:mm"), "game_slots": []};
+                bh.gameDays.push(gameDay);
+            }
+        }
+        else
+        {
+            //var startMoment = moment(dateFirstGame, "MM/DD/YYYY HH:mm");
+            //bh.gameDays[0].starttime = startMoment.format("MM/DD/YYYY HH:mm");
+            //// check and update only date
+            //for(var i = 1; i < bh.numGameDays;i++)
+            //{
+            //    var actMoment = moment(bh.gameDays[i].starttime, "MM/DD/YYYY HH:mm");
+            //    actMoment.date(startMoment.date()).add(i, 'days');
+//
+            //    bh.gameDays[i].starttime = actMoment.format("MM/DD/YYYY HH:mm");
+//
+            //    actMoment = moment(bh.gameDays[i].endtime, "MM/DD/YYYY HH:mm");
+            //    actMoment.date(startMoment.date()).add(i, 'days');
+//
+            //    bh.gameDays[i].endtime = actMoment.format("MM/DD/YYYY HH:mm");
+            //}
+        }
+
+        var time_gamedays = bh.calculateGameDayMinutes(bh.gameDays);
+        if( time_gamedays <= total_time_min)
+        {
+            var residue_minutes = total_time_min - time_gamedays;
+            var num_new_gamedays = Math.ceil(residue_minutes / 600);
+            for(var i = 0; i < num_new_gamedays; i++)
+            {
+                bh.addGameDay();
+            }
+        }
+        
 
         $('#wz-res_num_of_games_total').val(bh.num_games_total);
         $('#wz-res_num_of_games_group').val(bh.num_games_group);
@@ -847,60 +890,13 @@ bh = {
         $('#wz-res_num_of_games_placement').val(bh.num_games_pl);
         $('#wz-res_num_of_games_final').val(bh.num_games_f);
         $('#wz-res_time').text(total_time_hours + 'h ' + remaining_minutes + ' m');
-        $('#wz-res_est_gamedays').text(bh.numGameDays);
+        $('#wz-res_est_gamedays').text(bh.gameDays.length);
     },
 
     wzgpUpdateGameDays: function(idRow){
-        var row = document.getElementById(idRow);
-        
 
-        var dateFirstGame = moment(bh.DateTimeFirstGame, "MM/DD/YYYY HH:mm");
         var dateLastGame = moment($("#wzgp-GameDays_DateTimeLastGame").val(), "MM/DD/YYYY HH:mm");
         bh.DateTimeLastGame = dateLastGame.format("MM/DD/YYYY HH:mm");
-
-        if(bh.gameDays.length != bh.numGameDays) {
-            $(row).empty();
-            bh.gameDays = [];
-
-            for(var i = 0; i < bh.numGameDays;i++)
-            {
-                var actMoment = moment(dateFirstGame).add(i, 'days');
-                var endMoment = moment(actMoment).add(8, 'hours');
-
-                var gameDay = {"id": i, "starttime": actMoment.format("MM/DD/YYYY HH:mm"), "endtime": endMoment.format("MM/DD/YYYY HH:mm"), "game_slots": []};
-
-                var templateGD = $("#templateGameDay").clone();
-                $(templateGD).attr("id", 'gameday_' + i);
-                $(templateGD).removeAttr('hidden');
-                $(templateGD).find("#templateGameDay_title").text('Day ' + (i+1) + ' - ' + actMoment.format("DD.MM."));
-                $(templateGD).find("#template_info").text("");
-
-                var inputTimeFirst_h = $(templateGD).find("#timeFirst_h");          
-                var inputTimeFirst_m = $(templateGD).find("#timeFirst_m");
-
-                var inputTimeLast_h = $(templateGD).find("#timeLast_h");
-                var inputTimeLast_m = $(templateGD).find("#timeLast_m");
-
-                inputTimeFirst_h.val(actMoment.hour());
-                inputTimeFirst_h.attr('name', 'first_h_' + i);
-                inputTimeFirst_m.val(actMoment.minutes());
-                inputTimeFirst_m.attr('name', 'first_m_' + i);
-
-                inputTimeLast_h.val(endMoment.hour());
-                inputTimeLast_h.attr('name', 'last_h_' + i);
-                inputTimeLast_m.val(endMoment.minutes());
-                inputTimeLast_m.attr('name', 'last_m_' + i);
-
-                inputTimeFirst_h.on("change", bh.onChange_GameDay);
-                inputTimeFirst_m.on("change", bh.onChange_GameDay);
-                inputTimeLast_h.on("change", bh.onChange_GameDay);
-                inputTimeLast_m.on("change", bh.onChange_GameDay);
-                
-
-                $(row).append(templateGD);
-                bh.gameDays.push(gameDay);
-            }
-        }
 
     },
 
@@ -908,15 +904,22 @@ bh = {
 
         var total_num_games = bh.num_games_total;
         var total_num_games_group = bh.num_games_group;
+        var total_num_games_ko = bh.num_games_ko;
+        var total_num_games_pl = bh.num_games_pl;
+        var total_num_games_final = bh.num_games_f;
         var num_courts = bh.numCourts;
         var eventCounter = 0;
         
         var gameday_counter = 0;
+        var firstDay = moment(bh.DateTimeFirstGame, "MM/DD/YYYY HH:mm");
+        bh.gameDays[gameday_counter].endtime = moment(firstDay.format("MM/DD/YYYY") + ' ' + moment(bh.gameDays[gameday_counter].endtime, "MM/DD/YYYY HH:mm").format("HH:mm"), "MM/DD/YYYY HH:mm");
+        bh.gameDays[gameday_counter].starttime = moment(firstDay);
         var end_time = moment(bh.gameDays[gameday_counter].endtime, "MM/DD/YYYY HH:mm");
         var act_time = moment(bh.gameDays[gameday_counter].starttime, "MM/DD/YYYY HH:mm");
         var act_game_slot = { "starttime": act_time.format("HH:mm"), "games": [] };
         var slotCounter = 1;
 
+        bh.GamesAll = [];
         bh.gameDays[gameday_counter].game_slots = [];
         
         var minutes_per_slot = parseInt(bh.minutesPerGame);
@@ -933,7 +936,9 @@ bh = {
                         actGame.startTime = act_time.format("YYYY-MM-DD HH:mm:ss");
                         actGame.court = "C" + slotCounter;
                         act_game_slot.games.push(actGame);
+                        bh.GamesAll.push(actGame);
                         total_num_games_group--;
+                        total_num_games--;
                         slotCounter++;
                     }
 
@@ -945,6 +950,15 @@ bh = {
                         if(end_time.isBefore(act_time))
                         {
                             gameday_counter++;
+                            
+                            if(gameday_counter >= bh.gameDays.length)
+                            {
+                                bh.addGameDay();
+                            }
+
+                            firstDay.add(1, 'days');
+                            bh.gameDays[gameday_counter].endtime = moment(firstDay.format("MM/DD/YYYY") +' ' + moment(bh.gameDays[gameday_counter].endtime, "MM/DD/YYYY HH:mm").format("HH:mm"), "MM/DD/YYYY HH:mm");
+                            bh.gameDays[gameday_counter].starttime = moment(firstDay.format("MM/DD/YYYY") +' ' + moment(bh.gameDays[gameday_counter].starttime, "MM/DD/YYYY HH:mm").format("HH:mm"), "MM/DD/YYYY HH:mm");
                             bh.gameDays[gameday_counter].game_slots = [];
                             end_time = moment(bh.gameDays[gameday_counter].endtime, "MM/DD/YYYY HH:mm");
                             act_time = moment(bh.gameDays[gameday_counter].starttime, "MM/DD/YYYY HH:mm");
@@ -955,13 +969,144 @@ bh = {
 
                 eventCounter++;
             }
+
+            while(total_num_games_ko > 0) {
+                if(bh.tournamentData.events[eventCounter % bh.tournamentData.events.length].stages.length > 0) {
+                    var gamesFinal = bh.tournamentData.events[eventCounter % bh.tournamentData.events.length].stages.find((stage) => stage.tournament_stage=="KNOCKOUT_STAGE")["wz-games"];
+                    if(gamesFinal.length > 0)
+                    {
+                        var actGame = gamesFinal.shift();
+                        actGame.startTime = act_time.format("YYYY-MM-DD HH:mm:ss");
+                        actGame.court = "C" + slotCounter;
+                        act_game_slot.games.push(actGame);
+                        bh.GamesAll.push(actGame);
+                        total_num_games_ko--;
+                        total_num_games--;
+                        slotCounter++;
+                    }
+
+                    if(act_game_slot.games.length >= num_courts){
+                        bh.gameDays[gameday_counter].game_slots.push(act_game_slot);
+                        act_time.add(minutes_per_slot, 'minutes');
+                        act_game_slot = { "starttime": act_time.format("HH:mm"), "games": [] };
+                        slotCounter = 1;
+                        if(end_time.isBefore(act_time))
+                        {
+                            gameday_counter++;
+
+                            if(gameday_counter >= bh.gameDays.length)
+                            {
+                                bh.addGameDay();
+                            }
+
+                            firstDay.add(1, 'days');
+                            bh.gameDays[gameday_counter].endtime = moment(firstDay.format("MM/DD/YYYY") +' ' + moment(bh.gameDays[gameday_counter].endtime, "MM/DD/YYYY HH:mm").format("HH:mm"), "MM/DD/YYYY HH:mm");
+                            bh.gameDays[gameday_counter].starttime = moment(firstDay.format("MM/DD/YYYY") +' ' + moment(bh.gameDays[gameday_counter].starttime, "MM/DD/YYYY HH:mm").format("HH:mm"), "MM/DD/YYYY HH:mm");
+
+                            bh.gameDays[gameday_counter].game_slots = [];
+                            end_time = moment(bh.gameDays[gameday_counter].endtime, "MM/DD/YYYY HH:mm");
+                            act_time = moment(bh.gameDays[gameday_counter].starttime, "MM/DD/YYYY HH:mm");
+                            act_game_slot = { "starttime": act_time.format("HH:mm"), "games": [] };
+                        }
+                    }
+                }
+                eventCounter++;
+            }
+
+            while(total_num_games_final > 0) {
+                if(bh.tournamentData.events[eventCounter % bh.tournamentData.events.length].stages.length > 0) {
+                    var gamesFinal = bh.tournamentData.events[eventCounter % bh.tournamentData.events.length].stages.find((stage) => stage.tournament_stage=="FINAL")["wz-games"];
+                    if(gamesFinal.length > 0)
+                    {
+                        var actGame = gamesFinal.shift();
+                        actGame.startTime = act_time.format("YYYY-MM-DD HH:mm:ss");
+                        actGame.court = "C" + slotCounter;
+                        act_game_slot.games.push(actGame);
+                        bh.GamesAll.push(actGame);
+                        total_num_games_final--;
+                        total_num_games--;
+                        slotCounter++;
+                    }
+
+                    if(act_game_slot.games.length >= num_courts){
+                        bh.gameDays[gameday_counter].game_slots.push(act_game_slot);
+                        act_time.add(minutes_per_slot, 'minutes');
+                        act_game_slot = { "starttime": act_time.format("HH:mm"), "games": [] };
+                        slotCounter = 1;
+                        if(end_time.isBefore(act_time))
+                        {
+                            gameday_counter++;
+                            
+                            if(gameday_counter >= bh.gameDays.length)
+                            {
+                                bh.addGameDay();
+                            }
+
+                            firstDay.add(1, 'days');
+                            bh.gameDays[gameday_counter].endtime = moment(firstDay.format("MM/DD/YYYY") +' ' + moment(bh.gameDays[gameday_counter].endtime, "MM/DD/YYYY HH:mm").format("HH:mm"), "MM/DD/YYYY HH:mm");
+                            bh.gameDays[gameday_counter].starttime = moment(firstDay.format("MM/DD/YYYY") +' ' + moment(bh.gameDays[gameday_counter].starttime, "MM/DD/YYYY HH:mm").format("HH:mm"), "MM/DD/YYYY HH:mm");
+
+                            
+                            bh.gameDays[gameday_counter].game_slots = [];
+                            end_time = moment(bh.gameDays[gameday_counter].endtime, "MM/DD/YYYY HH:mm");
+                            act_time = moment(bh.gameDays[gameday_counter].starttime, "MM/DD/YYYY HH:mm");
+                            act_game_slot = { "starttime": act_time.format("HH:mm"), "games": [] };
+                        }
+                    }
+                }
+                eventCounter++;
+            }
             total_num_games = 0;
         }
-        for(var i = 0; i < bh.numGameDays;i++)
+
+        if(gameday_counter <= bh.gameDays.length-1)
+        {
+            var delta_days = bh.gameDays.length-1 - gameday_counter;
+            for(var i = 0; i < delta_days; i++)
+            {
+                bh.gameDays.pop();
+            }
+        }
+    },
+    calculateGameDayMinutes: function(gameDays) {
+        var minutes = 0;
+        gameDays.forEach(function(day) {
+            var starttime = moment(day.starttime, "MM/DD/YYYY HH:mm");
+            var endtime = moment(day.endtime, "MM/DD/YYYY HH:mm");
+            minutes += endtime.diff(starttime, 'minutes');
+        });
+        return minutes;
+    },
+
+    addGameDay: function() {
+
+        var new_start = moment(bh.gameDays.at(-1).starttime, "MM/DD/YYYY HH:mm").add(1, 'days').set('hour', 8);
+        var new_end = moment(new_start).set('hour', 18);
+        var gameDay = {"id": bh.gameDays.length, "starttime": new_start.format("MM/DD/YYYY HH:mm"),
+         "endtime": moment(bh.gameDays.at(-1).endtime, "MM/DD/YYYY HH:mm").add(1, 'days').format("MM/DD/YYYY HH:mm"), "game_slots": []};
+        bh.gameDays.push(gameDay);
+        bh.numGameDays++;
+        bh.updateUIGameDays("wzgp-gamedays");
+    },
+
+    updateUIGameDays: function(idRow){
+        var row = document.getElementById(idRow);
+        $(row).empty();
+        for(var i = 0; i < bh.gameDays.length;i++)
         {
             var gameDayData = bh.gameDays[i];
-            var gameDay = $('#gameday_' + i);
-            var gameSlots = gameDay.find('#wz-game-slots');
+
+            var actMoment = moment(gameDayData.starttime, "MM/DD/YYYY HH:mm");
+            var endMoment = moment(gameDayData.endtime, "MM/DD/YYYY HH:mm");
+
+            var templateGD = $("#templateGameDay").clone();
+            $(templateGD).attr("id", 'gameday_' + i);
+            $(templateGD).removeAttr('hidden');
+            $(templateGD).find("#templateGameDay_title").text('Day ' + (i+1) + ' - ' + actMoment.format("DD.MM."));
+            $(templateGD).find("#template_info").text("");
+
+            
+            var gameSlots = templateGD.find('#wz-game-slots');
             gameSlots.empty();
             var slotCounter = 0;
             gameDayData.game_slots.forEach(slot => {
@@ -990,11 +1135,30 @@ bh = {
                 gameSlots.append(templateSlot);
                 slotCounter++;
             });
-            
-        }
-    },
-    calculateGameDaySlots: function(idGameDay) {
 
+            var inputTimeFirst_h = $(templateGD).find("#timeFirst_h");          
+            var inputTimeFirst_m = $(templateGD).find("#timeFirst_m");
+
+            var inputTimeLast_h = $(templateGD).find("#timeLast_h");
+            var inputTimeLast_m = $(templateGD).find("#timeLast_m");
+
+            inputTimeFirst_h.val(actMoment.hour());
+            inputTimeFirst_h.attr('name', 'first_h_' + i);
+            inputTimeFirst_m.val(actMoment.minutes());
+            inputTimeFirst_m.attr('name', 'first_m_' + i);
+
+            inputTimeLast_h.val(endMoment.hour());
+            inputTimeLast_h.attr('name', 'last_h_' + i);
+            inputTimeLast_m.val(endMoment.minutes());
+            inputTimeLast_m.attr('name', 'last_m_' + i);
+
+            inputTimeFirst_h.on("change", bh.onChange_GameDay);
+            inputTimeFirst_m.on("change", bh.onChange_GameDay);
+            inputTimeLast_h.on("change", bh.onChange_GameDay);
+            inputTimeLast_m.on("change", bh.onChange_GameDay);
+            
+            $(row).append(templateGD);
+        }
     },
 
     onChange_GameDay: function() { 
