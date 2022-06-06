@@ -304,7 +304,7 @@ def wizard_create_gameplan(tourn, gameplan_data, num_courts):
         game_obj = Game(tournament=tourn,
             tournament_event_id=g['tournament_event_id'],
             tournament_state_id=g['tournament_state_id'],
-            starttime=datetime.utcfromtimestamp(g['starttime']),
+            starttime=datetime.fromtimestamp(g['starttime']),
             team_a_id=g['team_a_id'],
             team_b_id=g['team_b_id'],
             team_st_a_id=g['team_st_a_id'],
