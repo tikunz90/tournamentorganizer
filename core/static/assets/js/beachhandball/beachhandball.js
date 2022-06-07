@@ -148,7 +148,7 @@ bh = {
 
                 //console.log('iTeam=' + iTeam + ' tar_gr_id=' + tar_gr_id + ' team_ko_quote='+ team_ko_quote + ' ko_free_first_seats=' + ko_free_first_seats);
                 // case if KO exists
-                if(groupData.teams_to_ko / 2 > 2)
+                if(groupData.teams_to_ko / 2 >= 2)
                 {
                     if(tar_gr_id <  groupData.teams_to_ko / 2)
                     {
@@ -975,7 +975,7 @@ bh = {
 
                 eventCounter++;
             }
-
+            window.alert("Set BreakPoint");
             while(total_num_games_ko > 0 || total_num_games_pl > 0) {
                 if(bh.tournamentData.events[eventCounter % bh.tournamentData.events.length].stages.length > 0) {
                     var stageKO = bh.tournamentData.events[eventCounter % bh.tournamentData.events.length].stages.find((stage) => stage.tournament_stage=="KNOCKOUT_STAGE");
