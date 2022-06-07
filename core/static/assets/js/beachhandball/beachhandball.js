@@ -975,7 +975,7 @@ bh = {
 
                 eventCounter++;
             }
-            window.alert("Set BreakPoint");
+            //window.alert("Set BreakPoint");
             while(total_num_games_ko > 0 || total_num_games_pl > 0) {
                 if(bh.tournamentData.events[eventCounter % bh.tournamentData.events.length].stages.length > 0) {
                     var stageKO = bh.tournamentData.events[eventCounter % bh.tournamentData.events.length].stages.find((stage) => stage.tournament_stage=="KNOCKOUT_STAGE");
