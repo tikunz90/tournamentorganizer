@@ -53,6 +53,7 @@ MIDDLEWARE = [
     
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
+    'corsheaders.middleware.CorsPostCsrfMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
@@ -64,6 +65,9 @@ INTERNAL_IPS = [
     'beach-tournament-organizer.herokuapp.com',
 ]
 CORS_ALLOW_ALL_ORIGINS = True
+CSRF_TRUSTED_ORIGINS = [
+        'http://127.0.0.1:8000',
+    ]
 
 ROOT_URLCONF = 'core.urls'
 LOGIN_REDIRECT_URL = "login"   # Route defined in app/urls.py

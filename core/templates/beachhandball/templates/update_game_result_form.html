@@ -187,12 +187,31 @@
       </div>
     </div>
 
-    
+    <div class="row">
+      <div class="col">
+        <input id="game_report_upload" name="file_uploaded"  type="file" accept=".xlsx,.xls" value="" >
+      </div>
+      <div id="WaitUpload" class="col" hidden>
+        <h3>Wait uploading...</h3>
+      </div>
+      <div class="col">
+        <button id="btn_game_report_upload" type="button" class="btn btn-secondary">Upload GameReport</button>
+      </div>
+      
+    </div>
+    <div class="row">
+      <div id="ResultUpload" class="col">
+        <h3 id="ResultUpload_text"></h3>
+      </div>
+    </div>
 
   </div>
 
   <div class="modal-footer">
-    <button type="submit" class="btn btn-primary" onclick="modalShowSpinnerModal();">Update</button>
+    <div class="col">
+      <button type="submit" class="btn btn-primary  w-100" onclick="modalShowSpinnerModal();">Update Result</button>
+    </div>
+    
   </div>
 
 </form>
@@ -200,6 +219,32 @@
 <script>
 $(document).ready(function() {
     $("#main-content").LoadingOverlay("hide");
+
+    $('#btn_game_report_upload').on('click', function(){
+      console.log("Upload Game Report");
+      $("#WaitUpload").removeAttr('hidden');
+      var file = document.getElementById("game_report_upload").files[0];
+      var form = new FormData();
+      form.append("file_uploaded", file);
+      form.append("csrfmiddlewaretoken", '{{ csrf_token }}');
+  
+      var settings = {
+        "async": true,
+        "crossDomain": true,
+        "url": "http://127.0.0.1:8000/api/upload/",
+        "method": "POST",
+        "processData": false,
+        "contentType": false,
+        "mimeType": "multipart/form-data",
+        "data": form
+      };
+  
+      $.ajax(settings).done(function (response) {
+        console.log(response);
+        $("#WaitUpload").prop('hidden', true);
+        $("#ResultUpload_text").text(response);
+      });
+    });
   });
 function modalShowSpinnerModal(){
         $("#update-game-result-form").LoadingOverlay("show");

@@ -57,3 +57,53 @@ class TournamentCategory(models.Model):
 
     class Meta:
         db_table = 'bh_tourn_category'
+
+
+class GameReportTemplate(models.Model):
+    """ Model representing a templatefile for the gamereport
+    """
+    created_at = UnixDateTimeField(editable=False, default=timezone.now)
+
+    filename = models.CharField(db_column='filename', max_length=127)
+
+    max_num_player = models.SmallIntegerField(default=10)
+    max_num_coaches = models.SmallIntegerField(default=2)
+
+    cell_game_id = models.CharField(max_length=6, default='T4')
+    
+    cell_category_men = models.CharField(max_length=6, default='M3')
+    cell_category_women = models.CharField(max_length=6, default='P3')
+    
+    cell_court_number = models.CharField(max_length=6, default='R8')
+
+    cell_team_a_name = models.CharField(max_length=6, default='B8')
+    cell_team_b_name = models.CharField(max_length=50, default='G8')
+
+    cell_ref_a_name = models.CharField(max_length=6, default='B48')
+    cell_ref_b_name = models.CharField(max_length=6, default='B49')
+
+    cell_group_stage = models.CharField(max_length=6, default='I4')
+    cell_knockout_stage = models.CharField(max_length=6, default='I5')
+
+    cell_date = models.CharField(max_length=6, default='C10')
+    cell_time = models.CharField(max_length=6, default='F10')
+
+    team_a_start_row = models.SmallIntegerField(default=13)
+    team_a_player_number_col = models.CharField(max_length=6, default='A')
+    team_a_player_name_col = models.CharField(max_length=6, default='B')
+    team_a_start_row_coaches = models.SmallIntegerField(default=25)
+    team_a_coach_name_col = models.CharField(max_length=6, default='B')
+
+    team_b_start_row = models.SmallIntegerField(default=30)
+    team_b_player_number_col = models.CharField(max_length=6, default='A')
+    team_b_player_name_col = models.CharField(max_length=6, default='B')
+    team_b_start_row_coaches = models.SmallIntegerField(default=42)
+    team_b_coach_name_col = models.CharField(max_length=6, default='B')
+
+    def __unicode__(self):
+        return self.filename
+
+    def __str__(self):
+        return self.filename
+    class Meta:
+        db_table = 'bh_game_report_template'

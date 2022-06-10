@@ -65,6 +65,8 @@ class TournamentSettings(models.Model):
     amount_players_report = models.SmallIntegerField(default=10)
     amount_officials_report = models.SmallIntegerField(default=2)
 
+    game_report_template = models.ForeignKey('GameReportTemplate', null=True, on_delete=models.DO_NOTHING)
+
     def __unicode__(self):
         return 'Tsettings: {}'.format(self.tournament)
 

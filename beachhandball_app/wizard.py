@@ -317,4 +317,4 @@ def wizard_create_gameplan(tourn, gameplan_data, num_courts):
         game_counter += 1
         games.append(game_obj)
     Game.objects.bulk_create(games)
-    return 0
+    return game_counter

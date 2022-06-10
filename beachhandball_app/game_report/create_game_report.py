@@ -16,8 +16,12 @@ from django.conf import settings
 def create_pregame_report_excel(game):
     print('ENTER create_report_excel')
     print('game_report DIR: ' + settings.GAME_REPORT_DIR)
+    tsettings = TournamentSettings.objects.get(tournament=game.tournament)
+    if not tsettings.game_report_template:
+        return ''
 
-    filename_template = 'game_report_template.xlsx'
+    gr_template = tsettings.game_report_template
+    filename_template = gr_template.filename #
     filename = 'PreGame_' + game.tournament_event.category.abbreviation + str(game.id_counter) + '.xlsx'
 
     fullfilepath_template = os.path.join(settings.GAME_REPORT_DIR, filename_template)
@@ -35,70 +39,70 @@ def create_pregame_report_excel(game):
         # game id
         tsettings = TournamentSettings.objects.get(tournament=game.tournament_event.tournament)
         tstage = game.tournament_state.tournament_stage
-        ws["T4"] = game.tournament_event.category.abbreviation + str(game.id_counter)
+        ws[gr_template.cell_game_id] = game.tournament_event.category.abbreviation + str(game.id_counter)
         
         # category
         if game.tournament_event.category.abbreviation == 'M': # CATEGORY_CHOICES[0][0]:
-            ws["M3"] = 'X'
+            ws[gr_template.cell_category_men] = 'X'
         elif game.tournament_event.category.abbreviation == 'W': # CATEGORY_CHOICES[1][0]:
-            ws["P3"] = 'X'
+            ws[gr_template.cell_category_women] = 'X'
 
         # court
-        ws["R8"] = game.court.number
+        ws[gr_template.cell_court_number] = game.court.number
 
         # team names
-        ws["B8"] = game.team_st_a.team.name
-        ws["G8"] = game.team_st_b.team.name
+        ws[gr_template.cell_team_a_name] = game.team_st_a.team.name
+        ws[gr_template.cell_team_b_name] = game.team_st_b.team.name
 
         # ref names
         if game.ref_a is not None:
-            ws["B48"] = game.ref_a.name + ', ' + game.ref_a.first_name
+            ws[gr_template.cell_ref_a_name] = game.ref_a.name + ', ' + game.ref_a.first_name
         if game.ref_b is not None:
-            ws["B49"] = game.ref_b.name + ', ' + game.ref_b.first_name 
+            ws[gr_template.cell_ref_b_name] = game.ref_b.name + ', ' + game.ref_b.first_name 
 
         # stage
         if tstage is not None:
             if tstage.tournament_stage == 'GROUP_STAGE':
-                ws["I4"] = 'X'
+                ws[gr_template.cell_group_stage] = 'X'
             if tstage.tournament_stage == 'KNOCKOUT_STAGE' or tstage.tournament_stage == 'FINAL' or tstage.tournament_stage == 'PLAYOFF_STAGE':
-                ws["I5"] = 'X'
+                ws[gr_template.cell_knockout_stage] = 'X'
 
         # Date and Time
         date = game.starttime.strftime("%d.%m.%Y")
         time = game.starttime.strftime("%H:%M")
-        ws["C10"] = date
-        ws["F10"] = time
+        ws[gr_template.cell_date] = date
+        ws[gr_template.cell_time] = time
         max_num_player = tsettings.amount_players_report
-        row_start_a = 13
+        row_start_a = gr_template.team_a_start_row
         act_player_counter = 1
         for player in game.team_st_a.team.player_set.order_by('number').all():
             if act_player_counter > max_num_player:
                 break
             if not player.is_active:
                 continue
-            ws["A"+str(row_start_a)]=player.number
-            ws["B"+str(row_start_a)]=player.name + ", " + player.first_name
+            ws[gr_template.team_a_player_number_col+str(row_start_a)]=player.number
+            ws[gr_template.team_a_player_name_col+str(row_start_a)]=player.name + ", " + player.first_name
             act_player_counter = act_player_counter + 1
             row_start_a = row_start_a + 1
-        row_start_b = 30
+        row_start_b = gr_template.team_b_start_row
         act_player_counter = 1
         for player in game.team_st_b.team.player_set.order_by('number').all():
             if act_player_counter > max_num_player:
                 break
             if not player.is_active:
                 continue
-            ws["A"+str(row_start_b)]=player.number
-            ws["B"+str(row_start_b)]=player.name + ", " + player.first_name
+            ws[gr_template.team_b_player_number_col+str(row_start_b)]=player.number
+            ws[gr_template.team_b_player_name_col+str(row_start_b)]=player.name + ", " + player.first_name
             act_player_counter = act_player_counter + 1
             row_start_b = row_start_b + 1
-        max_num_coaches = 2
-        row_start_coach_a = 25
+        max_num_coaches = gr_template.max_num_coaches
+        row_start_coach_a = gr_template.team_a_start_row_coaches
         for coach in game.team_st_a.team.coach_set.all()[:max_num_coaches]:
-            ws["B"+str(row_start_coach_a)]=coach.name + ", " + coach.first_name
+            ws[gr_template.team_a_coach_name_col +str(row_start_coach_a)]=coach.name + ", " + coach.first_name
             row_start_coach_a = row_start_coach_a + 1
-        row_start_coach_b = 42
+        row_start_coach_b = gr_template.team_b_start_row_coaches
         for coach in game.team_st_b.team.coach_set.all()[:max_num_coaches]:
-            ws["B"+str(row_start_coach_b)]=coach.name + ", " + coach.first_name
+            ws[gr_template.team_b_coach_name_col+str(row_start_coach_b)]=coach.name + ", " + coach.first_name
             row_start_coach_b = row_start_coach_b + 1
 
         wb.save(fullfilepath_report)
@@ -111,7 +115,13 @@ def create_all_tstate_pregame_report_excel(tstate):
     print('ENTER create_report_excel')
     print('game_report DIR: ' + settings.GAME_REPORT_DIR)
 
-    filename_template = 'game_report_template.xlsx'
+    tsettings = TournamentSettings.objects.get(tournament=tstate.tournament)
+    if not tsettings.game_report_template:
+        return ''
+    
+    gr_template = tsettings.game_report_template
+
+    filename_template = tsettings.game_report_template.filename
     filename = 'PreGame_ALL_'  + str(tstate.name) + '.xlsx'
 
     fullfilepath_template = os.path.join(settings.GAME_REPORT_DIR, filename_template)
@@ -123,6 +133,7 @@ def create_all_tstate_pregame_report_excel(tstate):
         print('file exists')
         tsettings = TournamentSettings.objects.get(tournament=tstate.tournament_event.tournament)
         games = Game.objects.filter(tournament_state=tstate)
+        tstage = tstate.tournament_stage
         wb = load_workbook(filename = fullfilepath_report)
         ws_origin = wb.active
         #img = Image(os.path.join(settings.GAME_REPORT_DIR,'dhb_logo.png'))
@@ -131,63 +142,70 @@ def create_all_tstate_pregame_report_excel(tstate):
             ws_game = wb.copy_worksheet(ws_origin)
             ws_game.title = game.tournament_event.category.abbreviation + str(game.id)
             # game id
-            ws_game["T4"] = game.tournament_event.category.abbreviation + str(game.id)
+            ws_game[gr_template.cell_game_id] = game.tournament_event.category.abbreviation + str(game.id)
             
             # category
             if game.tournament_event.category.abbreviation == 'M': # CATEGORY_CHOICES[0][0]:
-                ws_game["M3"] = 'X'
+                ws_game[gr_template.cell_category_men] = 'X'
             elif game.tournament_event.category.abbreviation == 'W': # CATEGORY_CHOICES[1][0]:
-                ws_game["P3"] = 'X'
+                ws_game[gr_template.cell_category_women] = 'X'
 
             # court
-            ws_game["R8"] = game.court.number
+            ws_game[gr_template.cell_court_number] = game.court.number
 
             # team names
-            ws_game["B8"] = game.team_st_a.team.name
-            ws_game["G8"] = game.team_st_b.team.name
+            ws_game[gr_template.cell_team_a_name] = game.team_st_a.team.name
+            ws_game[gr_template.cell_team_b_name] = game.team_st_b.team.name
 
             # ref names
             if game.ref_a is not None:
-                ws_game["B48"] = game.ref_a.name + ', ' + game.ref_a.first_name
+                ws_game[gr_template.cell_ref_a_name] = game.ref_a.name + ', ' + game.ref_a.first_name
             if game.ref_b is not None:
-                ws_game["B49"] = game.ref_b.name + ', ' + game.ref_b.first_name 
+                ws_game[gr_template.cell_ref_b_name] = game.ref_b.name + ', ' + game.ref_b.first_name 
+
+            # stage
+            if tstage is not None:
+                if tstage.tournament_stage == 'GROUP_STAGE':
+                    ws_game[gr_template.cell_group_stage] = 'X'
+                if tstage.tournament_stage == 'KNOCKOUT_STAGE' or tstage.tournament_stage == 'FINAL' or tstage.tournament_stage == 'PLAYOFF_STAGE':
+                    ws_game[gr_template.cell_knockout_stage] = 'X'
 
             # Date and Time
             date = game.starttime.strftime("%d.%m.%Y")
             time = game.starttime.strftime("%H:%M")
-            ws_game["C10"] = date
-            ws_game["F10"] = time
+            ws_game[gr_template.cell_date] = date
+            ws_game[gr_template.cell_time] = time
             max_num_player = tsettings.amount_players_report
-            row_start_a = 13
+            row_start_a = gr_template.team_a_start_row
             act_player_counter = 1
             for player in game.team_st_a.team.player_set.all():
                 if act_player_counter > max_num_player:
                     break
                 if not player.is_active:
                     continue
-                ws_game["A"+str(row_start_a)]=player.number
-                ws_game["B"+str(row_start_a)]=player.name + ", " + player.first_name
+                ws_game[gr_template.team_a_player_number_col+str(row_start_a)]=player.number
+                ws_game[gr_template.team_a_player_name_col  +str(row_start_a)]=player.name + ", " + player.first_name
                 act_player_counter = act_player_counter + 1
                 row_start_a = row_start_a + 1
-            row_start_b = 30
+            row_start_b = gr_template.team_b_start_row
             act_player_counter = 1
             for player in game.team_st_b.team.player_set.all():
                 if act_player_counter > max_num_player:
                     break
                 if not player.is_active:
                     continue
-                ws_game["A"+str(row_start_b)]=player.number
-                ws_game["B"+str(row_start_b)]=player.name + ", " + player.first_name
+                ws_game[gr_template.team_b_player_number_col+str(row_start_b)]=player.number
+                ws_game[gr_template.team_b_player_name_col  +str(row_start_b)]=player.name + ", " + player.first_name
                 act_player_counter = act_player_counter + 1
                 row_start_b = row_start_b + 1
-            max_num_coaches = 2
-            row_start_coach_a = 25
+            max_num_coaches = gr_template.max_num_coaches
+            row_start_coach_a = gr_template.team_a_start_row_coaches
             for coach in game.team_st_a.team.coach_set.all()[:max_num_coaches]:
-                ws_game["B"+str(row_start_coach_a)]=coach.name + ", " + coach.first_name
+                ws_game[gr_template.team_a_coach_name_col+str(row_start_coach_a)]=coach.name + ", " + coach.first_name
                 row_start_coach_a = row_start_coach_a + 1
-            row_start_coach_b = 42
+            row_start_coach_b = gr_template.team_b_start_row_coaches
             for coach in game.team_st_b.team.coach_set.all()[:max_num_coaches]:
-                ws_game["B"+str(row_start_coach_b)]=coach.name + ", " + coach.first_name
+                ws_game[gr_template.team_b_coach_name_col+str(row_start_coach_b)]=coach.name + ", " + coach.first_name
                 row_start_coach_b = row_start_coach_b + 1
         wb.remove_sheet(ws_origin)
         wb.save(fullfilepath_report)
@@ -195,7 +213,16 @@ def create_all_tstate_pregame_report_excel(tstate):
         return fullfilepath_report, filename
     return ''
 
+def import_game_report_excel(game):
+    print('ENTER import_game_report_excel')
+    print('game_report DIR: ' + settings.GAME_REPORT_DIR)
+    tourn = Tournament.objects.get(id=28)
+    tsettings = TournamentSettings.objects.get(tournament=tourn)
+    if not tsettings.game_report_template:
+        return ''
 
+    gr_template = tsettings.game_report_template
+    
 def import_game_report_excel():
     print('ENTER import_game_report_excel')
     print('game_report DIR: ' + settings.GAME_REPORT_DIR)
@@ -204,6 +231,11 @@ def import_game_report_excel():
     files = [f for f in os.listdir(os.path.join(settings.GAME_REPORT_DIR, 'post')) if f.endswith('.xlsx')]
 
     tourn = Tournament.objects.get(id=28)
+    tsettings = TournamentSettings.objects.get(tournament=tourn)
+    if not tsettings.game_report_template:
+        return ''
+
+    gr_template = tsettings.game_report_template
 
     for file in files:
         wb = load_workbook(filename = os.path.join(settings.GAME_REPORT_DIR, 'post', file))

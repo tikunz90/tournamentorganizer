@@ -1,3 +1,4 @@
+from beachhandball_app.api.views.game_report.views import FileUploadView, UploadViewSet
 from beachhandball_app.models.Team import TeamTournamentResult
 from django.conf.urls import url
 from django.urls import path, include
@@ -9,6 +10,10 @@ from .views.game.views import GameViewSet, GameActionViewSet, PlayerStatsSet, Pl
 from .views.tournament.views import get_tournament_info, get_games_info
 from rest_framework import renderers
 from rest_framework.authtoken import views
+from rest_framework import routers
+
+router = routers.DefaultRouter()
+router.register(r'upload', UploadViewSet, basename="upload")
 
 urlpatterns = [
     path('login_by_token/', login_by_token.LoginByToken.as_view()),
@@ -35,4 +40,7 @@ urlpatterns = [
     path('teams/', TeamViewSet.as_view({'get': 'list'})),
     path('scouting/<int:game_id>/', ScoutingReportViewSet.as_view({'get': 'retrieve', 'post': 'create', 'patch': 'partial_update'})),
     path('scouting/<int:game_id>/start/', StartGameScouting, name='scouting_start'),
+
+    path('', include(router.urls)),
+    path('game_report/upload/', FileUploadView.as_view()),
 ]

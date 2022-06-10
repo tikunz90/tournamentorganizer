@@ -5,7 +5,7 @@ Copyright (c) 2019 - present AppSeed.us
 
 from django.contrib import admin
  
-from .models.General import TournamentCategory
+from .models.General import GameReportTemplate, TournamentCategory
 from .models.Tournaments import Referee, Tournament, TournamentEvent, TournamentFinalRanking, TournamentSettings, TournamentTeamTransition, Court
 from .models.Tournaments import TournamentStage, TournamentState
 from .models.Team import Team, TeamStats
@@ -13,6 +13,7 @@ from .models.Player import Player, PlayerStats, PlayerPosition
 from .models.Game import Game, GameAction
 from .models.Series import Series, Season
 
+admin.site.register(GameReportTemplate)
 admin.site.register(Tournament)
 admin.site.register(TournamentSettings)
 admin.site.register(TournamentEvent)
