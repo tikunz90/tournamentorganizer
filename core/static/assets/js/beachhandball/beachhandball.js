@@ -197,7 +197,9 @@ bh = {
             }
             if(num_teams_res > 0)
             {
-                actTeam = {"idx":teams_per_group, "name":(teams_per_group+1) + '. TeamDummy' };
+                actTeam = {"idx":teams_per_group, "name":(teams_per_group+1) + '. TeamDummy', "rank": 0, "transition": { "origin_rank": teams_per_group+1, "origin_group_id": i, "origin_group_name": actGroup.name, "target_rank": 0, "target_group_id": 0} };
+                actTeam.rank = teams_per_group+1;
+                actTeam.transition.origin_rank = actTeam.rank;
                 var tTeamItem = $("#templateTeamItem").clone();
                 $(tTeamItem).attr("id", 'teamitem_' + (teams_per_group+1));
                 $(tTeamItem).removeAttr('hidden');
@@ -208,6 +210,8 @@ bh = {
                 else
                 {
                     $(tTeamItem).find("#templateTeamItem_icon").text('clear');
+                    actTeam.transition.target_rank = -1;
+                    actTeam.transition.target_group_id = 999;
                 }
                 
                 $(tTeamItem).find("#templateTeamItem_name").text(actTeam.name);
