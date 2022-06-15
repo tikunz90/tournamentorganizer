@@ -350,7 +350,7 @@ def sync_teams(gbouser, tevent, data, cup_type):
             elif act_team is None and  cup_type == 'is_sub':
                 act_team, cr = Team.objects.get_or_create(season_team_sub_cup_tournament_ranking_id=ranking['id'],
                     tournament_event=tevent)
-            else:
+            elif act_team is None:
                 continue
             
             act_team.gbo_team = ranking['seasonTeam']['team']['id']
@@ -388,6 +388,8 @@ def sync_teams(gbouser, tevent, data, cup_type):
                     #act_player, cr = Player.objects.get_or_create(tournament_event=tevent, season_team_id=act_team.season_team_id, season_player_id=season_player['id'])
                     act_player = Player(tournament_event=tevent, season_team_id=act_team.season_team_id, season_player_id=season_player['id'])
                     cr = True
+                else:
+                    players_list = [ x for x in players_list if x is not act_player ]
                 act_player.tournament_event = tevent
                 act_player.team = act_team
                 act_player.name = strip_accents(season_player['seasonSubject']['subject']['user']['family_name'])
@@ -437,7 +439,8 @@ def sync_teams(gbouser, tevent, data, cup_type):
                 Coach.objects.bulk_create(coach_bulk_create_list)
             if len(coach_bulk_update_list) > 0:
                 Coach.objects.bulk_update(coach_bulk_update_list, ("tournament_event", "team", "name", "first_name", "gbo_position","season_team_id", "season_coach_id",))
-                
+            for pl in players_list:
+                pl.delete()
             #Coach.objects.bulk_update(coach_bulk_list)
 
         for dummy in my_dummy_team_data:
