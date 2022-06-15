@@ -1085,6 +1085,10 @@ bh = {
                             eventCounter++;
                         }      
                     }
+                    else if(stagePL["wz-games"].length == 0 && stagePL.actHierarchy >= 500) {
+                        stagePL.actHierarchy = -1;
+                        eventCounter++;
+                    }
                     else {
                         eventCounter++;
                     }

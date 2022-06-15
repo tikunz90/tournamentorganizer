@@ -211,7 +211,7 @@ def setup_wizard_gameplan(request):
 
     if request.method == 'POST':
         context['tournament_settings'].game_slot_mins = int(request.POST['gameplan-data-minutes-per-game'])
-        context['tournament_settings'].first_game_slot = datetime.fromtimestamp(request.POST['gameplan-data-datetime-firstgame'])
+        context['tournament_settings'].first_game_slot = datetime.strptime(request.POST['gameplan-data-datetime-firstgame'], '%m/%d/%Y %H:%M')
         gameplan_data_all_games = json.loads(request.POST['gameplan-data-all-games'])
         context['tournament_settings'].game_counter = wizard.wizard_create_gameplan(context['tourn'], gameplan_data_all_games, request.POST['gameplan-data-num-courts'])
         context['tournament_settings'].game_slot_counter = context['tournament_settings'].game_counter
