@@ -18,7 +18,7 @@ def create_pregame_report_excel(game):
     print('game_report DIR: ' + settings.GAME_REPORT_DIR)
     tsettings = TournamentSettings.objects.get(tournament=game.tournament)
     if not tsettings.game_report_template:
-        return ''
+        return ('', '')
 
     gr_template = tsettings.game_report_template
     filename_template = gr_template.filename #
@@ -108,7 +108,7 @@ def create_pregame_report_excel(game):
         wb.save(fullfilepath_report)
 
         return fullfilepath_report, filename
-    return ''
+    return ('', '')
 
 
 def create_all_tstate_pregame_report_excel(tstate):

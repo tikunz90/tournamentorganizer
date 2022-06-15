@@ -839,22 +839,23 @@ def check_tournamentstate_finished(tevent, ts):
 
             if trans.count() > 0:
                 trans = trans.get()
-                target_stat = TeamStats.objects.all().filter(tournament_event=tevent,
-                                                             tournamentstate=trans.target_ts_id,
-                                                             rank_initial=trans.target_rank)
-                if target_stat.count() == 1:
-                    target_stat = target_stat.get()
-                    target_stat.team = stat.team
-                    if trans.keep_stats:
-                        target_stat.number_of_played_games = 0
-                        target_stat.sets_win = stat.sets_win
-                        target_stat.sets_loose = stat.sets_loose
-                        target_stat.points_made = stat.points_made
-                        target_stat.points_received = stat.points_received
-                        target_stat.game_points = stat.game_points
-                    target_stat.game_points_bonus = 0
-                    target_stat.ranking_points = 0
-                    target_stat.save()
+                if trans.target_rank > -1 and not trans.target_ts_id is None:
+                    target_stat = TeamStats.objects.all().filter(tournament_event=tevent,
+                                                                tournamentstate=trans.target_ts_id,
+                                                                rank_initial=trans.target_rank)
+                    if target_stat.count() == 1:
+                        target_stat = target_stat.get()
+                        target_stat.team = stat.team
+                        if trans.keep_stats:
+                            target_stat.number_of_played_games = 0
+                            target_stat.sets_win = stat.sets_win
+                            target_stat.sets_loose = stat.sets_loose
+                            target_stat.points_made = stat.points_made
+                            target_stat.points_received = stat.points_received
+                            target_stat.game_points = stat.game_points
+                        target_stat.game_points_bonus = 0
+                        target_stat.ranking_points = 0
+                        target_stat.save()
                 trans.is_executed = True
                 trans.save(update_fields=['is_executed'])
 
