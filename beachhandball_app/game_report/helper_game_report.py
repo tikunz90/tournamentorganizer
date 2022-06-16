@@ -226,11 +226,30 @@ def import_game_report_excel(game):
 
 def import_single_game_report(game, filename):
     print('ENTER import_single_game_report ' + filename)
+    result = {'isError': False, 'msg': 'OK', 'playerstats_a': [], 'playerstats_b': [], 'score_team_a_halftime_1': 0, 'score_team_a_halftime_2': 0, 'score_team_a_penalty': 0, 'score_team_b_halftime_1': 0, 'score_team_b_halftime_2': 0, 'score_team_b_penalty': 0}
+
+    tsettings = TournamentSettings.objects.get(tournament=game.tournament)
+    if not tsettings.game_report_template:
+        result['isError'] = True
+        result['msg'] = 'No template defined'
+        return result
+    tmp = tsettings.game_report_template
+
+    wb = load_workbook(filename = filename, data_only=True)
+    ws = wb.active
+
+    result['score_team_a_halftime_1'] = ws[tmp.cell_score_team_a_halftime_1].value
+    result['score_team_a_halftime_2'] = ws[tmp.cell_score_team_a_halftime_2].value
+    result['score_team_a_penalty'] = ws[tmp.cell_score_team_a_penalty].value
+    result['score_team_b_halftime_1'] = ws[tmp.cell_score_team_b_halftime_1].value
+    result['score_team_b_halftime_2'] = ws[tmp.cell_score_team_b_halftime_2].value
+    result['score_team_b_penalty'] = ws[tmp.cell_score_team_b_penalty].value
+
+    return result
 
 def import_game_report_excel():
     print('ENTER import_game_report_excel')
     print('game_report DIR: ' + settings.GAME_REPORT_DIR)
-
 
     files = [f for f in os.listdir(os.path.join(settings.GAME_REPORT_DIR, 'post')) if f.endswith('.xlsx')]
 

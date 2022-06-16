@@ -1,3 +1,4 @@
+import os
 from rest_framework.views import APIView
 from rest_framework.viewsets import ViewSet
 from rest_framework.response import Response
@@ -6,6 +7,7 @@ from django.conf import settings
 from django.core.files.storage import FileSystemStorage
 
 from beachhandball_app.api.serializers.game_report.serializer import UploadSerializer
+from beachhandball_app.game_report import helper_game_report
 from beachhandball_app.models.Game import Game
 
 class FileUploadView(APIView):
@@ -27,14 +29,16 @@ class UploadGameReportViewSet(ViewSet):
         return Response("GET API")
 
     def create(self, request, pk):
-        file_uploaded = request.FILES.get('file_uploaded')
-        fs = FileSystemStorage()
-        filename = fs.save(file_uploaded.name, file_uploaded)
-        content_type = file_uploaded.content_type
-
         game = Game.objects.get(id=pk)
         if game is None:
-            message = "Game not found! id=" + str(pk)
-        else:
-            message = 'File OK'
-        return Response({'message': message})
+            result['msg'] = "Game not found! id=" + str(pk)
+            result['isError'] = True
+            return Response(result)
+        file_uploaded = request.FILES.get('file_uploaded')
+        fs = FileSystemStorage(location='uploaded_reports/' + str(game.tournament.id) + '/' + str(game.tournament_event.id) + '/')
+        filename = fs.save(file_uploaded.name, file_uploaded)
+        content_type = file_uploaded.content_type
+        file_url = fs.url(filename)
+        result = {'isError': False}
+        result = helper_game_report.import_single_game_report(game, os.path.join(fs.location, filename))
+        return Response(result)

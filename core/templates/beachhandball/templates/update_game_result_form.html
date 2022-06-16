@@ -243,7 +243,15 @@ $(document).ready(function() {
         console.log(response);
         var resp = JSON.parse(response);
         $("#WaitUpload").prop('hidden', true);
-        $("#ResultUpload_text").text(resp.message);
+        $("#ResultUpload_text").text(resp.msg);
+        if(!resp.isError) {
+          $("#id_score_team_a_halftime_1").val(resp.score_team_a_halftime_1);
+          $("#id_score_team_a_halftime_2").val(resp.score_team_a_halftime_2);
+          $("#id_score_team_a_penalty").val(resp.score_team_a_penalty);
+          $("#id_score_team_b_halftime_1").val(resp.score_team_b_halftime_1);
+          $("#id_score_team_b_halftime_2").val(resp.score_team_b_halftime_2);
+          $("#id_score_team_b_penalty").val(resp.score_team_b_penalty);
+        }
       });
     });
   });

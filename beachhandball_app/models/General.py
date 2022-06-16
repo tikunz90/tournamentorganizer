@@ -100,6 +100,13 @@ class GameReportTemplate(models.Model):
     team_b_start_row_coaches = models.SmallIntegerField(default=42)
     team_b_coach_name_col = models.CharField(max_length=6, default='B')
 
+    cell_score_team_a_halftime_1 = models.CharField(max_length=6, default='M40')
+    cell_score_team_a_halftime_2 = models.CharField(max_length=6, default='T40')
+    cell_score_team_a_penalty = models.CharField(max_length=6, default='T44')
+    cell_score_team_b_halftime_1 = models.CharField(max_length=6, default='O40')
+    cell_score_team_b_halftime_2 = models.CharField(max_length=6, default='V40')
+    cell_score_team_b_penalty = models.CharField(max_length=6, default='V44')
+
     def __unicode__(self):
         return self.filename
 
