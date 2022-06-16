@@ -70,7 +70,7 @@
           </div>
         </div>
         <div class="col-md">
-          <h4>{{ object.tournament_state.tournament_event.category.abbreviation }}{{ object.id }}</h4>
+          <h4>{{ object.tournament_state.tournament_event.category.abbreviation }}{{ object.id_counter }}</h4>
         </div>
         <div class="col-md">
           <h4>Scouting: {{ object.scouting_state }}</h4>
@@ -231,7 +231,7 @@ $(document).ready(function() {
       var settings = {
         "async": true,
         "crossDomain": true,
-        "url": "http://127.0.0.1:8000/api/upload/",
+        "url": "http://127.0.0.1:8000/api/games/upload_report/{{ object.id }}/",
         "method": "POST",
         "processData": false,
         "contentType": false,
@@ -241,8 +241,9 @@ $(document).ready(function() {
   
       $.ajax(settings).done(function (response) {
         console.log(response);
+        var resp = JSON.parse(response);
         $("#WaitUpload").prop('hidden', true);
-        $("#ResultUpload_text").text(response);
+        $("#ResultUpload_text").text(resp.message);
       });
     });
   });

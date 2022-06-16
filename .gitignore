@@ -26,3 +26,5 @@ staticfiles/*
 .vscode/symbols.json
 core/report/*.xlsx
 !core/report/game_report_template.xlsx
+!core/report/DHB.xlsx
+!core/report/GBO.xlsx

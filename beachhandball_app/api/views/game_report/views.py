@@ -6,6 +6,7 @@ from django.conf import settings
 from django.core.files.storage import FileSystemStorage
 
 from beachhandball_app.api.serializers.game_report.serializer import UploadSerializer
+from beachhandball_app.models.Game import Game
 
 class FileUploadView(APIView):
     parser_classes = (FileUploadParser,)
@@ -19,16 +20,21 @@ class FileUploadView(APIView):
         return Response(status=204)
 
 
-class UploadViewSet(ViewSet):
+class UploadGameReportViewSet(ViewSet):
     serializer_class = UploadSerializer
 
     def list(self, request):
         return Response("GET API")
 
-    def create(self, request):
+    def create(self, request, pk):
         file_uploaded = request.FILES.get('file_uploaded')
         fs = FileSystemStorage()
         filename = fs.save(file_uploaded.name, file_uploaded)
         content_type = file_uploaded.content_type
-        response = "POST API and you have uploaded a {} file {}".format(content_type, filename)
-        return Response(response)
+
+        game = Game.objects.get(id=pk)
+        if game is None:
+            message = "Game not found! id=" + str(pk)
+        else:
+            message = 'File OK'
+        return Response({'message': message})

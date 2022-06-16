@@ -30,7 +30,7 @@ from .models.Series import Season
 from .models.Game import Game
 from beachhandball_app.forms.basic_setup.forms import CourtForm, TournamentSettingsForm
 from beachhandball_app.api.serializers.game import GameSerializer,GameRunningSerializer, serialize_game
-from beachhandball_app.game_report import create_game_report
+from beachhandball_app.game_report import helper_game_report
 from .services.services import SWS
 
 def getContext(request):

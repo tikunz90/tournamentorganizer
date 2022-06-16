@@ -26,7 +26,7 @@ from django.conf import settings
 from django.forms import modelformset_factory
 
 from beachhandball_app.helper import reverse_querystring, calculate_tstate
-from beachhandball_app.game_report import create_game_report
+from beachhandball_app.game_report import helper_game_report
 
 from beachhandball_app.static_views import checkLoginIsValid, getContext
 
@@ -543,7 +543,7 @@ class DownloadPreGameAllView(View):
         tstate = TournamentState.objects.get(id=pk)
         if tstate:
             # Define the full file path
-            filepath, filename = create_game_report.create_all_tstate_pregame_report_excel(tstate)
+            filepath, filename = helper_game_report.create_all_tstate_pregame_report_excel(tstate)
 
             if os.path.exists(filepath):
                 # Open the file for reading content

@@ -222,7 +222,11 @@ def import_game_report_excel(game):
         return ''
 
     gr_template = tsettings.game_report_template
-    
+
+
+def import_single_game_report(game, filename):
+    print('ENTER import_single_game_report ' + filename)
+
 def import_game_report_excel():
     print('ENTER import_game_report_excel')
     print('game_report DIR: ' + settings.GAME_REPORT_DIR)
