@@ -95,10 +95,15 @@ def login_view(request):
                     #guser.gbo_gc_data = s.SWS.getTournamentGermanChampionshipByUser(guser)
                     #guser.gbo_sub_data = s.SWS.getTournamentSubByUser(guser)
                     guser.save()
-                    to_group = Group.objects.get_or_create(name='tournament_organizer')
-                    to_group.user_set.add(user)
+                    
                 
                 user = authenticate(username=username, password=password)
+
+                #check if user is TO
+                to_group, cr = Group.objects.get_or_create(name='tournament_organizer')
+                to_group.user_set.add(user)
+                to_group.save()
+
                 if user is not None:
                     # create gbo user for admin
                     if user.is_superuser is True:

@@ -63,10 +63,12 @@ INTERNAL_IPS = [
     # ...
     '127.0.0.1',
     'beach-tournament-organizer.herokuapp.com',
+    'german-beach-open.app',
 ]
 CORS_ALLOW_ALL_ORIGINS = True
 CSRF_TRUSTED_ORIGINS = [
         'http://127.0.0.1:8000',
+        'http://german-beach-open.app',
     ]
 
 ROOT_URLCONF = 'core.urls'
