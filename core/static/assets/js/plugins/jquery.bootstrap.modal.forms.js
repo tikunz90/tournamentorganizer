@@ -63,6 +63,7 @@ https://github.com/trco/django-bootstrap-modal-forms
     var submitForm = function (settings) {        
         if (!settings.asyncUpdate) {
             $(settings.modalForm).submit();
+            $(settings.modalID).modal("hide");
         } else {          
             var asyncSettingsValid = validateAsyncSettings(settings.asyncSettings);
             

@@ -320,6 +320,8 @@ def import_playerstats_game_report(game, upload_data):
     print('ENTER import_single_game_report')
     result = {'isError': False, 'msg': 'OK', 'playerstats_a': [], 'playerstats_b': [], 'score_team_a_halftime_1': 0, 'score_team_a_halftime_2': 0, 'score_team_a_penalty': 0, 'score_team_b_halftime_1': 0, 'score_team_b_halftime_2': 0, 'score_team_b_penalty': 0}
 
+    players_a = [p for p in Player.objects.filter(team=game.team_a).all()]
+    players_b = [p for p in Player.objects.filter(team=game.team_b).all()]
     global_ps_a = [ps for ps in PlayerStats.objects.filter(tournament_event=game.tournament_event, player__team=game.team_a, is_ranked=True).all()]
     global_ps_b = [ps for ps in PlayerStats.objects.filter(tournament_event=game.tournament_event, player__team=game.team_b, is_ranked=True).all()]
 
@@ -328,17 +330,23 @@ def import_playerstats_game_report(game, upload_data):
 
     #if local stats exists, we overwrite them: first subtract from global and then set new pstat
     for ps in local_ps_a:
-        found_global_ps = [pst for pst in global_ps_a if pst.player.id == ps['player_id'] ]
+        found_global_ps = [pst for pst in global_ps_a if pst.player.id == ps.player.id ]
         if len(found_global_ps) > 0:
             found_global_ps[0].score -= ps.score
-            found_global_ps[0].games_played -= 1
+            if found_global_ps[0].score < 0:
+                found_global_ps[0].score = 0
+            if found_global_ps[0].games_played > 0:
+                found_global_ps[0].games_played -= 1
             found_global_ps[0].save()
         ps.delete()
     for ps in local_ps_b:
-        found_global_ps = [pst for pst in global_ps_b if pst.player.id == ps['player_id'] ]
-        if len(found_global_ps) > 0:
+        found_global_ps = [pst for pst in global_ps_b if pst.player.id == ps.player.id ]
+        if len(found_global_ps) > 0:          
             found_global_ps[0].score -= ps.score
-            found_global_ps[0].games_played -= 1
+            if found_global_ps[0].score < 0:
+                found_global_ps[0].score = 0
+            if found_global_ps[0].games_played > 0:
+                found_global_ps[0].games_played -= 1
             found_global_ps[0].save()
         ps.delete()
 
@@ -347,30 +355,68 @@ def import_playerstats_game_report(game, upload_data):
         if ps['player_id'] == -1:
             continue
         found_ps = [pst for pst in global_ps_a if pst.player.id == ps['player_id'] ]
-        if len(global_ps_a) == 0 or len(found_ps) == 0:
-            player = next(p for p in game.team_a.players if p.id == ps['player_id'] )
-            global_ps = PlayerStats(tournament_event=game.tournament_event, player_id=ps['player_id'], score=ps['points'], is_ranked=True)
+        player = next(p for p in players_a if p.id == ps['player_id'] )
+        if len(global_ps_a) == 0 or len(found_ps) == 0:           
+            global_ps = PlayerStats(tournament_event=game.tournament_event,
+             player_id=ps['player_id'],
+             score=ps['points'],
+             is_ranked=True,
+             season_team_id=game.team_a.season_team_id,
+             season_player_id=player.season_player_id,
+             season_cup_tournament_id=game.tournament_event.season_cup_tournament_id,
+             season_cup_german_championship_id=game.tournament_event.season_cup_german_championship_id,
+             gbo_category_id=game.tournament_event.category.gbo_category_id)
             playerstats_bulk.append(global_ps)
         else:
             found_ps[0].score += ps['points']
             found_ps[0].games_played += 1
             found_ps[0].save()
-        playerstats_bulk.append(PlayerStats(tournament_event=game.tournament_event, player_id=ps['player_id'], score=ps['points'], games_played=1, is_ranked=False))
+        playerstats_bulk.append(PlayerStats(tournament_event=game.tournament_event,
+         game=game,
+         player_id=ps['player_id'],
+         score=ps['points'],
+         games_played=1,
+         is_ranked=False,
+         season_team_id=game.team_a.season_team_id,
+         season_player_id=player.season_player_id,
+         season_cup_tournament_id=game.tournament_event.season_cup_tournament_id,
+         season_cup_german_championship_id=game.tournament_event.season_cup_german_championship_id,
+         gbo_category_id=game.tournament_event.category.gbo_category_id)
+        )
     
     
     for ps in upload_data['playerstats_b']:
         if ps['player_id'] == -1:
             continue
         found_ps = [pst for pst in global_ps_b if pst.player.id == ps['player_id'] ]
+        player = next(p for p in players_b if p.id == ps['player_id'] )
         if len(global_ps_b) == 0 or len(found_ps) == 0:
-            player = next(p for p in game.team_a.players if p.id == ps['player_id'] )
-            global_ps = PlayerStats(tournament_event=game.tournament_event, player_id=ps['player_id'], score=ps['points'], games_played=1, is_ranked=True)
+            global_ps = PlayerStats(tournament_event=game.tournament_event,
+             player_id=ps['player_id'],
+             score=ps['points'],
+             is_ranked=True,
+             season_team_id=game.team_b.season_team_id,
+             season_player_id=player.season_player_id,
+             season_cup_tournament_id=game.tournament_event.season_cup_tournament_id,
+             season_cup_german_championship_id=game.tournament_event.season_cup_german_championship_id,
+             gbo_category_id=game.tournament_event.category.gbo_category_id)
             playerstats_bulk.append(global_ps)
         else:
             found_ps[0].score += ps['points']
             found_ps[0].games_played += 1
             found_ps[0].save()
-        playerstats_bulk.append(PlayerStats(tournament_event=game.tournament_event, player_id=ps['player_id'], score=ps['points'], games_played=1, is_ranked=False))
+        playerstats_bulk.append(PlayerStats(tournament_event=game.tournament_event,
+         game=game,
+         player_id=ps['player_id'],
+         score=ps['points'],
+         games_played=1,
+         is_ranked=False,
+         season_team_id=game.team_b.season_team_id,
+         season_player_id=player.season_player_id,
+         season_cup_tournament_id=game.tournament_event.season_cup_tournament_id,
+         season_cup_german_championship_id=game.tournament_event.season_cup_german_championship_id,
+         gbo_category_id=game.tournament_event.category.gbo_category_id)
+        )
 
     if len(playerstats_bulk) > 0:
         PlayerStats.objects.bulk_create(playerstats_bulk)

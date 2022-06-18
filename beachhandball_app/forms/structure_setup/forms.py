@@ -1,13 +1,18 @@
+import json
 from django.db.models import fields
 from django.shortcuts import get_object_or_404
+from beachhandball_app.game_report import helper_game_report
 from beachhandball_app.models.Game import Game
 from beachhandball_app.models.Team import Team, TeamStats
 from django import forms
 from django.forms import ModelForm, widgets
+
+from beachhandball_app.models.choices import GAMESTATE_CHOICES
 from ...models.Tournaments import TournamentEvent, TournamentState, TournamentStage, TournamentTeamTransition
 
 from colorfield.widgets import ColorWidget
 from bootstrap_modal_forms.forms import BSModalModelForm
+from bootstrap_modal_forms.utils import is_ajax
 
 """
 
@@ -208,6 +213,18 @@ class GameUpdateForm(BSModalModelForm):
         #self.fields['starttime'].widget.attrs['class'] = 'form-control datetimepicker'
         
 class GameUpdateResultForm(BSModalModelForm):
+
+    #def save(self, commit=True):
+    #    game = super().save(commit=False)
+    #    if commit and not is_ajax(self.request.META):
+    #        game.gamestate = GAMESTATE_CHOICES[2][0]
+    #        game.save()
+    #        #calculate_tstate(self.object.tournament_state)
+    #        if self.data['upload-data']:
+    #            upload_data = json.loads(self.data['upload-data'])
+    #            helper_game_report.import_playerstats_game_report(game, upload_data)
+    #        
+    #    return game
 
     def clean(self):
         cleaned_data = super(GameUpdateResultForm, self).clean()

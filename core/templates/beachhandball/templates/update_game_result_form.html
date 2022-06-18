@@ -185,7 +185,16 @@
                   <th>Info</th>
               </tr>
               </thead>
-              
+              <tbody>
+              {% for pstat in pstats_a %}
+                <tr>
+                  <td>{{ pstat.player.number }}</td>
+                  <td>{{ pstat.player.name }}</td>
+                  <td>{{ pstat.score }}</td>
+                  <td></td>
+                </tr>
+              {% endfor %}
+              </tbody>
             </table>
           </div>
         </div>
@@ -233,7 +242,8 @@
 
   <div class="modal-footer">
     <div class="col">
-      <button type="submit" class="btn btn-primary  w-100" onclick="modalShowSpinnerModal();">Update Result</button>
+      <!--button type="submit" class="btn btn-primary  w-100" onclick="modalShowSpinnerModal();">Update Result</button-->
+      <button id="btn_game_update_result" type="button" class="btn btn-primary w-100">Update Result</button>
     </div>
     
   </div>
@@ -255,7 +265,7 @@ $(document).ready(function() {
       var settings = {
         "async": true,
         "crossDomain": true,
-        "url": "http://127.0.0.1:8000/api/games/upload_report/{{ object.id }}/",
+        "url": '{{ url("api_games_upload_report-list", kwargs={"pk":object.id}) }}',
         "method": "POST",
         "processData": false,
         "contentType": false,
@@ -278,11 +288,13 @@ $(document).ready(function() {
           $("#player-list-a").removeAttr('hidden');
           $("#player-list-b").removeAttr('hidden');
           var listTeamA = $('#player-list-team-a');
+          $(listTeamA).empty();
           resp.playerstats_a.forEach(pstat => {
             $(listTeamA).append('<tr><td>' + pstat.number +
                '</td><td>' + pstat.name + ' (' + pstat.player_id + ')</td><td>' + pstat.points + '</td><td>' + pstat.info + '</td></tr>');
           });
           var listTeamB = $('#player-list-team-b');
+          $(listTeamB).empty();
           resp.playerstats_b.forEach(pstat => {
             $(listTeamB).append('<tr><td>' + pstat.number +
               '</td><td>' + pstat.name + ' (' + pstat.player_id + ')</td><td>' + pstat.points + '</td><td>' + pstat.info + '</td></tr>');
@@ -290,6 +302,26 @@ $(document).ready(function() {
           $('#upload-data').val(JSON.stringify(resp));
         }
       });
+    });
+
+    $('#btn_game_update_result').on('click', function(){
+      var url = '{{ url("post_update_game_result", kwargs={"pk_tevent":game.tournament_event.id, "pk_tstage": game.tournament_state.tournament_stage.id, "pk":  object.id}) }}'
+      $.ajax({
+        url: url,
+        type: 'post',
+        dataType: 'json',
+        data: $('form#update-game-result-form').serialize(),
+        success: function(data) {
+          $("#ResultUpload_text").text(data.msg);
+          if(data.success) {
+            
+            $("#game-modal").modal("hide");
+            document.location.reload(true);
+          }
+          
+        }
+      });
+      
     });
   });
 function modalShowSpinnerModal(){

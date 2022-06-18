@@ -13,7 +13,7 @@ from rest_framework.authtoken import views
 from rest_framework import routers
 
 router = routers.DefaultRouter()
-router.register(r'games/upload_report/(?P<pk>\d+)', UploadGameReportViewSet, basename="games_upload_report")
+router.register(r'games/upload_report/(?P<pk>\d+)', UploadGameReportViewSet, basename="api_games_upload_report")
 
 urlpatterns = [
     path('login_by_token/', login_by_token.LoginByToken.as_view()),

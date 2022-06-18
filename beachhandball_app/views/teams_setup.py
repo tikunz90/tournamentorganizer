@@ -1,4 +1,4 @@
-from beachhandball_app.models.Player import Player
+from beachhandball_app.models.Player import Player, PlayerStats
 from django.db.models.query import Prefetch
 from django.views.generic.detail import DetailView
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -32,5 +32,7 @@ class TeamsSetupDetail(LoginRequiredMixin, DetailView):
         kwargs["tevent"] = tevent
         kwargs['teams_accepted'] =[team for team in teams if not team.is_dummy and team.tournament_event.id == tevent.id]# teams.all()
         kwargs['teams_appending'] = []#Team.objects.filter(tournament=tevent)
+        kwargs['global_playerstats'] = [ps for ps in PlayerStats.objects.filter(tournament_event=tevent, is_ranked=True).all()]
+
 
         return super(TeamsSetupDetail, self).get_context_data(**kwargs)

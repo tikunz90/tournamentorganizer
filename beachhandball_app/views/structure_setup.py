@@ -583,8 +583,8 @@ class GameResultGameView(BSModalUpdateView):
         game = self.object
         context = super(GameResultGameView, self).get_context_data(**kwargs)
         
-        context['pstats_a'] = PlayerStats.objects.filter(teamstat=game.team_st_a)
-        context['pstats_b'] = PlayerStats.objects.filter(teamstat=game.team_st_b)
+        context['pstats_a'] = PlayerStats.objects.filter(tournament_event=game.tournament_event, game=game, player__team=game.team_a, is_ranked=False)
+        context['pstats_b'] = PlayerStats.objects.filter(tournament_event=game.tournament_event, game=game, player__team=game.team_b, is_ranked=False)
         return context
 
     def form_valid(self, form):
@@ -594,12 +594,7 @@ class GameResultGameView(BSModalUpdateView):
         tstage = get_object_or_404(TournamentStage, id=self.kwargs.get('pk_tstage'))
         form.instance.tournament_event = tevent
         form.instance.tournament_stage = tstage
-        self.object.gamestate = GAMESTATE_CHOICES[2][0]
-        self.object.save()
-        #calculate_tstate(self.object.tournament_state)
-        if form.data['upload-data']:
-            upload_data = json.loads(form.data['upload-data'])
-            helper_game_report.import_playerstats_game_report(self.object, upload_data)
+        
         return super().form_valid(form)
 
     def get_success_url(self):
@@ -608,6 +603,29 @@ class GameResultGameView(BSModalUpdateView):
            if from_gameplan == 1:
                return reverse_lazy('game_plan')
            return reverse_querystring("structure_setup.detail", kwargs={"pk": pk}, query_kwargs={'tab': self.kwargs["pk_tstage"], 'tab_tstate': 0})
+
+def postUpdateGameResult(request, pk_tevent, pk_tstage, pk):
+    if request.method == "POST" and request.is_ajax():
+        form = GameUpdateResultForm(request.POST, request=request)
+        game = get_object_or_404(Game, id=pk)
+        tevent = get_object_or_404(TournamentEvent, id=pk_tevent)
+        tstage = get_object_or_404(TournamentStage, id=pk_tstage)
+        game.tournament_event = tevent
+        game.tournament_stage = tstage   
+        game.gamestate = GAMESTATE_CHOICES[2][0]
+        game.score_team_a_halftime_1 = form.data['score_team_a_halftime_1']
+        game.score_team_a_halftime_2 = form.data['score_team_a_halftime_2']
+        game.score_team_a_penalty = form.data['score_team_a_penalty']
+        game.score_team_b_halftime_1 = form.data['score_team_b_halftime_1']
+        game.score_team_b_halftime_2 = form.data['score_team_b_halftime_2']
+        game.score_team_b_penalty = form.data['score_team_b_penalty']
+        game.save()
+        #calculate_tstate(self.object.tournament_state)
+        if form.data['upload-data']:
+            upload_data = json.loads(form.data['upload-data'])
+            helper_game_report.import_playerstats_game_report(game, upload_data)
+        return JsonResponse({"success":True, "msg": "OK", "game_id": game.id}, status=200)
+    return JsonResponse({"success":False, "msg": "Failed"}, status=400)
 
 class GameDeleteView(BSModalDeleteView):
     model = Game
