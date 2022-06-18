@@ -152,7 +152,7 @@
                 <th class="text-left" data-col="result_p">Shootout</th>
                 <th class="text-left" data-col="sets">Sets</th>
                 <th class="text-left" data-col="gamestate">Gamestate</th>
-                <th>Actions</th>
+                <th data-col="actions">Actions</th>
               </thead>
               <tbody>
                 {% for game in games %}
@@ -190,7 +190,7 @@
                   <td id="{{ game.id }}_result_p" class="text-center" data-content="result_p">{{ game.score_team_a_penalty }}:{{ game.score_team_b_penalty }}</td>
                   <td class="text-center" data-content="sets">{{ game.setpoints_team_a }}:{{ game.setpoints_team_b }}</td>
                   <td class="text-center" data-content="{{ game.gamestate }}">{{ game.gamestate }}</td>
-                  <td class="td-actions text-right">
+                  <td class="td-actions text-right" data-content="">
                     <button type="button" class="update_game btn btn-success btn-link" rel="tooltip" title="Edit Game" data-form-url='{{ url("update_game", kwargs={"pk_tevent":game.tournament_event.id, "pk_tstage": game.tournament_state.tournament_stage.id, "pk":  game.id, "from_gameplan": 1}) }}' data-list-url="{{ url('game_plan') }}" onclick="modalShowSpinner();">
                         <i class="material-icons">edit</i>
                     </button>

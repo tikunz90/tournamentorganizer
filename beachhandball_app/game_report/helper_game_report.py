@@ -270,7 +270,7 @@ def pre_import_single_game_report(game, filename):
             found_ps = [ps for ps in global_ps_a if ps.player.id == player_id ]
             if len(global_ps_a) == 0:
                 actPlayer['info'] = 'OK'
-                actPlayer['player_id'] = 0
+                actPlayer['player_id'] = player_id
             elif len(found_ps) == 0:
                 actPlayer['info'] = 'Not found'
             else:
@@ -299,7 +299,7 @@ def pre_import_single_game_report(game, filename):
             found_ps = [ps for ps in global_ps_b if ps.player.id == player_id ]
             if len(global_ps_b) == 0:
                 actPlayer['info'] = 'OK'
-                actPlayer['player_id'] = 0
+                actPlayer['player_id'] = player_id
             elif len(found_ps) == 0:
                 actPlayer['info'] = 'Not found'
             else:
