@@ -1,3 +1,4 @@
+import json
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.db.models.query import Prefetch
 from beachhandball_app.models.choices import GAMESTATE_CHOICES
@@ -506,7 +507,7 @@ class DownloadPreGameView(View):
         game = Game.objects.get(id=pk)
         if game:
             # Define the full file path
-            filepath, filename = create_game_report.create_pregame_report_excel(game)
+            filepath, filename = helper_game_report.create_pregame_report_excel(game)
 
             if os.path.exists(filepath):
                 # Open the file for reading content
@@ -596,6 +597,9 @@ class GameResultGameView(BSModalUpdateView):
         self.object.gamestate = GAMESTATE_CHOICES[2][0]
         self.object.save()
         #calculate_tstate(self.object.tournament_state)
+        if form.data['upload-data']:
+            upload_data = json.loads(form.data['upload-data'])
+            helper_game_report.import_playerstats_game_report(self.object, upload_data)
         return super().form_valid(form)
 
     def get_success_url(self):

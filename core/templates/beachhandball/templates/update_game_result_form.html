@@ -15,7 +15,7 @@
 
 <form id="update-game-result-form" method="post" action="">
   <input type="hidden" name="csrfmiddlewaretoken" value="{{csrf_token}}">
-
+  <input type="hidden" name="upload-data" id="upload-data" value="">
   <div class="modal-header justify-content-center">
   <div class="container">
     <div class="row">
@@ -160,51 +160,75 @@
           </div>
         </div>
       </div>
-      <div class="row" hidden>
-        <div class="col-md-5">
-          <table id="" class="table table-striped">
-            <thead>
-            <tr>
-                <th>#</th>
-                <th>Player</th>
-            </tr>
-            </thead>
-            
-          </table>
-        </div>
-        <div class="col-md-2"></div>
-        <div class="col-md-5">
-          <table id="" class="table table-striped">
-            <thead>
-            <tr>
-                <th>#</th>
-                <th>Player</th>
-            </tr>
-            </thead>
-            
-          </table>
+
+      <div class="row">
+        <div id="ResultUpload" class="col">
+          <h3 id="ResultUpload_text"></h3>
         </div>
       </div>
-    </div>
+      {% if pstats_a %}
+      <div id='player-list-a'>
+      {% else %}
+      <div id='player-list-a' hidden>
+      {% endif %}
+        <div class="row">
+          <h4>Team A</h4>
+        </div>
+        <div class="row">
+          <div class="col">
+            <table id="player-list-team-a" class="table table-striped">
+              <thead>
+              <tr>
+                  <th>#</th>
+                  <th>Player</th>
+                  <th>Points</th>
+                  <th>Info</th>
+              </tr>
+              </thead>
+              
+            </table>
+          </div>
+        </div>
+      </div>
+      {% if pstats_b %}
+      <div id='player-list-b'>
+      {% else %}
+      <div id='player-list-b' hidden>
+      {% endif %}
+        <div class="row">
+          <h4>Team B</h4>
+        </div>
+        <div class="row">
+          <div class="col">
+            <table id="player-list-team-b" class="table table-striped">
+              <thead>
+              <tr>
+                  <th>#</th>
+                  <th>Player</th>
+                  <th>Points</th>
+                  <th>Info</th>
+              </tr>
+              </thead>
+              
+            </table>
+          </div>
+        </div>
+      </div>
 
-    <div class="row">
-      <div class="col">
-        <input id="game_report_upload" name="file_uploaded"  type="file" accept=".xlsx,.xls" value="" >
+      <div class="row">
+        <div class="col">
+          <input id="game_report_upload" name="file_uploaded"  type="file" accept=".xlsx,.xls" value="" >
+        </div>
+        <div id="WaitUpload" class="col" hidden>
+          <h3>Wait uploading...</h3>
+        </div>
+        <div class="col">
+          <button id="btn_game_report_upload" type="button" class="btn btn-secondary">Upload GameReport</button>
+        </div>
+        
       </div>
-      <div id="WaitUpload" class="col" hidden>
-        <h3>Wait uploading...</h3>
-      </div>
-      <div class="col">
-        <button id="btn_game_report_upload" type="button" class="btn btn-secondary">Upload GameReport</button>
-      </div>
-      
-    </div>
-    <div class="row">
-      <div id="ResultUpload" class="col">
-        <h3 id="ResultUpload_text"></h3>
-      </div>
-    </div>
-
+    
+  </div>
   </div>
 
   <div class="modal-footer">
@@ -251,6 +275,19 @@ $(document).ready(function() {
           $("#id_score_team_b_halftime_1").val(resp.score_team_b_halftime_1);
           $("#id_score_team_b_halftime_2").val(resp.score_team_b_halftime_2);
           $("#id_score_team_b_penalty").val(resp.score_team_b_penalty);
+          $("#player-list-a").removeAttr('hidden');
+          $("#player-list-b").removeAttr('hidden');
+          var listTeamA = $('#player-list-team-a');
+          resp.playerstats_a.forEach(pstat => {
+            $(listTeamA).append('<tr><td>' + pstat.number +
+               '</td><td>' + pstat.name + ' (' + pstat.player_id + ')</td><td>' + pstat.points + '</td><td>' + pstat.info + '</td></tr>');
+          });
+          var listTeamB = $('#player-list-team-b');
+          resp.playerstats_b.forEach(pstat => {
+            $(listTeamB).append('<tr><td>' + pstat.number +
+              '</td><td>' + pstat.name + ' (' + pstat.player_id + ')</td><td>' + pstat.points + '</td><td>' + pstat.info + '</td></tr>');
+          });
+          $('#upload-data').val(JSON.stringify(resp));
         }
       });
     });

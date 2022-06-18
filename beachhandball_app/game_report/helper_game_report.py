@@ -72,6 +72,8 @@ def create_pregame_report_excel(game):
         time = game.starttime.strftime("%H:%M")
         ws[gr_template.cell_date] = date
         ws[gr_template.cell_time] = time
+
+        # Player
         max_num_player = tsettings.amount_players_report
         row_start_a = gr_template.team_a_start_row
         act_player_counter = 1
@@ -81,7 +83,7 @@ def create_pregame_report_excel(game):
             if not player.is_active:
                 continue
             ws[gr_template.team_a_player_number_col+str(row_start_a)]=player.number
-            ws[gr_template.team_a_player_name_col+str(row_start_a)]=player.name + ", " + player.first_name
+            ws[gr_template.team_a_player_name_col+str(row_start_a)]=player.name + ", " + player.first_name + " (" + str(player.id) + ")"
             act_player_counter = act_player_counter + 1
             row_start_a = row_start_a + 1
         row_start_b = gr_template.team_b_start_row
@@ -92,9 +94,11 @@ def create_pregame_report_excel(game):
             if not player.is_active:
                 continue
             ws[gr_template.team_b_player_number_col+str(row_start_b)]=player.number
-            ws[gr_template.team_b_player_name_col+str(row_start_b)]=player.name + ", " + player.first_name
+            ws[gr_template.team_b_player_name_col+str(row_start_b)]=player.name + ", " + player.first_name + " (" + str(player.id) + ")"
             act_player_counter = act_player_counter + 1
             row_start_b = row_start_b + 1
+
+        # Coaches
         max_num_coaches = gr_template.max_num_coaches
         row_start_coach_a = gr_template.team_a_start_row_coaches
         for coach in game.team_st_a.team.coach_set.all()[:max_num_coaches]:
@@ -224,7 +228,7 @@ def import_game_report_excel(game):
     gr_template = tsettings.game_report_template
 
 
-def import_single_game_report(game, filename):
+def pre_import_single_game_report(game, filename):
     print('ENTER import_single_game_report ' + filename)
     result = {'isError': False, 'msg': 'OK', 'playerstats_a': [], 'playerstats_b': [], 'score_team_a_halftime_1': 0, 'score_team_a_halftime_2': 0, 'score_team_a_penalty': 0, 'score_team_b_halftime_1': 0, 'score_team_b_halftime_2': 0, 'score_team_b_penalty': 0}
 
@@ -234,7 +238,13 @@ def import_single_game_report(game, filename):
         result['msg'] = 'No template defined'
         return result
     tmp = tsettings.game_report_template
+    
+    global_ps_a = [ps for ps in PlayerStats.objects.filter(tournament_event=game.tournament_event, player__team=game.team_a, is_ranked=True).all()]
+    global_ps_b = [ps for ps in PlayerStats.objects.filter(tournament_event=game.tournament_event, player__team=game.team_b, is_ranked=True).all()]
 
+    local_ps_a = [ps for ps in PlayerStats.objects.filter(tournament_event=game.tournament_event, game=game, player__team=game.team_a, is_ranked=False).all()]
+    local_ps_b = [ps for ps in PlayerStats.objects.filter(tournament_event=game.tournament_event, game=game, player__team=game.team_b, is_ranked=False).all()]
+    
     wb = load_workbook(filename = filename, data_only=True)
     ws = wb.active
 
@@ -245,7 +255,134 @@ def import_single_game_report(game, filename):
     result['score_team_b_halftime_2'] = ws[tmp.cell_score_team_b_halftime_2].value
     result['score_team_b_penalty'] = ws[tmp.cell_score_team_b_penalty].value
 
+    for iRow in range(0,tsettings.amount_players_report):
+        actRow = iRow + tmp.team_a_start_row
+        actNumber = ws[tmp.team_a_player_number_col+str(actRow)].value
+        if actNumber is None:
+            continue
+        actName = ws[tmp.team_a_player_name_col+str(actRow)].value
+        actPoints = ws[tmp.team_a_player_points_col+str(actRow)].value
+        if actPoints is None:
+            actPoints = 0
+        player_id, res = intTryParse(actName[actName.find("(")+1:actName.find(")")])
+        actPlayer = {'number': actNumber, 'name': actName, 'points': actPoints, 'info': '', 'player_id': -1, 'global_pstat_id': -1}
+        if res:
+            found_ps = [ps for ps in global_ps_a if ps.player.id == player_id ]
+            if len(global_ps_a) == 0:
+                actPlayer['info'] = 'OK'
+                actPlayer['player_id'] = 0
+            elif len(found_ps) == 0:
+                actPlayer['info'] = 'Not found'
+            else:
+                actPlayer['info'] = 'OK'
+                actPlayer['global_pstat_id'] = found_ps[0].id
+                actPlayer['player_id'] = player_id
+        else:
+            actPlayer['info'] = 'No ID!'
+        
+        
+        result['playerstats_a'].append(actPlayer)
+    
+    
+    for iRow in range(0,tsettings.amount_players_report):
+        actRow = iRow + tmp.team_b_start_row
+        actNumber = ws[tmp.team_b_player_number_col+str(actRow)].value
+        if actNumber is None:
+            continue
+        actName = ws[tmp.team_b_player_name_col+str(actRow)].value
+        actPoints = ws[tmp.team_b_player_points_col+str(actRow)].value
+        if actPoints is None:
+            actPoints = 0
+        player_id, res = intTryParse(actName[actName.find("(")+1:actName.find(")")])
+        actPlayer = {'number': actNumber, 'name': actName, 'points': actPoints, 'info': '', 'player_id': -1, 'global_pstat_id': -1}
+        if res:
+            found_ps = [ps for ps in global_ps_b if ps.player.id == player_id ]
+            if len(global_ps_b) == 0:
+                actPlayer['info'] = 'OK'
+                actPlayer['player_id'] = 0
+            elif len(found_ps) == 0:
+                actPlayer['info'] = 'Not found'
+            else:
+                actPlayer['info'] = 'OK'
+                actPlayer['global_pstat_id'] = found_ps[0].id
+                actPlayer['player_id'] = player_id
+        else:
+            actPlayer['info'] = 'No ID!'
+        result['playerstats_b'].append(actPlayer)
+    if len(local_ps_a) == 0 and len(local_ps_b) == 0:
+        result['msg'] = 'Report upload successful'
+    else:
+        result['msg'] = 'Found existing stats. If you upload this report, you will overwrite them!'
+
     return result
+
+def import_playerstats_game_report(game, upload_data):
+    print('ENTER import_single_game_report')
+    result = {'isError': False, 'msg': 'OK', 'playerstats_a': [], 'playerstats_b': [], 'score_team_a_halftime_1': 0, 'score_team_a_halftime_2': 0, 'score_team_a_penalty': 0, 'score_team_b_halftime_1': 0, 'score_team_b_halftime_2': 0, 'score_team_b_penalty': 0}
+
+    global_ps_a = [ps for ps in PlayerStats.objects.filter(tournament_event=game.tournament_event, player__team=game.team_a, is_ranked=True).all()]
+    global_ps_b = [ps for ps in PlayerStats.objects.filter(tournament_event=game.tournament_event, player__team=game.team_b, is_ranked=True).all()]
+
+    local_ps_a = [ps for ps in PlayerStats.objects.filter(tournament_event=game.tournament_event, game=game, player__team=game.team_a, is_ranked=False).all()]
+    local_ps_b = [ps for ps in PlayerStats.objects.filter(tournament_event=game.tournament_event, game=game, player__team=game.team_b, is_ranked=False).all()]
+
+    #if local stats exists, we overwrite them: first subtract from global and then set new pstat
+    for ps in local_ps_a:
+        found_global_ps = [pst for pst in global_ps_a if pst.player.id == ps['player_id'] ]
+        if len(found_global_ps) > 0:
+            found_global_ps[0].score -= ps.score
+            found_global_ps[0].games_played -= 1
+            found_global_ps[0].save()
+        ps.delete()
+    for ps in local_ps_b:
+        found_global_ps = [pst for pst in global_ps_b if pst.player.id == ps['player_id'] ]
+        if len(found_global_ps) > 0:
+            found_global_ps[0].score -= ps.score
+            found_global_ps[0].games_played -= 1
+            found_global_ps[0].save()
+        ps.delete()
+
+    playerstats_bulk = []
+    for ps in upload_data['playerstats_a']:
+        if ps['player_id'] == -1:
+            continue
+        found_ps = [pst for pst in global_ps_a if pst.player.id == ps['player_id'] ]
+        if len(global_ps_a) == 0 or len(found_ps) == 0:
+            player = next(p for p in game.team_a.players if p.id == ps['player_id'] )
+            global_ps = PlayerStats(tournament_event=game.tournament_event, player_id=ps['player_id'], score=ps['points'], is_ranked=True)
+            playerstats_bulk.append(global_ps)
+        else:
+            found_ps[0].score += ps['points']
+            found_ps[0].games_played += 1
+            found_ps[0].save()
+        playerstats_bulk.append(PlayerStats(tournament_event=game.tournament_event, player_id=ps['player_id'], score=ps['points'], games_played=1, is_ranked=False))
+    
+    
+    for ps in upload_data['playerstats_b']:
+        if ps['player_id'] == -1:
+            continue
+        found_ps = [pst for pst in global_ps_b if pst.player.id == ps['player_id'] ]
+        if len(global_ps_b) == 0 or len(found_ps) == 0:
+            player = next(p for p in game.team_a.players if p.id == ps['player_id'] )
+            global_ps = PlayerStats(tournament_event=game.tournament_event, player_id=ps['player_id'], score=ps['points'], games_played=1, is_ranked=True)
+            playerstats_bulk.append(global_ps)
+        else:
+            found_ps[0].score += ps['points']
+            found_ps[0].games_played += 1
+            found_ps[0].save()
+        playerstats_bulk.append(PlayerStats(tournament_event=game.tournament_event, player_id=ps['player_id'], score=ps['points'], games_played=1, is_ranked=False))
+
+    if len(playerstats_bulk) > 0:
+        PlayerStats.objects.bulk_create(playerstats_bulk)
+    return result
+
+
+def intTryParse(value):
+    try:
+        return int(value), True
+    except ValueError:
+        return value, False
+
 
 def import_game_report_excel():
     print('ENTER import_game_report_excel')

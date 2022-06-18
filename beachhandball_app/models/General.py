@@ -91,12 +91,14 @@ class GameReportTemplate(models.Model):
     team_a_start_row = models.SmallIntegerField(default=13)
     team_a_player_number_col = models.CharField(max_length=6, default='A')
     team_a_player_name_col = models.CharField(max_length=6, default='B')
+    team_a_player_points_col = models.CharField(max_length=6, default='D')
     team_a_start_row_coaches = models.SmallIntegerField(default=25)
     team_a_coach_name_col = models.CharField(max_length=6, default='B')
 
     team_b_start_row = models.SmallIntegerField(default=30)
     team_b_player_number_col = models.CharField(max_length=6, default='A')
     team_b_player_name_col = models.CharField(max_length=6, default='B')
+    team_b_player_points_col = models.CharField(max_length=6, default='D')
     team_b_start_row_coaches = models.SmallIntegerField(default=42)
     team_b_coach_name_col = models.CharField(max_length=6, default='B')
 
