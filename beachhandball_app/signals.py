@@ -9,7 +9,7 @@ from .models.Team import Team, TeamStats
 from .models.Game import Game
 from .models.Player import Player, PlayerStats
 
-from .models.choices import TOURNAMENT_STATE_CHOICES
+from .models.choices import ROUND_TYPES, TOURNAMENT_STATE_CHOICES
 
 from .helper import calculate_tstate, update_games_after_tstat_chg
 
@@ -30,7 +30,8 @@ def create_new_tournament_event(sender, instance, created, **kwargs):
                                             direct_compare=False,
                                             max_number_teams=instance.max_number_teams,
                                             is_final=True,
-                                            comment='')
+                                            comment='',
+                                            round_type=ROUND_TYPES.RANKING)
 
 @receiver(post_save, sender=TournamentState)
 def create_new_tournamentstate(sender, instance, created, **kwargs):
@@ -47,6 +48,7 @@ def create_new_tournamentstate(sender, instance, created, **kwargs):
                                                             tournamentstate=instance,
                                                             name="{}. {}".format(i, instance),
                                                             abbreviation="{}.{}".format(i, instance.abbreviation),
+                                                            season_cup_tournament_id=instance.tournament_event.season_cup_tournament_id,
                                                             category=instance.tournament_event.category,
                                                             is_dummy=True)
 
@@ -85,6 +87,7 @@ def create_new_tournamentstate(sender, instance, created, **kwargs):
                                                             tournamentstate=instance,
                                                             name=act_team_stat.name_table,
                                                             is_dummy=True,
+                                                            season_cup_tournament_id=instance.tournament_event.season_cup_tournament_id,
                                                             category=instance.tournament_event.category)
                 else:
                     team_a = act_team_stat.team
@@ -95,6 +98,7 @@ def create_new_tournamentstate(sender, instance, created, **kwargs):
                                                                 tournamentstate=instance,
                                                                 name=team_stat_b.name_table,
                                                                 is_dummy=True,
+                                                                season_cup_tournament_id=instance.tournament_event.season_cup_tournament_id,
                                                                 category=instance.tournament_event.category)
                         team_b.save()
                     else:

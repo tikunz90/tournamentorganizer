@@ -1,3 +1,18 @@
+from enum import auto
+from strenum import StrEnum
+
+
+class ROUND_TYPES(StrEnum):
+    GROUP = auto()
+    ROUND_64 = auto()
+    ROUND_32 = auto()
+    ROUND_16 = auto()
+    ROUND_8 = auto()
+    ROUND_4 = auto()
+    ROUND_2 = auto()
+    PLAYOFF = auto()
+    RANKING = auto()
+
 
 CATEGORY_CHOICES = (
         ('MEN', 'MEN'),
@@ -42,6 +57,9 @@ KNOCKOUT_NAMES = {
     64: 'R64',
     128: 'R128'
 }
+
+class URLs(StrEnum):
+    GOOGLE = 'www.google.com'
 
 COLOR_CHOICES = [
         ("#BABABA", "gray"),

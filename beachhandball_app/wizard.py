@@ -5,14 +5,22 @@ from beachhandball_app import signals
 from beachhandball_app.models.Game import Game
 from beachhandball_app.models.Team import Team, TeamStats
 from beachhandball_app.models.Tournaments import Court, TournamentStage, TournamentState, TournamentTeamTransition
-from beachhandball_app.models.choices import COLOR_CHOICES, COLOR_CHOICES_DICT, KNOCKOUT_NAMES, TOURNAMENT_STAGE_TYPE_CHOICES, TOURNAMENT_STATE_CHOICES
+from beachhandball_app.models.choices import COLOR_CHOICES, COLOR_CHOICES_DICT, KNOCKOUT_NAMES, ROUND_TYPES, TOURNAMENT_STAGE_TYPE_CHOICES, TOURNAMENT_STATE_CHOICES
 
 
 def wizard_create_structure(tevent, structure_data):
     print('ENTER wizard_create_structure ' + str(datetime.now()))
 
-    ts_final_ranking = TournamentState.objects.filter(tournament_event=tevent, is_final=True).first()
+    ts_final_ranking, cr = TournamentState.objects.get_or_create(tournament_event=tevent,
+        tournament_state=TOURNAMENT_STATE_CHOICES[-1][1],
+        name='Final Ranking',
+        abbreviation='FR',
+        hierarchy=999,
+        max_number_teams=int(structure_data['max_num_teams']),
+        is_final=True)
     tstats_final_ranking = TeamStats.objects.filter(tournament_event=tevent, tournamentstate=ts_final_ranking).all()
+    ts_final_ranking.round_type = ROUND_TYPES.RANKING
+    ts_final_ranking.save()
     teams_final_ranking = []
     transitions = []
     hierarchy_counter = 0
@@ -40,7 +48,7 @@ def wizard_create_structure(tevent, structure_data):
             if idx > 5:
                 idx = 5
                 colorIdx = 5
-            state, team_stats, ttt = create_state_from_group(tstageGroup, tevent, TOURNAMENT_STATE_CHOICES[idx][1], gr, colorIdx, gr["name"], 'G' + str(gr["idx"]+1), hierarchy_counter)
+            state, team_stats, ttt = create_state_from_group(tstageGroup, tevent, TOURNAMENT_STATE_CHOICES[idx][1], gr, colorIdx, gr["name"], 'G' + str(gr["idx"]+1), hierarchy_counter, ROUND_TYPES.GROUP)
             tttGroup[idx] = ttt
             colorIdx += 1
     
@@ -67,6 +75,7 @@ def wizard_create_structure(tevent, structure_data):
     transToFinal = []
     with transaction.atomic():
         for lvl in ko_data["level"]:
+            round_type = 'ROUND_' + str(2**lvl["idx"])
             if colorIdx > 4:
                 colorIdx = 4
             if lvl["idx"] > 3:
@@ -79,7 +88,7 @@ def wizard_create_structure(tevent, structure_data):
             for gr in lvl["groups"]:
                 if colorIdx > 4:
                     colorIdx = 4
-                state, team_stats, tttAct = create_state_from_group(tstageKO, tevent, tstate_choice, gr, colorIdx, lvl["header"] + ' ' + str(gr["idx"]), lvl["actNaming"] + ' ' + str(gr["idx"]), hierarchy_counter)
+                state, team_stats, tttAct = create_state_from_group(tstageKO, tevent, tstate_choice, gr, colorIdx, lvl["header"] + ' ' + str(gr["idx"]), lvl["actNaming"] + ' ' + str(gr["idx"]), hierarchy_counter, round_type)
                 
                 if firstKoLevel:
                     # handle transitions from group
@@ -123,7 +132,7 @@ def wizard_create_structure(tevent, structure_data):
                 colorIdx = 4
             tttToSubLevel = []
             for gr in lvl["groups"]:
-                state, team_stats, tttAct = create_state_from_group(tstagePlace, tevent, 'LOOSER_ROUND', gr, colorIdx, gr["name"], gr["name"], hierarchy_counter)
+                state, team_stats, tttAct = create_state_from_group(tstagePlace, tevent, 'LOOSER_ROUND', gr, colorIdx, gr["name"], gr["name"], hierarchy_counter, ROUND_TYPES.PLAYOFF)
 
                 trans = [ tr for tr in structure_data["transitions"]["ko_to_pl"][ko_name]["items"] if tr["target_group_id"] == gr["idx"]-1]
                 tttTemp = tttToPlace[lvl["idx"]+1]
@@ -154,7 +163,7 @@ def wizard_create_structure(tevent, structure_data):
     tstageFinal.order = 3
     tstageFinal.save()
     for gr in final_data["groups"]:
-        state, ts, ttt = create_state_from_group(tstageFinal, tevent, 'FINAL', gr, 6, "Final", "F", 100)
+        state, ts, ttt = create_state_from_group(tstageFinal, tevent, 'FINAL', gr, 6, "Final", "F", 100, ROUND_TYPES.ROUND_2)
 
         handle_transitions_ko(state, transToFinal, ts, tttToFinal)
 
@@ -179,7 +188,7 @@ def create_states_sublevel(tevent, tstage, sublevel, hierarchy, ts_final_ranking
     for gr in sublevel["groups"]:
         if colorIdx > 4:
             colorIdx = 4
-        state, team_stats, tttAct = create_state_from_group(tstage, tevent, 'LOOSER_ROUND', gr, colorIdx, gr["name"], gr["name"], hierarchy)
+        state, team_stats, tttAct = create_state_from_group(tstage, tevent, 'LOOSER_ROUND', gr, colorIdx, gr["name"], gr["name"], hierarchy, ROUND_TYPES.PLAYOFF)
         
         trans = [ tr for tr in transitions if tr["target_group_id"] == gr["idx"]-1]
         tttTemp = tttParent
@@ -201,7 +210,7 @@ def create_states_sublevel(tevent, tstage, sublevel, hierarchy, ts_final_ranking
     
     return states
 
-def create_state_from_group(stage, tevent, tstate_choice, gr, colorIdx, name, abbr, hierarchy):
+def create_state_from_group(stage, tevent, tstate_choice, gr, colorIdx, name, abbr, hierarchy, round_type):
     state, cr = TournamentState.objects.get_or_create(tournament_event=tevent,
                 tournament_state=tstate_choice,
                 tournament_stage=stage,
@@ -210,7 +219,8 @@ def create_state_from_group(stage, tevent, tstate_choice, gr, colorIdx, name, ab
                 abbreviation=abbr,
                 hierarchy=hierarchy,
                 max_number_teams=len(gr["teams"]), 
-                color=COLOR_CHOICES[colorIdx][0])
+                color=COLOR_CHOICES[colorIdx][0],
+                round_type=round_type)
 
     #for i in range(1, state.max_number_teams+1):
     team_stats = []
@@ -222,6 +232,7 @@ def create_state_from_group(stage, tevent, tstate_choice, gr, colorIdx, name, ab
                             name="{}. {}".format(i, state),
                             abbreviation="{}.{}".format(i, state.abbreviation),
                             category=state.tournament_event.category,
+                            season_cup_tournament_id=state.tournament_event.season_cup_tournament_id,
                             is_dummy=True)
         act_team_st, cr = TeamStats.objects.get_or_create(tournament_event=state.tournament_event,
                         tournamentstate=state,
