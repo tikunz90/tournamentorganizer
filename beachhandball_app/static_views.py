@@ -410,6 +410,7 @@ def sync_tournament_data(request):
     if not checkLoginIsValid(context['gbo_user']):
         return redirect('login')
 
+    context['gbo_user'].gbo_data_all, execution_time = SWS.syncTournamentData(context['gbo_user'])
     helper.update_user_tournament_events(context['gbo_user'], context['tourn'])
     #update_user_tournament_events_async.delay(model_to_dict(context['gbo_user']), model_to_dict(context['tourn']))
     context['segment'] = 'index'
@@ -429,7 +430,7 @@ def create_teamtestdata(request, pk_tevent):
     #helper.calculate_tstate()
     #helper.create_global_pstats(94)
     #helper.create_global_pstats(95)
-    create_game_report.import_game_report_excel()
+    helper_game_report.create_pregame_report_excel.import_game_report_excel()
 
     helper.recalc_global_pstats(94)
     helper.recalc_global_pstats(95)
