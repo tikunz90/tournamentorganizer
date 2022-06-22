@@ -26,4 +26,4 @@ FROM `beachhandball_2022`.`bh_team` AS `item`
         INNER JOIN `beachhandball_2022`.`bh_tournament_states` `bhTournamentState` ON `bhTournamentState`.`id`=`bhTeamStats`.`tournamentstate_id`  
         INNER JOIN `beachhandball_2022`.`bh_tournament_stage` `bhTournamentStage` ON `bhTournamentStage`.`id`=`bhTournamentState`.`tournament_stage_id`  
         INNER JOIN `beachhandball_2022`.`bh_team` `bhTeam` ON `bhTeam`.`id`=`bhTeamStats`.`team_id` 
-WHERE `item`.`season_cup_tournament_id` = 23;
+WHERE (`item`.`season_cup_tournament_id` = 14) AND (item.category_id = 2);

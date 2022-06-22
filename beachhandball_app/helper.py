@@ -397,6 +397,8 @@ def sync_teams(gbouser, tevent, data, cup_type):
                 act_player.gbo_position = season_player['seasonSubject']['subject']['subjectLevel']['name']
                 is_active = False
                 for activeplayer in ranking['seasonPlayersInTournament']:
+                    if activeplayer['seasonPlayer'] is None:
+                        continue
                     if activeplayer['seasonPlayer']['id'] == season_player['id']:
                         is_active = True
                         break
