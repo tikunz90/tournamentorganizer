@@ -220,6 +220,7 @@ def create_state_from_group(stage, tevent, tstate_choice, gr, colorIdx, name, ab
                 hierarchy=hierarchy,
                 max_number_teams=len(gr["teams"]), 
                 color=COLOR_CHOICES[colorIdx][0],
+                direct_compare=True,
                 round_type=round_type)
 
     #for i in range(1, state.max_number_teams+1):
