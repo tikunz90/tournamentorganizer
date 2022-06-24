@@ -1,5 +1,6 @@
 from django.db.models.query import Prefetch
 from openpyxl.cell.cell import TYPE_STRING
+from beachhandball_app import helper
 from beachhandball_app.models.Tournaments import Tournament, TournamentSettings
 from beachhandball_app.models.choices import CATEGORY_CHOICES
 from beachhandball_app.models.Game import Game
@@ -424,6 +425,8 @@ def import_playerstats_game_report(game, upload_data):
 
     if len(playerstats_bulk) > 0:
         PlayerStats.objects.bulk_create(playerstats_bulk)
+    
+    helper.recalc_global_pstats(game.tournament_event.id)
     return result
 
 
