@@ -372,6 +372,12 @@ def sync_teams(gbouser, tevent, data, cup_type):
             act_team.save()
 
             season_team = ranking['seasonTeam']
+
+            response = SWS.getSeasonTeam(gbouser, season_team['id'])
+            if len(response) > 0 and response[0]['isError'] == False:
+                season_team_data = response[0]['message']
+            else:
+                season_team_data = {'seasonPlayers':[]}
             ##for st in teams_data:
             ##    if st['id'] == act_team.season_team_id:
             ##        season_team = st
@@ -380,7 +386,7 @@ def sync_teams(gbouser, tevent, data, cup_type):
             ##if season_team is None:
             ##    return
 
-            for season_player in season_team['seasonPlayers']:
+            for season_player in season_team_data['seasonPlayers']:
                 print('CheckPlayer:' + str(act_team.season_team_id) + ' id:' + str(season_player['id']) + ' #' + str(season_player['number'])+ ' Name: ' + str(season_player['seasonSubject']['subject']['user']['name']) + ' ' + str(season_player['seasonSubject']['subject']['user']['family_name']))
                 cr = False
                 act_player = next((x for x in players_list if x.tournament_event.id==tevent.id and x.season_team_id==act_team.season_team_id and x.season_player_id==season_player['id']), None)
@@ -413,8 +419,8 @@ def sync_teams(gbouser, tevent, data, cup_type):
                 #act_player.save()
             
             # Coaches
-            if 'seasonCoaches' in season_team:
-                for season_coach in season_team['seasonCoaches']:
+            if 'seasonCoaches' in season_team_data:
+                for season_coach in season_team_data['seasonCoaches']:
                     print('CheckPlayer:' + str(act_team.season_team_id) + ' id:' + str(seasonCoaches['id']) + ' Name: ' + str(seasonCoaches['seasonSubject']['subject']['user']['name']) + ' ' + str(seasonCoaches['seasonSubject']['subject']['user']['family_name']))
                     cr = False
                     act_coach = next((x for x in coaches_list if x.tournament_event.id==tevent.id and x.season_team_id==act_team.season_team_id and x.season_coach_id==season_coach['id']), None)

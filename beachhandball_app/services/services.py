@@ -147,6 +147,19 @@ class SWS():
         return result, execution_time
 
     @staticmethod
+    def getSeasonTeam(gbo_user, season_team_id):
+        # request data from sws
+        begin = time.time()
+        endpoint = '/season/team/' + str(season_team_id)
+        headers = SWS.headers
+        headers['Authorization'] = 'Bearer {}'.format(gbo_user['token'])
+        response = requests.get(SWS.base_url + endpoint, headers=headers, verify=conf_settings.SWS_VERIFY_SSL)
+        result = response.json()
+        end = time.time()
+        execution_time = end - begin
+        return result, execution_time
+
+    @staticmethod
     def syncTournamentGCData(gbo_user):
         # request data from sws
         begin = time.time()
