@@ -9,6 +9,7 @@ from django.shortcuts import get_object_or_404
 from django.utils import six
 from django.views.decorators.cache import cache_page
 from django.db.models import Q
+from beachhandball_app import helper
 
 from beachhandball_app.models.Team import Team
 from beachhandball_app.api.serializers.game.serializer import GameRunningSerializer, GameRunningSerializer2, PlayerStatsSerializer, TeamSerializer
@@ -164,6 +165,7 @@ class GameDeleteStatsViewSet(viewsets.ModelViewSet):
             pstat.delete()
         for pstat in local_ps_b:
             pstat.delete()
+        helper.recalc_global_pstats(game.tournament_event.id)
         return Response(result)
 
 @six.add_metaclass(OptimizeRelatedModelViewSetMetaclass)
