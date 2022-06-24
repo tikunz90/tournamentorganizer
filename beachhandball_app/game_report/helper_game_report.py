@@ -261,6 +261,8 @@ def pre_import_single_game_report(game, filename):
         if actNumber is None:
             continue
         actName = ws[tmp.team_a_player_name_col+str(actRow)].value
+        if actName is None or actName == '':
+            continue
         actPoints = ws[tmp.team_a_player_points_col+str(actRow)].value
         if actPoints is None:
             actPoints = 0
