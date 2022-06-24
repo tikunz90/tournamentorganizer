@@ -129,6 +129,12 @@
   </div>
 </div>
 
+<div class="row">
+  <form action="{{ url('recalc_global_stats', args=[tevent.id]) }}" method='GET'>
+    <button type='submit' class="btn btn-primary">Recalc Stats</button>
+  </form>
+</div>
+
 
 {% endblock content %}
 

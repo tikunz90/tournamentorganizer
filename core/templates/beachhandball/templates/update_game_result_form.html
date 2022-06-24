@@ -189,7 +189,7 @@
               {% for pstat in pstats_a %}
                 <tr>
                   <td>{{ pstat.player.number }}</td>
-                  <td>{{ pstat.player.name }}</td>
+                  <td>{{ pstat.player.name }}, {{ pstat.player.first_name }}</td>
                   <td>{{ pstat.score }}</td>
                   <td></td>
                 </tr>
@@ -218,6 +218,16 @@
                   <th>Info</th>
               </tr>
               </thead>
+              <tbody>
+                {% for pstat in pstats_b %}
+                  <tr>
+                    <td>{{ pstat.player.number }}</td>
+                    <td>{{ pstat.player.name }}, {{ pstat.player.first_name }}</td>
+                    <td>{{ pstat.score }}</td>
+                    <td></td>
+                  </tr>
+                {% endfor %}
+                </tbody>
               
             </table>
           </div>
@@ -233,6 +243,9 @@
         </div>
         <div class="col">
           <button id="btn_game_report_upload" type="button" class="btn btn-secondary">Upload GameReport</button>
+        </div>
+        <div class="col">
+          <button id="btn_game_delete_stats" type="button" class="btn btn-dange">Delete Stats</button>
         </div>
         
       </div>
@@ -300,6 +313,34 @@ $(document).ready(function() {
               '</td><td>' + pstat.name + ' (' + pstat.player_id + ')</td><td>' + pstat.points + '</td><td>' + pstat.info + '</td></tr>');
           });
           $('#upload-data').val(JSON.stringify(resp));
+        }
+      });
+    });
+
+
+    $('#btn_game_delete_stats').on('click', function(){
+      console.log("Delete stats");
+      var settings = {
+        "async": true,
+        "crossDomain": true,
+        "url": '{{ url("api_game_delete_stats", kwargs={"pk":object.id}) }}',
+        "method": "GET",
+        "processData": false,
+        "contentType": false,
+        "mimeType": "multipart/form-data",
+        "data": []
+      };
+  
+      $.ajax(settings).done(function (response) {
+        console.log(response);
+        var resp = JSON.parse(response);
+        $("#ResultUpload_text").text("Deleting " + resp.msg);
+        if(!resp.isError) {
+          var listTeamA = $('#player-list-team-a');
+          $(listTeamA).empty();
+          var listTeamB = $('#player-list-team-b');
+          $(listTeamB).empty();
+          $('#upload-data').val("");
         }
       });
     });

@@ -25,6 +25,7 @@ urlpatterns = [
     path('setup-wizard/game-plan/', static_views.setup_wizard_gameplan, name='setup_wizard_gameplan'),
 
     path('sync_tournament_data/', static_views.sync_tournament_data, name='sync_tournament_data'),
+    path('recalc_global_stats/<int:pk_tevent>/', static_views.recalc_global_stats, name='recalc_global_stats'),
 
     path('running_game/<int:pk_tourn>/<int:courtid>/', static_views.running_game, name='game_list'),
 

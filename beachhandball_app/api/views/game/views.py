@@ -147,6 +147,26 @@ class GameViewSet(viewsets.ModelViewSet):
         return Response(request.data)
 
 @six.add_metaclass(OptimizeRelatedModelViewSetMetaclass)
+class GameDeleteStatsViewSet(viewsets.ModelViewSet):
+    queryset = Game.objects.all()
+    serializer_class  = GameSerializer
+
+    def retrieve(self, request, pk=None):
+        game = get_object_or_404(self.queryset, pk=pk)
+        result = {'msg':'OK', 'isError': False}
+        if not game:
+            result['msg'] = "Game not found! id=" + str(pk)
+            result['isError'] = True
+
+        local_ps_a = [ps for ps in PlayerStats.objects.filter(tournament_event=game.tournament_event, game=game, player__team=game.team_a, is_ranked=False).all()]
+        local_ps_b = [ps for ps in PlayerStats.objects.filter(tournament_event=game.tournament_event, game=game, player__team=game.team_b, is_ranked=False).all()]
+        for pstat in local_ps_a:
+            pstat.delete()
+        for pstat in local_ps_b:
+            pstat.delete()
+        return Response(result)
+
+@six.add_metaclass(OptimizeRelatedModelViewSetMetaclass)
 class PlayerStatsSet(viewsets.ModelViewSet):
     queryset = PlayerStats.objects.all()
     serializer_class  = PlayerStatsSerializer

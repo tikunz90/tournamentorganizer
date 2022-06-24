@@ -717,6 +717,7 @@ def create_global_pstats(tevent_id):
         print(e)
     finally:
         print('')
+        
 def recalc_global_pstats(tevent_id):
     print('recalc_global_pstats tevent_id=' + str(tevent_id))
     try:

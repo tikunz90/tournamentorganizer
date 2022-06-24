@@ -6,7 +6,7 @@ from django.contrib import admin
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from django.views.generic import TemplateView
 from .views import login_by_token
-from .views.game.views import GameViewSet, GameActionViewSet, PlayerStatsSet, PlayerStatsViewSet, RunningGamesDM, ScoutingReportViewSet, RunningGames, TeamViewSet, GameList, StartGameScouting, hello_world, get_pstats_tevent
+from .views.game.views import GameDeleteStatsViewSet, GameViewSet, GameActionViewSet, PlayerStatsSet, PlayerStatsViewSet, RunningGamesDM, ScoutingReportViewSet, RunningGames, TeamViewSet, GameList, StartGameScouting, hello_world, get_pstats_tevent
 from .views.tournament.views import get_tournament_info, get_games_info
 from rest_framework import renderers
 from rest_framework.authtoken import views
@@ -22,6 +22,7 @@ urlpatterns = [
     path('games/', GameViewSet.as_view({'get': 'list', 'post': 'create'})),
     path('games/<int:pk_tourn>/<int:courtid>/scouting_pending/', GameList.as_view(), name='game_list'),
     path('games/<int:pk>/', GameViewSet.as_view({'get': 'retrieve', 'put': 'update', 'patch': 'partial_update'})),
+    path('games/<int:pk>/delete_stats', GameDeleteStatsViewSet.as_view({'get': 'retrieve',}), name='api_game_delete_stats'),
     path('games/running/', RunningGames, name='get_running_games'),
     path('games/running/dm/', RunningGamesDM, name='get_running_games_dm'),
 

@@ -455,3 +455,22 @@ def running_game(request, pk_tourn, courtid):
     html_template = loader.get_template( 'beachhandball/running_game.html' )
     return HttpResponse(html_template.render(context, request))
 
+
+@login_required(login_url="/login/")
+@user_passes_test(lambda u: u.groups.filter(name='tournament_organizer').exists(),
+login_url="/login/", redirect_field_name='next')
+def recalc_global_stats(request, pk_tevent):
+    context = getContext(request)
+    if not checkLoginIsValid(context['gbo_user']):
+        return redirect('login')
+    for te in context['events']:
+        if te.id == pk_tevent:
+            context['tevent'] = te
+            break
+    context['segment'] = 'results'
+    context['segment_title'] = 'Results'
+
+    if request.method == 'GET':
+        helper.recalc_global_pstats(pk_tevent)
+
+    return redirect(reverse('results.detail', kwargs={'pk':pk_tevent}))

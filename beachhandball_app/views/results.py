@@ -1,6 +1,7 @@
 from datetime import datetime
 
 from django.views.generic.base import RedirectView
+from beachhandball_app import helper
 from beachhandball_app.models.Game import Game
 from beachhandball_app.models.Game import Game
 from django.conf import settings
@@ -64,3 +65,8 @@ class ResultsDetail(DetailView):
        # kwargs['form_tstate'] = TournamentStateUpdateForm(instance=tstate)
         print('Leave ResultsDetail: ', datetime.now())
         return super(ResultsDetail, self).get_context_data(**kwargs)
+
+    def post(self, request, *args, **kwargs):
+        context = super(ResultsDetail, self).get_context_data(**kwargs)
+        helper.recalc_global_pstats(kwargs['tevent'].id)
+        return self.render_to_response(context=context)
