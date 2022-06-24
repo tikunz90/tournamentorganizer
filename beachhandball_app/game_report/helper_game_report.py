@@ -256,6 +256,18 @@ def pre_import_single_game_report(game, filename):
     result['score_team_b_halftime_2'] = ws[tmp.cell_score_team_b_halftime_2].value
     result['score_team_b_penalty'] = ws[tmp.cell_score_team_b_penalty].value
 
+    if int(result['score_team_a_halftime_1']) > 99 or int(result['score_team_a_halftime_2']) > 99 or int(result['score_team_a_penalty']) > 99:
+        result['isError'] = True
+        result['msg'] = 'Double check result. score is too high...'
+        return result
+    
+    if int(result['score_team_b_halftime_1']) > 99 or int(result['score_team_b_halftime_2']) > 99 or int(result['score_team_b_penalty']) > 99:
+        result['isError'] = True
+        result['msg'] = 'Double check result. score is too high...'
+        return result
+
+    messages = []
+    maxPoints = 50
     for iRow in range(0,tsettings.amount_players_report):
         actRow = iRow + tmp.team_a_start_row
         actNumber = ws[tmp.team_a_player_number_col+str(actRow)].value
@@ -267,6 +279,9 @@ def pre_import_single_game_report(game, filename):
         actPoints = ws[tmp.team_a_player_points_col+str(actRow)].value
         if actPoints is None:
             actPoints = 0
+        if actPoints > maxPoints:
+            messages.append("#" + str(actNumber) + " score too high...")
+            continue
         player_id, res = intTryParse(actName[actName.find("(")+1:actName.find(")")])
         actPlayer = {'number': actNumber, 'name': actName, 'points': actPoints, 'info': '', 'player_id': -1, 'global_pstat_id': -1}
         if res:
@@ -298,6 +313,9 @@ def pre_import_single_game_report(game, filename):
         actPoints = ws[tmp.team_b_player_points_col+str(actRow)].value
         if actPoints is None:
             actPoints = 0
+        if actPoints > maxPoints:
+            messages.append("#" + str(actNumber) + " score too high...")
+            continue
         player_id, res = intTryParse(actName[actName.find("(")+1:actName.find(")")])
         actPlayer = {'number': actNumber, 'name': actName, 'points': actPoints, 'info': '', 'player_id': -1, 'global_pstat_id': -1}
         if res:
@@ -318,6 +336,11 @@ def pre_import_single_game_report(game, filename):
         result['msg'] = 'Report upload successful'
     else:
         result['msg'] = 'Found existing stats. If you upload this report, you will overwrite them!'
+
+    if len(messages) > 0:
+        result['isError'] = True
+        result['msg'] = 'Double check player scores. score is too high...'
+        return result
 
     return result
 
