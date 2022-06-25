@@ -419,14 +419,19 @@ def sync_teams(gbouser, tevent, data, cup_type):
                 #act_player.save()
             
             # Coaches
-            if 'seasonCoaches' in season_team_data:
-                for season_coach in season_team_data['seasonCoaches']:
-                    print('CheckPlayer:' + str(act_team.season_team_id) + ' id:' + str(seasonCoaches['id']) + ' Name: ' + str(seasonCoaches['seasonSubject']['subject']['user']['name']) + ' ' + str(seasonCoaches['seasonSubject']['subject']['user']['family_name']))
+            if 'seasonCoachesInTournament' in ranking:
+                for row in ranking['seasonCoachesInTournament']:
+                    if not 'seasonCoach' in row:
+                        continue
+                    season_coach = row['seasonCoach']
+                    print('CheckCoach:' + str(act_team.season_team_id) + ' id:' + str(season_coach['id']) + ' Name: ' + str(season_coach['seasonSubject']['subject']['user']['name']) + ' ' + str(season_coach['seasonSubject']['subject']['user']['family_name']))
                     cr = False
                     act_coach = next((x for x in coaches_list if x.tournament_event.id==tevent.id and x.season_team_id==act_team.season_team_id and x.season_coach_id==season_coach['id']), None)
                     if act_coach is None:
                         act_coach = Coach(tournament_event=tevent, season_team_id=act_team.season_team_id, season_coach_id=season_coach['id'])
                         cr = True
+                    else:
+                        coaches_list = [ x for x in coaches_list if x is not act_coach ]
                     act_coach.tournament_event = tevent
                     act_coach.team = act_team
                     act_coach.name = strip_accents(season_coach['seasonSubject']['subject']['user']['family_name'])
@@ -449,6 +454,8 @@ def sync_teams(gbouser, tevent, data, cup_type):
                 Coach.objects.bulk_update(coach_bulk_update_list, ("tournament_event", "team", "name", "first_name", "gbo_position","season_team_id", "season_coach_id",))
             for pl in players_list:
                 pl.delete()
+            for co in coaches_list:
+                co.delete()
             #Coach.objects.bulk_update(coach_bulk_list)
 
         for dummy in my_dummy_team_data:
@@ -717,7 +724,7 @@ def create_global_pstats(tevent_id):
         print(e)
     finally:
         print('')
-        
+
 def recalc_global_pstats(tevent_id):
     print('recalc_global_pstats tevent_id=' + str(tevent_id))
     try:
