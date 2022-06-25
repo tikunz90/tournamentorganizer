@@ -506,6 +506,9 @@ class DownloadPreGameView(View):
     def get(self, request, pk, pk_tevent, pk_tstage):
         game = Game.objects.get(id=pk)
         if game:
+            result = helper.sync_teams_of_game(request.user.gbouser, game)
+            if result['isError'] == True:
+                return redirect(reverse('game_plan'))
             # Define the full file path
             filepath, filename = helper_game_report.create_pregame_report_excel(game)
 

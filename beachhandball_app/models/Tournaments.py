@@ -204,6 +204,7 @@ class TournamentState(models.Model):
     transitions_done = models.BooleanField(default=False)
     comment = models.CharField(max_length=50, blank=True)
     round_type = models.CharField(max_length=32, blank=True)
+    order = models.SmallIntegerField(default=0)
 
     #color = ColorField(default='#FF0000', choices=COLOR_CHOICES)
     color = models.CharField(max_length=7, default='#FF0000', blank=True)
