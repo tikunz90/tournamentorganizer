@@ -18,6 +18,8 @@ class Tournament(models.Model):
     """
     created_at = UnixDateTimeField(editable=False, default=timezone.now)
 
+    season = models.ForeignKey('Season', null=True, on_delete=models.DO_NOTHING)
+    
     organizer = models.SmallIntegerField(default=0)
     name = models.CharField(db_column='name', max_length=50)
     is_active = models.BooleanField(default=False)

@@ -42,6 +42,7 @@ class Season(models.Model):
     end_ts = UnixDateTimeField(null=False, default=timezone.now)
 
     is_actual = models.BooleanField(default=False)
+    gbo_season_id = models.SmallIntegerField(default=0)
 
     def __str__(self):
         return "{}".format(self.name)

@@ -63,6 +63,19 @@ class SWS():
         return act_season
 
     @staticmethod
+    def getSeasonActiveAll():
+        endpoint = '/gbo/seasons/active'
+        headers = SWS.headers
+        #headers['Authorization'] = 'Bearer {}'.format(gbo_user.token)
+        response = requests.get(SWS.base_url + endpoint, headers=headers, verify=conf_settings.SWS_VERIFY_SSL)
+        act_season = ''
+        if response.json()['isError'] is not True:
+            act_season = response.json()['message']
+        else:
+            act_season = {'isError': True}
+        return act_season
+
+    @staticmethod
     def getSeasons(gbo_user):
         if not gbo_user.is_online:
             return 'offline'
@@ -134,10 +147,10 @@ class SWS():
         return result, execution_time
 
     @staticmethod
-    def syncTournamentData(gbo_user):
+    def syncTournamentData(gbo_user, season_id):
         # request data from sws
         begin = time.time()
-        endpoint = '/season/cup-tournaments/to/' + str(gbo_user.subject_id) + '/team-info?season=' + str(gbo_user.season_active['id'])
+        endpoint = '/season/cup-tournaments/to/' + str(gbo_user.subject_id) + '/team-info?season=' + str(season_id)
         headers = SWS.headers
         headers['Authorization'] = 'Bearer {}'.format(gbo_user.token)
         response = requests.get(SWS.base_url + endpoint, headers=headers, verify=conf_settings.SWS_VERIFY_SSL)

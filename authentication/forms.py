@@ -9,6 +9,10 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 
 class LoginForm(forms.Form):
+    CHOICES= (
+    ('1', '1'),
+    )
+    season = forms.ChoiceField(widget=forms.widgets.Select(attrs={'class': "form-control selectpicker", 'data-style':"btn btn-light btn-round"}), choices=CHOICES)
     username = forms.CharField(
         widget=forms.TextInput(
             attrs={
@@ -23,6 +27,17 @@ class LoginForm(forms.Form):
                 "class": "form-control"
             }
         ))
+    def __init__(self, *args, **kwargs):
+        seasons = kwargs.pop('seasons')
+
+        super().__init__(*args, **kwargs)
+
+        season_choices = []
+        for season in seasons:
+            season_choices.append((season['id'], season['name']))
+
+        self.fields['season'].choices = season_choices
+
 
 class SelectTournamentForm(forms.Form):
     class Meta:
@@ -33,11 +48,11 @@ class SelectTournamentForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
         self.gbo_organizer = kwargs.pop('gbo_organizer')
+        season_id = kwargs.pop('season_id') 
         super().__init__(*args, **kwargs)
         
-
-        MYQUERY = Tournament.objects.filter(organizer=self.gbo_organizer).values_list('id', 'name')
-        self.fields['tournaments'] = forms.ChoiceField(choices=(*MYQUERY,))
+        MYQUERY = Tournament.objects.filter(organizer=self.gbo_organizer, season__gbo_season_id=season_id).values_list('id', 'name')
+        self.fields['tournaments'] = forms.ChoiceField(widget=forms.widgets.Select(attrs={'class': "form-control selectpicker", 'data-style':"btn btn-light btn-round"}), choices=(*MYQUERY,))
 
 
 class SignUpForm(UserCreationForm):

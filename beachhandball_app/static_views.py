@@ -48,7 +48,7 @@ def getContext(request):
     
     t = Tournament.objects.prefetch_related(
         Prefetch("tournamentsettings_set", queryset=TournamentSettings.objects.all(), to_attr="settings"), 
-        Prefetch("tournamentevent_set", queryset=TournamentEvent.objects.all(), to_attr="events")).get(organizer=guser.subject_id, is_active=True)
+        Prefetch("tournamentevent_set", queryset=TournamentEvent.objects.all(), to_attr="events")).get(organizer=guser.subject_id, is_active=True, season__gbo_season_id=guser.season_active['id'])
     context['tourn'] = t
     context['tourn_settings'] = t.settings[0] #TournamentSettings.objects.get(tournament=t)
     context['events'] = t.events #TournamentEvent.objects.filter(tournament=t)
@@ -410,7 +410,7 @@ def sync_tournament_data(request):
     if not checkLoginIsValid(context['gbo_user']):
         return redirect('login')
 
-    context['gbo_user'].gbo_data_all, execution_time = SWS.syncTournamentData(context['gbo_user'])
+    context['gbo_user'].gbo_data_all, execution_time = SWS.syncTournamentData(context['gbo_user'], context['tourn'].season.gbo_season_id)
     helper.update_user_tournament_events(context['gbo_user'], context['tourn'])
     #update_user_tournament_events_async.delay(model_to_dict(context['gbo_user']), model_to_dict(context['tourn']))
     context['segment'] = 'index'

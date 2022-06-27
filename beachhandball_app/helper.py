@@ -14,14 +14,35 @@ from beachhandball_app.models.Tournaments import Court, Referee, Tournament, Tou
 from beachhandball_app.models.Game import Game
 from beachhandball_app.models.Team import Coach, TeamStats, Team
 from beachhandball_app.models.General import TournamentCategory
+from beachhandball_app.models.Series import Season
 from django.utils.http import urlencode
 from django.urls import reverse
 
 from beachhandball_app.services.services import SWS
 
-def update_user_tournament(gbouser):
+def update_active_seasons(active_seasons):
+    #get existing seasons
+    seasons = Season.objects.all()
+    season_list = [s for s in seasons]
+
+    for gbo_season in active_seasons:
+        django_season = next((x for x in season_list if x.gbo_season_id==gbo_season['id']), None)
+        if django_season is None:
+            django_season, cr = Season.objects.get_or_create(name=gbo_season['name'], gbo_season_id=gbo_season['id'], is_actual=True)
+        else:
+            season_list = [ x for x in season_list if x is not django_season ]
+        django_season.is_active = True
+        django_season.save()
+
+    for s in season_list:
+        s.is_active = False
+        s.save()
+
+def update_user_tournament(gbouser, season_id):
     begin = time.time()
     print("ENTER update_user_tournament")
+
+    season = Season.objects.filter(gbo_season_id=season_id).first()
 
     print("season_cup_tournament...")
     gbo_data = gbouser.gbo_data
@@ -31,7 +52,7 @@ def update_user_tournament(gbouser):
 
         # tourns = Tournament.objects.filter(organizer=gbouser.subject_id)
         tourns_q = Tournament.objects.prefetch_related(
-        Prefetch("tournamentsettings_set", queryset=TournamentSettings.objects.all(), to_attr="settings")).filter(organizer=gbouser.subject_id)
+        Prefetch("tournamentsettings_set", queryset=TournamentSettings.objects.all(), to_attr="settings")).filter(organizer=gbouser.subject_id, season__gbo_season_id=season_id)
         tourns = [t for t in tourns_q]
         tourns_cup = [t for t in tourns if t.season_cup_tournament_id != 0]
         tourns_subcup = [t for t in tourns if t.sub_season_cup_tournament_id != 0]
@@ -60,6 +81,7 @@ def update_user_tournament(gbouser):
                     t.last_sync_at=datetime.now()
                     t.season_tournament_id=season_tourn['id']
                     t.season_cup_tournament_id=gbot['id']
+                    t.season = season
                     t.save()
                     ts, cr = TournamentSettings.objects.get_or_create(tournament=t)
                     ts.save()
@@ -69,7 +91,8 @@ def update_user_tournament(gbouser):
                 name=gbo_tourn['name'],
                 last_sync_at=datetime.now(),
                 season_tournament_id=season_tourn['id'],
-                season_cup_tournament_id=gbot['id'])
+                season_cup_tournament_id=gbot['id'],
+                season=season)
                 new_t.save()
                 ts, cr = TournamentSettings.objects.get_or_create(tournament=new_t)
                 ts.save()
@@ -105,6 +128,7 @@ def update_user_tournament(gbouser):
                     t.last_sync_at=datetime.now()
                     t.season_german_championship_id=season_tourn['id']
                     t.season_cup_german_championship_id=gbot['id']
+                    t.season = season
                     t.save()
                     ts, cr = TournamentSettings.objects.get_or_create(tournament=t)
                     ts.save()
@@ -114,7 +138,8 @@ def update_user_tournament(gbouser):
                 name=gbo_tourn['name'],
                 last_sync_at=datetime.now(),
                 season_german_championship_id=season_tourn['id'],
-                season_cup_german_championship_id=gbot['id'])
+                season_cup_german_championship_id=gbot['id'],
+                season=season)
                 new_t.save()
                 ts, cr = TournamentSettings.objects.get_or_create(tournament=new_t)
                 ts.save()
@@ -148,6 +173,7 @@ def update_user_tournament(gbouser):
                     t.last_sync_at=datetime.now()
                     t.season_tournament_id=season_tourn['id']
                     t.sub_season_cup_tournament_id=gbot['id']
+                    t.season=season
                     t.save()
                     ts, cr = TournamentSettings.objects.get_or_create(tournament=t)
                     ts.save()
@@ -157,7 +183,8 @@ def update_user_tournament(gbouser):
                 name=gbo_tourn['name'],
                 last_sync_at=datetime.now(),
                 season_tournament_id=season_tourn['id'],
-                sub_season_cup_tournament_id=gbot['id'])
+                sub_season_cup_tournament_id=gbot['id'],
+                season=season)
                 new_t.save()
                 ts, cr = TournamentSettings.objects.get_or_create(tournament=new_t)
                 ts.save()
@@ -309,7 +336,7 @@ def sync_teams_of_game(gbouser, game):
     team_ids = [game.team_a.id, game.team_b.id]
     ranking_ids = [game.team_a.season_team_cup_tournament_ranking_id, game.team_b.season_team_cup_tournament_ranking_id]
     try:
-        data, execution_time = SWS.syncTournamentData(gbouser)
+        data, execution_time = SWS.syncTournamentData(gbouser, game.tournament.season.gbo_season_id)
         gbo_data = []
         if data['isError'] == True:
             result['isError'] =  True

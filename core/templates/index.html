@@ -10,7 +10,7 @@
 {% if not tourn %}
   <h2>Welcome</h2>
 {% else %}
-  <h2>Welcome to {{ tourn.name_short }} in Season {{ season_active }}</h2>
+  <h2>Welcome to {{ tourn.name_short }} in Season {{ tourn.season.name }}</h2>
 {% endif %}
 
 <form action="{{ url('sync_tournament_data') }}" method='GET'>
@@ -41,6 +41,9 @@
           <h3 class="card-title">
             <a href="{{ url('structure_setup.detail', kwargs={'pk': tevent.id }) }}">{{ tevent.name }} ({{ tevent.id }})</a>
           </h3>
+          <div>
+            <h6 class="card-subtitle">{{ tevent.category }} ({{ tevent.category.classification}})</h6>
+          </div>
           
           {% if tevent.is_in_configuration %}
           <div>
