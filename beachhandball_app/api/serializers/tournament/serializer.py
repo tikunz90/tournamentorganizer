@@ -1,3 +1,4 @@
+import time
 from typing import Dict, Any
 
 from rest_framework import routers, serializers, viewsets
@@ -76,8 +77,11 @@ def serialize_game(game: Game) -> Dict[str, Any]:
         'id': game.id,
         'team_a': serialize_team(game.team_a),
         'team_b': serialize_team(game.team_b),
-        'starttime': game.starttime,
+        'team_st_a': serialize_teamstat(game.team_st_a),
+        'team_st_b': serialize_teamstat(game.team_st_b),
+        'starttime': time.mktime(game.starttime.timetuple()),
         'court': game.court.name,
+        'duration_of_halftime': game.duration_of_halftime,
         'score_team_a_halftime_1': game.score_team_a_halftime_1,
         'score_team_a_halftime_2': game.score_team_a_halftime_2,
         'score_team_a_penalty': game.score_team_a_penalty,
