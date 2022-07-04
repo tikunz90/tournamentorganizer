@@ -30,6 +30,11 @@ var wzNumOfGamesKO = 0;
 var wzNumOfGamesPlacement = 0;
 var wzNumOfGamesFinal = 0;
 
+var tsCounter = 0;
+var teamCounter = 0;
+var tstatCounter = 0;
+var tttCounter = 0;
+
 bh = {
     misc: {
       test_mode_active: 1,
@@ -44,10 +49,23 @@ bh = {
         "transitions": {
             "groups_to_ko":{},
             "ko_to_pl":{}
-        }},
+        },
+        "tournament_states": [],
+        "teams": [],
+        "team_stats": [],
+        "ttt": []
+    },
 
     wzUpdateStructure: function(){ 
         wzNumOfGames = 0;
+        tsCounter = 0;
+        teamCounter = 0;
+        tstatCounter = 0;
+        tttCounter = 0;
+        bh.structureData.tournament_states = [];
+        bh.structureData.teams = [];
+        bh.structureData.team_stats = [];
+        bh.structureData.ttt = [];
         bh.wzCalcGroups("wz-ovw-groups");
         bh.wzCalcKnockout('wz-ovw-knockout');
         bh.wzCalcPlacement('wz-ovw-placement');
@@ -124,6 +142,17 @@ bh = {
         console.log("wzCalcGroups: #groups:" + num_groups + " teams p gr: " + teams_per_group);
         for (let i = 0; i < num_groups; i++) {
             actGroup = {"idx":i, "name":'Group ' + (i+1), "teams": [] };
+            tournament_state = {"uid": tsCounter,
+                                "id_db": 0,
+                                "name": 'Group ' + (i+1),
+                                "abbreviation": 'G' + (i+1),
+                                "hierarchy": 0,
+                                "max_number_teams": teams_per_group,
+                                "index": i-1,
+                                "direct_compare": true,
+                                "round_type": "GROUP",
+                                "order": i};
+            
             var GameCounter = 0;
             var templateGroup = $("#templateGroup").clone();
             $(templateGroup).attr("id", 'group_' + i);
@@ -135,7 +164,23 @@ bh = {
             body.empty();
             var addedResidue = false;
             for (let iTeam = 0; iTeam < teams_per_group; iTeam++) {
-                actTeam = {"idx":iTeam, "name":(iTeam+1) + '. TeamDummy', "rank": 0, "transition": { "origin_rank": iTeam + 1, "origin_group_id": i, "origin_group_name": actGroup.name, "target_rank": 0, "target_group_id": 0} };
+                actTeam = {"idx":iTeam, "name":(iTeam+1) + '. TeamDummy', "rank": 0, "transition": { "uid": tttCounter, "tournament_state": tsCounter, "origin_rank": iTeam + 1, "origin_group_id": i, "origin_group_name": actGroup.name, "target_rank": 0, "target_group_id": 0} };
+                teamData = {
+                    "uid": teamCounter,
+                    "tournament_state": tsCounter,
+                    "name": (iTeam+1) + '. ' + tournament_state.name,
+                    "abbreviation": (iTeam+1) + '. ' + tournament_state.abbreviation,
+                    "category_id": 0,
+                    "season_cup_tournament_id": 0,
+                    "is_dummy": true
+                }
+                teamStatData = {
+                    "uid": tstatCounter,
+                    "tournament_state": tsCounter,
+                    "team_id": teamCounter,
+                    "rank_initial": iTeam + 1,
+                    "rank": iTeam + 1,
+                }
                 actTeam.rank = iTeam + 1;
                 actTeam.transition.origin_rank = actTeam.rank;
                 
@@ -171,6 +216,8 @@ bh = {
                         actTeam.transition.target_rank = -1;
                         actTeam.transition.target_group_id = 999; 
                     }
+                    bh.structureData.ttt.push(actTeam.transition);
+                    tttCounter++;
                 }
                 else // from group directly to final
                 {}
@@ -194,10 +241,32 @@ bh = {
                 body.append(tTeamItem);
                 actGroup["teams"].push(actTeam);
                 GameCounter++;
+                bh.structureData.teams.push(teamData);
+                teamCounter++;
+                bh.structureData.team_stats.push(teamData);
+                tstatCounter++;
             }
             if(num_teams_res > 0)
             {
                 actTeam = {"idx":teams_per_group, "name":(teams_per_group+1) + '. TeamDummy', "rank": 0, "transition": { "origin_rank": teams_per_group+1, "origin_group_id": i, "origin_group_name": actGroup.name, "target_rank": 0, "target_group_id": 0} };
+                
+                teamData = {
+                    "uid": teamCounter,
+                    "tournament_state": tsCounter,
+                    "name": (iTeam+1) + '. ' + tournament_state.name,
+                    "abbreviation": (iTeam+1) + '. ' + tournament_state.abbreviation,
+                    "category_id": 0,
+                    "season_cup_tournament_id": 0,
+                    "is_dummy": true
+                }
+                teamStatData = {
+                    "uid": tstatCounter,
+                    "tournament_state": tsCounter,
+                    "team_id": teamCounter,
+                    "rank_initial": teams_per_group+1,
+                    "rank": teams_per_group+1,
+                }
+
                 actTeam.rank = teams_per_group+1;
                 actTeam.transition.origin_rank = actTeam.rank;
                 var tTeamItem = $("#templateTeamItem").clone();
@@ -219,11 +288,21 @@ bh = {
                 actGroup.teams.push(actTeam);
                 GameCounter++;
                 num_teams_res--;
+                tournament_state.max_number_teams += 1;
+
+                bh.structureData.teams.push(teamData);
+                teamCounter++;
+                bh.structureData.team_stats.push(teamData);
+                tstatCounter++;
             }
+
+            
             GameCounter--;
             wzNumOfGamesGroup += (GameCounter*(GameCounter+1)/2);
             groupData.items.push(actGroup);
             $(row).append(templateGroup);
+            bh.structureData.tournament_states.push(tournament_state);
+            tsCounter++;
         }
         bh.structureData.transitions.groups_to_ko = transitions;
         $('#wz-res_num_of_games_group').val(wzNumOfGamesGroup);
