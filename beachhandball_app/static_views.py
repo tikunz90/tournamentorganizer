@@ -190,6 +190,7 @@ def delete_structure(request, pk_tevent):
 
     if request.method == 'POST':
         print('Delete all strucutre')
+        TournamentState.objects.filter(tournament_event=context['tevent'], is_final=True).delete()
         TournamentStage.objects.filter(tournament_event=context['tevent']).delete()
         return HttpResponseRedirect(reverse("structure_setup.detail", kwargs={"pk": pk_tevent}))
     elif request.method == 'GET':
