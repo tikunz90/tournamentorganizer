@@ -11,6 +11,8 @@ from django.db.models.query import Prefetch
 from django.forms.models import model_to_dict
 from rest_framework.renderers import JSONRenderer
 from django.utils.dateparse import parse_datetime
+from django.contrib import messages
+from django.contrib.messages import get_messages
 
 from django.views.generic import TemplateView
 from beachhandball_app import helper, wizard

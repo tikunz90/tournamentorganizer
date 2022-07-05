@@ -175,6 +175,17 @@
     //    bh.addTournamentStateHTML(item, result.teams);
     //  });
     //});
+    {% if messages %}
+    console.log("Has messages...");
+    {% for message in messages %}
+    md.showNotification('top','center', '{{ message }}', 'info');
+    {% endfor %}
+    {% endif %}
+
+    $('.btn_teamsetup_delete').on('click', function(){
+      console.log("TeamSetup add tstate=" + $(this).data('tournamentstate'));
+      md.showNotification('top','center', 'Hello', 'info');
+    });
     });
   
       $(function () {

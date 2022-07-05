@@ -82,7 +82,10 @@ TEMPLATES = [
         "DIRS": [TEMPLATE_DIR],
         "APP_DIRS": True,
         "OPTIONS": {
-            "environment": "core.jinja2.environment"
+            "environment": "core.jinja2.environment",
+            'context_processors': [
+                'django.contrib.messages.context_processors.messages',
+            ],
         }
     },
 

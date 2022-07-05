@@ -1,0 +1,40 @@
+{% extends "layouts/base.html" %}
+
+{% block title %} Forms Validation {% endblock title %}
+
+<!-- Specific Page CSS goes HERE  -->
+{% block stylesheets %}{% endblock stylesheets %}
+
+{% block content %}
+
+  <div class="col-md-12 col-12 mr-auto ml-auto">
+    <h3>How many team you like to add?</h3>
+  </div>
+  <form id="" action={{ url('structure_setup.tstate_add_team', kwargs={'pk_tevent':tevent.id, 'pk_tstage':pk_tstage, 'pk':pk}) }} method="post">
+    <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+    <div class="row">
+      <div class="form-group">
+        <label class="form-label">number of new teams</label>
+        <input type="number" name="num_new_teams" class="input_group form-control" value="1" min="1" max="64" required>
+      </div>
+    </div>
+    <div class="ml-auto">
+      <button type="button" class="btn btn-primary" onclick="javascript:history.back()">Back</button>
+      <input type="submit" class="btn btn-finish btn-fill btn-rose btn-wd" name="" value="Add teams" style="">
+    </div>
+  </form>
+
+{% endblock content %}
+
+{% block javascripts %}
+
+<script>
+  $(document).ready(function() {
+    //console.log("Wizard Loaded");
+
+   
+  });
+
+</script>
+
+{% endblock javascripts %}

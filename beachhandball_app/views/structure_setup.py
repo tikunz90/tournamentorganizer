@@ -8,6 +8,7 @@ from django.db import connection
 from django.http.response import Http404, HttpResponse
 from django.views.decorators.clickjacking import xframe_options_exempt
 from django.views.generic.base import View
+from django.contrib import messages
 from beachhandball_app import helper
 from beachhandball_app.models.Player import PlayerStats
 from datetime import datetime
@@ -20,7 +21,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 from django.urls import reverse_lazy
-from django.http import JsonResponse
+from django.http import HttpResponseRedirect, JsonResponse
 from django.template.loader import render_to_string
 from django.contrib.messages.views import SuccessMessageMixin
 from django.conf import settings
@@ -54,6 +55,7 @@ class StructureSetupDetail(LoginRequiredMixin, UserPassesTestMixin, DetailView):
         if not checkLoginIsValid(context['gbo_user']):
             return redirect('login')
         self.kwargs['context_data'] = context
+
         return super(StructureSetupDetail, self).dispatch(request, *args, **kwargs)
 
     
@@ -127,7 +129,6 @@ class StructureSetupDetail(LoginRequiredMixin, UserPassesTestMixin, DetailView):
         tstat_forms = {}
         for stage in tstages_pre:
             for state in stage.tstates:
-                
                 tstat_forms[state.id] = TeamStatFormSet(form_kwargs={'tevent': tevent}, queryset=TeamStats.objects.filter(tournamentstate=state))
         kwargs['tstat_forms'] = tstat_forms
         
@@ -341,6 +342,7 @@ class StateDeleteView(BSModalDeleteView):
            pk = self.kwargs["pk_tevent"]
            return reverse("structure_setup.detail", kwargs={"pk": pk})
 
+
 class StateUpdateView(BSModalUpdateView):
     model = TournamentState
     template_name = 'beachhandball/templates/update_form.html'
@@ -391,6 +393,7 @@ class StateFinishView(BSModalUpdateView):
     def get_success_url(self):
            pk = self.kwargs["pk_tevent"]
            return reverse_querystring("structure_setup.detail", kwargs={"pk": pk}, query_kwargs={'tab': self.kwargs["pk_tstage"]})
+
 
 
 class TeamStatsUpdateTeamView(BSModalUpdateView):

@@ -95,7 +95,12 @@
   
   <script>
     $(document).ready(function() {
-      
+      {% if messages %}
+        console.log("Has messages...");
+        {% for message in messages %}
+        md.showNotification('top','center', '{{ message }}', 'info');
+        {% endfor %}
+      {% endif %}
     });
   </script>
 
