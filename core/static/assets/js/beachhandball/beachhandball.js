@@ -253,8 +253,8 @@ bh = {
                 teamData = {
                     "uid": teamCounter,
                     "tournament_state": tsCounter,
-                    "name": (iTeam+1) + '. ' + tournament_state.name,
-                    "abbreviation": (iTeam+1) + '. ' + tournament_state.abbreviation,
+                    "name": (teams_per_group+1) + '. ' + tournament_state.name,
+                    "abbreviation": (teams_per_group+1) + '. ' + tournament_state.abbreviation,
                     "category_id": 0,
                     "season_cup_tournament_id": 0,
                     "is_dummy": true
