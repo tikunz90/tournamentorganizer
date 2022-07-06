@@ -28,3 +28,4 @@ core/report/*.xlsx
 !core/report/game_report_template.xlsx
 !core/report/DHB.xlsx
 !core/report/GBO.xlsx
+!core/report/GBO_V2.xlsx

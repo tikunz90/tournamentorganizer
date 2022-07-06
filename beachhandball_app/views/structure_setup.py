@@ -511,6 +511,7 @@ class DownloadPreGameView(View):
         if game:
             result = helper.sync_teams_of_game(request.user.gbouser, game)
             if result['isError'] == True:
+                messages.add_message(request, messages.ERROR, result['msg'])
                 return redirect(reverse('game_plan'))
             # Define the full file path
             filepath, filename = helper_game_report.create_pregame_report_excel(game)
@@ -524,10 +525,12 @@ class DownloadPreGameView(View):
                 response = HttpResponse(path, content_type=mime_type)
                 # Set the HTTP header for sending to browser
                 response['Content-Disposition'] = "attachment; filename=%s" % filename
+                messages.add_message(request, messages.SUCCESS, 'GameReport created')
                 # Return the response value
                 return response
             else:
-                raise Http404
+                messages.add_message(request, messages.ERROR, 'GameReport file does not exists')
+                return redirect(reverse('game_plan'))
             #with open(file_path, 'rb') as fh:
             #    response = HttpResponse(
             #        fh.read(),
@@ -536,7 +539,8 @@ class DownloadPreGameView(View):
             #    response['Content-Disposition'] = 'inline; filename=' + os.path.basename(file_path)
             #return response
         else:
-            raise Http404
+            messages.add_message(request, messages.ERROR, 'Game not found! ID: ' + str(pk))
+            return redirect(reverse('game_plan'))
 
     def get_success_url(self):
            pk = self.kwargs["pk_tevent"]
