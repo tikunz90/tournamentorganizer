@@ -94,8 +94,8 @@ def login_view(request):
                     validUntil = datetime.utcfromtimestamp(result['message']['expiresIn'] / 1000))
                     guser.subject_id = SWS.getGBOUserId(guser)
                     guser.season_active = season_active
-                    #guser.gbo_data_all, execution_time = s.SWS.syncAllTournamentData(guser)
-                    guser.gbo_data_all, execution_time = s.SWS.syncTournamentData(guser, season_id)
+                    #guser.gbo_data_all, execution_time = SWS.syncAllTournamentData(guser)
+                    guser.gbo_data_all, execution_time = SWS.syncTournamentData(guser, season_id)
                     #guser.gbo_data = s.SWS.getTournamentByUser(guser)
                     #guser.gbo_gc_data = s.SWS.getTournamentGermanChampionshipByUser(guser)
                     #guser.gbo_sub_data = s.SWS.getTournamentSubByUser(guser)
