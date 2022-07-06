@@ -19,7 +19,7 @@ admin.site.register(TournamentSettings)
 admin.site.register(TournamentEvent)
 #admin.site.register(TournamentCategory)
 admin.site.register(TournamentStage)
-admin.site.register(TournamentTeamTransition)
+#admin.site.register(TournamentTeamTransition)
 #admin.site.register(Team)
 admin.site.register(TeamStats)
 #admin.site.register(Player)
@@ -80,3 +80,16 @@ class CourtAdmin(admin.ModelAdmin):
     def tournament_name_short(self, obj):
         return obj.tournament.name_short
     tournament_name_short.short_description = "Tournament"
+
+@admin.register(TournamentTeamTransition)
+class TournamentTeamTransitionAdmin(admin.ModelAdmin):
+    list_select_related = True
+    
+    list_display = ( "name_short", )
+    list_filter = ("tournament_event", "origin_ts_id",)
+    search_fields = ("origin_ts_id__name__startswith", )
+    list_select_related = ('tournament_event', 'origin_ts_id', 'target_ts_id',)
+
+    def name_short(self, obj):
+        return str(obj.tournament_event.id) + ' ' + str(obj)
+    name_short.short_description = "TTT"

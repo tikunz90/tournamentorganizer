@@ -257,7 +257,7 @@ class TournamentTeamTransition(models.Model):
     tournament_event = models.ForeignKey('TournamentEvent', null=True, related_name='+', on_delete=models.CASCADE)
     origin_ts_id = models.ForeignKey('TournamentState', null=True, related_name='ttt_origin', on_delete=models.CASCADE)
     origin_rank = models.SmallIntegerField(default=0)
-    target_ts_id = models.ForeignKey('TournamentState', null=True, related_name='ttt_target', on_delete=models.CASCADE)
+    target_ts_id = models.ForeignKey('TournamentState', null=True, related_name='ttt_target', on_delete=models.DO_NOTHING)
     target_rank = models.SmallIntegerField(default=0)
     keep_stats = models.BooleanField(default=False)
     is_executed = models.BooleanField(default=False)
