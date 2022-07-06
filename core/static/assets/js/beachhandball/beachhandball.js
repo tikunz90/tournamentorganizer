@@ -102,7 +102,7 @@ bh = {
         groupData.teams_next_stage = Math.floor(sel_val / num_groups);
         $("#wz-sel-teams-knockout").empty();
         var sel_val_ranked = $("#wz-sel-teams-getting-ranked").val();
-        if(sel_val_ranked > sel_val)
+        if(parseInt(sel_val_ranked) > parseInt(sel_val))
         {
             sel_val_ranked = sel_val;
         }
