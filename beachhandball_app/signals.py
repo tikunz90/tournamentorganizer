@@ -134,17 +134,35 @@ def ttt_changed(sender, created, **kwargs):
         # on update, set display name for team stat
         ttt = kwargs['instance']
 
-        team_stats_tar = TeamStats.objects.all().filter(tournament_event=ttt.tournament_event,
-                                                        tournamentstate=ttt.target_ts_id,
-                                                        rank_initial=ttt.target_rank)
-        if team_stats_tar.count() > 0:
-            ts_tar = team_stats_tar.get()
-            ts_tar.name_table = '{}. {}'.format(ttt.origin_rank, ttt.origin_ts_id)
-            if ts_tar.team.is_dummy is True:
-                ts_tar.team.name = '{}. {}'.format(ttt.origin_rank, ttt.origin_ts_id)
-                ts_tar.team.abbreviation = '{}. {}'.format(ttt.origin_rank, ttt.origin_ts_id.abbreviation)
-                ts_tar.team.save()
-            ts_tar.save()
+        ttts = TournamentTeamTransition.objects.filter(tournament_event=ttt.tournament_event,
+                                                        origin_ts_id=ttt.origin_ts_id)
+        ttts_data = [t for t in ttts]
+
+        for t in ttts_data:
+            if t.target_rank <= 0:
+                continue
+            team_stats_tar = TeamStats.objects.filter(tournament_event=t.tournament_event,
+                                                        tournamentstate=t.target_ts_id,
+                                                        rank_initial=t.target_rank).first()
+            if not team_stats_tar is None:
+                team_stats_tar.name_table = '{}. {}'.format(t.origin_rank, t.origin_ts_id)
+                if team_stats_tar.team.is_dummy is True:
+                    team_stats_tar.team.name = '{}. {}'.format(t.origin_rank, t.origin_ts_id)
+                    team_stats_tar.team.abbreviation = '{}. {}'.format(t.origin_rank, t.origin_ts_id.abbreviation)
+                team_stats_tar.save()
+
+
+        #team_stats_tar = TeamStats.objects.all().filter(tournament_event=ttt.tournament_event,
+        #                                                tournamentstate=ttt.target_ts_id,
+        #                                                rank_initial=ttt.target_rank)
+        #if team_stats_tar.count() > 0:
+        #    ts_tar = team_stats_tar.get()
+        #    ts_tar.name_table = '{}. {}'.format(ttt.origin_rank, ttt.origin_ts_id)
+        #    if ts_tar.team.is_dummy is True:
+        #        ts_tar.team.name = '{}. {}'.format(ttt.origin_rank, ttt.origin_ts_id)
+        #        ts_tar.team.abbreviation = '{}. {}'.format(ttt.origin_rank, ttt.origin_ts_id.abbreviation)
+        #        ts_tar.team.save()
+        #    ts_tar.save()
 
 @receiver(post_save, sender=TeamStats)
 def teamstat_changed(sender, created, **kwargs):
