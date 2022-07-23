@@ -256,6 +256,19 @@ def pre_import_single_game_report(game, filename):
     result['score_team_b_halftime_2'] = ws[tmp.cell_score_team_b_halftime_2].value
     result['score_team_b_penalty'] = ws[tmp.cell_score_team_b_penalty].value
 
+    if result['score_team_a_halftime_1'] is None:
+        result['score_team_a_halftime_1'] = 0
+    if result['score_team_a_halftime_2'] is None:
+        result['score_team_a_halftime_2'] = 0
+    if result['score_team_a_penalty'] is None:
+        result['score_team_a_penalty'] = 0
+    if result['score_team_b_halftime_1'] is None:
+        result['score_team_b_halftime_1'] = 0
+    if result['score_team_b_halftime_2'] is None:
+        result['score_team_b_halftime_2'] = 0
+    if result['score_team_b_penalty'] is None:
+        result['score_team_b_penalty'] = 0
+
     if int(result['score_team_a_halftime_1']) > 99 or int(result['score_team_a_halftime_2']) > 99 or int(result['score_team_a_penalty']) > 99:
         result['isError'] = True
         result['msg'] = 'Double check result. score is too high...'
