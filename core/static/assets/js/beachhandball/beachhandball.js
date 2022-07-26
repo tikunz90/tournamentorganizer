@@ -1107,7 +1107,7 @@ bh = {
                         else
                         {
                             stagePL.actHierarchy = 500 + (stageKO.actHierarchy - 1);
-                            stageKO.actHierarchy++;
+                            stageKO.actHierarchy = statesKOActHierarchy.hierarchy;
                             eventCounter++;
                         }
 

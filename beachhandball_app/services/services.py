@@ -173,10 +173,10 @@ class SWS():
         return result, execution_time
 
     @staticmethod
-    def syncTournamentGCData(gbo_user):
+    def syncTournamentGCData(gbo_user, season_id):
         # request data from sws
         begin = time.time()
-        endpoint = '/season/cup-german-championship/to/' + str(gbo_user.subject_id) + '/team-info'
+        endpoint = '/season/cup-german-championship/to/' + str(gbo_user.subject_id) + '/team-info?season=' + str(season_id)
         headers = SWS.headers
         headers['Authorization'] = 'Bearer {}'.format(gbo_user.token)
         response = requests.get(SWS.base_url + endpoint, headers=headers, verify=conf_settings.SWS_VERIFY_SSL)

@@ -40,7 +40,7 @@
                 </tr>
               </thead>
               <tbody>
-              {% for pstat in playerstats_offense.all()[:10] %}
+              {% for pstat in playerstats_offense.all()[:100] %}
                 <tr>
                   <td>{{ loop.index }}</td>
                   <td>{{ pstat.player.name }}, {{ pstat.player.first_name }} ({{ pstat.player.team.name }})</td>
@@ -76,7 +76,7 @@
                 </tr>
               </thead>
               <tbody>
-              {% for pstat in playerstats_defense.all()[:10] %}
+              {% for pstat in playerstats_defense.all()[:100] %}
                 <tr>
                   <td>{{ loop.index }}</td>
                   <td>{{ pstat.player.name }}, {{ pstat.player.first_name }} ({{ pstat.player.team.name }})</td>
@@ -112,7 +112,7 @@
                 </tr>
               </thead>
               <tbody>
-              {% for pstat in playerstats_goalie.all()[:10] %}
+              {% for pstat in playerstats_goalie.all()[:100] %}
                 <tr>
                   <td>{{ loop.index }}</td>
                   <td>{{ pstat.player.name }}, {{ pstat.player.first_name }} ({{ pstat.player.team.name }})</td>

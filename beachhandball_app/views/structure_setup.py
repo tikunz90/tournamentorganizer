@@ -434,8 +434,8 @@ class TTTUpdateView(BSModalUpdateView):
         ttt = self.object
         context = super(TTTUpdateView, self).get_context_data(**kwargs)
         
-        ttts = TournamentState.objects.filter(tournament_event=ttt.tournament_event,
-        hierarchy__gt=ttt.origin_ts_id.hierarchy)
+        ttts = TournamentState.objects.filter(tournament_event=ttt.tournament_event)#,
+        #hierarchy__gt=ttt.origin_ts_id.hierarchy)
         context['form'].fields['target_ts_id'].queryset = ttts
         return context
     
