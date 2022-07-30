@@ -323,7 +323,7 @@ def update_user_tournament_events(gbouser, to_tourn):
                     #    print(data['message'])
                     #    continue
                     data = gbot['seasonTeamCupTournamentRankings']
-                    sync_teams(gbouser, te, data, cup_type)              
+                    #sync_teams(gbouser, te, data, cup_type)              
     except Exception as ex:
         print(ex)               
     print("EXIT update_user_tournament_events")
