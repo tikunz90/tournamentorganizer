@@ -130,7 +130,7 @@ def login_view(request):
                             #gbouser.gbo_data_all, execution_time = s.SWS.syncAllTournamentData(gbouser)
                             gbouser.gbo_data_all, execution_time = SWS.syncTournamentData(gbouser, season_id)
                             #gbouser.gbo_data, execution_time1 = s.SWS.syncTournamentData(gbouser)
-                            #gbouser.gbo_gc_data, execution_time2 = s.SWS.syncTournamentGCData(gbouser)
+                            gbouser.gbo_gc_data, execution_time2 = s.SWS.syncTournamentGCData(gbouser, season_id)
                             #gbouser.gbo_sub_data, execution_time3 = s.SWS.syncTournamentSubData(gbouser)
                             print('Executiontime syncAllTournamentData: ' + str(execution_time))
                             #print('Executiontime syncTournamentData: ' + str(execution_time1))
