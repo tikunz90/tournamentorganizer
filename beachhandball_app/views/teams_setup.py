@@ -7,7 +7,7 @@ from ..models.Tournaments import Tournament, TournamentEvent
 from ..models.Series import Season
 from ..models.Team import Coach, Team
 
-from beachhandball_app import static_views
+from beachhandball_app import helper, static_views
 
 
 class TeamsSetupDetail(LoginRequiredMixin, DetailView):
@@ -20,6 +20,8 @@ class TeamsSetupDetail(LoginRequiredMixin, DetailView):
     def get_context_data(self, **kwargs):
         tevent = kwargs["object"]
         kwargs = static_views.getContext(self.request)
+
+        result = helper.sync_teams_of_tevent(self.request.user.gbouser, tevent)
 
         teams = Team.objects.select_related("tournament_event", "category").prefetch_related(
             Prefetch("player_set", queryset=Player.objects.select_related("tournament_event__category", "position"), to_attr="players"),

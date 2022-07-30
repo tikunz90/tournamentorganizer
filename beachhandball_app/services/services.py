@@ -104,8 +104,8 @@ class SWS():
         return data
 
     @staticmethod
-    def getTournamentGermanChampionshipByUser(gbo_user):
-        endpoint = '/season/cup-german-championship/to/' + str(gbo_user.subject_id)
+    def getTournamentGermanChampionshipByUser(gbo_user, season_id):
+        endpoint = '/season/cup-german-championship/to/' + str(gbo_user.subject_id) + '/team-info?season=' + str(season_id)
         headers = SWS.headers
         headers['Authorization'] = 'Bearer {}'.format(gbo_user.token)
         response = requests.get(SWS.base_url + endpoint, headers=headers, verify=conf_settings.SWS_VERIFY_SSL)
