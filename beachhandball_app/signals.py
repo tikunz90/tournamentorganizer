@@ -149,6 +149,7 @@ def ttt_changed(sender, created, **kwargs):
                 if team_stats_tar.team.is_dummy is True:
                     team_stats_tar.team.name = '{}. {}'.format(t.origin_rank, t.origin_ts_id)
                     team_stats_tar.team.abbreviation = '{}. {}'.format(t.origin_rank, t.origin_ts_id.abbreviation)
+                    team_stats_tar.team.save()
                 team_stats_tar.save()
 
 

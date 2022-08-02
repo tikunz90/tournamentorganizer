@@ -88,3 +88,24 @@ def get_games_info(request, season_tournament_id):
 
     t_as_dict = serialize_games(tourn_data.all_games)
     return Response({"isError": isError, "errorCode": errorCode, "message": t_as_dict})
+
+
+@api_view(['GET'])
+#@authentication_classes([SessionAuthentication, BasicAuthentication])
+#@permission_classes([IsAuthenticated])
+@cache_page(1)
+@renderer_classes([JSONRenderer])
+def get_games_gc_info(request, season_cup_gc_id):
+    print( 'ENTER get_tournament_info season_cup_gc_id=' + str(season_cup_gc_id))
+    isError = False
+    errorCode = 200
+    tourn_data = Tournament.objects.prefetch_related(
+            Prefetch("game_set", queryset=Game.objects.select_related("tournament", "tournament_event__category", "team_a", "team_b", "team_st_a__team", "team_st_b__team", "ref_a", "ref_b", "tournament_state__tournament_stage", "court").prefetch_related(
+                Prefetch("playerstats_set", queryset=PlayerStats.objects.select_related("player__team").filter(is_ranked=False).order_by("-score"), to_attr="player_stats"),
+            )
+                , to_attr="all_games")
+                ).filter(season_cup_german_championship_id=season_cup_gc_id).first()
+
+
+    t_as_dict = serialize_games(tourn_data.all_games)
+    return Response({"isError": isError, "errorCode": errorCode, "message": t_as_dict})

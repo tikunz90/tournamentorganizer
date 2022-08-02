@@ -7,7 +7,7 @@ from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from django.views.generic import TemplateView
 from .views import login_by_token
 from .views.game.views import GameDeleteStatsViewSet, GameViewSet, GameActionViewSet, PlayerStatsSet, PlayerStatsViewSet, RunningGamesDM, ScoutingReportViewSet, RunningGames, TeamViewSet, GameList, StartGameScouting, hello_world, get_pstats_tevent
-from .views.tournament.views import get_tournament_info, get_games_info
+from .views.tournament.views import get_games_gc_info, get_tournament_info, get_games_info
 from rest_framework import renderers
 from rest_framework.authtoken import views
 from rest_framework import routers
@@ -29,7 +29,8 @@ urlpatterns = [
     path('hello_world/<int:tevent_id>/<int:amount>/', hello_world, name='hello_world'),
 
     path('tournament/<int:season_tournament_id>/info/', get_tournament_info, name='get_tournament_info'),
-    path('tournament/<int:season_tournament_id>/info/games', get_games_info, name='get_games_info'), 
+    path('tournament/<int:season_tournament_id>/info/games', get_games_info, name='get_games_info'),
+    path('tournament_gc/<int:season_cup_gc_id>/info/games', get_games_gc_info, name='get_games_info'), 
 
     path('player_stats/<int:pk>/', PlayerStatsSet.as_view({'get': 'retrieve', 'put': 'update', 'patch': 'partial_update'})),
     path('player_stats_by_tevent/<int:tevent_id>/<int:amount>/', get_pstats_tevent, name='get_pstats_tevent'),

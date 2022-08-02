@@ -4,7 +4,7 @@ from typing import Dict, Any
 from rest_framework import routers, serializers, viewsets
 from beachhandball_app.models.Game import Game
 
-from beachhandball_app.models.Tournaments import Tournament, TournamentEvent, TournamentStage, TournamentState
+from beachhandball_app.models.Tournaments import Court, Tournament, TournamentEvent, TournamentStage, TournamentState
 from beachhandball_app.models.General import TournamentCategory
 from beachhandball_app.models.Team import Team, TeamStats
 from beachhandball_app.models.Player import Player, PlayerStats
@@ -80,7 +80,7 @@ def serialize_game(game: Game) -> Dict[str, Any]:
         'team_st_a': serialize_teamstat(game.team_st_a),
         'team_st_b': serialize_teamstat(game.team_st_b),
         'starttime': time.mktime(game.starttime.timetuple()),
-        'court': game.court.name,
+        'court': serialize_court(game.court),
         'duration_of_halftime': game.duration_of_halftime,
         'score_team_a_halftime_1': game.score_team_a_halftime_1,
         'score_team_a_halftime_2': game.score_team_a_halftime_2,
@@ -92,11 +92,59 @@ def serialize_game(game: Game) -> Dict[str, Any]:
         'gamingstate': game.gamingstate,
         'player_stats_team_a': [serialize_playerstat(ps) for ps in game.player_stats if ps.player.team_id == game.team_a.id],
         'player_stats_team_b': [serialize_playerstat(ps) for ps in game.player_stats if ps.player.team_id == game.team_b.id],
+        'tournament': serialize_tournament(game.tournament),
+        'tournament_event': serialize_tournament_event(game.tournament_event),
+        'tournament_state': serialize_tournament_state(game.tournament_state),
     }
 
 def serialize_games(games) -> Dict[str, Any]:
     return {
         'games': [serialize_game(g) for g in games]
+    }
+
+def serialize_tournament(t: Tournament) -> Dict[str, Any]:
+    return {
+        'id': t.id,
+        'created_at': t.created_at,
+        'name': t.name,
+        'organizer': t.organizer,
+    }
+
+def serialize_tournament_event(t: TournamentEvent) -> Dict[str, Any]:
+    return {
+        'id': t.id,
+        'created_at': t.created_at,
+        'name': t.name,
+        'category': serialize_category(t.category),
+        'season_cup_tournament_id': t.season_cup_tournament_id,
+        'season_cup_german_championship_id': t.season_cup_german_championship_id,
+    }
+
+def serialize_category(t: TournamentCategory) -> Dict[str, Any]:
+    return {
+        'id': t.id,
+        'created_at': t.created_at,
+        'name': t.name,
+        'category': t.category,
+        'gbo_category_id': t.gbo_category_id,
+        'season_tournament_category_id': t.season_tournament_category_id,
+    }
+
+def serialize_tournament_state(t: TournamentState) -> Dict[str, Any]:
+    return {
+        'id': t.id,
+        'created_at': t.created_at,
+        'name': t.name,
+        'abbreviation': t.abbreviation,
+    }
+
+def serialize_court(c: Court) -> Dict[str, Any]:
+    return {
+        'id': c.id,
+        'created_at': c.created_at,
+        'name': c.name,
+        'number': c.number,
+        'tournament': serialize_tournament(c.tournament),
     }
 
 def serialize_teamstat(stat: TeamStats) -> Dict[str, Any]:
