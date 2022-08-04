@@ -325,8 +325,10 @@ def game_plan(request):
 
     tourn = context['tourn']
     tevents = context['events']
+    orderbyList  = ['starttime','court__name']
+    #games = Game.objects.filter(tournament=tevent.tournament).all().order_by(*orderbyList)
     tourn_data = Tournament.objects.prefetch_related(
-            Prefetch("game_set", queryset=Game.objects.select_related("tournament", "tournament_event__category", "team_a", "team_b", "team_st_a__team", "team_st_b__team", "ref_a", "ref_b", "tournament_state__tournament_stage", "court")
+            Prefetch("game_set", queryset=Game.objects.select_related("tournament", "tournament_event__category", "team_a", "team_b", "team_st_a__team", "team_st_b__team", "ref_a", "ref_b", "tournament_state__tournament_stage", "court").order_by(*orderbyList)
                 , to_attr="all_games"),
             Prefetch("tournamentevent_set", queryset=TournamentEvent.objects.select_related("tournament", "category").prefetch_related(
                 Prefetch("tournamentstate_set", queryset=TournamentState.objects.select_related("tournament_event__category", "tournament_stage")

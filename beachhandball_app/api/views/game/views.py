@@ -61,6 +61,15 @@ def hello_world(request, tevent_id, amount):
     print( 'ENTER tevent=' + str(tevent_id) + ' amount=' + str(amount))
     
     tevent = TournamentEvent.objects.get(id=tevent_id)
+
+    orderbyList  = ['starttime','court__name']
+    games = Game.objects.filter(tournament=tevent.tournament).all().order_by(*orderbyList)
+    games_list = [g for g in games]
+    idx = 1
+    for g in games_list:
+        g.id_counter = idx
+        g.save()
+        idx += 1
     
     if amount <= 0:
         global_pstats = PlayerStats.objects.filter(tournament_event=tevent, is_ranked=True).order_by('-score')
@@ -177,6 +186,36 @@ class PlayerStatsSet(viewsets.ModelViewSet):
     def highlight(self, request, *args, **kwargs):
         tourn = self.get_object()
         return Response(tourn)
+
+    def create(self, request):
+        pass
+
+    def retrieve(self, request, pk=None):
+        pass
+
+    def update(self, request, pk=None):
+        instance = self.get_object()
+        #data = json.loads(request.data)
+        instance.score = request.data['score']
+        instance.spin_success = request.data['spin_success']
+        instance.spin_try = request.data['spin_try']
+        instance.kempa_success = request.data['kempa_success']
+        instance.kempa_try = request.data['kempa_try']
+        instance.shooter_success = request.data['shooter_success']
+        instance.shooter_try = request.data['shooter_try']
+        instance.one_success = request.data['one_success']
+        instance.one_try = request.data['one_try']
+        instance.goal_keeper_success = request.data['goal_keeper_success']
+        instance.block_success = request.data['block_success']
+        instance.suspension = request.data['suspension']
+        instance.redcard = request.data['redcard']
+        instance.save(update_fields=['score', 'spin_success', 'spin_try', 'kempa_success', 'kempa_try', 'shooter_success', 'shooter_try', 'one_success', 'one_try', 'goal_keeper_success', 'block_success', 'suspension', 'redcard'])
+    
+        
+        #serializer = GameRunningSerializer2(instance, data=request.data, partial=True)
+        #serializer.is_valid(raise_exception=True)
+        #serializer.save()
+        return Response(request.data)
 
     def partial_update(self, request, *args, **kwargs):
         instance = self.get_object()

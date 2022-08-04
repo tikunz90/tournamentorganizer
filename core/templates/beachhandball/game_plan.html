@@ -256,6 +256,42 @@
       //$('table').tableFilter({});
        $('#table-games').filterTable('#games-filter');
       //$('table').tableFilter('filterRows', 'The Beachers');
+
+      var actTime = '';
+      var colors = ['#f2f2f2', '#d9d9d9'];
+      var actColor = 'red';
+      var isFirst = true;
+      var colorIdx = 0;
+      $('#table-games').find('tr').each(function(index) {
+
+        $row = $(this);
+        console.log($row.find('#id_starttime').val());
+        $starttime = $row.find('#id_starttime');
+        if ($starttime.length == 0) {
+          return;
+        }
+        if(isFirst)
+        {
+          isFirst = false;
+          actTime = $starttime.val();
+          $row.css('background-color', colors[colorIdx]);
+        }
+
+        if($starttime.val() == actTime)
+        {}
+        else
+        {
+          actTime = $starttime.val();
+          colorIdx++;
+          if(colorIdx == 2)
+          {colorIdx = 0;}
+        }
+
+        $row.css('background-color', colors[colorIdx]);
+
+
+        
+      });
     });
     $('.game-list-datetime-label').on('dblclick', function () {
         $(this).attr('hidden', true);
