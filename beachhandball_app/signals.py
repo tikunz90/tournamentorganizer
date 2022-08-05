@@ -171,12 +171,12 @@ def teamstat_changed(sender, created, **kwargs):
         print('Update TeamStats: ' + str(kwargs['instance'].name_table))
         update_games_after_tstat_chg(kwargs['instance'])
 
-@receiver(post_save, sender=Game)
+#@receiver(post_save, sender=Game)
 def game_updated(sender, instance, created, **kwargs):
     if not created: 
         receivers = post_save.receivers
         post_save.receivers = []
-        calculate_tstate(instance.tournament_state)
+        #calculate_tstate(instance.tournament_state)
         post_save.receivers = receivers
 
 @receiver(post_save, sender=Player)

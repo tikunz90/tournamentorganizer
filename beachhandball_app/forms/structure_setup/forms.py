@@ -2,6 +2,7 @@ import json
 from django.db.models import fields
 from django.shortcuts import get_object_or_404
 from beachhandball_app.game_report import helper_game_report
+from beachhandball_app.helper import calculate_tstate
 from beachhandball_app.models.Game import Game
 from beachhandball_app.models.Team import Team, TeamStats
 from django import forms
@@ -214,8 +215,9 @@ class GameUpdateForm(BSModalModelForm):
         
 class GameUpdateResultForm(BSModalModelForm):
 
-    #def save(self, commit=True):
-    #    game = super().save(commit=False)
+    def save(self, commit=True):
+        game = super().save(commit=False)
+        calculate_tstate(game.tournament_state)
     #    if commit and not is_ajax(self.request.META):
     #        game.gamestate = GAMESTATE_CHOICES[2][0]
     #        game.save()
@@ -224,7 +226,7 @@ class GameUpdateResultForm(BSModalModelForm):
     #            upload_data = json.loads(self.data['upload-data'])
     #            helper_game_report.import_playerstats_game_report(game, upload_data)
     #        
-    #    return game
+        return game
 
     def clean(self):
         cleaned_data = super(GameUpdateResultForm, self).clean()

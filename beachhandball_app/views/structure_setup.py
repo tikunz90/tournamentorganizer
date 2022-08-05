@@ -591,6 +591,7 @@ class GameResultGameView(BSModalUpdateView):
     
     def get_context_data(self, **kwargs):
         game = self.object
+        #calculate_tstate(game.tournament_state)
         context = super(GameResultGameView, self).get_context_data(**kwargs)
         
         context['pstats_a'] = PlayerStats.objects.filter(tournament_event=game.tournament_event, game=game, player__team=game.team_a, is_ranked=False)
@@ -630,7 +631,7 @@ def postUpdateGameResult(request, pk_tevent, pk_tstage, pk):
         game.score_team_b_halftime_2 = form.data['score_team_b_halftime_2']
         game.score_team_b_penalty = form.data['score_team_b_penalty']
         game.save()
-        #calculate_tstate(self.object.tournament_state)
+        calculate_tstate(game.tournament_state)
         if form.data['upload-data']:
             upload_data = json.loads(form.data['upload-data'])
             helper_game_report.import_playerstats_game_report(game, upload_data)
