@@ -632,6 +632,8 @@ def postUpdateGameResult(request, pk_tevent, pk_tstage, pk):
         game.score_team_b_penalty = form.data['score_team_b_penalty']
         game.save()
         calculate_tstate(game.tournament_state)
+        helper.create_global_pstats(game.tournament_event.id)
+        helper.recalc_global_pstats(game.tournament_event.id)
         if form.data['upload-data']:
             upload_data = json.loads(form.data['upload-data'])
             helper_game_report.import_playerstats_game_report(game, upload_data)
