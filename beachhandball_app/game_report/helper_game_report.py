@@ -120,7 +120,7 @@ def create_all_tstate_pregame_report_excel(tstate):
     print('ENTER create_report_excel')
     print('game_report DIR: ' + settings.GAME_REPORT_DIR)
 
-    tsettings = TournamentSettings.objects.get(tournament=tstate.tournament)
+    tsettings = TournamentSettings.objects.get(tournament=tstate.tournament_event.tournament)
     if not tsettings.game_report_template:
         return ''
     
