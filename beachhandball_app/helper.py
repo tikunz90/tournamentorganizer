@@ -994,6 +994,7 @@ def recalc_global_pstats(tevent_id):
             gl_stat.goal_keeper_success = sum(s.goal_keeper_success for s in stats)
             gl_stat.block_success = sum(s.block_success for s in stats)
             gl_stat.season_cup_tournament_id = tevent.season_cup_tournament_id
+            gl_stat.season_cup_german_championship_id = tevent.season_cup_german_championship_id
             gl_stat.season_player_id = pl.season_player_id
             gl_stat.season_team_id = pl.season_team_id
             gl_stat.gbo_category_id = tevent.category.gbo_category_id

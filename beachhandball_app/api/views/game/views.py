@@ -62,19 +62,23 @@ def hello_world(request, tevent_id, amount):
     
     tevent = TournamentEvent.objects.get(id=tevent_id)
 
-    orderbyList  = ['starttime','court__name']
-    games = Game.objects.filter(tournament=tevent.tournament).all().order_by(*orderbyList)
-    games_list = [g for g in games]
-    idx = 1
-    for g in games_list:
-        g.id_counter = idx
-        g.save()
-        idx += 1
+    #orderbyList  = ['starttime','court__name']
+    #games = Game.objects.filter(tournament=tevent.tournament).all().order_by(*orderbyList)
+    #games_list = [g for g in games]
+    #idx = 1
+    #for g in games_list:
+    #    g.id_counter = idx
+    #    g.save()
+    #    idx += 1
     
     if amount <= 0:
         global_pstats = PlayerStats.objects.filter(tournament_event=tevent, is_ranked=True).order_by('-score')
     else:
         global_pstats = PlayerStats.objects.filter(tournament_event=tevent, is_ranked=True).order_by('-score')[:amount]
+
+    for ps in global_pstats:
+        ps.season_cup_german_championship_id = tevent.season_cup_german_championship_id
+        ps.save()
     print('After objects')
     ser = PlayerStatsSerializer(global_pstats, many=True)
     print('After Serializing')
