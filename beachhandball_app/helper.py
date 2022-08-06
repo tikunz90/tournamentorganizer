@@ -398,7 +398,25 @@ def sync_teams_of_game(gbouser, game):
     team_ids = [game.team_a.id, game.team_b.id]
     ranking_ids = [game.team_a.season_team_cup_tournament_ranking_id, game.team_b.season_team_cup_tournament_ranking_id]
     try:
-        data, execution_time = SWS.syncTournamentData(gbouser, game.tournament.season.gbo_season_id)
+        #data, execution_time = SWS.syncTournamentData(gbouser, game.tournament.season.gbo_season_id)
+
+
+        to_tourn = game.tournament_event.tournament.__dict__
+        if to_tourn['season_cup_tournament_id'] != 0:
+            #gbo_data = gbouser['gbo_data_all']
+            cup_type = 'is_cup'
+            data, execution_time = SWS.syncTournamentData(gbouser, game.tournament.season.gbo_season_id)
+            #ranking_ids = [team.season_team_cup_tournament_ranking_id for team in my_team_data]
+        elif to_tourn['season_cup_german_championship_id'] != 0:
+            #gbo_data = gbouser['gbo_gc_data']
+            cup_type = 'is_gc'
+            data, execution_time = SWS.syncTournamentGCData(gbouser, game.tournament.season.gbo_season_id)
+            #ranking_ids = [team.season_team_cup_championship_ranking_id for team in my_team_data]
+        elif to_tourn['sub_season_cup_tournament_id'] != 0:
+            #gbo_data = gbouser['gbo_sub_data']
+            cup_type = 'is_sub'
+            data, execution_time = SWS.syncTournamentSubData(gbouser, game.tournament.season.gbo_season_id)
+            #ranking_ids = [team.season_team_cup_tournament_ranking_id for team in my_team_data]
         gbo_data = []
         if data['isError'] == True:
             result['isError'] =  True
@@ -441,7 +459,7 @@ def sync_teams_of_game(gbouser, game):
         for ranking in gbo_data['seasonTeamCupTournamentRankings']:
             if not ranking['id'] in ranking_ids:
                 continue
-            result = sync_single_team_by_ranking(ranking, game.tournament_event, my_team_data, cup_type, gbouser)
+            result = sync_single_team_by_ranking(ranking, game.tournament_event, my_team_data, cup_type, gbouser, True)
             if result['isError'] == True:
                 break
     except Exception as ex:
@@ -920,6 +938,19 @@ def calculate_tstate(tstate):
 def create_global_pstats(tevent_id):
     try:
         tevent = TournamentEvent.objects.get(id=tevent_id)
+        player = Player.objects.filter(tournament_event=tevent)
+        player_list = [p for p in player.all()]
+        for pl in player_list:
+            ps, cr = PlayerStats.objects.get_or_create(tournament_event=tevent,
+            player=pl, is_ranked=True)
+    except Exception as e:
+        print(e)
+    finally:
+        print('')
+
+def create_global_pstats_of_game(game):
+    try:
+        tevent = TournamentEvent.objects.get(id=0)
         player = Player.objects.filter(tournament_event=tevent)
         player_list = [p for p in player.all()]
         for pl in player_list:
