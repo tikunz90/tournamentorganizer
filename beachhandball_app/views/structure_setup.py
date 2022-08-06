@@ -553,6 +553,7 @@ class DownloadPreGameAllView(View):
     def get(self, request, pk, pk_tevent, pk_tstage):
         tstate = TournamentState.objects.get(id=pk)
         if tstate:
+            result = helper.sync_teams_of_tevent(self.request.user.gbouser, tstate.tournament_event)
             # Define the full file path
             filepath, filename = helper_game_report.create_all_tstate_pregame_report_excel(tstate)
 
