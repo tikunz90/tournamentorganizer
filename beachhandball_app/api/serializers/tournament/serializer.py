@@ -15,7 +15,7 @@ class TournamentSerializer(serializers.ModelSerializer):
         fields = ('id', 'name', 'created_at', 'is_active', 'last_sync_at', 'season_tournament_id', 'season_cup_tournament_id')
         depth = 0
 
-def serialize_tournament(tournament: Tournament) -> Dict[str, Any]:
+def serialize_tournament_full(tournament: Tournament) -> Dict[str, Any]:
     return {
         'id': tournament.id,
         'created_at': tournament.created_at,#tournament.starttime.strftime('%H:%M (%d.%m.%Y)'),
@@ -23,10 +23,10 @@ def serialize_tournament(tournament: Tournament) -> Dict[str, Any]:
         'last_sync_at': tournament.last_sync_at,
         'season_tournament_id': tournament.season_tournament_id,
         'season_cup_tournament_id': tournament.season_cup_tournament_id,
-        'events': [serialize_tournament_event(event, tournament.all_games) for event in tournament.all_tevents]
+        'events': [serialize_tournament_event_and_games(event, tournament.all_games) for event in tournament.all_tevents]
     }
 
-def serialize_tournament_event(tournamentEvent: TournamentEvent, games) -> Dict[str, Any]:
+def serialize_tournament_event_and_games(tournamentEvent: TournamentEvent, games) -> Dict[str, Any]:
     data = {
         'id': tournamentEvent.id,
         'name': tournamentEvent.name,
@@ -56,10 +56,10 @@ def serialize_tournament_stage(stage: TournamentStage, games) -> Dict[str, Any]:
         'name': stage.name,
         'tournament_stage': stage.tournament_stage,
         'order': stage.order,
-        'states': [serialize_tournament_state(state, games) for state in stage.all_tstates]
+        'states': [serialize_tournament_state_and_games(state, games) for state in stage.all_tstates]
     }
 
-def serialize_tournament_state(state: TournamentState, games) -> Dict[str, Any]:
+def serialize_tournament_state_and_games(state: TournamentState, games) -> Dict[str, Any]:
     return {
         'id': state.id,
         'abbreviation': state.abbreviation,

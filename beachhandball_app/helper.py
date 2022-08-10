@@ -6,7 +6,7 @@ from datetime import datetime
 
 from django.db.models.query import Prefetch
 from authentication.models import GBOUser, GBOUserSerializer
-from beachhandball_app.api.serializers.tournament.serializer import serialize_tournament
+from beachhandball_app.api.serializers.tournament.serializer import serialize_tournament_full
 from beachhandball_app.models.Player import Player, PlayerStats
 from django.db.models.query_utils import Q, check_rel_lookup_compatibility
 from beachhandball_app.models.choices import GAMESTATE_CHOICES, TOURNAMENT_STAGE_TYPE_CHOICES
@@ -1143,7 +1143,7 @@ def get_tournament_info_json(tourn):
                 ).filter(id=tourn.id).first()
     if tourn_data is None:
         return '{}'
-    return serialize_tournament(tourn_data)
+    return serialize_tournament_full(tourn_data)
 
 def create_teams_testdata(tevent):
     tevent = TournamentEvent.objects.get(id=tevent)
