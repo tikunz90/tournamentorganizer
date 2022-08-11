@@ -89,6 +89,10 @@ class TournamentStateForm(BSModalModelForm):
 
 class TournamentStateUpdateForm(BSModalModelForm):
 
+    def __init__(self, *args, **kwargs):
+        super(TournamentStateUpdateForm, self).__init__(*args, **kwargs)
+        self.fields['order'].label = "display order GBO App"
+
     def clean(self):
         print('Clean TournamentStateForm')
         cleaned_data = super(TournamentStateUpdateForm, self).clean()
