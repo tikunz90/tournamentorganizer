@@ -998,8 +998,9 @@ def recalc_global_pstats(tevent_id):
             gl_stat.season_player_id = pl.season_player_id
             gl_stat.season_team_id = pl.season_team_id
             gl_stat.gbo_category_id = tevent.category.gbo_category_id
+            gl_stat.games_played = len(stats)
 
-        PlayerStats.objects.bulk_update(global_pstats, fields=['score','spin_success','spin_try', 'one_try', 'one_success','suspension','redcard', 'block_success', 'goal_keeper_success', 'season_cup_tournament_id', 'season_player_id','season_team_id', 'gbo_category_id'])   
+        PlayerStats.objects.bulk_update(global_pstats, fields=['score','spin_success','spin_try', 'one_try', 'one_success','suspension','redcard', 'block_success', 'goal_keeper_success', 'season_cup_tournament_id', 'season_player_id','season_team_id', 'gbo_category_id', 'games_played'])   
 
 
     except Exception as e:

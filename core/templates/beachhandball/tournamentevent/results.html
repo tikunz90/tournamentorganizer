@@ -21,7 +21,7 @@
 </div>
 <hr>
 <div class="row">
-  <div class="col-md-4">
+  <div class="col-md-6">
     <div class="card">
         <div class="card-header card-header-success card-header-icon">
           <div class="card-icon">
@@ -37,6 +37,11 @@
                   <th>Rank</th>
                   <th>Player</th>
                   <th>Score</th>
+                  <th>#Games</th>
+                  <th>Spin</th>
+                  <th>Kempa</th>
+                  <th>Spec.</th>
+                  <th>One</th>
                 </tr>
               </thead>
               <tbody>
@@ -45,6 +50,11 @@
                   <td>{{ loop.index }}</td>
                   <td>{{ pstat.player.name }}, {{ pstat.player.first_name }} ({{ pstat.player.team.name }})</td>
                   <td>{{ pstat.score }}</td>
+                  <td>{{ pstat.games_played }}</td>
+                  <td>{{ pstat.spin_success }}/{{ pstat.spin_try }} {% if pstat.spin_try > 0 %}{{ (100 * pstat.spin_success / pstat.spin_try) | round(1, 'common')}}%{% endif %}</td>
+                  <td>{{ pstat.kempa_success }}/{{ pstat.kempa_try }} {% if pstat.kempa_try > 0 %}{{ (100 * pstat.kempa_success / pstat.kempa_try) | round(1, 'common')}}%{% endif %}</td>
+                  <td>{{ pstat.shooter_success }}/{{ pstat.shooter_try }} {% if pstat.shooter_try > 0 %}{{ (100 * pstat.shooter_success / pstat.shooter_try) | round(1, 'common')}}%{% endif %}</td>
+                  <td>{{ pstat.one_success }}/{{ pstat.one_try }} {% if pstat.one_try > 0 %}{{ (100 * pstat.one_success / pstat.one_try) | round(1, 'common')}}%{% endif %}</td>
                 </tr>
               {% endfor %}
               </tbody>
@@ -57,7 +67,7 @@
   </div>
 
 
-  <div class="col-md-4">
+  <div class="col-md-6">
     <div class="card">
         <div class="card-header card-header-danger card-header-icon">
           <div class="card-icon">
@@ -72,7 +82,10 @@
                 <tr>
                   <th>Rank</th>
                   <th>Player</th>
+                  <th>#Games</th>
                   <th>Blocks</th>
+                  <th>Suspension</th>
+                  <th>Red Card</th>
                 </tr>
               </thead>
               <tbody>
@@ -80,7 +93,10 @@
                 <tr>
                   <td>{{ loop.index }}</td>
                   <td>{{ pstat.player.name }}, {{ pstat.player.first_name }} ({{ pstat.player.team.name }})</td>
+                  <td>{{ pstat.games_played }}</td>
                   <td>{{ pstat.block_success }}</td>
+                  <td>{{ pstat.suspension }}</td>
+                  <td>{{ pstat.redcard }}</td>
                 </tr>
               {% endfor %}
               </tbody>
@@ -93,7 +109,7 @@
   </div>
 
 
-  <div class="col-md-4">
+  <div class="col-md-6">
     <div class="card">
         <div class="card-header card-header-info card-header-icon">
           <div class="card-icon">
@@ -108,6 +124,7 @@
                 <tr>
                   <th>Rank</th>
                   <th>Player</th>
+                  <th>#Games</th>
                   <th>Saves</th>
                 </tr>
               </thead>
@@ -116,6 +133,7 @@
                 <tr>
                   <td>{{ loop.index }}</td>
                   <td>{{ pstat.player.name }}, {{ pstat.player.first_name }} ({{ pstat.player.team.name }})</td>
+                  <td>{{ pstat.games_played }}</td>
                   <td>{{ pstat.goal_keeper_success }}</td>
                 </tr>
               {% endfor %}

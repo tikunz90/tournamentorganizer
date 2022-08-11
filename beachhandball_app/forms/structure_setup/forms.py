@@ -95,7 +95,7 @@ class TournamentStateUpdateForm(BSModalModelForm):
         return cleaned_data
     class Meta:
         model = TournamentState
-        fields = ('name', 'abbreviation', 'max_number_teams', 'direct_compare', 'color')
+        fields = ('name', 'abbreviation', 'max_number_teams', 'direct_compare', 'color', 'order')
         widgets = {
            'color': forms.widgets.TextInput(attrs={'type': 'color'}),
         }
