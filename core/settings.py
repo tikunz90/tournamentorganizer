@@ -64,6 +64,7 @@ INTERNAL_IPS = [
     '127.0.0.1',
     'beach-tournament-organizer.herokuapp.com',
     'german-beach-open.app',
+    'tournament-organizer-app.onrender.com',
 ]
 CORS_ALLOW_ALL_ORIGINS = True
 CSRF_TRUSTED_ORIGINS = [
