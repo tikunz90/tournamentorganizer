@@ -65,12 +65,14 @@ INTERNAL_IPS = [
     'beach-tournament-organizer.herokuapp.com',
     'german-beach-open.app',
     'tournament-organizer-app.onrender.com',
+    'skybeach-services.de',
 ]
 CORS_ALLOW_ALL_ORIGINS = True
 CSRF_TRUSTED_ORIGINS = [
         'http://127.0.0.1:8000',
         'http://127.0.0.1:5005',
         'http://german-beach-open.app',
+        'skybeach-services.de',
     ]
 
 ROOT_URLCONF = 'core.urls'
