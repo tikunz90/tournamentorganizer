@@ -4,7 +4,7 @@ Copyright (c) 2019 - present AppSeed.us
 """
 from django.forms.models import model_to_dict
 
-from beachhandball_app.tasks import update_user_tournament_events_async
+#from beachhandball_app.tasks import update_user_tournament_events_async
 from beachhandball_app.models.Tournaments import Tournament
 from django.shortcuts import render
 from datetime import datetime
@@ -20,7 +20,7 @@ from django.http import HttpResponse
 from .forms import LoginForm, SignUpForm, SelectTournamentForm
 from django.views.generic import TemplateView
 
-from .tasks import auth_debug_task
+#from .tasks import auth_debug_task
 
 from beachhandball_app.services.services import SWS
 from beachhandball_app.helper import update_user_tournament, update_user_tournament_events, update_active_seasons

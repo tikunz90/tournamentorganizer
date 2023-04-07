@@ -3,7 +3,7 @@
 Copyright (c) 2019 - present AppSeed.us
 """
 from django.urls import reverse
-from beachhandball_app.tasks import update_user_tournament_events_async
+# from beachhandball_app.tasks import update_user_tournament_events_async
 from datetime import datetime
 import time
 import json
