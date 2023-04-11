@@ -10748,6 +10748,14 @@ a[aria-expanded="true"] .caret,
   font-size: 1.0625rem;
   font-weight: 300; }
 
+.tr-over {
+  border: 3px solid black;
+}
+
+.tr-dragged {
+  border: 5px solid blue;
+}
+
 .table .form-check {
   margin-top: 0; }
   .table .form-check .form-check-sign {
@@ -16168,7 +16176,7 @@ table.dataTable {
   margin-top: 6px !important;
   margin-bottom: 6px !important;
   max-width: none !important;
-  border-collapse: separate !important;
+  /*border-collapse: separate !important; */
   border-spacing: 0; }
 
 table.dataTable td, table.dataTable th {

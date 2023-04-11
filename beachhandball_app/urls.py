@@ -30,6 +30,7 @@ urlpatterns = [
     path('running_game/<int:pk_tourn>/<int:courtid>/', static_views.running_game, name='game_list'),
 
     path('game_plan/ajax/update-game-date/<int:pk>/', static_views.UpdateGameFromList.as_view(), name='ajax-update-game-date'),
+    path('game_plan/ajax/update-game-after-drag/<int:pk>/', static_views.UpdateGameFromListAfterDrag.as_view(), name='ajax-update-game-after-drag'),
     path('game_plan/ajax/update-game-court/<int:pk>/', static_views.UpdateGameCourtFromList.as_view(), name='ajax-update-game-court'),
 
     path('basic_setup/', static_views.basic_setup, name='basic_setup'),

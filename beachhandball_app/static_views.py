@@ -85,7 +85,7 @@ def getData(request):
     return JsonResponse(data)
 
 @login_required(login_url="/login/")
-def UpdateGameFromList(request):
+def UpdateGameFromListFunc(request):
     t = Tournament.objects.get(id=1)
     tevent = TournamentEvent.objects.filter(tournament=t).first();
     tstates = list(TournamentState.objects.filter(tournament_event=tevent).values())
@@ -113,6 +113,26 @@ class UpdateGameFromList(TemplateView):
         new_dt = request.POST['datetime']
         dt = parse_datetime(new_dt)
         game_obj = Game.objects.filter(pk=game).update(starttime=dt)
+        context = {'game':game, 'new_datetime': new_dt}
+        return JsonResponse(context)
+    
+@method_decorator(login_required, name='dispatch')
+class UpdateGameFromListAfterDrag(TemplateView):
+    @method_decorator(csrf_exempt)
+    def dispatch(self, request, *args, **kwargs):
+        return super(UpdateGameFromListAfterDrag, self).dispatch(request, *args, **kwargs)
+
+    def get(self, request, *args, **kwargs):
+        context = {'game': 'Hello World'}
+        return JsonResponse(context)
+        #return self.render_to_response(context)
+
+    def post(self, request, *args, **kwargs):
+        game = request.POST['game']
+        new_dt = request.POST['datetime']
+        game_counter = int(request.POST['game_counter'])
+        dt = parse_datetime(new_dt)
+        game_obj = Game.objects.filter(pk=game).update(starttime=dt, id_counter=game_counter)
         context = {'game':game, 'new_datetime': new_dt}
         return JsonResponse(context)
 
@@ -359,8 +379,8 @@ def game_plan(request):
 
     #data_list = str(JSONRenderer().render(GameSerializer(tourn.game_set.all(), many=True).data), 'utf-8')
     context['games'] = tourn_data.all_games
-    for g in tourn_data.all_games:
-        print(str(g.tournament_event.category))
+    #for g in tourn_data.all_games:
+    #    print(str(g.tournament_event.category))
     #JSONRenderer().render(GameRunningSerializer(tourn.game_set.all(), many=True).data)
 
     html_template = loader.get_template( 'beachhandball/game_plan.html' )
