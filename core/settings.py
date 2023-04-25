@@ -195,10 +195,10 @@ SWS_VERIFY_SSL = True
 
 GAME_REPORT_DIR = os.path.join(BASE_DIR, 'report')
 
-if 'REDIS_URL' in os.environ:
-    REDIS_URL = os.environ['REDIS_URL']
-else:
-    REDIS_URL = 'redis://red-ceq9o1cgqg42m39qkku0:6379'
+#if 'REDIS_URL' in os.environ:
+#    REDIS_URL = os.environ['REDIS_URL']
+#else:
+REDIS_URL = 'redis://default:DCAc3YQZML0VJEIr48oOeHXP4Ya5srL1@redis-18486.c293.eu-central-1-1.ec2.cloud.redislabs.com:18486'
 
 if REDIS_URL is not None:
     CACHES = {
