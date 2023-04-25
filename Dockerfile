@@ -12,5 +12,5 @@ RUN pip install -r requirements.txt
 RUN python manage.py makemigrations
 RUN python manage.py migrate
 
-EXPOSE 5005
+EXPOSE 8080
 CMD ["gunicorn", "--config", "gunicorn-cfg.py", "core.wsgi"]
