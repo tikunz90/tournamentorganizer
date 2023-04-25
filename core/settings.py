@@ -199,7 +199,7 @@ GAME_REPORT_DIR = os.path.join(BASE_DIR, 'report')
 #    REDIS_URL = os.environ['REDIS_URL']
 #else:
 REDIS_URL = 'redis://default:DCAc3YQZML0VJEIr48oOeHXP4Ya5srL1@redis-18486.c293.eu-central-1-1.ec2.cloud.redislabs.com:18486'
-
+REDIS_URL = None
 if REDIS_URL is not None:
     CACHES = {
         "default": {
