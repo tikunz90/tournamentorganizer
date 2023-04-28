@@ -9,6 +9,18 @@ services:
     networks:
       - db_network
       - web_network
+  nginx:
+    restart: always
+    image: "nginx:latest"
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx:/etc/nginx/conf.d
+    networks:
+      - web_network
+    depends_on: 
+      - appseed-app
 networks:
   db_network:
     driver: bridge
