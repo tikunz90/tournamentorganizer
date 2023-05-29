@@ -11,6 +11,7 @@
   <h2>Welcome</h2>
 {% else %}
   <h2>Welcome to {{ tourn.name_short }} in Season {{ tourn.season.name }}</h2>
+  <h4>SeasonCupTournamentId: {{ tourn.season_cup_tournament_id }}</h4>
 {% endif %}
 
 <form action="{{ url('sync_tournament_data') }}" method='GET'>

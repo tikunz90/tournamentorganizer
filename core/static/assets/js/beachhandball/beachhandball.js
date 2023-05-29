@@ -954,6 +954,14 @@ bh = {
                 var gameDay = {"id": i, "starttime": actMoment.format("MM/DD/YYYY HH:mm"), "endtime": endMoment.format("MM/DD/YYYY HH:mm"), "game_slots": []};
                 bh.gameDays.push(gameDay);
             }
+            if(bh.gameDays.length == 0) {
+                var actMoment = moment(dateFirstGame).add(0, 'days');
+                var endMoment = moment(actMoment).add(defaultHoursGameDay, 'hours');
+
+                var gameDay = {"id": i, "starttime": actMoment.format("MM/DD/YYYY HH:mm"), "endtime": endMoment.format("MM/DD/YYYY HH:mm"), "game_slots": []};
+                bh.gameDays.push(gameDay);
+            }
+
         }
 
         var time_gamedays = bh.calculateGameDayMinutes(bh.gameDays);
@@ -986,6 +994,9 @@ bh = {
 
     calculateGamePlan: function() {
 
+        if(bh.num_games_total == 0) {
+            return;
+        }
         var total_num_games = bh.num_games_total;
         var total_num_games_group = bh.num_games_group;
         var total_num_games_ko = bh.num_games_ko;

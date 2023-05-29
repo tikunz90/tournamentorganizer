@@ -97,6 +97,29 @@ def serialize_game(game: Game) -> Dict[str, Any]:
         'tournament_state': serialize_tournament_state(game.tournament_state),
     }
 
+def serialize_game2(game: Game) -> Dict[str, Any]:
+    return {
+        'id': game.id,
+        'team_a': serialize_team(game.team_a, True),
+        'team_b': serialize_team(game.team_b, True),
+        'team_st_a': serialize_teamstat(game.team_st_a),
+        'team_st_b': serialize_teamstat(game.team_st_b),
+        'starttime': time.mktime(game.starttime.timetuple()),
+        'court': serialize_court(game.court),
+        'duration_of_halftime': game.duration_of_halftime,
+        'score_team_a_halftime_1': game.score_team_a_halftime_1,
+        'score_team_a_halftime_2': game.score_team_a_halftime_2,
+        'score_team_a_penalty': game.score_team_a_penalty,
+        'score_team_b_halftime_1': game.score_team_b_halftime_1,
+        'score_team_b_halftime_2': game.score_team_b_halftime_2,
+        'score_team_b_penalty': game.score_team_b_penalty,
+        'gamestate': game.gamestate,
+        'gamingstate': game.gamingstate,
+        'tournament': serialize_tournament(game.tournament),
+        'tournament_event': serialize_tournament_event(game.tournament_event),
+        'tournament_state': serialize_tournament_state(game.tournament_state),
+    }
+
 def serialize_games(games) -> Dict[str, Any]:
     return {
         'games': [serialize_game(g) for g in games]
@@ -108,6 +131,13 @@ def serialize_tournament(t: Tournament) -> Dict[str, Any]:
         'created_at': t.created_at,
         'name': t.name,
         'organizer': t.organizer,
+        'season_tournament_id': t.season_tournament_id,
+        'season_cup_tournament_id': t.season_cup_tournament_id,
+        'gbo_tournament_id': t.gbo_tournament_id,
+        'season_cup_german_championship_id': t.season_cup_german_championship_id,
+        'season_german_championship_id': t.season_german_championship_id,
+        'sub_season_cup_tournament_id': t.sub_season_cup_tournament_id,
+        'tournament_event': [serialize_tournament_event(te) for te in t.tournamentevent_set.all()]
     }
 
 def serialize_tournament_event(t: TournamentEvent) -> Dict[str, Any]:
@@ -151,7 +181,7 @@ def serialize_teamstat(stat: TeamStats) -> Dict[str, Any]:
     return {
         'id': stat.id,
         'rank': stat.rank,
-        'team': serialize_team(stat.team),
+        'team': serialize_team(stat.team, False),
         'number_of_played_games': stat.number_of_played_games,
         'game_points': stat.game_points,
         'game_points_bonus': stat.game_points_bonus,
@@ -164,9 +194,9 @@ def serialize_teamstat(stat: TeamStats) -> Dict[str, Any]:
         
     }
 
-def serialize_team(team: Team) -> Dict[str, Any]:
+def serialize_team(team: Team, doWithPlayers = False) -> Dict[str, Any]:
     if team is not None:
-        return {
+        data = {
             'id': team.id,
             'name': team.name,
             'abbreviation': team.abbreviation,
@@ -178,6 +208,9 @@ def serialize_team(team: Team) -> Dict[str, Any]:
             'season_cup_tournament_id': team.season_cup_tournament_id,
             'is_dummy': team.is_dummy,
         }
+        if doWithPlayers:
+            data['players'] = [serialize_player(p) for p in team.player_set.all()]
+        return data
     else:
         return { 'id': -1 }
 

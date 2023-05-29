@@ -13,7 +13,7 @@ import time
 # Create your views here.
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login
-from django.contrib.auth.models import User, Group
+from django.contrib.auth.models import User, Group, Permission
 from authentication.models import GBOUser, GBOUserSerializer
 from django.forms.utils import ErrorList
 from django.http import HttpResponse
@@ -97,7 +97,7 @@ def login_view(request):
                     #guser.gbo_data_all, execution_time = SWS.syncAllTournamentData(guser)
                     guser.gbo_data_all, execution_time = SWS.syncTournamentData(guser, season_id)
                     #guser.gbo_data = s.SWS.getTournamentByUser(guser)
-                    gbouser.gbo_gc_data, execution_time2 = SWS.syncTournamentGCData(gbouser, season_id)
+                    guser.gbo_gc_data, execution_time2 = SWS.syncTournamentGCData(guser, season_id)
                     #guser.gbo_sub_data = s.SWS.getTournamentSubByUser(guser)
                     guser.save()
                     
@@ -106,6 +106,9 @@ def login_view(request):
 
                 #check if user is TO
                 to_group, cr = Group.objects.get_or_create(name='tournament_organizer')
+                if cr:
+                    add_permissions_to(to_group)
+                # add permissions to to_group
                 to_group.user_set.add(user)
                 to_group.save()
 
@@ -254,6 +257,16 @@ def register_user(request):
 
     return render(request, "accounts/register.html", {"form": form, "msg" : msg, "success" : success })
 
+
+def add_permissions_to(to_group):
+    #p1 = Permission.objects.get(codename='beachhandball_app.can_add_court')
+    #p2 = Permission.objects.get(codename='beachhandball_app.can_change_court')
+    #p3 = Permission.objects.get(codename='beachhandball_app.can_delete_court')
+    #p4 = Permission.objects.get(codename='beachhandball_app.can_view_court')
+    #
+    #to_group.permissions.add(p1, p2, p3, p4)
+    do_nothing = 1
+    
 class ProfileView(TemplateView):
     template_name = 'page-user.html'
 

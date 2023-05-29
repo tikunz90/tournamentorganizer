@@ -11,6 +11,8 @@ from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django_unixdatetimefield import UnixDateTimeField
 import jsonfield
 
+from beachhandball_app.models.Tournaments import Court
+
 class GBOUser(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     gbo_user = models.CharField(max_length=100)
@@ -31,4 +33,16 @@ class GBOUser(models.Model):
 class GBOUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = GBOUser
+        fields = "__all__"
+        
+class ScoreBoardUser(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, null=True)
+    court = models.OneToOneField(Court, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return '{} {}, {} {}'.format(self.user.id, self.user.last_name, self.user.first_name, self.user.email)
+
+class ScoreBoardUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ScoreBoardUser
         fields = "__all__"

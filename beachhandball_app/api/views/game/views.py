@@ -3,13 +3,17 @@
 import json
 from datetime import datetime
 
+from django.contrib.auth import authenticate
+
 from django.db.models.query import Prefetch
 from django.http.response import JsonResponse
 from django.shortcuts import get_object_or_404
 from django.utils import six
 from django.views.decorators.cache import cache_page
 from django.db.models import Q
+from authentication.models import ScoreBoardUser
 from beachhandball_app import helper
+from beachhandball_app.api.serializers.tournament.serializer import serialize_court
 
 from beachhandball_app.models.Team import Team
 from beachhandball_app.api.serializers.game.serializer import GameRunningSerializer, GameRunningSerializer2, PlayerStatsSerializer, TeamSerializer
@@ -31,6 +35,59 @@ from rest_framework.response import Response
 from rest_framework.renderers import JSONRenderer
 
 
+@api_view(['POST'])
+def Login(request):
+    if request.method == 'POST':
+        username = request.data.get('username')
+        password = request.data.get('password')
+
+        if username and password:
+            # Perform authentication logic here
+            user = authenticate(username=username, password=password)
+            
+            if user is not None:
+                # If authentication is successful, return a success response
+                sbUser = ScoreBoardUser.objects.get(user=user)
+                if sbUser is not None:
+                    response = {
+                        "isError": False,
+                        "errorCode": 200,
+                        'message': 'Login successful',
+                        'username': username,
+                        'court': serialize_court(sbUser.court)
+                    }
+                else:
+                    response = {
+                        "isError": True,
+                        "errorCode": 200,
+                        'message': 'Login failed: ScoreBoardUser not found',
+                        'username': username,
+                    }
+            else:
+                response = {
+                    "isError": True,
+                    "errorCode": 200,
+                    'message': 'Login failed',
+                    'username': username,
+                }
+                
+            return JsonResponse(response)
+        else:
+            # Handle missing username or password
+            response = {
+                "isError": True,
+                "errorCode": 200,
+                'message': 'Please provide both username and password.',
+            }
+            return JsonResponse(response, status=400)
+    else:
+        # Handle non-POST requests
+        response = {
+            'message': 'Invalid request method. Only POST method is allowed.',
+        }
+        return JsonResponse(response, status=405)
+    
+    
 @api_view(['GET'])
 @authentication_classes([SessionAuthentication, BasicAuthentication])
 @permission_classes([IsAuthenticated])

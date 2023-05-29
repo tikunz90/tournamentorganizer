@@ -6,8 +6,8 @@ from django.contrib import admin
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from django.views.generic import TemplateView
 from .views import login_by_token
-from .views.game.views import GameDeleteStatsViewSet, GameViewSet, GameActionViewSet, PlayerStatsSet, PlayerStatsViewSet, RunningGamesDM, ScoutingReportViewSet, RunningGames, TeamViewSet, GameList, StartGameScouting, hello_world, get_pstats_tevent
-from .views.tournament.views import get_games_gc_info, get_tournament_info, get_games_info
+from .views.game.views import Login, GameDeleteStatsViewSet, GameViewSet, GameActionViewSet, PlayerStatsSet, PlayerStatsViewSet, RunningGamesDM, ScoutingReportViewSet, RunningGames, TeamViewSet, GameList, StartGameScouting, hello_world, get_pstats_tevent
+from .views.tournament.views import get_games_gc_info, get_tournament_info, get_games_info, get_game_info
 from rest_framework import renderers
 from rest_framework.authtoken import views
 from rest_framework import routers
@@ -17,6 +17,7 @@ router.register(r'games/upload_report/(?P<pk>\d+)', UploadGameReportViewSet, bas
 
 urlpatterns = [
     path('login_by_token/', login_by_token.LoginByToken.as_view()),
+    path('login_by_user/', Login),
 
     # GAME
     path('games/', GameViewSet.as_view({'get': 'list', 'post': 'create'})),
@@ -25,6 +26,7 @@ urlpatterns = [
     path('games/<int:pk>/delete_stats', GameDeleteStatsViewSet.as_view({'get': 'retrieve',}), name='api_game_delete_stats'),
     path('games/running/', RunningGames, name='get_running_games'),
     path('games/running/dm/', RunningGamesDM, name='get_running_games_dm'),
+    path('games/<int:game_id>/info/', get_game_info, name='get_game_info'),
 
     path('hello_world/<int:tevent_id>/<int:amount>/', hello_world, name='hello_world'),
 

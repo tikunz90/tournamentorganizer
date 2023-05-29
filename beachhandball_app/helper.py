@@ -390,7 +390,7 @@ def sync_teams_of_tevent(gbouser, tevent):
     except Exception as ex:
         print(traceback.format_exc())
         result['isError'] =  True
-        result['msg'] = ex.message
+        result['msg'] = ex.args[1]
     return result
 
 def sync_teams_of_game(gbouser, game):

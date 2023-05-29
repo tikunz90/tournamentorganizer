@@ -1,6 +1,8 @@
 from datetime import datetime
 from django.db import transaction
 from django.db.models.signals import post_save
+from authentication.models import ScoreBoardUser
+from django.contrib.auth.models import User, Group
 from beachhandball_app import signals
 from beachhandball_app.models.Game import Game
 from beachhandball_app.models.Team import Team, TeamStats
@@ -309,6 +311,30 @@ def wizard_create_gameplan(tourn, gameplan_data, num_courts):
     courts = {}
     for i in range(1, int(num_courts)+1):
         court, cr = Court.objects.get_or_create(tournament=tourn, name='C' + str(i), number=i)
+        if cr is True:
+            user = User.objects.create_user(str(tourn.id) + '_C' + str(i), 'dummy@mail.de', 'Start1234')
+            user.first_name = 'Court'
+            user.last_name = 'C' + str(i)
+            user.save()
+            sbUser = ScoreBoardUser(user=user, court=court)
+            sbUser.save()
+            
+            sb_group, cr = Group.objects.get_or_create(name='scoreboard')
+            sb_group.user_set.add(user)
+            sb_group.save()
+        else:
+            sbUser, cr = ScoreBoardUser.objects.get_or_create(court=court)
+            if cr is True:
+                user = User.objects.create_user(str(tourn.id) + '_C' + str(i), 'dummy@mail.de', 'Start1234')
+                user.first_name = 'Court'
+                user.last_name = 'C' + str(i)
+                user.save()
+                sbUser.user = user
+                sbUser.save()
+                sb_group, cr = Group.objects.get_or_create(name='scoreboard')
+                sb_group.user_set.add(user)
+                sb_group.save()
+                
         courts[i] = court
     games = []
     game_counter = 1

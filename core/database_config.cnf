@@ -1,10 +1,12 @@
 [client]
-database = beachhandball_2022
+#database = beachhandball_2022
+database = beachhandball_test
 host = 38.242.148.90
 #host = 127.0.0.1
 user = tim
 password = qs12fhw5
-default-character-set = utf8
+#default-character-set = utf8
+default-character-set = utf8mb4
 #user = to
 #test host = 62.75.170.12
 #prod host = 62.75.141.167
