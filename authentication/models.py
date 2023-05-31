@@ -11,7 +11,7 @@ from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django_unixdatetimefield import UnixDateTimeField
 import jsonfield
 
-from beachhandball_app.models.Tournaments import Court
+from beachhandball_app.models.Tournaments import Tournament, Court
 
 class GBOUser(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
@@ -45,4 +45,16 @@ class ScoreBoardUser(models.Model):
 class ScoreBoardUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = ScoreBoardUser
+        fields = "__all__"
+        
+class LiveScoreUser(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, null=True)
+    tournament = models.OneToOneField(Tournament, on_delete=models.CASCADE, null=True)
+
+    def __str__(self):
+        return '{} {}, {} {}'.format(self.user.id, self.user.last_name, self.user.first_name, self.user.email)
+
+class LiveScoreUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = LiveScoreUser
         fields = "__all__"

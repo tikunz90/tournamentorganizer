@@ -1,0 +1,18 @@
+{% extends "base_scoreboard.html" %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        {% include "livescore/game_detail_view_bh.html" %}
+    </div>
+</div>
+
+<div>
+    <h1 id="tournament_id" style="display: none">{{ tournament_id }}</h1>
+    <h1 id="court_id" style="display: none">{{ court_id }}</h1>
+    <h1 id="game_id" style="display: none">{{ game.id }}</h1>
+    <h1 id="mqtt_broker" style="display: none">{{ mqtt_broker }}</h1>
+    <h1 id="mqtt_port" style="display: none">{{ mqtt_port }}</h1>
+</div>
+{% endblock %}
+

@@ -9,6 +9,7 @@ from colorfield.fields import ColorField
 from .choices import TOURNAMENT_STATE_CHOICES, TOURNAMENT_STAGE_TYPE_CHOICES, COLOR_CHOICES
 
 from django_unixdatetimefield import UnixDateTimeField
+from django.contrib.auth.models import User
 
 
 class Tournament(models.Model):
@@ -146,7 +147,7 @@ class Court(models.Model):
     tournament = models.ForeignKey('Tournament', null=True, on_delete=models.CASCADE)
     name = models.CharField(max_length=50)
     number = models.SmallIntegerField(default=0)
-
+    
     def __str__(self):
         return '{} ({})'.format(self. name, self.number)
 

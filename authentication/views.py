@@ -14,7 +14,7 @@ import time
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.models import User, Group, Permission
-from authentication.models import GBOUser, GBOUserSerializer
+from authentication.models import GBOUser, GBOUserSerializer, LiveScoreUser
 from django.forms.utils import ErrorList
 from django.http import HttpResponse
 from .forms import LoginForm, SignUpForm, SelectTournamentForm
@@ -38,6 +38,10 @@ def login_view(request):
     #season = SWS.getSeasonActive()
     #cache.set('foo', 'bar')
     #auth_debug_task.delay('HELLO')
+    
+    group_tournament_organizer = 'tournament_organizer'
+    group_livescore = 'livescore'
+    group_scoreboard = 'scoreboard'
 
     if request.method == "POST":
 
@@ -50,11 +54,25 @@ def login_view(request):
             season_active = [s for s in seasons if s['id'] == season_id][0]
 
             # check if gbo user is online
-            user = User.objects.filter(username=username)
-            if user.count() > 0:
-                gbouser = GBOUser.objects.filter(user__username=username).first()
+            users = User.objects.filter(username=username)
+            if users.count() > 0:
+                user = users.first()
+                is_to = user.groups.filter(name=group_tournament_organizer).exists()
+                is_live = user.groups.filter(name=group_livescore).exists()
+                if is_to:
+                    gbouser = GBOUser.objects.filter(user__username=username).first()
+                elif is_live:
+                    user = authenticate(username=username, password=password)
+                    if user is not None:
+                        lsuser = LiveScoreUser.objects.get(user=user)
+                        return redirect("live_score")
+                    else:
+                        msg = 'Invalid credentials'
+                        gbouser = None
             else:
                 gbouser = None
+            
+            
             if gbouser:
                 if not gbouser.is_online:
                     user = authenticate(username=username, password=password)
@@ -153,6 +171,9 @@ def login_view(request):
                             tourn = tourns[0]
                             tourn.is_active = True
                             tourn.save()
+                            
+                            # Create livescore user
+                            
                             update_user_tournament_events(gbouser, tourn)
                             #update_user_tournament_events_async.delay(model_to_dict(gbouser), model_to_dict(tourn))
                         elif len(tourns) > 1:

@@ -3,6 +3,7 @@ from django.db import transaction
 from django.db.models.signals import post_save
 from authentication.models import ScoreBoardUser
 from django.contrib.auth.models import User, Group
+from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 from beachhandball_app import signals
 from beachhandball_app.models.Game import Game
 from beachhandball_app.models.Team import Team, TeamStats
@@ -310,24 +311,45 @@ def handle_transitions_ranking(ts_final_ranking, tstats_final_ranking, ttt):
 def wizard_create_gameplan(tourn, gameplan_data, num_courts):
     courts = {}
     for i in range(1, int(num_courts)+1):
-        court, cr = Court.objects.get_or_create(tournament=tourn, name='C' + str(i), number=i)
+        #court, cr = Court.objects.get_or_create(tournament=tourn, name='C' + str(i), number=i)
+        cr = False
+        try:
+            court = Court.objects.get(number=i)
+            # Court object with number=21 exists
+        except Court.DoesNotExist:
+            # Court object with number=21 does not exist
+            # Handle the case where the court does not exist
+            court = Court(tournament=tourn, name='C' + str(i), number=i)
+            court.save()
+            cr = True
+        except MultipleObjectsReturned:
+            court = Court(tournament=tourn, name='C' + str(i), number=i)
+            court.save()
+            cr = True
+            
+        username = str(court.tournament_id) + '_' + court.name.replace(" ", "_")
+        
         if cr is True:
-            user = User.objects.create_user(str(tourn.id) + '_C' + str(i), 'dummy@mail.de', 'Start1234')
-            user.first_name = 'Court'
-            user.last_name = 'C' + str(i)
+            #create scoreboard user            
+            user = User.objects.create_user(username, 'c@c.c', username)
+            user.first_name = str(court.number)
+            user.last_name = court.name
             user.save()
+            #check if user is TO
+            sb_group, cr = Group.objects.get_or_create(name='scoreboard')
+            # add permissions to to_group
+            sb_group.user_set.add(user)
+            sb_group.save()
+            
             sbUser = ScoreBoardUser(user=user, court=court)
             sbUser.save()
             
-            sb_group, cr = Group.objects.get_or_create(name='scoreboard')
-            sb_group.user_set.add(user)
-            sb_group.save()
         else:
             sbUser, cr = ScoreBoardUser.objects.get_or_create(court=court)
             if cr is True:
-                user = User.objects.create_user(str(tourn.id) + '_C' + str(i), 'dummy@mail.de', 'Start1234')
-                user.first_name = 'Court'
-                user.last_name = 'C' + str(i)
+                user = User.objects.create_user(username, 'c@c.c', username)
+                user.first_name = str(court.number)
+                user.last_name = court.name
                 user.save()
                 sbUser.user = user
                 sbUser.save()

@@ -1,0 +1,155 @@
+{% extends "layouts/base-livescore.html" %}
+
+{% block title %} Live Score {% endblock title %}
+
+<!-- Specific Page CSS goes HERE  -->
+{% block stylesheets %}{% endblock stylesheets %}
+
+{% block content %}
+
+{% include "beachhandball/templates/_modal.html" %}
+
+
+
+{% if tourn %}
+<h2>Live Score - {{ tourn.name }}</h2>
+<hr>
+<div class="container">
+<h2>Events</h2>
+<ul class="list-group">
+  {% for event in tourn.all_tevents %}
+      <li class="list-group-item">
+          <h3>{{ event.category }}</h3>
+          <p>Start Time: {{ event.start_ts}}</p>
+          <p>End Time: {{ event.end_ts}}</p>
+          <p>Maximum Number of Teams: {{ event.max_number_teams }}</p>
+          <!-- Add any other fields you want to display here -->
+      </li>
+    {% endfor %}
+      
+    {% if not tourn.all_tevents %}
+        <li class="list-group-item">No events found.</li>
+    {% endif %}
+</ul>
+{% else %}
+<h2>Live Score - No Data</h2>
+<hr>
+{% endif %}
+</div>
+
+<hr>
+
+<div class="container">
+  <h2>Courts</h2>
+  {% for court in tourn.all_courts %}
+  <div class="row">
+      <div class="card">
+          <div class="card-header">
+              Court: {{ court.name }} {{ court.number }}
+          </div>
+          <div class="card-body">
+
+              <h4>Games:</h4>
+                    {% for game in tourn.all_games %}
+                    {% if game.court == court %}
+                    <div class="card">
+                        <div class="card-header">
+                            <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#game-{{ game.id }}" aria-expanded="true" aria-controls="game-{{ game.id }}">
+                                {{ game.id }} - <b>{{ game.team_a.name }} vs {{ game.team_b.name }}</b>  {{ game.gamestate}}
+                            </button>
+                        </div>
+                        <div id="game-{{ game.id }}" class="collapse hide" aria-labelledby="heading-{{ game.id }}" data-parent="#court-{{ court.id }}">
+                            <div class="card-body">
+                                <p>Start Time: {{ game.starttime }}</p>
+                                <p>Teams: {{ game.team_a.name }} vs {{ game.team_b.name }}</p>
+                                <div class="row">
+                                  <div class="col">
+                                <h6>Team A Players:</h6>
+                                <table class="table table-bordered">
+                                  <thead>
+                                      <tr>
+                                          <th>Number</th>
+                                          <th>Name</th>
+                                          <th>Position</th>
+                                          <th>Is Active</th>
+                                      </tr>
+                                  </thead>
+                                  <tbody>
+                                      {% for player in game.team_a.player_set.all() %}
+                                          <tr>
+                                              <td>{{ player.number }}</td>
+                                              <td>{{ player.name }}, {{ player.first_name }}</td>
+                                              <td>{{ player.gbo_position }}</td>
+                                              <td><input type="checkbox" {% if player.is_active %}checked{% endif %} disabled></td>
+                                          </tr>
+                                      {% endfor %}
+                                  </tbody>
+                              </table>
+                            </div>
+                            <div class="col">
+                                <h6>Team B Players:</h6>
+                                <table class="table table-bordered">
+                                <thead>
+                                  <tr>
+                                      <th>Number</th>
+                                      <th>Name</th>
+                                      <th>Position</th>
+                                      <th>Is Active</th>
+                                  </tr>
+                              </thead>
+                              <tbody>
+                                  {% for player in game.team_b.player_set.all() %}
+                                      <tr>
+                                          <td>{{ player.number }}</td>
+                                          <td>{{ player.name }}, {{ player.first_name }}</td>
+                                          <td>{{ player.gbo_position }}</td>
+                                          <td><input type="checkbox" {% if player.is_active %}checked{% endif %} disabled></td>
+                                      </tr>
+                                  {% endfor %}
+                              </tbody>
+                          </table>
+                        </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+                    {% endfor %}
+                    {% if not tourn.all_games %}
+                        <p>No games found.</p>
+                    {% endif %}
+          </div>
+      </div>
+    </div>
+  {% endfor %}
+  
+  {% if not tourn.all_courts %}
+      <div class="alert alert-info">No courts found.</div>
+  {% endif %}
+</div>
+
+
+
+<hr>
+
+{% endblock content %}
+
+{% block javascripts %}
+
+<script>
+    $(document).ready(function() {
+      //md.initFullCalendar();
+      //md.initFullCalendar2();
+      $("#update-game-result-form").modal("hide");
+      $("#update-game-result-form").LoadingOverlay("hide");
+
+      {% if messages %}
+        console.log("Has messages...");
+        {% for message in messages %}
+        md.showNotification('top','center', '{{ message }}', 'info');
+        {% endfor %}
+      {% endif %}
+
+    });
+  </script>
+
+{% endblock javascripts %}

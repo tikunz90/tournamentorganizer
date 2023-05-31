@@ -7,6 +7,7 @@ from django.urls import reverse
 from datetime import datetime
 import time
 import json
+from django.contrib.auth.models import User, Group
 from django.db.models.query import Prefetch
 from django.forms.models import model_to_dict
 from rest_framework.renderers import JSONRenderer
@@ -25,7 +26,7 @@ from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django import template
 from django.db.models import Q
 
-from authentication.models import GBOUser
+from authentication.models import GBOUser, ScoreBoardUser
 from .models.Tournaments import Court, Referee, Tournament, TournamentEvent, TournamentSettings, TournamentStage, TournamentState
 from .models.Team import Team, TeamStats
 from .models.Series import Season
@@ -289,6 +290,22 @@ def basic_setup(request):
         formCourt = CourtForm(request.POST)
         if formCourt.is_valid():
             formCourt.save()
+            court = formCourt.instance
+            #create scoreboard user
+            username = str(court.tournament_id) + '_' + court.name.replace(" ", "_")
+            user = User.objects.create_user(username, 'c@c.c', username)
+            user.first_name = str(court.number)
+            user.last_name = court.name
+            user.save()
+            #check if user is TO
+            sb_group, cr = Group.objects.get_or_create(name='scoreboard')
+            # add permissions to to_group
+            sb_group.user_set.add(user)
+            sb_group.save()
+            
+            sbUser = ScoreBoardUser(user=user, court=court)
+            sbUser.save()
+            
     
     if request.method == 'GET':
         form = TournamentSettingsForm(instance=context['tourn_settings'])
@@ -400,6 +417,7 @@ def results(request):
 
     html_template = loader.get_template( 'beachhandball/tournamentevent/results.html' )
     return HttpResponse(html_template.render(context, request))
+
 
 @login_required(login_url="/login/")
 @user_passes_test(lambda u: u.groups.filter(name='tournament_organizer').exists(),

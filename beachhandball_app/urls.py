@@ -4,7 +4,7 @@ Copyright (c) 2019 - present AppSeed.us
 """
 
 from django.urls import path, re_path
-from beachhandball_app import static_views
+from beachhandball_app import static_views, livescore_views
 from beachhandball_app.views.basic_setup import CourtCreateView, CourtUpdateView, CourtDeleteView
 from beachhandball_app.views.teams_setup import TeamsSetupDetail
 from beachhandball_app.views.structure_setup import DownloadPreGameView, DownloadPreGameAllView, GameCreateView, GameResultGameView, GameUpGameView, StateFinishView, StructureSetupDetail, StageCreateView, StageDeleteView, StateCreateView, StateDeleteView, StateUpdateView, TTTUpdateView, TeamStatsUpdateTeamView, GameDeleteView, TournamentEventDetail, TournamentStageDetail, postUpdateGameResult, update_teamsetup
@@ -76,5 +76,8 @@ urlpatterns = [
     path('results/<int:pk>/', ResultsDetail.as_view(), name='results.detail'),
 
     path('team_testdata/<int:pk_tevent>/', static_views.create_teamtestdata, name='team_testdata'),
+    
+    path('livescore/<int:pk_tourn>/', livescore_views.livescore_overview, name='livescore_overview'),
+    path('livescore/<int:pk_tourn>/display_livestream/<int:pk_court>/', livescore_views.livescore_display_livestream, name='livescore'),
 
 ]

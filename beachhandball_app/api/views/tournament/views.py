@@ -82,11 +82,32 @@ def get_tournament_info(request, season_tournament_id):
 @cache_page(10)
 @renderer_classes([JSONRenderer])
 def get_games_info(request, season_tournament_id):
-    print( 'ENTER get_tournament_info season_tournament_id=' + str(season_tournament_id))
+    print( 'ENTER get_games_info season_tournament_id=' + str(season_tournament_id))
     isError = False
     errorCode = 200
     tourn_data = Tournament.objects.prefetch_related(
             Prefetch("game_set", queryset=Game.objects.select_related("tournament", "tournament_event__category", "team_a", "team_b", "team_st_a__team", "team_st_b__team", "ref_a", "ref_b", "tournament_state__tournament_stage", "court").prefetch_related(
+                Prefetch("playerstats_set", queryset=PlayerStats.objects.select_related("player__team").filter(is_ranked=False).order_by("-score"), to_attr="player_stats"),
+            )
+                , to_attr="all_games")
+                ).filter(season_cup_tournament_id=season_tournament_id).first()
+
+
+    t_as_dict = serialize_games(tourn_data.all_games)
+    return Response({"isError": isError, "errorCode": errorCode, "message": t_as_dict})
+
+
+@api_view(['GET'])
+#@authentication_classes([SessionAuthentication, BasicAuthentication])
+#@permission_classes([IsAuthenticated])
+@cache_page(10)
+@renderer_classes([JSONRenderer])
+def get_games_info_by_court(request, season_tournament_id, court_id):
+    print( 'ENTER get_games_info_by_court season_tournament_id=' + str(season_tournament_id) + ' court_id=' + str(court_id))
+    isError = False
+    errorCode = 200
+    tourn_data = Tournament.objects.prefetch_related(
+            Prefetch("game_set", queryset=Game.objects.select_related("tournament", "tournament_event__category", "team_a", "team_b", "team_st_a__team", "team_st_b__team", "ref_a", "ref_b", "tournament_state__tournament_stage", "court").filter(court=court_id).prefetch_related(
                 Prefetch("playerstats_set", queryset=PlayerStats.objects.select_related("player__team").filter(is_ranked=False).order_by("-score"), to_attr="player_stats"),
             )
                 , to_attr="all_games")
