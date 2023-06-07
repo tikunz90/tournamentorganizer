@@ -395,6 +395,13 @@ def sync_teams_of_tevent(gbouser, tevent):
 
 def sync_teams_of_game(gbouser, game):
     result = {'isError': False, 'msg': ''}
+    
+    if game.team_a is None and game.team_st_a is not None:
+        game.team_a = game.team_st_a.team
+    
+    if game.team_b is None and game.team_st_b is not None:
+        game.team_b = game.team_st_b.team
+    game.save()
     team_ids = [game.team_a.id, game.team_b.id]
     ranking_ids = [game.team_a.season_team_cup_tournament_ranking_id, game.team_b.season_team_cup_tournament_ranking_id]
     try:
