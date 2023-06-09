@@ -40,8 +40,8 @@ transform:skew(var(--skew));}
 
 .toplabel {padding:0; float:left;justify-self: start; padding: 3px; background:var(--bkgtimer); font-weight:bold; color:var(--textpenalty); font-size:1.25vw;}
 .boxtimer {padding:var(--timerpadding); float:left;padding: 1px; background:var(--bkgtimer); font-weight:bold; color:var(--textpenalty)}
-.boxhometeam {padding:var(--timerpadding); padding-left: 1px; float:left; background:var(--bkgmedium); font-weight:bold; font-size:3.2vw;}
-.boxawayteam {padding:var(--timerpadding); padding-left: 1px;float:left; background:var(--bkgmedium); font-weight:bold; font-size:3.2vw;}
+.boxhometeam {padding:var(--timerpadding); padding-left: 1px; float:left; background:var(--bkgmedium); font-weight:bold; font-size:3.0vw;}
+.boxawayteam {padding:var(--timerpadding); padding-left: 1px;float:left; background:var(--bkgmedium); font-weight:bold; font-size:3.0vw;}
 .boxpoints {padding:var(--pointspadding); float:left;background:var(--bkgmedium); font-weight:bold;}
 .boxpointsp {padding:var(--pointspadding); float:left;background:var(--bkgpenalty); font-weight:bold; color:var(--textpenalty);}
 .boxovertimeon {background:var(--signalcolor);}
@@ -74,7 +74,7 @@ transform:skew(var(--skew));}
 
 
 /*---- BEACHHANDBALL --------*/
-.containerbeachhandball {grid-template: auto / auto var(--pointswidth) 1.2em auto;grid-template-rows: 8px minmax(0, 1fr); grid-template-columns: 10px minmax(0, 1fr); column-gap:0; row-gap: 4; font-size:5.5vw;}
+.containerbeachhandball {grid-template: auto / auto var(--pointswidth) 1.2em auto;grid-template-rows: 20px minmax(0, 1fr); grid-template-columns: 10px minmax(0, 1fr); column-gap:0; row-gap: 4; font-size:5.5vw;}
 .containerbeachhandball .space {display:none;}
 .containerbeachhandball .box {justify-content:center;}
 .containerbeachhandball .boxteams {justify-content:flex-start;}
