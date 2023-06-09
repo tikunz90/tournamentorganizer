@@ -115,6 +115,9 @@ def livescore_overview(request, pk_tourn):
     #context['tourn_settings'] = t.settings[0] #TournamentSettings.objects.get(tournament=t)
     context['events'] = t.all_tevents #TournamentEvent.objects.filter(tournament=t)
 
+    context['mqtt_broker'] = settings.MQTT_BROKER
+    context['mqtt_port'] = settings.MQTT_PORT
+    
     html_template = loader.get_template( 'livescore/livescore_overview.html' )
     return HttpResponse(html_template.render(context, request))
 

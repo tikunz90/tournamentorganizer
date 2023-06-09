@@ -1,9 +1,10 @@
 <!---- BEACHHANDBALL ----->
 <div class="container containerbeachhandball">
+<div class="box toplabel" id="header">PRESENTED BY SPRUNGWURF TV</div>
 <div class="box boxtimer" id="stopwatch">00:00</div>
 
-<div class="box boxteams boxhometeam" id="team_1">{{ game.team_a.abbreviation }}</div>
-<div class="box boxteams boxawayteam" id="team_2">{{ game.team_b.abbreviation }}</div>
+<div class="box boxteams boxhometeam" id="team_1">{{ game.team_a.name }}</div>
+<div class="box boxteams boxawayteam" id="team_2">{{ game.team_b.name }}</div>
 
 
 <div class="box boxpoints boxhomepoints" id="team_a_score_ht1">{{ game.score_team_a_halftime_1 }}</div>
@@ -15,12 +16,10 @@
 <div class="box boxpoints boxawaypointsht2" id="team_b_score_ht2">{{ game.score_team_a_halftime_2 }}</div>
 
 <div class="box space">-</div>
-<div class="box boxpoints boxhomepointsp" id="team_a_score_p">{{ game.score_team_a_penalty }}</div>
-<div class="box boxpoints boxawaypointsp" id="team_b_score_p">{{ game.score_team_b_penalty }}</div>
+<div class="box boxpointsp boxhomepointsp" id="team_a_score_p">{{ game.score_team_a_penalty }}</div>
+<div class="box boxpointsp boxawaypointsp" id="team_b_score_p">{{ game.score_team_b_penalty }}</div>
 
 
-<div class="box boxmoment boxovertimeoff" id="halftime"><span><em id="overtime"></em><strong id="moment">1</strong></span></div>
-</div>
 
 <div>
   <h3 id="team_a_score_total" style="display: none">0</h3>

@@ -1,49 +1,36 @@
 @import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@300&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300&display=swap');
 
-@font-face {
-  font-family: 'Lemon Milk';
-  src: url('/static/assets/font/LEMONMILK-Regular.otf') format('truetype');
-}
-
 /*----- Classi comuni ----*/
 :root {
---skew: 0deg;
+--skew: 3deg;
 --antiskew: -10deg;
---text: #FFF;
---textpenalty: #000000;
+--text: #333;
 --textinverted: #f1f1f1;
---bordercolors: rgba(255,255,255,.0);
---bkgimage: rgba(255,255,255,.0);
---bkgdark: #000;
---bkgmedium: rgba(0,0,0,.9);
---bkgbox: rgba(255,255,255,.0);
---bkgtimer: rgba(255,255,255,1);
---bkgpenalty: rgba(255,215,0,.9);
+--bordercolors: rgba(187,187,187,.3);
+--bkgimage: #fff;
+--bkgdark: #fff;
+--bkgmedium: rgba(187,187,187,.3);
 --signalcolor: red;
---signaloff: rgba(255,255,255,.9);
---linee: rgba(255,255,255,.9);
+--signaloff: rgba(187,187,187,.3);
+--linee: rgba(187,187,187,.5);
 
 --timerwidth:2.5em;
---timerpadding: 10 .5vw;
---pointswidth:2.5em;
---pointspadding: 0 1.5vw;
+--timerpadding: 0 .5vw;
+--pointswidth:1.5em;
+--pointspadding: 0 .5vw;
 --momentwidth:1.7em;
 --labelsmargin: .1em;
 }
 
-html, body {margin:0; padding:0;background-color: #352383;}
+html, body {margin:0; padding:0;}
 em {font-style:normal;}
-.box, div {box-sizing: border-box; display:flex; align-items:center; height:100%; background:var(--bkgbox);}
+.box, div {box-sizing: border-box; display:flex; align-items:center; height:100%;}
 .container {position:relative; box-sizing: border-box; height:auto; float:left; clear:both; width:auto; display:grid; column-gap: 1vw; background:var(--bkgimage); color:var(--text); border-left:solid 2vw var(--bordercolors); padding:.3vw; font-family: 'Roboto', sans-serif;
 transform:skew(var(--skew));}
 
-.toplabel {padding:0; float:left;justify-self: start; padding: 3px; background:var(--bkgtimer); font-weight:bold; color:var(--textpenalty); font-size:1.25vw;}
-.boxtimer {padding:var(--timerpadding); float:left;padding: 1px; background:var(--bkgtimer); font-weight:bold; color:var(--textpenalty)}
-.boxhometeam {padding:var(--timerpadding); padding-left: 1px; float:left; background:var(--bkgmedium); font-weight:bold; font-size:3.2vw;}
-.boxawayteam {padding:var(--timerpadding); padding-left: 1px;float:left; background:var(--bkgmedium); font-weight:bold; font-size:3.2vw;}
+.boxtimer {padding:var(--timerpadding); float:left; background:var(--bkgmedium); font-weight:bold;}
 .boxpoints {padding:var(--pointspadding); float:left;background:var(--bkgmedium); font-weight:bold;}
-.boxpointsp {padding:var(--pointspadding); float:left;background:var(--bkgpenalty); font-weight:bold; color:var(--textpenalty);}
 .boxovertimeon {background:var(--signalcolor);}
 
 .sgrlogo {background-size: contain !important;}
@@ -52,10 +39,10 @@ transform:skew(var(--skew));}
 .containerhandball {grid-template: auto / auto var(--pointswidth) 1.2em auto; column-gap:0; font-size:6.5vw;}
 .containerhandball .space {display:none;}
 .containerhandball .box {justify-content:center;}
-.containerhandball .boxteams {justify-content:flex-start;background:var(--bkgmedium);}
+.containerhandball .boxteams {justify-content:flex-start;}
 
 
-.containerhandball .sgrlogo {grid-row: 1/3; grid-column: 1/1;}
+.containerhandball .sgrlogo {grid-row: 1/2; grid-column: 3/4;}
 .containerhandball .boxhometeam {grid-row: 1/2; grid-column: 1/2;}
 .containerhandball .boxawayteam {grid-row: 2/3; grid-column: 1/2;}
 .containerhandball .boxhomepoints {grid-row: 1/2; grid-column: 2/3;}
@@ -68,39 +55,38 @@ transform:skew(var(--skew));}
 .containerhandball .boxteams {padding-right: .2em;}
 .containerhandball .boxpoints {border-right: solid 0.3vw rgba(255,255,255,0.3);}
 .containerhandball .boxmoment {font-size: .7em; padding:0;}
-.containerhandball .boxtimer {min-width:var(--timerwidth);justify-self: start; padding-left: 5px;}
+.containerhandball .boxtimer {min-width:var(--timerwidth);}
 .containerhandball .boxovertimeon {background: transparent; color: var(--signalcolor);}
 
 
 
 /*---- BEACHHANDBALL --------*/
-.containerbeachhandball {grid-template: auto / auto var(--pointswidth) 1.2em auto;grid-template-rows: 8px minmax(0, 1fr); grid-template-columns: 10px minmax(0, 1fr); column-gap:0; row-gap: 4; font-size:5.5vw;}
+.containerbeachhandball {grid-template: auto / auto var(--pointswidth) 1.2em auto; column-gap:0; font-size:5.5vw;}
 .containerbeachhandball .space {display:none;}
 .containerbeachhandball .box {justify-content:center;}
 .containerbeachhandball .boxteams {justify-content:flex-start;}
 
 
-.containerbeachhandball .sgrlogo {grid-row: 1/4; grid-column: 1/1;}
-.containerbeachhandball .toplabel {grid-row: 1/1; grid-column: 2/5;}
-.containerbeachhandball .boxhometeam {grid-row: 2/3; grid-column: 2/5;}
-.containerbeachhandball .boxawayteam {grid-row: 3/4; grid-column: 2/5;}
-.containerbeachhandball .boxhomepoints {grid-row: 2/3; grid-column: 5/7;}
-.containerbeachhandball .boxawaypoints {grid-row: 3/4; grid-column: 5/7;}
-.containerbeachhandball .boxhomepointsht2 {grid-row: 2/3; grid-column: 7/9;}
-.containerbeachhandball .boxawaypointsht2 {grid-row: 3/4; grid-column: 7/9;}
+.containerbeachhandball .sgrlogo {grid-row: 1/2; grid-column: 3/4;}
+.containerbeachhandball .boxhometeam {grid-row: 1/2; grid-column: 1/2;}
+.containerbeachhandball .boxawayteam {grid-row: 2/3; grid-column: 1/2;}
+.containerbeachhandball .boxhomepoints {grid-row: 1/2; grid-column: 2/3;}
+.containerbeachhandball .boxawaypoints {grid-row: 2/3; grid-column: 2/3;}
+.containerbeachhandball .boxhomepointsht2 {grid-row: 1/2; grid-column: 3/4;}
+.containerbeachhandball .boxawaypointsht2 {grid-row: 2/3; grid-column: 3/4;}
 
-.containerbeachhandball .boxhomepointsp {grid-row: 2/3; grid-column: 9/11;}
-.containerbeachhandball .boxawaypointsp {grid-row: 3/4; grid-column: 9/11;}
+.containerbeachhandball .boxhomepointsp {grid-row: 1/2; grid-column: 4/5;}
+.containerbeachhandball .boxawaypointsp {grid-row: 2/3; grid-column: 4/5;}
 
-/*.containerbeachhandball .boxmoment {grid-row: 1/2; grid-column: 6/7;}*/
-.containerbeachhandball .boxtimer {grid-row: 4/4; grid-column: 2/2;}
+.containerbeachhandball .boxmoment {grid-row: 1/2; grid-column: 6/7;}
+.containerbeachhandball .boxtimer {grid-row: 2/3; grid-column: 5/7;}
 
 
 .containerbeachhandball .sgrlogo {margin: 0 .1em;}
 .containerbeachhandball .boxteams {padding-right: .2em;}
 .containerbeachhandball .boxpoints {border-right: solid 0.3vw rgba(255,255,255,0.3);}
 .containerbeachhandball .boxmoment {font-size: .7em; padding:0;}
-.containerbeachhandball .boxtimer {min-width:var(--timerwidth);justify-self: start;}
+.containerbeachhandball .boxtimer {min-width:var(--timerwidth);}
 .containerbeachhandball .boxovertimeon {background: transparent; color: var(--signalcolor);}
 
 /*---- VOLLEY --------*/
