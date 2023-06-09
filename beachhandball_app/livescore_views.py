@@ -160,7 +160,7 @@ def livescore_display_livestream(request, pk_tourn, pk_court):
     # Pick out the html file name from the url. And load that template.
     try:
 
-        game = Game.objects.get(pk=1)
+        game = Game.objects.get(pk=1415)
         context['tournament_id'] = pk_tourn
         context['court_id'] = pk_court
         context['game'] = game

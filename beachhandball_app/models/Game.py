@@ -152,6 +152,8 @@ class GameAction(models.Model):
         ('SUSPENSION', 'SUSPENSION'),
         ('REDCARD', 'REDCARD'),
         ('CORRECTION', 'CORRECTION'),
+        ('SixM', 'SixM'),
+        ('TEAM_TIMEOUT', 'TEAM_TIMEOUT'),
     )
 
     tournament = models.ForeignKey('Tournament', null=True, related_name='+', on_delete=models.CASCADE)

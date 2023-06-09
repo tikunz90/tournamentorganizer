@@ -182,6 +182,8 @@
                   <th>#</th>
                   <th>Player</th>
                   <th>Points</th>
+                  <th>Susp.</th>
+                  <th>Red</th>
                   <th>Info</th>
               </tr>
               </thead>
@@ -191,6 +193,8 @@
                   <td>{{ pstat.player.number }}</td>
                   <td>{{ pstat.player.name }}, {{ pstat.player.first_name }}</td>
                   <td>{{ pstat.score }}</td>
+                  <td{% if pstat.suspension > 0 %} class="yellow-background"{% endif %}>{{ pstat.suspension }}</td>
+                  <td{% if pstat.redcard > 0 %} class="red-background"{% endif %}>{{ pstat.redcard }}</td>
                   <td></td>
                 </tr>
               {% endfor %}
@@ -215,6 +219,8 @@
                   <th>#</th>
                   <th>Player</th>
                   <th>Points</th>
+                  <th>Susp.</th>
+                  <th>Red</th>
                   <th>Info</th>
               </tr>
               </thead>
@@ -224,6 +230,8 @@
                     <td>{{ pstat.player.number }}</td>
                     <td>{{ pstat.player.name }}, {{ pstat.player.first_name }}</td>
                     <td>{{ pstat.score }}</td>
+                    <td{% if pstat.suspension > 0 %} class="yellow-background"{% endif %}>{{ pstat.suspension }}</td>
+                    <td{% if pstat.redcard > 0 %} class="red-background"{% endif %}>{{ pstat.redcard }}</td>
                     <td></td>
                   </tr>
                 {% endfor %}
