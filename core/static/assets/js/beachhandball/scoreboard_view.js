@@ -141,8 +141,8 @@ function onMessageArrived(message) {
             score_teamb_p = data['score_team_b_penalty'];
             score_teamb_total = data['score_teamb_total'];
             update_score_display();
-            teama_name = data['team_a']['abbreviation']
-            teamb_name = data['team_b']['abbreviation']
+            teama_name = data['team_a']['name']
+            teamb_name = data['team_b']['name']
             update_game_display();
             return;
         }
