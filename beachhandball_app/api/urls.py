@@ -7,7 +7,7 @@ from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from django.views.generic import TemplateView
 from .views import login_by_token
 from .views.game.views import Login, GameDeleteStatsViewSet, GameViewSet, GameActionViewSet, PlayerStatsSet, PlayerStatsViewSet, RunningGamesDM, ScoutingReportViewSet, RunningGames, TeamViewSet, GameList, StartGameScouting, hello_world, get_pstats_tevent
-from .views.tournament.views import get_games_gc_info, get_tournament_info, get_games_info, get_game_info, get_games_info_by_court
+from .views.tournament.views import get_games_gc_info, get_tournament_info, get_games_info, get_game_info, get_games_info_by_court, get_tournament_struct
 from rest_framework import renderers
 from rest_framework.authtoken import views
 from rest_framework import routers
@@ -31,6 +31,7 @@ urlpatterns = [
     path('hello_world/<int:tevent_id>/<int:amount>/', hello_world, name='hello_world'),
 
     path('tournament/<int:season_tournament_id>/info/', get_tournament_info, name='get_tournament_info'),
+    path('tournament/<int:season_tournament_id>/struct/', get_tournament_struct, name='get_tournament_struct'),
     path('tournament/<int:season_tournament_id>/info/games', get_games_info, name='get_games_info'),
     path('tournament/<int:season_tournament_id>/info/games/<int:court_id>', get_games_info_by_court, name='get_games_info_by_court'),
     path('tournament_gc/<int:season_cup_gc_id>/info/games', get_games_gc_info, name='get_games_info'), 

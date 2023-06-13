@@ -118,6 +118,7 @@
                               </thead>
                               <tbody>
                               {% for player in team.players %}
+                              {% if player.is_active %}
                                 <tr>
                                   <td>{% if player.is_active %}<i class="material-icons">check_box</i>{% else %}<i class="material-icons">check_box_outline_blank</i>{% endif %}</td>
                                   <td>{{ player.number }}</td>
@@ -125,6 +126,7 @@
                                   <td class="text-center">{{ player.gbo_position }}</td>
                                   <td>{{ player.season_player_id }}</td>
                                 </tr>
+                                {% endif %}
                               {% endfor %}
                               </tbody>
                             </table>

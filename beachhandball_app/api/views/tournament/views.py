@@ -14,11 +14,12 @@ from rest_framework.decorators import action, api_view, authentication_classes, 
 from rest_framework.response import Response
 from rest_framework.renderers import JSONRenderer
 
+from beachhandball_app import helper
 from beachhandball_app.models.Tournaments import Tournament, TournamentEvent, TournamentSettings, TournamentStage, TournamentState, Court, Referee
 from beachhandball_app.models.Game import Game
 from beachhandball_app.models.Team import TeamStats
 from beachhandball_app.models.Player import PlayerStats, Player
-from beachhandball_app.api.serializers.tournament import TournamentSerializer, serialize_tournament, serialize_games, serialize_game2
+from beachhandball_app.api.serializers.tournament import TournamentSerializer, serialize_tournament, serialize_games, serialize_game2, serialize_tournament_full, serialize_tournament_event_stats
 
 @api_view(['GET'])
 #@authentication_classes([SessionAuthentication, BasicAuthentication])
@@ -74,6 +75,61 @@ def get_tournament_info(request, season_tournament_id):
     #print('After response')
     return Response({"isError": isError, "errorCode": errorCode, "message": t_as_dict})
 
+
+@api_view(['GET'])
+#@authentication_classes([SessionAuthentication, BasicAuthentication])
+#@permission_classes([IsAuthenticated])
+@cache_page(1)
+@renderer_classes([JSONRenderer])
+def get_tournament_struct(request, season_tournament_id):
+    print( 'ENTER get_tournament_info season_tournament_id=' + str(season_tournament_id))
+    isError = False
+    errorCode = 200
+    tourn_data = Tournament.objects.prefetch_related(
+    Prefetch(
+        "tournamentevent_set",
+        queryset=TournamentEvent.objects.select_related("tournament", "category").prefetch_related(
+            Prefetch(
+                "tournamentstage_set",
+                queryset=TournamentStage.objects.select_related("tournament_event__category").prefetch_related(
+                    Prefetch(
+                        "tournamentstate_set",
+                        queryset=TournamentState.objects.select_related("tournament_event__category", "tournament_stage").prefetch_related(
+                            Prefetch(
+                                "teamstats_set",
+                                queryset=TeamStats.objects.select_related("team").order_by("rank"),
+                                to_attr="all_team_stats"
+                            )
+                        ),
+                        to_attr="all_tstates"
+                    )
+                ),
+                to_attr="all_tstages"
+            ),
+            Prefetch("playerstats_set", queryset=PlayerStats.objects.select_related("player__team").filter(is_ranked=True).order_by("-score"), to_attr="player_stats")
+        ),
+        to_attr="all_tevents"
+    )
+).filter(season_cup_tournament_id=season_tournament_id).first()
+
+    data = serialize_tournament_event_stats(tourn_data)
+    #global_pstats = PlayerStats.objects.filter(tournament_event=tevent, is_ranked=True).order_by('-score')[:amount]
+    #print('After objects')
+    #ser = PlayerStatsSerializer(global_pstats, many=True)
+    #tSerializer = TournamentSerializer(t)
+    #t_as_dict = serialize_tournament_full(tourn_data)
+    #tevent = TournamentEvent.objects.get(id=tevent_id)
+    #
+    #if amount <= 0:
+    #    global_pstats = PlayerStats.objects.filter(tournament_event=tevent, is_ranked=True).order_by('-score')
+    #else:
+    #    global_pstats = PlayerStats.objects.filter(tournament_event=tevent, is_ranked=True).order_by('-score')[:amount]
+    #print('After objects')
+    #ser = PlayerStatsSerializer(global_pstats, many=True)
+    #print('After Serializing')
+    #resp =  Response({"message": "Hello, world!", "pstats": ser.data})
+    #print('After response')
+    return Response({"isError": isError, "errorCode": errorCode, "message": data})
 
 
 @api_view(['GET'])
