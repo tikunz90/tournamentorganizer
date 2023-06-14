@@ -310,6 +310,12 @@ def handle_transitions_ranking(ts_final_ranking, tstats_final_ranking, ttt):
 
 def wizard_create_gameplan(tourn, gameplan_data, num_courts):
     courts = {}
+    
+    # clean up when using wizard
+    courtObjects = Court.objects.filter(tournament=tourn).delete()
+    for court in courtObjects:
+        court.delete()
+        
     for i in range(1, int(num_courts)+1):
         #court, cr = Court.objects.get_or_create(tournament=tourn, name='C' + str(i), number=i)
         cr = False
@@ -332,8 +338,12 @@ def wizard_create_gameplan(tourn, gameplan_data, num_courts):
         if cr is True:
             #create scoreboard user            
             user = User.objects.create_user(username, 'c@c.c', username)
+            user, created = User.objects.get_or_create(username=username, defaults={'email': 'c@c.c'})
             user.first_name = str(court.number)
             user.last_name = court.name
+            if created:
+                # Set the password for the newly created user
+                user.set_password(username)
             user.save()
             #check if user is TO
             sb_group, cr = Group.objects.get_or_create(name='scoreboard')

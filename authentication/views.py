@@ -122,15 +122,15 @@ def login_view(request):
                 
                 user = authenticate(username=username, password=password)
 
-                #check if user is TO
-                to_group, cr = Group.objects.get_or_create(name='tournament_organizer')
-                if cr:
-                    add_permissions_to(to_group)
-                # add permissions to to_group
-                to_group.user_set.add(user)
-                to_group.save()
-
                 if user is not None:
+                    #check if user is TO
+                    to_group, cr = Group.objects.get_or_create(name='tournament_organizer')
+                    if cr:
+                        add_permissions_to(to_group)
+                    # add permissions to to_group
+                    to_group.user_set.add(user)
+                    to_group.save()
+                
                     # create gbo user for admin
                     if user.is_superuser is True:
                         if GBOUser.objects.filter(user=user).count() == 0:
