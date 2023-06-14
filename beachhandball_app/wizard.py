@@ -21,7 +21,8 @@ def wizard_create_structure(tevent, structure_data):
         hierarchy=999,
         max_number_teams=int(structure_data['max_num_teams']),
         is_final=True)
-    tstats_final_ranking = TeamStats.objects.filter(tournament_event=tevent, tournamentstate=ts_final_ranking).all()
+    tstats_final_ranking = [ts for ts in TeamStats.objects.filter(tournament_event=tevent, tournamentstate=ts_final_ranking).all()]
+        
     ts_final_ranking.round_type = ROUND_TYPES.RANKING
     ts_final_ranking.save()
     teams_final_ranking = []
@@ -312,15 +313,14 @@ def wizard_create_gameplan(tourn, gameplan_data, num_courts):
     courts = {}
     
     # clean up when using wizard
-    courtObjects = Court.objects.filter(tournament=tourn).delete()
-    for court in courtObjects:
-        court.delete()
+    courtObjects = Court.objects.filter(tournament=tourn)
         
     for i in range(1, int(num_courts)+1):
         #court, cr = Court.objects.get_or_create(tournament=tourn, name='C' + str(i), number=i)
+        courtObjects = [court for court in courtObjects if court.name != 'C' + str(i)]
         cr = False
         try:
-            court = Court.objects.get(number=i)
+            court = Court.objects.get(tournament=tourn, number=i)
             # Court object with number=21 exists
         except Court.DoesNotExist:
             # Court object with number=21 does not exist
@@ -337,7 +337,7 @@ def wizard_create_gameplan(tourn, gameplan_data, num_courts):
         
         if cr is True:
             #create scoreboard user            
-            user = User.objects.create_user(username, 'c@c.c', username)
+            #user = User.objects.create_user(username, 'c@c.c', username)
             user, created = User.objects.get_or_create(username=username, defaults={'email': 'c@c.c'})
             user.first_name = str(court.number)
             user.last_name = court.name
@@ -368,6 +368,10 @@ def wizard_create_gameplan(tourn, gameplan_data, num_courts):
                 sb_group.save()
                 
         courts[i] = court
+    
+    for court in courtObjects:
+        court.delete()
+        
     games = []
     game_counter = 1
     for g in gameplan_data:

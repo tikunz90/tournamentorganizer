@@ -252,7 +252,7 @@
         var table = document.getElementById(teamId + "_players_not_active");
 
         // Initialize the output string with column headers
-        var output = "Not Active Players";
+        var output = "Active Players\n\n";
         output += "#\tName\tPosition\tID\n";
 
         // Iterate over table rows and columns to build the output string
@@ -264,9 +264,8 @@
           output += "\n";
         }
 
-        output += "\n";
-        output += "\n";
-        output = "Not Active Players";
+        output += "\n\n";
+        output = "Not Active Players\n\n";
         output += "#\tName\tPosition\tID\n";
 
         for (var i = 0; i < table.rows.length; i++) {
