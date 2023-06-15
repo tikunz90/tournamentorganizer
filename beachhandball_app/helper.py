@@ -420,7 +420,7 @@ def sync_teams_of_game(gbouser, game):
             data, execution_time = SWS.syncTournamentGCData(gbouser, game.tournament.season.gbo_season_id)
             #ranking_ids = [team.season_team_cup_championship_ranking_id for team in my_team_data]
         elif to_tourn['sub_season_cup_tournament_id'] != 0:
-            #gbo_data = gbouser['gbo_sub_data']
+            #gbouser['gbo_sub_data']
             cup_type = 'is_sub'
             data, execution_time = SWS.syncTournamentSubData(gbouser, game.tournament.season.gbo_season_id)
             #ranking_ids = [team.season_team_cup_tournament_ranking_id for team in my_team_data]
@@ -440,7 +440,7 @@ def sync_teams_of_game(gbouser, game):
             #gbo_data = gbouser['gbo_data_all']
             cup_type = 'is_cup'
         elif to_tourn['season_cup_german_championship_id'] != 0:
-            #gbo_data = gbouser['gbo_gc_data']
+            #gbouser['gbo_gc_data']
             cup_type = 'is_gc'
         elif to_tourn['sub_season_cup_tournament_id'] != 0:
             #gbo_data = gbouser['gbo_sub_data']
@@ -681,6 +681,7 @@ def sync_single_team_by_ranking(ranking, tevent, team_data_django, cup_type, gbo
         act_player.name = strip_accents(season_player['seasonSubject']['subject']['user']['family_name'])
         act_player.first_name = strip_accents(season_player['seasonSubject']['subject']['user']['name'])
         act_player.gbo_position = season_player['seasonSubject']['subject']['subjectLevel']['name']
+        act_player.subject_data = season_player['seasonSubject']
         is_active = False
         for activeplayer in ranking['seasonPlayersInTournament']:
             if activeplayer['seasonPlayer'] is None:
@@ -700,7 +701,7 @@ def sync_single_team_by_ranking(ranking, tevent, team_data_django, cup_type, gbo
     if len(player_bulk_create_list) > 0:
         Player.objects.bulk_create(player_bulk_create_list)
     if len(player_bulk_update_list) > 0:
-        Player.objects.bulk_update(player_bulk_update_list, ("tournament_event", "team", "name", "first_name", "gbo_position", "is_active", "number","season_team_id", "season_player_id",))
+        Player.objects.bulk_update(player_bulk_update_list, ("tournament_event", "team", "name", "first_name", "gbo_position", "is_active", "number","season_team_id", "season_player_id", "subject_data",))
     for pl in players_list:
         pl.delete()
     

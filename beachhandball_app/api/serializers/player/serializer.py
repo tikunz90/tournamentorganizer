@@ -21,6 +21,7 @@ class PlayerSerializer(serializers.ModelSerializer):
         'is_active' ,
         'season_team_id',
         'season_player_id',
+        'subject_data',
         'gbo_position')
         depth = 0
         read_only_fields = fields

@@ -4,6 +4,7 @@ from django.utils import timezone
 from datetime import datetime
 
 from django_unixdatetimefield import UnixDateTimeField
+import jsonfield
 
 class Player(models.Model):
     """ Model for representing a player of a team.
@@ -26,6 +27,7 @@ class Player(models.Model):
     season_team_id = models.IntegerField(null=True)
     season_player_id = models.IntegerField(null=True)
     gbo_position = models.CharField(max_length=50, blank=True, null=True)
+    subject_data = jsonfield.JSONField(null=True)
     
     
     def __unicode__(self):

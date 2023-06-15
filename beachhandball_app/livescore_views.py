@@ -163,7 +163,8 @@ def livescore_display_livestream(request, pk_tourn, pk_court):
     # Pick out the html file name from the url. And load that template.
     try:
 
-        game = Game.objects.get(pk=1415)
+        t = Tournament.objects.get(season_cup_tournament_id=pk_tourn)
+        game = Game.objects.filter(tournament = t, court_id=pk_court).first()
         context['tournament_id'] = pk_tourn
         context['court_id'] = pk_court
         context['game'] = game
@@ -178,6 +179,40 @@ def livescore_display_livestream(request, pk_tourn, pk_court):
         context['segment'] = load_template
 
         html_template = loader.get_template('livescore/livescore_display_livestream.html')
+        return HttpResponse(html_template.render(context, request))
+
+    except template.TemplateDoesNotExist:
+
+        html_template = loader.get_template('page-404.html')
+        return HttpResponse(html_template.render(context, request))
+
+    except Exception as e:
+        print(e)
+        html_template = loader.get_template('page-500.html')
+        return HttpResponse(html_template.render(context, request))
+    
+    
+def livescore_display_big_scoreboard(request, pk_tourn, pk_court):
+    context = {}
+    # All resource paths end in .html.
+    # Pick out the html file name from the url. And load that template.
+    try:
+        t = Tournament.objects.get(season_cup_tournament_id=pk_tourn)
+        game = Game.objects.filter(tournament = t, court_id=pk_court).first()
+        context['tournament_id'] = pk_tourn
+        context['court_id'] = pk_court
+        context['game'] = game
+        
+        context['mqtt_broker'] = settings.MQTT_BROKER
+        context['mqtt_port'] = settings.MQTT_PORT
+
+        load_template = request.path.split('/')[-1]
+
+        if load_template == 'admin':
+            return HttpResponseRedirect(reverse('admin:index'))
+        context['segment'] = load_template
+
+        html_template = loader.get_template('livescore/livescore_display_big_scoreboard.html')
         return HttpResponse(html_template.render(context, request))
 
     except template.TemplateDoesNotExist:

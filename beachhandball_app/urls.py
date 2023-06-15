@@ -79,5 +79,6 @@ urlpatterns = [
     
     path('livescore/<int:pk_tourn>/', livescore_views.livescore_overview, name='livescore_overview'),
     path('livescore/<int:pk_tourn>/display_livestream/<int:pk_court>/', livescore_views.livescore_display_livestream, name='livescore'),
+    path('livescore/<int:pk_tourn>/display_big_scoreboard/<int:pk_court>/', livescore_views.livescore_display_big_scoreboard, name='livescore_bigscoreboard'),
 
 ]
