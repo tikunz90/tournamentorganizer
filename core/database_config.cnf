@@ -1,7 +1,7 @@
 [client]
 database = beachhandball_2022
 #database = beachhandball_test
-host = 38.242.148.90
+host = 38.242.148.70
 #host = 38.242.148.90 test
 #host = 38.242.148.70 prod
 #host = 127.0.0.1

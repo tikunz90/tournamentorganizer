@@ -13,6 +13,11 @@
 
  */
 /*     brand Colors              */
+
+.selected-row {
+  border: 2px solid red; /* Set the desired border style */
+}
+
 .card {
   font-size: .875rem; }
 

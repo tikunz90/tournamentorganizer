@@ -311,13 +311,11 @@ def handle_transitions_ranking(ts_final_ranking, tstats_final_ranking, ttt):
 
 def wizard_create_gameplan(tourn, gameplan_data, num_courts):
     courts = {}
-    
-    # clean up when using wizard
-    courtObjects = Court.objects.filter(tournament=tourn)
+    courtList = []
         
     for i in range(1, int(num_courts)+1):
         #court, cr = Court.objects.get_or_create(tournament=tourn, name='C' + str(i), number=i)
-        courtObjects = [court for court in courtObjects if court.name != 'C' + str(i)]
+
         cr = False
         try:
             court = Court.objects.get(tournament=tourn, number=i)
@@ -368,9 +366,13 @@ def wizard_create_gameplan(tourn, gameplan_data, num_courts):
                 sb_group.save()
                 
         courts[i] = court
+        courtList.append(court)
     
+    # clean up when using wizard
+    courtObjects = Court.objects.filter(tournament=tourn)
     for court in courtObjects:
-        court.delete()
+        if all(court.id != c.id for c in courtList):
+            court.delete()
         
     games = []
     game_counter = 1

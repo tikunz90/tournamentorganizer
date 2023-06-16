@@ -153,6 +153,10 @@
 
           <div class="row">
             <button id="export-button" class="btn btn-primary export-button">Export CSV</button>
+
+            <button id="add-minutes-button" class="btn btn-primary add-minutes-button">Add minutes</button>
+
+            <input type="number" id="minutes-input" min="0" value="30">
           </div>
         
         </div>
@@ -254,6 +258,7 @@
 
 <script>
   let draggedRow = null;
+  let selectedRow = null;
 
     $(document).ready(function() {
       //md.initFullCalendar();
@@ -267,6 +272,9 @@
         md.showNotification('top','center', '{{ message }}', 'info');
         {% endfor %}
       {% endif %}
+
+      
+    
 
       var exportButtons = document.querySelectorAll(".export-button");
 
@@ -365,6 +373,16 @@
         }
 
         $row.css('background-color', colors[colorIdx]);
+      });
+
+      $('.game-row').click(function() {
+        // Remove the 'selected-row' class from all rows
+        $('.game-row').removeClass('selected-row');
+  
+        // Add the 'selected-row' class to the clicked row
+        $(this).addClass('selected-row');
+
+        selectedRow = $(this);
       });
 
     });
