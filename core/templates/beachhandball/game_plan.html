@@ -125,11 +125,12 @@
               </div>
             </div>
           </div>
-          <div calss="row">
+          <div class="row">
             <div calss="col">
             <input type="text" placeholder="Search Table" id="games-filter" class="form-control" hidden>
             </div>
           </div>
+          
         </div>
       </div>
     </div>
@@ -148,6 +149,10 @@
           <div class="form-check">
             <input type="checkbox" class="" id="checkBoxEnableDragging" onclick="enable_dragging()">
             <label class="form-check-label" for="updown-checkbox">Enable Game Dragging</label>
+          </div>
+
+          <div class="row">
+            <button id="export-button" class="btn btn-primary export-button">Export CSV</button>
           </div>
         
         </div>
@@ -262,7 +267,45 @@
         md.showNotification('top','center', '{{ message }}', 'info');
         {% endfor %}
       {% endif %}
-      
+
+      var exportButtons = document.querySelectorAll(".export-button");
+
+      exportButtons.forEach(function(button) {
+        button.addEventListener("click", function() {
+          // Get the table element
+
+          var table = document.getElementById("table-games");
+
+          // Initialize the output string with column headers
+          var output = "Game Plan\n\n";
+          //output += "#\tName\tPosition\tID\n";
+
+          // Iterate over table rows and columns to build the output string
+          for (var i = 0; i < table.rows.length; i++) {
+            var row = table.rows[i];
+            
+            // Check if the row is hidden
+            if (row.style.display !== "none") {
+              for (var j = 0; j < row.cells.length; j++) {
+                output += row.cells[j].innerText + "\t";
+              }
+              output += "\n";
+            }
+          }
+
+          // Create a Blob with the text content
+          var blob = new Blob([output], { type: "text/plain" });
+
+          // Create a temporary link element to initiate the download
+          var link = document.createElement("a");
+          link.href = URL.createObjectURL(blob);
+          link.download = "game_plan_export.txt";
+
+          // Simulate a click on the link to trigger the download
+          link.click();
+        });
+      });
+        
       md.initFormExtendedDatetimepickers();
       $.fn.dataTable.moment( 'HH:mm (DD.MM.YYYY)' );
 

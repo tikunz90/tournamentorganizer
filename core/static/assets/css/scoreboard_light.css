@@ -121,7 +121,8 @@ transform:skew(var(--skew));}
 .containerbeachhandball .boxteams {padding-right: .2em;}
 .containerbeachhandball .toplabel {
   background-image: url('/static/assets/img/banner_sprungwurftv.PNG');
-  background-size: cover; /* Adjust the image size to cover the cell */
+  background-size: contain; /* Adjust the image size to cover the cell */
+  background-repeat: no-repeat;
   background-position: center; /* Center the image within the cell */
 }
 .containerbeachhandball .boxhometeam {
