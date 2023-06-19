@@ -310,7 +310,7 @@ def basic_setup(request):
     if request.method == 'GET':
         form = TournamentSettingsForm(instance=context['tourn_settings'])
     if request.method == 'GET' and formCourt is None:
-        formCourt = CourtForm()
+        formCourt = CourtForm(tourn_id=context['tourn'].id)
 
     context['segment'] = 'basic_setup'
     context['segment_title'] = 'Basic Setup'

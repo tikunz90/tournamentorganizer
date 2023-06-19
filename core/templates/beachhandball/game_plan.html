@@ -9,7 +9,14 @@
 
 {% include "beachhandball/templates/_modal.html" %}
 
-<h2>Game Plan</h2>
+<div class="row">
+  <div class="col-6">
+    <h2>Game Plan</h2>
+  </div>
+  <div class="col-6 text-right">
+    <button id="export-button" class="btn btn-primary export-button">Export CSV</button>
+  </div>
+</div>
 <hr>
 <div class="row">
   <div class="col-lg-8 col-md-8 col-sm-8">
@@ -152,8 +159,7 @@
           </div>
 
           <div class="row">
-            <button id="export-button" class="btn btn-primary export-button">Export CSV</button>
-
+            <h4>Selected Game</h4>
             <button id="add-minutes-button" class="btn btn-primary add-minutes-button">Add minutes</button>
 
             <input type="number" id="minutes-input" min="0" value="30">
@@ -259,6 +265,7 @@
 <script>
   let draggedRow = null;
   let selectedRow = null;
+  let selectedGameId = 0;
 
     $(document).ready(function() {
       //md.initFullCalendar();
@@ -272,9 +279,6 @@
         md.showNotification('top','center', '{{ message }}', 'info');
         {% endfor %}
       {% endif %}
-
-      
-    
 
       var exportButtons = document.querySelectorAll(".export-button");
 
@@ -313,7 +317,46 @@
           link.click();
         });
       });
-        
+
+      var addMinutesButtons = document.querySelectorAll(".add-minutes-button");
+      addMinutesButtons.forEach(function(button) {
+        button.addEventListener("click", function() {
+          var $table = $("#table-games");
+          var gameFound = false;
+          var minutesValue = 0;
+          var actDay = 0;
+          $table.find('tr').each(function(index) {
+
+            var $row = $(this);
+            var gameId = parseInt($row.find("#game_id_counter").attr("data-content"));
+            
+            if (gameId == selectedGameId) {
+              console.log("Found selected game")
+              minutesValue = $("#minutes-input").val();
+              console.log("Start Adding " + minutesValue);
+              actDay = moment($row.find('#id_starttime')[0].value, "MM/DD/YYYY HH:mm").date();
+              gameFound = true;
+            }
+            if(gameFound)
+            {
+              
+              var actDate = moment($row.find('#id_starttime')[0].value, "MM/DD/YYYY HH:mm");
+              if(actDay == actDate.date())
+              {
+                console.log("Adding " + gameId);
+                var newDate = actDate.clone().add(minutesValue, 'minutes');
+                var gameJson = {'game': gameId,
+                'datetime': newDate.format("YYYY-MM-DD HH:mm:ss")
+                };
+                //postUpdateGameStartTime(gameJson, gameJson);
+                var data = postUpdateGameDateTime(gameId, newDate.format("YYYY-MM-DD HH:mm:ss"));
+                //$row.find('#id_starttime')[0].value = moment(data['new_datetime'], "YYYY-MM-DD HH:mm:ss").format("MM/DD/YYYY HH:mm");
+              }
+            }
+          });
+        });
+      });
+
       md.initFormExtendedDatetimepickers();
       $.fn.dataTable.moment( 'HH:mm (DD.MM.YYYY)' );
 
@@ -383,6 +426,10 @@
         $(this).addClass('selected-row');
 
         selectedRow = $(this);
+        var date_string_dragged = moment(selectedRow.find('#id_starttime')[0].value, "MM/DD/YYYY HH:mm").format("YYYY-MM-DD HH:mm:ss");
+        selectedGameId= selectedRow.find('#game_id_counter')[0].getAttribute("data-content");
+        var game_cnt = selectedRow.find('#game_id_counter')[0].innerText;
+        console.log(selectedGameId + " " + game_cnt + " " + date_string_dragged);
       });
 
     });
@@ -645,12 +692,14 @@
             },
             success:function(response){
               console.debug('success: ');
+              
               var date_label = moment(response.new_datetime, "YYYY-MM-DD HH:mm:ss").format("HH:mm (DD.MM.YYYY)");
               var date_input = moment(response.new_datetime, "YYYY-MM-DD HH:mm:ss").format("MM/DD/YYYY HH:mm");
-
+              
               var game_td = $('#game-list-td-id-' + response.game)
               $(game_td).children('.game-list-datetime-label').first().text(date_label);
               $(game_td).children('.game-list-datetime-input').first().children().each(function(i, input){ $(input).val(date_input);});
+              $(game_td).children('.game-list-datetime-input').find('#id_starttime')[0].value = date_input;
               },
             complete:function(){console.debug('complete');},
             error:function (xhr, textStatus, thrownError){console.debug('error');}

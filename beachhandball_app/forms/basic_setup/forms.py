@@ -3,7 +3,7 @@ from django import forms
 from django.forms import ModelForm
 
 from beachhandball_app.models.General import GameReportTemplate
-from ...models.Tournaments import Court, TournamentSettings
+from ...models.Tournaments import Tournament, Court, TournamentSettings
 
 from bootstrap_modal_forms.forms import BSModalModelForm
 
@@ -23,6 +23,11 @@ class TournamentSettingsForm(ModelForm):
         self.fields['game_report_template'].queryset = GameReportTemplate.objects.all()
 
 class CourtForm(ModelForm):
+    def __init__(self, *args, **kwargs):
+        tourn_id = kwargs.pop('tourn_id', 0) 
+        super(CourtForm, self).__init__(*args, **kwargs)
+        
+        self.fields['tournament'].queryset = Tournament.objects.filter(id=tourn_id)
 
     def clean(self):
         cleaned_data = super(CourtForm, self).clean()
