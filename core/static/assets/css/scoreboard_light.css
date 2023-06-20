@@ -102,8 +102,8 @@ transform:skew(var(--skew));}
 
 .containerbeachhandball .sgrlogo {grid-row: 1/4; grid-column: 1/1;}
 .containerbeachhandball .toplabel {grid-row: 1/1; grid-column: 2/11;}
-.containerbeachhandball .boxhometeam {grid-row: 2/3; grid-column: 2/5; border: 2px solid #fff ;}
-.containerbeachhandball .boxawayteam {grid-row: 3/4; grid-column: 2/5; border: 2px solid #fff ;}
+.containerbeachhandball .boxhometeam {grid-row: 2/3; grid-column: 2/5; border: 2px solid #fff ; padding-right: 7%; padding-left: 9%;}
+.containerbeachhandball .boxawayteam {grid-row: 3/4; grid-column: 2/5; border: 2px solid #fff ; padding-right: 7%; padding-left: 9%; }
 .containerbeachhandball .boxhomepoints {grid-row: 2/3; grid-column: 5/7; border: 2px solid #fff ;}
 .containerbeachhandball .boxawaypoints {grid-row: 3/4; grid-column: 5/7; border: 2px solid #fff ;}
 .containerbeachhandball .boxhomepointsht2 {grid-row: 2/3; grid-column: 7/9; border: 2px solid #fff ;}
