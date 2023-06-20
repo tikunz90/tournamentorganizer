@@ -94,14 +94,14 @@ transform:skew(var(--skew));}
 
 
 /*---- BEACHHANDBALL --------*/
-.containerbeachhandball {grid-template: auto / auto var(--pointswidth) 1.2em auto;grid-template-rows: 20px minmax(0, 1fr); grid-template-columns: 10px minmax(0, 1fr); column-gap:0; row-gap: 4; font-size:5.5vw;}
+.containerbeachhandball {grid-template: auto / auto var(--pointswidth) 1.2em auto;grid-template-rows: 40px minmax(0, 1fr); grid-template-columns: 10px minmax(0, 1fr); column-gap:0; row-gap: 4; font-size:5.5vw;}
 .containerbeachhandball .space {display:none;}
 .containerbeachhandball .box {justify-content:center;}
 .containerbeachhandball .boxteams {justify-content:flex-start;}
 
 
 .containerbeachhandball .sgrlogo {grid-row: 1/4; grid-column: 1/1;}
-.containerbeachhandball .toplabel {grid-row: 1/1; grid-column: 2/5;}
+.containerbeachhandball .toplabel {grid-row: 1/1; grid-column: 2/11;}
 .containerbeachhandball .boxhometeam {grid-row: 2/3; grid-column: 2/5; border: 2px solid #fff ;}
 .containerbeachhandball .boxawayteam {grid-row: 3/4; grid-column: 2/5; border: 2px solid #fff ;}
 .containerbeachhandball .boxhomepoints {grid-row: 2/3; grid-column: 5/7; border: 2px solid #fff ;}
@@ -120,18 +120,18 @@ transform:skew(var(--skew));}
 .containerbeachhandball .toplabel {color: transparent;}
 .containerbeachhandball .boxteams {padding-right: .2em;}
 .containerbeachhandball .toplabel {
-  background-image: url('/static/assets/img/banner_sprungwurftv.PNG');
+  background-image: url('/static/assets/img/banner_sprungwurftv2.PNG');
   background-size: contain; /* Adjust the image size to cover the cell */
   background-repeat: no-repeat;
   background-position: center; /* Center the image within the cell */
 }
 .containerbeachhandball .boxhometeam {
-  background-image: url('/static/assets/img/space1.PNG');
+  background-image: url('/static/assets/img/space3.PNG');
   background-size: cover; /* Adjust the image size to cover the cell */
   background-position: center; /* Center the image within the cell */
 }
 .containerbeachhandball .boxawayteam {
-  background-image: url('/static/assets/img/space2.PNG');
+  background-image: url('/static/assets/img/space4.PNG');
   background-size: cover; /* Adjust the image size to cover the cell */
   background-position: center; /* Center the image within the cell */
 }
