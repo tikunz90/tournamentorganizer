@@ -120,7 +120,7 @@ transform:skew(var(--skew));}
 .containerbeachhandball .toplabel {color: transparent;}
 .containerbeachhandball .boxteams {padding-right: .2em;}
 .containerbeachhandball .toplabel {
-  background-image: url('/static/assets/img/banner_sprungwurftv2.PNG');
+  background-image: url('/static/assets/img/banner_sprungwurftv2.png');
   background-size: contain; /* Adjust the image size to cover the cell */
   background-repeat: no-repeat;
   background-position: center; /* Center the image within the cell */
