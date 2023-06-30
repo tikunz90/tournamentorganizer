@@ -279,7 +279,7 @@ def basic_setup(request):
     context['form_sender'] = ''
     if request.method == 'POST' and request.POST.get('form_sender') == 'tourn_settings':
         context['form_sender'] = 'tourn_settings'
-        formCourt = CourtForm()
+        formCourt = CourtForm(tourn_id=context['tourn'].id)
         form = TournamentSettingsForm(request.POST, instance=context['tourn_settings'])
         if form.is_valid():
             form.save()
@@ -288,11 +288,14 @@ def basic_setup(request):
         context['form_sender'] = 'court_create'
         form = TournamentSettingsForm(instance=context['tourn_settings'])
         formCourt = CourtForm(request.POST)
+        formCourt.tournament = context['tourn']
         if formCourt.is_valid():
             formCourt.save()
             court = formCourt.instance
+            court.tournament = context['tourn']
+            court.save()
             #create scoreboard user
-            username = str(court.tournament_id) + '_' + court.name.replace(" ", "_")
+            username = str(context['tourn'].id) + '_' + court.name.replace(" ", "_")
             user = User.objects.create_user(username, 'c@c.c', username)
             user.first_name = str(court.number)
             user.last_name = court.name

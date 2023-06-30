@@ -1,0 +1,182 @@
+{% extends "layouts/base.html" %}
+
+{% block title %} Dashboard {% endblock title %}
+
+<!-- Specific Page CSS goes HERE  -->
+{% block stylesheets %}{% endblock stylesheets %}
+
+{% block content %}
+
+{% if not tourn %}
+  <h2>Welcome</h2>
+{% else %}
+  <h2>Welcome to {{ tourn.name_short }} in Season {{ tourn.season.name }}</h2>
+{% endif %}
+
+<form action="{{ url('sync_tournament_data') }}" method='GET'>
+<button type='submit' class="btn btn-primary">Sync Tournament Data</button>
+</form>
+
+  <br>
+  <h4>Events</h4>
+  <div id="tevents_container" class="row">
+  {% if events %}
+  {% for tevent in events %}
+    <div class="col-md-4">
+      <div class="card card-product">
+        <div class="card-header card-header-image" data-header-animation="true">
+          <a href="{{ url('structure_setup.detail', kwargs={'pk': tevent.id }) }}">
+            <img class="img" src="/static/assets/img/trophy/{{ tevent.logo }}.png">
+          </a>
+        </div>
+        <div class="card-body">
+          <div class="card-actions text-center">
+            <button type="button" class="btn btn-default btn-link" rel="tooltip" data-placement="bottom" title="Edit Teams">
+              <a href="{{ url('teams_setup.detail', kwargs={'pk': tevent.id }) }}"><i class="material-icons">edit</i></a>
+            </button>
+            <button type="button" class="btn btn-success btn-link" rel="tooltip" data-placement="bottom" title="Edit Structure">
+              <a href="{{ url('structure_setup.detail', kwargs={'pk': tevent.id }) }}"><i class="material-icons">edit</i></a>
+            </button>
+          </div>
+          <h3 class="card-title">
+            <a href="{{ url('structure_setup.detail', kwargs={'pk': tevent.id }) }}">{{ tevent.name }} ({{ tevent.id }})</a>
+          </h3>
+          <div>
+            <h6 class="card-subtitle">{{ tevent.category }} ({{ tevent.category.classification}})</h6>
+          </div>
+          
+          {% if tevent.is_in_configuration %}
+          <div>
+          <h6 class="card-subtitle"><i class="material-icons">engineering</i>Event is under construction!!</h6>
+          </div>
+          {% endif%}
+          <div class="card-description">
+            <div>
+              {{ tevent.start_ts.strftime('%d.%m.') }} till {{ tevent.end_ts.strftime('%d.%m.%Y') }}
+            </div>
+            <div>Stages {{ tevent.tournamentstage_set.count() }}</div>
+            <div>States {{ tevent.tournamentstate_set.count() }}</div>
+            <div class="progress-wrapper">
+              <div class="progress-info">
+                <div class="progress-percentage">
+                  <span class="text-sm font-weight-normal">Games played: {{ tevent.game_set.filter(gamestate='FINISHED').count() }} / {{ tevent.game_set.count() }}</span>
+                </div>
+              </div>
+              <div class="progress">
+                <div class="progress-bar bg-primary" role="progressbar" aria-valuenow={{ tevent.game_set.filter(gamestate='FINISHED').count() }} aria-valuemin="0" aria-valuemax="{{ tevent.game_set.count() }}" style="width: {{ tevent.game_set.filter(gamestate='FINISHED').count() }}%;"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="card-footer">
+          <div>
+            <h4>#Teams: {{ tevent.max_number_teams }}</h4>
+          </div>
+          <div class="justify-content-center">
+            <button class="btn btn-outline-info" rel="tooltip" data-placement="bottom" title="last sync with GBO"><i class="material-icons">sync</i>{{ tevent.last_sync_at.strftime('%H:%M:%S (%d.%m.%Y)') }}</button>
+          </div>
+          <div class="stats">
+            <h4 class="card-category"><i class="material-icons">{{ tevent.category.icon }}</i>{{ tevent.category }} {{ tevent.category.classification }}</h4>
+          </div>
+        </div>
+      </div>
+    </div>
+  
+  {% endfor %}
+  {% else %}
+  <p>No events</p>
+  {% endif %}
+  </div>
+
+  <div style="display: none" id="tournament-data" data-json="{{ tournament_data }}"></div>
+  <div id="templateEvent" class="col-md-4" hidden>
+    <div class="card card-product">
+      <div class="card-header card-header-image" data-header-animation="true">
+        <a id="templateEvent_url" href="">
+          <img class="img" src="/static/assets/img/trophy/trophy.png">
+        </a>
+      </div>
+      <div class="card-body">
+        <div class="card-actions text-center">
+          <button type="button" class="btn btn-default btn-link" rel="tooltip" data-placement="bottom" title="Edit Teams">
+            <a id="templateEvent_url"  href="{{ url('teams_setup.detail', kwargs={'pk': tevent.id }) }}"><i class="material-icons">edit</i></a>
+          </button>
+          <button type="button" class="btn btn-success btn-link" rel="tooltip" data-placement="bottom" title="Edit Structure">
+            <a id="templateEvent_url" href="{{ url('structure_setup.detail', kwargs={'pk': tevent.id }) }}"><i class="material-icons">edit</i></a>
+          </button>
+        </div>
+        <h3 class="card-title">
+          <a id="templateEvent_title" href=""></a>
+        </h3>
+        <div>
+          <h6 class="card-subtitle">{{ tevent.category }} ({{ tevent.category.classification}})</h6>
+        </div>
+        
+        {% if tevent.is_in_configuration %}
+        <div>
+        <h6 class="card-subtitle"><i class="material-icons">engineering</i>Event is under construction!!</h6>
+        </div>
+        {% endif%}
+        <div class="card-description">
+          <div>
+            {{ tevent.start_ts.strftime('%d.%m.') }} till {{ tevent.end_ts.strftime('%d.%m.%Y') }}
+          </div>
+          <div>Stages {{ tevent.tournamentstage_set.count() }}</div>
+          <div>States {{ tevent.tournamentstate_set.count() }}</div>
+          <div class="progress-wrapper">
+            <div class="progress-info">
+              <div class="progress-percentage">
+                <span class="text-sm font-weight-normal">Games played: {{ tevent.game_set.filter(gamestate='FINISHED').count() }} / {{ tevent.game_set.count() }}</span>
+              </div>
+            </div>
+            <div class="progress">
+              <div class="progress-bar bg-primary" role="progressbar" aria-valuenow={{ tevent.game_set.filter(gamestate='FINISHED').count() }} aria-valuemin="0" aria-valuemax="{{ tevent.game_set.count() }}" style="width: {{ tevent.game_set.filter(gamestate='FINISHED').count() }}%;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="card-footer">
+        <div>
+          <h4>#Teams: {{ tevent.max_number_teams }}</h4>
+        </div>
+        <div class="justify-content-center">
+          <button class="btn btn-outline-info" rel="tooltip" data-placement="bottom" title="last sync with GBO"><i class="material-icons">sync</i>{{ tevent.last_sync_at.strftime('%H:%M:%S (%d.%m.%Y)') }}</button>
+        </div>
+        <div class="stats">
+          <h4 class="card-category"><i class="material-icons">{{ tevent.category.icon }}</i>{{ tevent.category }} {{ tevent.category.classification }}</h4>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock content %}
+
+<!-- Specific Page JS goes HERE  -->
+{% block javascripts %}
+  
+  <script>
+    $(document).ready(function() {
+      {% if messages %}
+        console.log("Has messages...");
+        {% for message in messages %}
+        md.showNotification('top','center', '{{ message }}', 'info');
+        {% endfor %}
+      {% endif %}
+      var tournamentData = JSON.parse(document.getElementById('tournament-data').getAttribute('data-json'));
+      var row = document.getElementById(tevents_container);
+      $(row).empty();
+      
+      var urlDetail = "/structure_setup/";
+      var iCounter = 0;
+      tournamentData.events.forEach(event => {
+        var templateEvent = $("#templateEvent").clone();
+        $(templateEvent).attr("id", 'event_' + iCounter);
+        $(templateEvent).removeAttr('hidden');
+        $(templateEvent).find("#templateEvent_title").text(event.name +" (" + event.id + ")");
+
+        $(row).append(templateGroup);
+        iCounter++;
+      });
+    });
+  </script>
+
+{% endblock javascripts %}

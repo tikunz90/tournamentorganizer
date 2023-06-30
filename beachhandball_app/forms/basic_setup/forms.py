@@ -23,28 +23,31 @@ class TournamentSettingsForm(ModelForm):
         self.fields['game_report_template'].queryset = GameReportTemplate.objects.all()
 
 class CourtForm(ModelForm):
+    tournament = None
     def __init__(self, *args, **kwargs):
         tourn_id = kwargs.pop('tourn_id', 0) 
         super(CourtForm, self).__init__(*args, **kwargs)
         
-        self.fields['tournament'].queryset = Tournament.objects.filter(id=tourn_id)
+        #self.fields['tournament'].queryset = Tournament.objects.filter(id=tourn_id)
 
     def clean(self):
         cleaned_data = super(CourtForm, self).clean()
-        tournament = cleaned_data['tournament']
+
+        if self.tournament is None and 'tournament' in cleaned_data:
+            self.tournament = cleaned_data['tournament']
         name = cleaned_data['name']
         number = cleaned_data['number']
         
-        if Court.objects.filter(tournament = tournament, name = name, number=number).exists():
+        if Court.objects.filter(tournament = self.tournament, name = name, number=number).exists():
             self.add_error('name', 'Already exists!')
         return cleaned_data
        
     class Meta:
         model = Court
-        fields = ('tournament', 'name', 'number')
-        widgets = {
-            'tournament': forms.widgets.Select(attrs={'class': "form-control selectpicker", 'data-style':"btn btn-info btn-round"}),
-        }
+        fields = ( 'name', 'number')
+        #widgets = {
+        #    'tournament': forms.widgets.Select(attrs={'class': "form-control selectpicker", 'data-style':"btn btn-info btn-round"}),
+        #}
 
 class CourtUpdateForm(BSModalModelForm):
 
