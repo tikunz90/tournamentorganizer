@@ -64,7 +64,7 @@
                 </div>
               </div>
               <div class="progress">
-                <div class="progress-bar bg-primary" role="progressbar" aria-valuenow={{ tevent.game_set.filter(gamestate='FINISHED').count() }} aria-valuemin="0" aria-valuemax="{{ tevent.game_set.count() }}" style="width: {{ tevent.game_set.filter(gamestate='FINISHED').count() }}%;"></div>
+                <div class="progress-bar bg-primary" role="progressbar" aria-valuenow={{ tevent.game_set.filter(gamestate='FINISHED').count() }} aria-valuemin="0" aria-valuemax="{{ tevent.game_set.count() }}" style="width: {{ (tevent.game_set.filter(gamestate='FINISHED').count() / tevent.game_set.count()) * 100 }}%;"></div>
               </div>
             </div>
           </div>

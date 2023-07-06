@@ -654,7 +654,7 @@ class GameDeleteView(BSModalDeleteView):
 class GameCreateView(BSModalCreateView):
     template_name = 'beachhandball/templates/create_form.html'
     form_class = GameForm
-    success_message = 'Success: State was created.'
+    success_message = 'Success: Game was created.'
 
     def get_context_data(self, **kwargs):
         
@@ -686,6 +686,19 @@ class GameCreateView(BSModalCreateView):
         tstage = get_object_or_404(TournamentStage, id=self.kwargs.get('pk_tstage'))
         form.instance.tournament_event = tevent
         form.instance.tournament_stage = tstage
+
+        form.instance.act_time = 0
+        if form.instance.gamestate is None:
+            form.instance.gamestate = 'APPENDING'
+        if form.instance.gamingstate is None:
+            form.instance.gamingstate = 'Ready'
+        if form.instance.scouting_state is None:
+            form.instance.scouting_state = 'APPENDING'
+        if form.instance.team_a is None and form.instance.team_st_a is not None and form.instance.team_st_a.team.is_dummy == False:
+            form.instance.team_a = form.instance.team_st_a.team
+        if form.instance.team_b is None and form.instance.team_st_b is not None and form.instance.team_st_b.team.is_dummy == False:
+            form.instance.team_b = form.instance.team_st_b.team
+
         return super().form_valid(form)
 
     def get_success_url(self):

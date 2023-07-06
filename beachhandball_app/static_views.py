@@ -458,6 +458,8 @@ def sync_tournament_data(request):
 
     context['gbo_user'].gbo_data_all, execution_time = SWS.syncTournamentData(context['gbo_user'], context['tourn'].season.gbo_season_id)
     helper.update_user_tournament_events(context['gbo_user'], context['tourn'])
+    
+    
     #update_user_tournament_events_async.delay(model_to_dict(context['gbo_user']), model_to_dict(context['tourn']))
     context['segment'] = 'index'
     context['segment_title'] = 'Overview'
