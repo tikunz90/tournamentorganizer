@@ -195,6 +195,11 @@ def serialize_court(c: Court) -> Dict[str, Any]:
     }
 
 def serialize_court_wo_tourns(c: Court) -> Dict[str, Any]:
+    if c is None:
+        return {'id': 0,
+        'created_at': 0,
+        'name': 'No Court',
+        'number': 0,}
     return {
         'id': c.id,
         'created_at': c.created_at,
