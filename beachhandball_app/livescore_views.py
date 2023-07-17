@@ -125,6 +125,28 @@ def livescore_overview(request, pk_tourn):
 #@login_required(login_url="/login/")
 #@user_passes_test(lambda u: u.groups.filter(name='livescore').exists(),
 #login_url="/login/", redirect_field_name='livescore')
+def livescore_tickeronly(request):
+    
+    #context = getContext(request)
+    #if not checkLoginIsValid(context['gbo_user']):
+    #    return redirect('login')
+    context = {}
+    
+    game = Game()
+
+    context['tournament_id'] = 0
+    context['court_id'] = 0
+    #context['game'] = game
+    context['mqtt_broker'] = settings.MQTT_BROKER
+    context['mqtt_port'] = settings.MQTT_PORT
+    
+    html_template = loader.get_template( 'livescore/livescore_tickeronly.html' )
+    return HttpResponse(html_template.render(context, request))
+
+
+#@login_required(login_url="/login/")
+#@user_passes_test(lambda u: u.groups.filter(name='livescore').exists(),
+#login_url="/login/", redirect_field_name='livescore')
 def livescore_display_livestream_old(request, pk_tourn, pk_court):
     
     #context = getContext(request)

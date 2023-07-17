@@ -1,6 +1,7 @@
 var clientMqtt;
 var mqtt_interval;
-var topicName = "beach_livescore";
+var topicNameBase = "beach_livescore";
+var topicName = "";
 var isConnected = false;
 
 var start_time;
@@ -47,7 +48,17 @@ function connectMqtt() {
     var headerTournId = document.getElementById('tournament_id');
     var headerCourtId = document.getElementById('court_id');
     var headerGameId = document.getElementById('game_id');
-    topicName = topicName + "/tournament_" + headerTournId.textContent + "/court_" + headerCourtId.textContent + "/";
+    topicName = topicNameBase + "/tournament_" + headerTournId.textContent + "/court_" + headerCourtId.textContent + "/";
+    
+    var urlParams = new URLSearchParams(window.location.search);
+    // Get the value of the "myparam" parameter
+    var passedTopicName = urlParams.get('court');
+
+    if(passedTopicName != null)
+    {
+        topicName = topicNameBase + "/" + passedTopicName + "/";
+    }
+    
     console.log("Topic: " + topicName);
     var headerMqttBroker = document.getElementById('mqtt_broker');
     var headerMqttPort = document.getElementById('mqtt_port');
