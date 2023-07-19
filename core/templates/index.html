@@ -60,12 +60,20 @@
             <div class="progress-wrapper">
               <div class="progress-info">
                 <div class="progress-percentage">
-                  <span class="text-sm font-weight-normal">Games played: {{ tevent.game_set.filter(gamestate='FINISHED').count() }} / {{ tevent.game_set.count() }}</span>
+                  {% set finished_games_count = tevent.game_set.filter(gamestate='FINISHED').count() %}
+                  {% set total_games_count = tevent.game_set.count() %}
+                  {% if total_games_count > 0 %}
+                    <span class="text-sm font-weight-normal">Games played: {{ finished_games_count }} / {{ total_games_count }}</span>
+                  {% else %}
+                    <span class="text-sm font-weight-normal">No games played yet</span>
+                  {% endif %}
                 </div>
               </div>
-              <div class="progress">
-                <div class="progress-bar bg-primary" role="progressbar" aria-valuenow={{ tevent.game_set.filter(gamestate='FINISHED').count() }} aria-valuemin="0" aria-valuemax="{{ tevent.game_set.count() }}" style="width: {{ (tevent.game_set.filter(gamestate='FINISHED').count() / tevent.game_set.count()) * 100 }}%;"></div>
-              </div>
+              {% if total_games_count > 0 %}
+                <div class="progress">
+                  <div class="progress-bar bg-primary" role="progressbar" aria-valuenow="{{ finished_games_count }}" aria-valuemin="0" aria-valuemax="{{ total_games_count }}" style="width: {{ (finished_games_count / total_games_count) * 100 }}%;"></div>
+                </div>
+              {% endif %}
             </div>
           </div>
         </div>
