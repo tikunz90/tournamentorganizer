@@ -37,6 +37,8 @@ urlpatterns = [
     path('basic_setup/<int:pk_tourn>/create_court/', CourtCreateView.as_view(), name='basic_setup.create_court'),
     path('basic_setup/<int:pk_tourn>/update_court/<int:pk>/', CourtUpdateView.as_view(), name='basic_setup.update_court'),
     path('basic_setup/<int:pk_tourn>/delete_court/<int:pk>/', CourtDeleteView.as_view(), name='basic_setup.delete_court'),
+    path('basic_setup/<int:pk_tourn>/delete_referee/<int:referee_id>/', static_views.basic_setup_delete_referee, name='basic_setup.delete_referee'),
+    
 
     path('teams_setup/', static_views.teams_setup, name='teams_setup'),
     path('teams_setup/<int:pk>/', TeamsSetupDetail.as_view(), name='teams_setup.detail'),

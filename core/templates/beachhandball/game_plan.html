@@ -190,6 +190,7 @@
                   <th class="text-left" data-col="result_ht2">2. HT</th>
                   <th class="text-left" data-col="result_p">Shootout</th>
                   <th class="text-left" data-col="sets">Sets</th>
+                  <th class="text-left" data-col="refs">Referee's</th>
                   <th class="text-left" data-col="gamestate">Gamestate</th>
                   <th data-col="actions">Actions</th>
                 </thead>
@@ -228,6 +229,9 @@
                     <td id="{{ game.id }}_result_ht2" class="text-center" data-content="result_ht2">{{ game.score_team_a_halftime_2 }}:{{ game.score_team_b_halftime_2 }}</td>
                     <td id="{{ game.id }}_result_p" class="text-center" data-content="result_p">{{ game.score_team_a_penalty }}:{{ game.score_team_b_penalty }}</td>
                     <td class="text-center" data-content="sets">{{ game.setpoints_team_a }}:{{ game.setpoints_team_b }}</td>
+                    <td id="{{ game.id }}_refs" class="text-center" data-content="refs">
+                      {{ game.ref_a.abbreviation|default('-') }} / {{ game.ref_b.abbreviation|default('-') }}
+                    </td>
                     <td class="text-center" data-content="{{ game.gamestate }}">{{ game.gamestate }}</td>
                     <td class="td-actions text-right" data-content="">
                       <button type="button" class="update_game btn btn-success btn-link" rel="tooltip" title="Edit Game" data-form-url='{{ url("update_game", kwargs={"pk_tevent":game.tournament_event.id, "pk_tstage": game.tournament_state.tournament_stage.id, "pk":  game.id, "from_gameplan": 1}) }}' data-list-url="{{ url('game_plan') }}" onclick="modalShowSpinner();">

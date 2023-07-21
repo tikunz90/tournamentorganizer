@@ -3,7 +3,7 @@ from django import forms
 from django.forms import ModelForm
 
 from beachhandball_app.models.General import GameReportTemplate
-from ...models.Tournaments import Tournament, Court, TournamentSettings
+from ...models.Tournaments import Tournament, Court, TournamentSettings, Referee
 
 from bootstrap_modal_forms.forms import BSModalModelForm
 
@@ -57,3 +57,6 @@ class CourtUpdateForm(BSModalModelForm):
         widgets = {
             'tournament': forms.widgets.Select(attrs={'class': "form-control selectpicker", 'data-style':"btn btn-info btn-round"}),
         }
+
+class RefereeForm(forms.Form):
+    referees_list = forms.CharField(widget=forms.Textarea)

@@ -31,7 +31,7 @@ from .models.Tournaments import Court, Referee, Tournament, TournamentEvent, Tou
 from .models.Team import Team, TeamStats
 from .models.Series import Season
 from .models.Game import Game
-from beachhandball_app.forms.basic_setup.forms import CourtForm, TournamentSettingsForm
+from beachhandball_app.forms.basic_setup.forms import CourtForm, TournamentSettingsForm, RefereeForm
 from beachhandball_app.api.serializers.game import GameSerializer,GameRunningSerializer, serialize_game
 from beachhandball_app.game_report import helper_game_report
 from .services.services import SWS
@@ -274,9 +274,24 @@ def basic_setup(request):
     context = getContext(request)
     if not checkLoginIsValid(context['gbo_user']):
         return redirect('login')
-
+    context['form_refs'] = RefereeForm(initial={'referees_list': 'Enter referees: name, first_name'})
     formCourt = None
     context['form_sender'] = ''
+
+    if request.method == 'POST' and request.POST.get('form_sender') == 'referee_create':
+        context['form_sender'] = 'referee_create'
+        form = RefereeForm(request.POST)
+        if form.is_valid():
+            referees_list = form.cleaned_data['referees_list']
+            referees_data = referees_list.strip().split('\n')
+
+            for referee_data in referees_data:
+                name, first_name, abbreviation = referee_data.strip().split(',')
+                print(name + ' '+ first_name + ' '+ abbreviation)
+                Referee.objects.get_or_create(tournament=context['tourn'], name=name.strip(), first_name=first_name.strip(), abbreviation=abbreviation.strip(), gbo_subject_id=0)
+
+            #return redirect('success_page')  # Replace 'success_page' with the URL name of your success page
+
     if request.method == 'POST' and request.POST.get('form_sender') == 'tourn_settings':
         context['form_sender'] = 'tourn_settings'
         formCourt = CourtForm(tourn_id=context['tourn'].id)
@@ -310,9 +325,9 @@ def basic_setup(request):
             sbUser.save()
             
     
-    if request.method == 'GET':
-        form = TournamentSettingsForm(instance=context['tourn_settings'])
-    if request.method == 'GET' and formCourt is None:
+    #if request.method == 'GET':
+    form = TournamentSettingsForm(instance=context['tourn_settings'])
+    if formCourt is None:
         formCourt = CourtForm(tourn_id=context['tourn'].id)
 
     context['segment'] = 'basic_setup'
@@ -323,6 +338,18 @@ def basic_setup(request):
 
     html_template = loader.get_template( 'beachhandball/basic_setup.html' )
     return HttpResponse(html_template.render(context, request))
+
+@login_required(login_url="/login/")
+@user_passes_test(lambda u: u.groups.filter(name='tournament_organizer').exists(),
+login_url="/login/", redirect_field_name='next')
+def basic_setup_delete_referee(request, pk_tourn, referee_id):
+    try:
+        referee = Referee.objects.get(pk=referee_id)
+        referee.delete()
+    except Referee.DoesNotExist:
+        pass  # Optionally handle the case where the referee with the given ID does not exist
+
+    return redirect('basic_setup')
 
 @login_required(login_url="/login/")
 @user_passes_test(lambda u: u.groups.filter(name='tournament_organizer').exists(),

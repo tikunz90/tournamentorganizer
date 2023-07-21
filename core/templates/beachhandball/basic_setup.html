@@ -88,7 +88,7 @@
           <div class="tab-pane" id="referees">
           {% endif %}
               <div class="card ">
-                <div class="card-body">            
+                <div class="card-body container mt-4">            
                   <h3>List of registered Referees</h3>
                   <div class="row" id="">
                     <table id="referee_table" class="table table-striped">
@@ -97,6 +97,7 @@
                           <th>ID</th>
                           <th>Name</th>
                           <th>Partner</th>
+                          <th>Actions</th>
                       </tr>
                       </thead>
                       {% for referee in tourn.referee_set.all() %}
@@ -104,10 +105,30 @@
                           <td>{{ referee.id }}</td>
                           <td>{{ referee.name }}, {{ referee.first_name }}</td>
                           <td>{{ referee.partner }}</td>
+                          <td>
+                            <form action="{{ url('basic_setup.delete_referee', kwargs={ 'pk_tourn':tourn.id, 'referee_id': referee.id}) }}" method="post">
+                              <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+                              <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                            </form>
+                          </td>
                       </tr>
                       {% endfor %}
                     </table>
                   </div>
+                  <div class="row">
+                    <div class="col-md-6 offset-md-3">
+                        <h3 class="mb-4">Create Referees</h3>
+                        <form method="post">
+                          <input type="hidden" name="csrfmiddlewaretoken" value="{{csrf_token}}">
+                            <div class="form-group">
+                                <label for="{{ form_refs.referees_list.id_for_label }}">Referees List:</label>
+                                <textarea class="form-control" id="{{ form_refs.referees_list.id_for_label }}" name="{{ form_refs.referees_list.html_name }}" rows="5">{{ form_refs.referees_list.value()|default("") }}</textarea>
+                            </div>
+                            <input type="hidden" placeholder="" value="referee_create" name='form_sender'>
+                            <input type="submit" class="btn btn-primary" value="Create Referees">
+                        </form>
+                    </div>
+                </div>
                 </div>
               </div>
           </div>

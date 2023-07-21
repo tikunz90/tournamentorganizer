@@ -10,9 +10,9 @@ from django.views.decorators.clickjacking import xframe_options_exempt
 from django.views.generic.base import View
 from django.contrib import messages
 from beachhandball_app import helper
+from beachhandball_app.models.Tournaments import Referee
 from beachhandball_app.models.Player import PlayerStats
 from datetime import datetime
-from beachhandball_app.models.Game import Game
 from beachhandball_app.models.Game import Game
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, UpdateView
@@ -481,6 +481,8 @@ class GameUpGameView(BSModalUpdateView):
         context['form'].fields['court'].queryset = Court.objects.filter(tournament=game.tournament)
         context['form'].fields['team_st_a'].queryset = qTeamStats
         context['form'].fields['team_st_b'].queryset = qTeamStats
+        context['form'].fields['ref_a'].queryset = Referee.objects.filter(tournament=game.tournament)
+        context['form'].fields['ref_b'].queryset = Referee.objects.filter(tournament=game.tournament)
         #context['form'].fields['team_a'].queryset = qTeams
         #context['form'].fields['team_b'].queryset = qTeams
         return context
@@ -665,8 +667,12 @@ class GameCreateView(BSModalCreateView):
         
         context['form'].fields['tournament'].queryset = Tournament.objects.filter(id=tevent.tournament.id)
         context['form'].fields['tournament_event'].queryset = TournamentEvent.objects.filter(id=tevent.id)
+        context['form'].fields['team_a'].queryset = Team.objects.filter(tournament_event=tevent, is_dummy=False)
+        context['form'].fields['team_b'].queryset = Team.objects.filter(tournament_event=tevent, is_dummy=False)
         context['form'].fields['team_st_a'].queryset = TeamStats.objects.filter(tournamentstate=tstate)
         context['form'].fields['team_st_b'].queryset = TeamStats.objects.filter(tournamentstate=tstate)
+        context['form'].fields['ref_a'].queryset = Referee.objects.filter(tournament=tevent.tournament)
+        context['form'].fields['ref_b'].queryset = Referee.objects.filter(tournament=tevent.tournament)
         context['form'].fields['tournament_state'].queryset = TournamentState.objects.filter(id=tstate.id)
         context['form'].fields['court'].queryset = Court.objects.filter(tournament=tevent.tournament)
         return context
