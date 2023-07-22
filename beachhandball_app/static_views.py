@@ -2,6 +2,8 @@
 """
 Copyright (c) 2019 - present AppSeed.us
 """
+import re
+
 from django.urls import reverse
 # from beachhandball_app.tasks import update_user_tournament_events_async
 from datetime import datetime
@@ -286,10 +288,20 @@ def basic_setup(request):
             referees_data = referees_list.strip().split('\n')
 
             for referee_data in referees_data:
-                name, first_name, abbreviation = referee_data.strip().split(',')
-                print(name + ' '+ first_name + ' '+ abbreviation)
-                Referee.objects.get_or_create(tournament=context['tourn'], name=name.strip(), first_name=first_name.strip(), abbreviation=abbreviation.strip(), gbo_subject_id=0)
-
+                try:
+                    name, first_name, abbreviation = re.split(r'[,:;]', referee_data.strip())
+                    if is_valid_data(name, first_name, abbreviation):
+                        print(name + ' ' + first_name + ' ' + abbreviation)
+                        Referee.objects.get_or_create(tournament=context['tourn'], name=name.strip(), first_name=first_name.strip(), abbreviation=abbreviation.strip(), gbo_subject_id=0)
+                    else:
+                        print("Error: Invalid data. Each name, first name, and abbreviation should contain only alphabetic characters.")
+                    
+                except ValueError:
+                    print("Error: Invalid input format. Each line should have 'name,first_name,abbreviation'")
+                except Exception as e:
+                    print("An error occurred:", e)
+            
+            context['form_sender'] = ''
             #return redirect('success_page')  # Replace 'success_page' with the URL name of your success page
 
     if request.method == 'POST' and request.POST.get('form_sender') == 'tourn_settings':
@@ -338,6 +350,9 @@ def basic_setup(request):
 
     html_template = loader.get_template( 'beachhandball/basic_setup.html' )
     return HttpResponse(html_template.render(context, request))
+
+def is_valid_data(name, first_name, abbreviation):
+    return name.isalpha() and first_name.isalpha() and abbreviation.isalpha()
 
 @login_required(login_url="/login/")
 @user_passes_test(lambda u: u.groups.filter(name='tournament_organizer').exists(),
