@@ -79,6 +79,15 @@ class TournamentSettings(models.Model):
     class Meta:
         db_table = 'bh_tournament_settings'
 
+class TournamentScoutingSettings(models.Model):
+    scale_score = models.FloatField(null=True, blank=True, default=0)
+    scale_assist = models.FloatField(null=True, blank=True, default=0)
+    scale_turnover = models.FloatField(null=True, blank=True, default=0)
+    scale_block = models.FloatField(null=True, blank=True, default=0)
+    scale_steal = models.FloatField(null=True, blank=True, default=0)
+    scale_gamesplayed = models.FloatField(null=True, blank=True, default=0)
+    scale_goalie_saves = models.FloatField(null=True, blank=True, default=0)
+
 class TournamentEventManager(models.Manager):
 
     def get_queryset(self):

@@ -494,6 +494,11 @@ class GameUpGameView(BSModalUpdateView):
         tstage = get_object_or_404(TournamentStage, id=self.kwargs.get('pk_tstage'))
         form.instance.tournament_event = tevent
         form.instance.tournament_stage = tstage
+
+        if (form.instance.team_a is None or form.instance.team_a != form.instance.team_st_a.team) and form.instance.team_st_a is not None and form.instance.team_st_a.team.is_dummy == False:
+            form.instance.team_a = form.instance.team_st_a.team
+        if (form.instance.team_b is None or form.instance.team_b != form.instance.team_st_b.team)  and form.instance.team_st_b is not None and form.instance.team_st_b.team.is_dummy == False:
+            form.instance.team_b = form.instance.team_st_b.team
         return super().form_valid(form)
 
     def get_success_url(self):

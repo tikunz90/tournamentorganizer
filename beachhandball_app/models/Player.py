@@ -72,7 +72,17 @@ class PlayerStats(models.Model):
     is_ranked = models.BooleanField(blank=True, default=False)
     games_played = models.SmallIntegerField(blank=True, default=False)
     goal_keeper_success = models.SmallIntegerField(blank=True, default=0)
+    shots_on_goal = models.SmallIntegerField(blank=True, default=0)
+
     block_success = models.SmallIntegerField(blank=True, default=0)
+    steal_success = models.SmallIntegerField(blank=True, default=0)
+    turnover_success = models.SmallIntegerField(blank=True, default=0)
+    assist_success = models.SmallIntegerField(blank=True, default=0)
+
+    mvp_score = models.FloatField(null=True, blank=True, default=0)
+    mvp_offense_score = models.FloatField(null=True, blank=True, default=0)
+    mvp_defense_score = models.FloatField(null=True, blank=True, default=0)
+    mvp_goalie_score = models.FloatField(null=True, blank=True, default=0)
 
     season_team_id = models.IntegerField(null=True)
     season_player_id = models.IntegerField(null=True)
