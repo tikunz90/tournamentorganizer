@@ -148,6 +148,8 @@ class GameAction(models.Model):
         ('SHOOTER', 'SHOOTER'),
         ('ONE', 'ONE'),
         ('BLOCK', 'BLOCK'),
+        ('STEAL', 'STEAL'),
+        ('TURNOVER', 'TURNOVER'),
         ('GK_SAVE', 'GK_SAVE'),
         ('SUSPENSION', 'SUSPENSION'),
         ('REDCARD', 'REDCARD'),
