@@ -65,6 +65,8 @@ class PlayerStats(models.Model):
     spin_success = models.SmallIntegerField(blank=True, default=0)
     shooter_try = models.SmallIntegerField(blank=True, default=0)
     shooter_success = models.SmallIntegerField(blank=True, default=0)
+    sixm_try = models.SmallIntegerField(blank=True, default=0)
+    sixm_success = models.SmallIntegerField(blank=True, default=0)
     one_try = models.SmallIntegerField(blank=True, default=0)
     one_success = models.SmallIntegerField(blank=True, default=0)
     suspension = models.SmallIntegerField(blank=True, default=0)
@@ -98,6 +100,7 @@ class PlayerStats(models.Model):
         score += ps.kempa_success * 2
         score += ps.shooter_success * 2
         score += ps.spin_success * 2
+        score += ps.sixm_success * 2
         return score
 
     def __unicode__(self):
