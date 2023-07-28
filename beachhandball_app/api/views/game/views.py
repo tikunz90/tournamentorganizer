@@ -277,7 +277,7 @@ class PlayerStatsSet(viewsets.ModelViewSet):
             instance.assist_success = request.data['assist_success']
             instance.steal_success = request.data['steal_success']
             instance.turnover_success = request.data['turnover_success']
-            instance.save(update_fields=['score', 'spin_success', 'spin_try', 'kempa_success', 'kempa_try', 'shooter_success', 'shooter_try', 'one_success', 'one_try', 'goal_keeper_success', 'block_success', 'suspension', 'redcard', 'sixmeter_success', 'sixmeter_try', 'assist_success', 'steal_success', 'turnover_success'])
+            instance.save(update_fields=['score', 'spin_success', 'spin_try', 'kempa_success', 'kempa_try', 'shooter_success', 'shooter_try', 'one_success', 'one_try', 'goal_keeper_success', 'block_success', 'suspension', 'redcard', 'sixm_success', 'sixm_try', 'assist_success', 'steal_success', 'turnover_success'])
         except Exception as ex:
             print(ex)
         
@@ -308,7 +308,7 @@ class PlayerStatsSet(viewsets.ModelViewSet):
             instance.assist_success = request.data['assist_success']
             instance.steal_success = request.data['steal_success']
             instance.turnover_success = request.data['turnover_success']
-            instance.save(update_fields=['score', 'spin_success', 'spin_try', 'kempa_success', 'kempa_try', 'shooter_success', 'shooter_try', 'one_success', 'one_try', 'goal_keeper_success', 'block_success', 'suspension', 'redcard', 'sixmeter_success', 'sixmeter_try', 'assist_success', 'steal_success', 'turnover_success'])
+            instance.save(update_fields=['score', 'spin_success', 'spin_try', 'kempa_success', 'kempa_try', 'shooter_success', 'shooter_try', 'one_success', 'one_try', 'goal_keeper_success', 'block_success', 'suspension', 'redcard', 'sixm_success', 'sixm_try', 'assist_success', 'steal_success', 'turnover_success'])
         except Exception as ex:
             print(ex)
         
@@ -399,9 +399,19 @@ class GameActionViewSet(viewsets.ModelViewSet):
     serializer_class  = GameActionSerializer
 
     def create(self, request):
-        datetime_obj = datetime.strptime(request.data['gametime'], '%Y-%m-%dT%H:%M:%S')
-        ga = GameAction(tournament_id=request.data['tournament_id'], gametime=datetime_obj.time(), period=request.data['period'], game_id=request.data['game_id'], player_id=request.data['player_id'], team_id=request.data['team_id'], action=request.data['action'], action_result=request.data['action_result'], score_team_a=request.data['score_team_a'], score_team_b=request.data['score_team_b'], time_min=request.data['time_min'], time_sec=request.data['time_sec'], guid=request.data['guid'])
-        ga.save()
+        try:
+            datetime_obj = datetime.strptime(request.data['gametime'], '%Y-%m-%dT%H:%M:%S')
+            periodString = 'HT1'
+            if request.data['period'] == '1.HT':
+                periodString = 'HT1'
+            elif request.data['period'] == '2.HT':
+                periodString = 'HT2'
+            elif request.data['period'] == 'P':
+                periodString = 'P'
+            ga = GameAction(tournament_id=request.data['tournament_id'], gametime=datetime_obj.time(), period=periodString, game_id=request.data['game_id'], player_id=request.data['player_id'], team_id=request.data['team_id'], action=request.data['action'], action_result=request.data['action_result'], score_team_a=request.data['score_team_a'], score_team_b=request.data['score_team_b'], time_min=request.data['time_min'], time_sec=request.data['time_sec'], guid='')
+            ga.save()
+        except Exception as ex:
+            print(ex)
         return Response(request.data)
 
     @action(detail=True, renderer_classes=[renderers.StaticHTMLRenderer])
