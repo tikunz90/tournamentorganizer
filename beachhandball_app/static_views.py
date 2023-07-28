@@ -290,7 +290,7 @@ def basic_setup(request):
             for referee_data in referees_data:
                 try:
                     name, first_name, abbreviation = re.split(r'[,:;]', referee_data.strip())
-                    if is_valid_data(name, first_name, abbreviation):
+                    if is_valid_data(name.strip(), first_name.strip(), abbreviation.strip()):
                         print(name + ' ' + first_name + ' ' + abbreviation)
                         Referee.objects.get_or_create(tournament=context['tourn'], name=name.strip(), first_name=first_name.strip(), abbreviation=abbreviation.strip(), gbo_subject_id=0)
                     else:

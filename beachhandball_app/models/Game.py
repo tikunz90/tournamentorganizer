@@ -160,8 +160,8 @@ class GameAction(models.Model):
     )
 
     tournament = models.ForeignKey('Tournament', null=True, related_name='+', on_delete=models.CASCADE)
-    timestamp = models.DateTimeField(db_column='TimeStamp')
-    gametime = models.TimeField(db_column='GameTime')
+    timestamp = models.DateTimeField(db_column='TimeStamp', auto_now_add=True)
+    gametime = models.TimeField(db_column='GameTime', default='00:00:00')
     period = models.CharField(db_column='Period', max_length=3, choices=PERIOD_CHOICES)
     game = models.ForeignKey(Game, null=True, on_delete=models.CASCADE)
     player = models.ForeignKey('Player', null=True, on_delete=models.CASCADE)

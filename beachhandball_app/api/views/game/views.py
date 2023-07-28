@@ -256,22 +256,30 @@ class PlayerStatsSet(viewsets.ModelViewSet):
 
     def update(self, request, pk=None):
         instance = self.get_object()
-        #data = json.loads(request.data)
-        instance.score = request.data['score']
-        instance.spin_success = request.data['spin_success']
-        instance.spin_try = request.data['spin_try']
-        instance.kempa_success = request.data['kempa_success']
-        instance.kempa_try = request.data['kempa_try']
-        instance.shooter_success = request.data['shooter_success']
-        instance.shooter_try = request.data['shooter_try']
-        instance.one_success = request.data['one_success']
-        instance.one_try = request.data['one_try']
-        instance.goal_keeper_success = request.data['goal_keeper_success']
-        instance.block_success = request.data['block_success']
-        instance.suspension = request.data['suspension']
-        instance.redcard = request.data['redcard']
-        instance.save(update_fields=['score', 'spin_success', 'spin_try', 'kempa_success', 'kempa_try', 'shooter_success', 'shooter_try', 'one_success', 'one_try', 'goal_keeper_success', 'block_success', 'suspension', 'redcard'])
-    
+        try:
+
+            #data = json.loads(request.data)
+            instance.score = request.data['score']
+            instance.spin_success = request.data['spin_success']
+            instance.spin_try = request.data['spin_try']
+            instance.kempa_success = request.data['kempa_success']
+            instance.kempa_try = request.data['kempa_try']
+            instance.shooter_success = request.data['shooter_success']
+            instance.shooter_try = request.data['shooter_try']
+            instance.one_success = request.data['one_success']
+            instance.one_try = request.data['one_try']
+            instance.goal_keeper_success = request.data['goal_keeper_success']
+            instance.block_success = request.data['block_success']
+            instance.suspension = request.data['suspension']
+            instance.redcard = request.data['redcard']
+            instance.sixm_success = request.data['sixmeter_success']
+            instance.sixm_try = request.data['sixmeter_try']
+            instance.assist_success = request.data['assist_success']
+            instance.steal_success = request.data['steal_success']
+            instance.turnover_success = request.data['turnover_success']
+            instance.save(update_fields=['score', 'spin_success', 'spin_try', 'kempa_success', 'kempa_try', 'shooter_success', 'shooter_try', 'one_success', 'one_try', 'goal_keeper_success', 'block_success', 'suspension', 'redcard', 'sixmeter_success', 'sixmeter_try', 'assist_success', 'steal_success', 'turnover_success'])
+        except Exception as ex:
+            print(ex)
         
         #serializer = GameRunningSerializer2(instance, data=request.data, partial=True)
         #serializer.is_valid(raise_exception=True)
@@ -281,21 +289,28 @@ class PlayerStatsSet(viewsets.ModelViewSet):
     def partial_update(self, request, *args, **kwargs):
         instance = self.get_object()
         #data = json.loads(request.data)
-        instance.score = request.data['score']
-        instance.spin_success = request.data['spin_success']
-        instance.spin_try = request.data['spin_try']
-        instance.kempa_success = request.data['kempa_success']
-        instance.kempa_try = request.data['kempa_try']
-        instance.shooter_success = request.data['shooter_success']
-        instance.shooter_try = request.data['shooter_try']
-        instance.one_success = request.data['one_success']
-        instance.one_try = request.data['one_try']
-        instance.goal_keeper_success = request.data['goal_keeper_success']
-        instance.block_success = request.data['block_success']
-        instance.suspension = request.data['suspension']
-        instance.redcard = request.data['redcard']
-        instance.save(update_fields=['score', 'spin_success', 'spin_try', 'kempa_success', 'kempa_try', 'shooter_success', 'shooter_try', 'one_success', 'one_try', 'goal_keeper_success', 'block_success', 'suspension', 'redcard'])
-    
+        try:
+            instance.score = request.data['score']
+            instance.spin_success = request.data['spin_success']
+            instance.spin_try = request.data['spin_try']
+            instance.kempa_success = request.data['kempa_success']
+            instance.kempa_try = request.data['kempa_try']
+            instance.shooter_success = request.data['shooter_success']
+            instance.shooter_try = request.data['shooter_try']
+            instance.one_success = request.data['one_success']
+            instance.one_try = request.data['one_try']
+            instance.goal_keeper_success = request.data['goal_keeper_success']
+            instance.block_success = request.data['block_success']
+            instance.suspension = request.data['suspension']
+            instance.redcard = request.data['redcard']
+            instance.sixmeter_success = request.data['sixmeter_success']
+            instance.sixmeter_try = request.data['sixmeter_try']
+            instance.assist_success = request.data['assist_success']
+            instance.steal_success = request.data['steal_success']
+            instance.turnover_success = request.data['turnover_success']
+            instance.save(update_fields=['score', 'spin_success', 'spin_try', 'kempa_success', 'kempa_try', 'shooter_success', 'shooter_try', 'one_success', 'one_try', 'goal_keeper_success', 'block_success', 'suspension', 'redcard', 'sixmeter_success', 'sixmeter_try', 'assist_success', 'steal_success', 'turnover_success'])
+        except Exception as ex:
+            print(ex)
         
         #serializer = GameRunningSerializer2(instance, data=request.data, partial=True)
         #serializer.is_valid(raise_exception=True)
@@ -382,6 +397,12 @@ class PlayerStatsViewSet(viewsets.ModelViewSet):
 class GameActionViewSet(viewsets.ModelViewSet):
     queryset = GameAction.objects.all()
     serializer_class  = GameActionSerializer
+
+    def create(self, request):
+        datetime_obj = datetime.strptime(request.data['gametime'], '%Y-%m-%dT%H:%M:%S')
+        ga = GameAction(tournament_id=request.data['tournament_id'], gametime=datetime_obj.time(), period=request.data['period'], game_id=request.data['game_id'], player_id=request.data['player_id'], team_id=request.data['team_id'], action=request.data['action'], action_result=request.data['action_result'], score_team_a=request.data['score_team_a'], score_team_b=request.data['score_team_b'], time_min=request.data['time_min'], time_sec=request.data['time_sec'], guid=request.data['guid'])
+        ga.save()
+        return Response(request.data)
 
     @action(detail=True, renderer_classes=[renderers.StaticHTMLRenderer])
     def highlight(self, request, *args, **kwargs):
