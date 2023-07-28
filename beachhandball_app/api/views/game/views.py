@@ -408,7 +408,7 @@ class GameActionViewSet(viewsets.ModelViewSet):
                 periodString = 'HT2'
             elif request.data['period'] == 'P':
                 periodString = 'P'
-            ga = GameAction(tournament_id=request.data['tournament_id'], gametime=datetime_obj.time(), period=periodString, game_id=request.data['game_id'], player_id=request.data['player_id'], team_id=request.data['team_id'], action=request.data['action'], action_result=request.data['action_result'], score_team_a=request.data['score_team_a'], score_team_b=request.data['score_team_b'], time_min=request.data['time_min'], time_sec=request.data['time_sec'], guid='')
+            ga = GameAction(tournament_id=request.data['tournament_id'], gametime=datetime_obj.time(), period=periodString, game_id=request.data['game_id'], player_id=request.data['player_id'], team_id=request.data['team_id'], action=request.data['action'], action_result=request.data['action_result'], score_team_a=request.data['score_team_a'], score_team_b=request.data['score_team_b'], time_min=request.data['time_min'], time_sec=request.data['time_sec'], guid='', active_defending_gk_id=request.data['active_defending_gk_id'])
             ga.save()
         except Exception as ex:
             print(ex)

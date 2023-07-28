@@ -173,6 +173,7 @@ class GameAction(models.Model):
     time_min = models.SmallIntegerField(default=0, blank=True, null=True)
     time_sec = models.SmallIntegerField(default=0, blank=True, null=True)
     guid = models.CharField(null=True, blank=True, max_length=32)
+    active_defending_gk_id = models.IntegerField(default=0, blank=True, null=True)
 
     def __unicode__(self):
         return 'Gameaction ID: {}'.format(self.id)
