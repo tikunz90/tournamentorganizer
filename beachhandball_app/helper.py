@@ -997,6 +997,8 @@ def recalc_global_pstats(tevent_id):
             gl_stat.shooter_success = sum(s.shooter_success for s in stats)
             gl_stat.one_try = sum(s.one_try for s in stats)
             gl_stat.one_success = sum(s.one_success for s in stats)
+            gl_stat.sixm_try = sum(s.sixm_try for s in stats)
+            gl_stat.sixm_success = sum(s.sixm_success for s in stats)
             gl_stat.suspension = sum(s.suspension for s in stats)
             gl_stat.redcard = sum(s.redcard for s in stats)
             gl_stat.goal_keeper_success = sum(s.goal_keeper_success for s in stats)
@@ -1204,3 +1206,9 @@ def getIntVal(val):
         return val
     else:
         return 0
+
+def set_seasoncupid_to_all_global_pstats(tevent, seasoncupid):
+    global_pstats = PlayerStats.objects.select_related('player').filter(tournament_event=tevent, is_ranked=True)
+    for ps in global_pstats:
+        ps.season_cup_german_championship_id=seasoncupid
+        ps.save()

@@ -63,6 +63,9 @@ class ResultsDetail(DetailView):
         kwargs['playerstats_goalie'] = tevent.playerstats_set.filter(is_ranked=True).order_by('-goal_keeper_success')
         #tstate = TournamentState.objects.get(id=6)
        # kwargs['form_tstate'] = TournamentStateUpdateForm(instance=tstate)
+
+        #helper.set_seasoncupid_to_all_global_pstats(tevent, 5)
+
         print('Leave ResultsDetail: ', datetime.now())
         return super(ResultsDetail, self).get_context_data(**kwargs)
 
