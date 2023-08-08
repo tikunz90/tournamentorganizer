@@ -243,7 +243,7 @@ def update_user_tournament_events(gbouser, to_tourn):
                     if cat['category']['gender']['name'] == 'man':
                         abbrv = 'M'
                     
-                    tcats = TournamentCategory.objects.filter(season_tournament_category_id=cat['id'])
+                    tcats = TournamentCategory.objects.filter(gbo_category_id=cat['category']['id'], classification=cat['category']['name'], name=cat['category']['gender']['name'], category=cat['category']['gender']['name'])
                     if tcats.count() == 0:
                         tcat, cr = TournamentCategory.objects.get_or_create(
                             gbo_category_id=cat['category']['id'],
@@ -251,17 +251,17 @@ def update_user_tournament_events(gbouser, to_tourn):
                             name=cat['category']['gender']['name'],
                             category=cat['category']['gender']['name'],
                             abbreviation=abbrv)
-            
-                        tcat.season_tournament_category_id=cat['id']
+                        if tcat.season_tournament_category_id == 0:
+                            tcat.season_tournament_category_id=cat['id']
                         tcat.save()
                     else:
                         tcat = tcats.first()
                     if cup_type == 'is_cup':
-                        tevents = TournamentEvent.objects.filter(tournament_id=to_tourn['id'],season_tournament_category_id=tcat.season_tournament_category_id, season_cup_tournament_id=gbot['id'])
+                        tevents = TournamentEvent.objects.filter(tournament_id=to_tourn['id'], category=tcat, season_cup_tournament_id=gbot['id'])
                     elif cup_type == 'is_gc':
-                        tevents = TournamentEvent.objects.filter(tournament_id=to_tourn['id'],season_tournament_category_id=tcat.season_tournament_category_id, season_cup_german_championship_id=gbot['id'])
+                        tevents = TournamentEvent.objects.filter(tournament_id=to_tourn['id'], category=tcat, season_cup_german_championship_id=gbot['id'])
                     elif cup_type == 'is_sub':
-                        tevents = TournamentEvent.objects.filter(tournament_id=to_tourn['id'],season_tournament_category_id=tcat.season_tournament_category_id, sub_season_cup_tournament_id=gbot['id'])
+                        tevents = TournamentEvent.objects.filter(tournament_id=to_tourn['id'], category=tcat, sub_season_cup_tournament_id=gbot['id'])
                     else:
                         tevents = TournamentEvent.objects.none()
                     te = TournamentEvent()
