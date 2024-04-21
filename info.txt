@@ -1,0 +1,2 @@
+TO App prod server 
+ssh root@185.197.250.201 Qs

@@ -81,6 +81,46 @@ COLOR_CHOICES_DICT =	{
   "gold": "#EFC501",
 }
 
+COLOR_CHOICES_GROUP_MEN = [
+        ("#00008B", "dark blue"),
+        ("#0000FF", "blue"),
+        ("#0096FF", "bright blue"),
+        ("#ADD8E6", "light blue"),
+        ("#7DF9FF", "electric blue"),
+        ("#00FFFF", "cyan"),
+        ("#F0FFFF", "azure"), 
+    ]
+
+COLOR_CHOICES_GROUP_MEN_DICT =	{
+  "dark blue": "#00008B",
+  "blue": "#0000FF",
+  "brightblue": "#0096FF",
+  "lightblue": "#ADD8E6",
+  "electricblue": "#7DF9FF",
+  "cyan": "#00FFFF",
+  "azure": "#F0FFFF",
+}
+
+COLOR_CHOICES_GROUP_WOMEN = [
+        ("#8B0000", "dark red"),
+        ("#FF0000", "red"),
+        ("#EE4B2B", "bright red"),
+        ("#E97451", "burnt sienna"),
+        ("#FF4433", "red orange"),
+        ("#E0115F", "ruby red"),
+        ("#F88379", "coral pink"), 
+    ]
+
+COLOR_CHOICES_GROUP_WOMEN_DICT =	{
+  "dark red": "#8B0000",
+  "red": "#FF0000",
+  "brightred": "#EE4B2B",
+  "burntsienna": "#E97451",
+  "redorange": "#FF4433",
+  "rubyred": "#E0115F",
+  "coralpink": "#F88379",
+}
+
 TOURNAMENT_STAGE_TYPE_CHOICES = (
         ('GROUP_STAGE', 'GROUP_STAGE'),
         ('MAIN_ROUND', 'MAIN_ROUND'),

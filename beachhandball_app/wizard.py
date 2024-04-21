@@ -8,7 +8,7 @@ from beachhandball_app import signals
 from beachhandball_app.models.Game import Game
 from beachhandball_app.models.Team import Team, TeamStats
 from beachhandball_app.models.Tournaments import Court, TournamentStage, TournamentState, TournamentTeamTransition
-from beachhandball_app.models.choices import COLOR_CHOICES, COLOR_CHOICES_DICT, KNOCKOUT_NAMES, ROUND_TYPES, TOURNAMENT_STAGE_TYPE_CHOICES, TOURNAMENT_STATE_CHOICES
+from beachhandball_app.models.choices import COLOR_CHOICES, COLOR_CHOICES_DICT, COLOR_CHOICES_GROUP_MEN, COLOR_CHOICES_GROUP_MEN_DICT, COLOR_CHOICES_GROUP_WOMEN, COLOR_CHOICES_GROUP_WOMEN_DICT, KNOCKOUT_NAMES, ROUND_TYPES, TOURNAMENT_STAGE_TYPE_CHOICES, TOURNAMENT_STATE_CHOICES
 
 
 def wizard_create_structure(tevent, structure_data):
@@ -52,7 +52,13 @@ def wizard_create_structure(tevent, structure_data):
             if idx > 5:
                 idx = 5
                 colorIdx = 5
-            state, team_stats, ttt = create_state_from_group(tstageGroup, tevent, TOURNAMENT_STATE_CHOICES[idx][1], gr, colorIdx, gr["name"], 'G' + str(gr["idx"]+1), hierarchy_counter, ROUND_TYPES.GROUP)
+            if tevent.category.category == 'MEN':
+                color = COLOR_CHOICES_GROUP_MEN[colorIdx][0]
+            elif tevent.category.category == 'WOMEN':
+                color = COLOR_CHOICES_GROUP_WOMEN[colorIdx][0]
+            else:
+                color = COLOR_CHOICES[colorIdx][0]
+            state, team_stats, ttt = create_state_from_group(tstageGroup, tevent, TOURNAMENT_STATE_CHOICES[idx][1], gr, color, gr["name"], 'G' + str(gr["idx"]+1), hierarchy_counter, ROUND_TYPES.GROUP)
             tttGroup[idx] = ttt
             colorIdx += 1
     
@@ -77,6 +83,7 @@ def wizard_create_structure(tevent, structure_data):
     tttToPlace = {}
     tttToFinal = {}
     transToFinal = []
+    color = '#191970'
     with transaction.atomic():
         for lvl in ko_data["level"]:
             round_type = 'ROUND_' + str(2**lvl["idx"])
@@ -84,15 +91,33 @@ def wizard_create_structure(tevent, structure_data):
                 colorIdx = 4
             if lvl["idx"] > 3:
                 tstate_choice = 'ROUND_OF_' + str(2**lvl["idx"])
+                if tevent.category.category == 'MEN':
+                    color = '#191970' # midnight blue
+                elif tevent.category.category == 'WOMEN':
+                    color = '#880808' # blood red
+                else:
+                    color = '#1F51FF' # neon blue
             elif lvl["idx"] == 3:
                 tstate_choice = 'QUARTERFINALS'
+                if tevent.category.category == 'MEN':
+                    color = '#3F00FF' # indigo blue
+                elif tevent.category.category == 'WOMEN':
+                    color = '#80461B' # russet red
+                else:
+                    color = '#1F51FF' # neon blue
             elif lvl["idx"] == 2:
                 tstate_choice = 'SEMIFINALS'
+                if tevent.category.category == 'MEN':
+                    color = '#000080' # navy blue
+                elif tevent.category.category == 'WOMEN':
+                    color = '#DC143C' # crimson red
+                else:
+                    color = '#1F51FF' # neon blue
             tttToPlace[lvl["idx"]] = []
             for gr in lvl["groups"]:
                 if colorIdx > 4:
                     colorIdx = 4
-                state, team_stats, tttAct = create_state_from_group(tstageKO, tevent, tstate_choice, gr, colorIdx, lvl["header"] + ' ' + str(gr["idx"]), lvl["actNaming"] + ' ' + str(gr["idx"]), hierarchy_counter, round_type)
+                state, team_stats, tttAct = create_state_from_group(tstageKO, tevent, tstate_choice, gr, color, lvl["header"] + ' ' + str(gr["idx"]), lvl["actNaming"] + ' ' + str(gr["idx"]), hierarchy_counter, round_type)
                 
                 if firstKoLevel:
                     # handle transitions from group
@@ -134,9 +159,15 @@ def wizard_create_structure(tevent, structure_data):
             ko_name = KNOCKOUT_NAMES[2**(lvl["idx"]+1)]
             if colorIdx > 4:
                 colorIdx = 4
+            if tevent.category.category == 'MEN':
+                color = '#A7C7E7' # pastel blue
+            elif tevent.category.category == 'WOMEN':
+                color = '#E3735E' # terracotta red
+            else:
+                color = '#1F51FF' # neon blue
             tttToSubLevel = []
             for gr in lvl["groups"]:
-                state, team_stats, tttAct = create_state_from_group(tstagePlace, tevent, 'LOOSER_ROUND', gr, colorIdx, gr["name"], gr["name"], hierarchy_counter, ROUND_TYPES.PLAYOFF)
+                state, team_stats, tttAct = create_state_from_group(tstagePlace, tevent, 'LOOSER_ROUND', gr, color, gr["name"], gr["name"], hierarchy_counter, ROUND_TYPES.PLAYOFF)
 
                 trans = [ tr for tr in structure_data["transitions"]["ko_to_pl"][ko_name]["items"] if tr["target_group_id"] == gr["idx"]-1]
                 tttTemp = tttToPlace[lvl["idx"]+1]
@@ -167,7 +198,7 @@ def wizard_create_structure(tevent, structure_data):
     tstageFinal.order = 3
     tstageFinal.save()
     for gr in final_data["groups"]:
-        state, ts, ttt = create_state_from_group(tstageFinal, tevent, 'FINAL', gr, 6, "Final", "F", 100, ROUND_TYPES.ROUND_2)
+        state, ts, ttt = create_state_from_group(tstageFinal, tevent, 'FINAL', gr, COLOR_CHOICES[6][0], "Final", "F", 100, ROUND_TYPES.ROUND_2)
 
         handle_transitions_ko(state, transToFinal, ts, tttToFinal)
 
@@ -214,7 +245,7 @@ def create_states_sublevel(tevent, tstage, sublevel, hierarchy, ts_final_ranking
     
     return states
 
-def create_state_from_group(stage, tevent, tstate_choice, gr, colorIdx, name, abbr, hierarchy, round_type):
+def create_state_from_group(stage, tevent, tstate_choice, gr, color, name, abbr, hierarchy, round_type):
     state, cr = TournamentState.objects.get_or_create(tournament_event=tevent,
                 tournament_state=tstate_choice,
                 tournament_stage=stage,
@@ -223,7 +254,7 @@ def create_state_from_group(stage, tevent, tstate_choice, gr, colorIdx, name, ab
                 abbreviation=abbr,
                 hierarchy=hierarchy,
                 max_number_teams=len(gr["teams"]), 
-                color=COLOR_CHOICES[colorIdx][0],
+                color=color,
                 direct_compare=True,
                 round_type=round_type,
                 order=gr["idx"])
