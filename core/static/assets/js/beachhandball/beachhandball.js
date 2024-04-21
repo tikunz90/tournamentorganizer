@@ -331,8 +331,7 @@ bh = {
                 bh.structureData.team_stats.push(teamData);
                 tstatCounter++;
             }
-
-            
+           
             GameCounter--;
             wzNumOfGamesGroup += (GameCounter*(GameCounter+1)/2);
             groupData.items.push(actGroup);
