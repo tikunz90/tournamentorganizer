@@ -24,6 +24,31 @@ var PLACEMENT_NAMES = {
     64: 'R65',
     128: 'R129'
 }
+
+var COLORS_GROUP_MEN = [
+    "#00008B",
+    "#0000FF",
+    "#0096FF",
+    "#ADD8E6",
+    "#7DF9FF",
+    "#00FFFF",
+    "#F0FFFF",
+    "#00008B",
+    "#0000FF",
+];
+
+var COLORS_GROUP_WOMEN = [
+    "#8B0000",
+    "#FF0000",
+    "#EE4B2B",
+    "#E97451",
+    "#FF4433",
+    "#E0115F",
+    "#F88379",
+    "#8B0000",
+    "#FF0000",
+];
+
 var wzNumOfGames = 0;
 var wzNumOfGamesGroup = 0;
 var wzNumOfGamesKO = 0;
@@ -78,6 +103,16 @@ bh = {
 
     wzCalcGroups: function(idRow){ 
         console.log("wzCalcGroups: " + idRow);
+        var category = $('#wz-tevent-category').val();
+        var colors = [];
+        if(category == "man")
+        {
+            colors = COLORS_GROUP_MEN;
+        }
+        else if(category == "woman")
+        {
+            colors = COLORS_GROUP_WOMEN;
+        }
         groupData = {"num_groups":0, "teams_per_group":0, "num_teams_res":0, "teams_to_ko":0, "teams_next_stage":0, "items": [] };
         var transitions = {};
         bh.structureData.groups = groupData;
@@ -158,6 +193,7 @@ bh = {
             $(templateGroup).attr("id", 'group_' + i);
             $(templateGroup).removeAttr('hidden');
             $(templateGroup).find("#templateGroup_name").text(actGroup.name);
+            $(templateGroup).find("#templateGroup_name").css("background-color", colors[i]);
 
             
             var body = $(templateGroup).find("#templateGroup_body");
@@ -351,6 +387,7 @@ bh = {
                 $(templateGroup).attr("id", 'pl_group_' + j);
                 $(templateGroup).removeAttr('hidden');
                 $(templateGroup).find("#templateGroup_name").text(actGroup.name);
+                $(templateGroup).find("#templateGroup_name").css("background-color", "#BABABA");
                 $(templateGroup).attr("class", 'col-md-' + width + ' offset-md-' + offset);
                 var body = $(templateGroup).find("#templateGroup_body");
                 body.empty();
@@ -453,6 +490,7 @@ bh = {
             $(templateGroup).attr("id", 'pl_level_l_' + levels + '_' + j);
             $(templateGroup).removeAttr('hidden');
             $(templateGroup).find("#templateGroup_name").text(actGroup.name);
+            $(templateGroup).find("#templateGroup_name").css("background-color", "#BABABA");
             $(templateGroup).attr("class", 'col-md-' + width + ' offset-md-' + offset);
             var body = $(templateGroup).find("#templateGroup_body");
             body.empty();
@@ -622,6 +660,7 @@ bh = {
         $(templateGroup).attr("id", 'f_group_1');
         $(templateGroup).removeAttr('hidden');
         $(templateGroup).find("#templateGroup_name").text(actGroup.name);
+        $(templateGroup).find("#templateGroup_name").css("background-color", "#EFC501");
         $(templateGroup).attr("class", 'col-md-' + width + ' offset-md-' + offset);
         var body = $(templateGroup).find("#templateGroup_body");
         body.empty();
@@ -659,6 +698,9 @@ bh = {
 
     wzCalcKnockout: function(idRow){
         console.log("wzCalcKnockout: " + idRow);
+        var category = $('#wz-tevent-category').val();
+        var color = "#1F51FF";
+
         var koData = {"levels":0, "num_teams_soll":0, "level": [] };
         var transitions_pl = {};
         wzNumOfGamesKO = 0;
@@ -681,16 +723,40 @@ bh = {
             var width = 1;
             var offset = 0;
             var header = 'Round of ' + Math.pow(2, i);
+            if(category == "man")
+            {
+                color = '#191970' // midnight blue
+            }
+            else if(category == "woman")
+            {
+                color = '#880808' // blood red
+            }
             if(Math.pow(2, i) == 8)
             {
                 header = 'Quarter Finals';
                 width = 3;
+                if(category == "man")
+                {
+                    color = '#3F00FF' // indigo blue
+                }
+                else if(category == "woman")
+                {
+                    color = '#80461B' // russet red
+                }
             }
             if(Math.pow(2, i) == 4)
             {
                 header = 'Semi Finals';
                 width = 5;
                 offset = 1;
+                if(category == "man")
+                {
+                    color = '#000080' // navy blue
+                }
+                else if(category == "woman")
+                {
+                    color = '#DC143C' // crimson red
+                }
             }
             levelData.actNaming = KNOCKOUT_NAMES[Math.pow(2, i)];
             $(tLevel).find("#templateKO_header").text(header);
@@ -708,6 +774,7 @@ bh = {
                 $(templateGroup).attr("id", 'ko_grp_' + (j-1));
                 $(templateGroup).removeAttr('hidden');
                 $(templateGroup).find("#templateGroup_name").text(actGroup.name);
+                $(templateGroup).find("#templateGroup_name").css("background-color", color);
                 $(templateGroup).attr("class", 'col-md-' + width + ' offset-md-' + offset);
                 var body = $(templateGroup).find("#templateGroup_body");
                 body.empty();

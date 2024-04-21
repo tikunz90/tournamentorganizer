@@ -52,9 +52,9 @@ def wizard_create_structure(tevent, structure_data):
             if idx > 5:
                 idx = 5
                 colorIdx = 5
-            if tevent.category.category == 'MEN':
+            if tevent.category.category == 'man':
                 color = COLOR_CHOICES_GROUP_MEN[colorIdx][0]
-            elif tevent.category.category == 'WOMEN':
+            elif tevent.category.category == 'woman':
                 color = COLOR_CHOICES_GROUP_WOMEN[colorIdx][0]
             else:
                 color = COLOR_CHOICES[colorIdx][0]
@@ -91,25 +91,25 @@ def wizard_create_structure(tevent, structure_data):
                 colorIdx = 4
             if lvl["idx"] > 3:
                 tstate_choice = 'ROUND_OF_' + str(2**lvl["idx"])
-                if tevent.category.category == 'MEN':
+                if tevent.category.category == 'man':
                     color = '#191970' # midnight blue
-                elif tevent.category.category == 'WOMEN':
+                elif tevent.category.category == 'woman':
                     color = '#880808' # blood red
                 else:
                     color = '#1F51FF' # neon blue
             elif lvl["idx"] == 3:
                 tstate_choice = 'QUARTERFINALS'
-                if tevent.category.category == 'MEN':
+                if tevent.category.category == 'man':
                     color = '#3F00FF' # indigo blue
-                elif tevent.category.category == 'WOMEN':
+                elif tevent.category.category == 'woman':
                     color = '#80461B' # russet red
                 else:
                     color = '#1F51FF' # neon blue
             elif lvl["idx"] == 2:
                 tstate_choice = 'SEMIFINALS'
-                if tevent.category.category == 'MEN':
+                if tevent.category.category == 'man':
                     color = '#000080' # navy blue
-                elif tevent.category.category == 'WOMEN':
+                elif tevent.category.category == 'woman':
                     color = '#DC143C' # crimson red
                 else:
                     color = '#1F51FF' # neon blue
@@ -159,9 +159,9 @@ def wizard_create_structure(tevent, structure_data):
             ko_name = KNOCKOUT_NAMES[2**(lvl["idx"]+1)]
             if colorIdx > 4:
                 colorIdx = 4
-            if tevent.category.category == 'MEN':
+            if tevent.category.category == 'man':
                 color = '#A7C7E7' # pastel blue
-            elif tevent.category.category == 'WOMEN':
+            elif tevent.category.category == 'woman':
                 color = '#E3735E' # terracotta red
             else:
                 color = '#1F51FF' # neon blue

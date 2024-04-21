@@ -14,6 +14,7 @@
         <form action={{ url('setup_wizard', args=[tevent.id]) }} method="post">
           <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
           <input type="hidden" name="structure-data" id="wz-structure-data" value="">
+          <input type="hidden" name="tevent_category" id="wz-tevent-category" value="{{ tevent.category.category }}">
           <!--        You can switch " data-color="primary" "  with one of the next bright colors: "green", "orange", "red", "blue"       -->
           <div class="card-header text-center">
             <h3 class="card-title">
@@ -407,7 +408,7 @@
 
           <div id="templateGroup" class="col-md-3 mb-2" hidden>
             <div class="card shadow-lg">
-              <span id="templateGroup_name" class="badge rounded-pill bg-secondary text-light w-30 mt-n2 mx-auto">Group C</span>
+              <span id="templateGroup_name" class="badge rounded-pill text-light w-30 mt-n2 mx-auto">Group C</span>
               <div id="templateGroup_body" class="card-body pt-0">              
                 <div class="row justify-content-center mx-auto">
                   <span class="badge rounded-pill bg-info text-light m-1">1. Team</span>
