@@ -199,6 +199,7 @@ bh = {
             var body = $(templateGroup).find("#templateGroup_body");
             body.empty();
             var addedResidue = false;
+            
             for (let iTeam = 0; iTeam < teams_per_group; iTeam++) {
                 actTeam = {"idx":iTeam, "name":(iTeam+1) + '. TeamDummy', "rank": 0, "transition": { "uid": tttCounter, "tournament_state": tsCounter, "origin_rank": iTeam + 1, "origin_group_id": i, "origin_group_name": actGroup.name, "target_rank": 0, "target_group_id": 0} };
                 teamData = {
@@ -229,34 +230,38 @@ bh = {
 
                 //console.log('iTeam=' + iTeam + ' tar_gr_id=' + tar_gr_id + ' team_ko_quote='+ team_ko_quote + ' ko_free_first_seats=' + ko_free_first_seats);
                 // case if KO exists
-                if(groupData.teams_to_ko / 2 >= 2)
-                {
-                    if(tar_gr_id <  groupData.teams_to_ko / 2)
-                    {
-                        actTeam.transition.target_rank = 1;
-                        actTeam.transition.target_group_id = tar_gr_id;
-                        transitions["ko_grp_" + tar_gr_id].push(actTeam.transition);
-                        //console.log('FIRST ko_counter=' + ko_counter + ' tar_gr_id=' + actTeam.transition.target_group_id);
-                        //ko_counter++;
-                    }
-                    else if(tar_gr_id >= groupData.teams_to_ko / 2 && tar_gr_id < groupData.teams_to_ko)
-                    {
-                        actTeam.transition.target_rank = 2;
-                        tar_gr_id = (groupData.teams_to_ko-1) - tar_gr_id ;
-                        actTeam.transition.target_group_id = tar_gr_id;
-                        transitions["ko_grp_" + tar_gr_id].push(actTeam.transition);
-                        //console.log('2nd: ko_counter=' + ko_counter + ' tar_gr_id=' + actTeam.transition.target_group_id);
-                    }
-                    else
-                    {
-                        actTeam.transition.target_rank = -1;
-                        actTeam.transition.target_group_id = 999; 
-                    }
-                    bh.structureData.ttt.push(actTeam.transition);
-                    tttCounter++;
-                }
-                else // from group directly to final
-                {}
+
+
+                //if(groupData.teams_to_ko / 2 >= 2)
+                //{
+                //    if(tar_gr_id <  groupData.teams_to_ko / 2)
+                //    {
+                //        actTeam.transition.target_rank = 1;
+                //        actTeam.transition.target_group_id = tar_gr_id;
+                //        transitions["ko_grp_" + tar_gr_id].push(actTeam.transition);
+                //        //console.log('FIRST ko_counter=' + ko_counter + ' tar_gr_id=' + actTeam.transition.target_group_id);
+                //        //ko_counter++;
+                //    }
+                //    else if(tar_gr_id >= groupData.teams_to_ko / 2 && tar_gr_id < groupData.teams_to_ko)
+                //    {
+                //        actTeam.transition.target_rank = 2;
+                //        tar_gr_id = (groupData.teams_to_ko-1) - tar_gr_id ;
+                //        actTeam.transition.target_group_id = tar_gr_id;
+                //        transitions["ko_grp_" + tar_gr_id].push(actTeam.transition);
+                //        //console.log('2nd: ko_counter=' + ko_counter + ' tar_gr_id=' + actTeam.transition.target_group_id);
+                //    }
+                //    else
+                //    {
+                //        actTeam.transition.target_rank = -1;
+                //        actTeam.transition.target_group_id = 999; 
+                //    }
+                //    bh.structureData.ttt.push(actTeam.transition);
+                //    tttCounter++;
+                //}
+                //else // from group directly to final
+                //{}
+
+
                 
                 if( iTeam < groupData.teams_next_stage)
                 {
@@ -338,6 +343,35 @@ bh = {
             $(row).append(templateGroup);
             bh.structureData.tournament_states.push(tournament_state);
             tsCounter++;
+        }
+        var grIdx = 0;
+        var teamIdx = 0;
+        var target_gr_idx = 0;
+        var target_gr_idx_end = groupData.teams_to_ko / 2 - 1;
+        for (let i = 1; i <= groupData.teams_to_ko; i++) {
+            var targetRnk = 1;
+            var targetGroup = target_gr_idx;
+            if(i % 2 == 0) {
+                targetRnk = 2;
+                targetGroup = target_gr_idx_end;
+                target_gr_idx_end--;
+            }
+            else{
+                targetGroup = target_gr_idx;
+                target_gr_idx++;
+            }
+            groupData.items[grIdx].teams[teamIdx].transition.target_rank = targetRnk;
+            groupData.items[grIdx].teams[teamIdx].transition.target_group_id = targetGroup;
+            transitions["ko_grp_" + targetGroup].push(groupData.items[grIdx].teams[teamIdx].transition);
+            bh.structureData.ttt.push(groupData.items[grIdx].teams[teamIdx].transition);
+            tttCounter++;
+        
+            grIdx++;
+            if(grIdx >= groupData.items.length)
+            {
+                grIdx = 0;
+                teamIdx++;
+            }
         }
         bh.structureData.transitions.groups_to_ko = transitions;
         $('#wz-res_num_of_games_group').val(wzNumOfGamesGroup);
