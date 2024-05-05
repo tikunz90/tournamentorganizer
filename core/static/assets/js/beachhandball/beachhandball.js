@@ -120,6 +120,8 @@ bh = {
         wzNumOfGamesGroup = 0;
         var row = document.getElementById(idRow);
         $(row).empty();
+        var rowTab = document.getElementById("wz-ovw-tabGroup");
+        $(rowTab).empty();
         var num_teams = $("#wz-max_num_teams").val();
         var num_groups = $("#wz-num_of_groups").val();
 
@@ -341,6 +343,7 @@ bh = {
             wzNumOfGamesGroup += (GameCounter*(GameCounter+1)/2);
             groupData.items.push(actGroup);
             $(row).append(templateGroup);
+            $(rowTab).append(templateGroup.clone());
             bh.structureData.tournament_states.push(tournament_state);
             tsCounter++;
         }
@@ -383,8 +386,97 @@ bh = {
         wzNumOfGamesPlacement = 0;
         var row = document.getElementById(idRow);
         $(row).empty();
-        var num_teams_soll = $("#wz-sel-teams-knockout").val();
+
+        var rowTab = document.getElementById("wz-ovw-tabPL");
+        $(rowTab).empty();
+
         plData.num_teams_getting_ranked = $("#wz-sel-teams-getting-ranked").val();
+
+        var num_teams_soll = $("#wz-sel-teams-knockout").val();    
+        var num_teams_total = $("#wz-max_num_teams").val();
+        var best_rank_placement = parseInt(num_teams_soll) + 1;
+
+
+        // Enable/Disable Placement Options
+        var plAfterGroupContainer = document.getElementById("wz-placement-info-group");
+        var plCheckOptionsForms = document.getElementById("wz-enable-placement-form");
+        var plCheckOptions = document.getElementById("wz-enable-placement");
+        var plOptions = document.getElementById("wz-placement-options");
+        var plMode = document.getElementById("wz-sel-pl-mode");
+        var plModeSelected = $("#wz-sel-pl-mode").val();
+        var plModeOneGroup = document.getElementById("wz-pl-mode-onegroup");
+        var plModeMultiGroup = document.getElementById("wz-pl-mode-multigroup");
+        var plModeOnlyKo = document.getElementById("wz-pl-mode-onlyko");
+        var plModeOnlyKoExtraInfo = document.getElementById("wz-pl-mode-onlyko-extrainfo");
+        var plPreviewFinalsHeader = document.getElementById("wz-ovw-tabPL-finals-header");
+        var plPreviewFinals = document.getElementById("wz-ovw-tabPL-finals");
+        document.getElementById("wz-pl-mode-num_of_groups").max = Math.floor((num_teams_total - num_teams_soll) / 2).toString();
+        var plModeMultiGroup_num_groups = $("#wz-pl-mode-num_of_groups").val();
+
+        plAfterGroupContainer.style.display = 'none';
+
+        var remainingTeamsForPL = parseInt(num_teams_total) - parseInt(plData.num_teams_getting_ranked);
+
+        // Info Text Placement from KO
+        if(parseInt(num_teams_soll) > 2 && parseInt(plData.num_teams_getting_ranked) > 2) {
+            $("#wz-placement-info-ko").text("Placement playing for Rank 3 to " + parseInt(plData.num_teams_getting_ranked));
+        }
+        else {
+            $("#wz-placement-info-ko").text("Only 2 teams ranked. No Placement available");
+            
+        }
+
+        if(parseInt(num_teams_soll) > 2 && parseInt(num_teams_soll) == parseInt(plData.num_teams_getting_ranked) && (parseInt(num_teams_total) - parseInt(num_teams_soll)) > 0) {
+            plAfterGroupContainer.style.display = 'block';
+        }
+        
+        // Info Text for Placement
+        if(num_teams_total - num_teams_soll - 1 > 0) {
+            plCheckOptionsForms.style.display = 'block';
+            $("#wz-placement-info").text("Define Placement after Group Stage playing for Rank " + best_rank_placement + " to " + num_teams_total + " (#teams: " + remainingTeamsForPL.toString() +  ")");
+        }
+        else {
+            plCheckOptionsForms.style.display = 'none';
+            $("#wz-placement-info").text("No Placement after Group Stage possible");
+        }
+
+        plModeOneGroup.style.display = 'none';
+        plModeMultiGroup.style.display = 'none';
+        plModeOnlyKo.style.display = 'none';
+        plModeOnlyKoExtraInfo.style.display = 'none';
+        plPreviewFinalsHeader.style.display = 'none';
+        plPreviewFinals.style.display = 'none';
+
+        if(plCheckOptions.checked) {
+            plOptions.style.display = 'block';
+            switch (plModeSelected) {
+                case "1":
+                    plModeOneGroup.style.display = 'block';
+                    break;
+                case "2":
+                    plModeMultiGroup.style.display = 'block';
+                    plPreviewFinalsHeader.style.display = 'block';
+                    plPreviewFinalsHeader.style.display = 'block';
+                    plPreviewFinals.style.display = 'block';
+                    plPreviewFinals.textContent = "Placement for rank " + best_rank_placement.toString() + " to " + (best_rank_placement + 1).toString();
+                    break;
+                case "3":
+                    plModeOnlyKo.style.display = 'block';
+                    plPreviewFinalsHeader.style.display = 'block';
+                    plPreviewFinals.style.display = 'block';
+                    plPreviewFinals.textContent = "Placement for rank " + best_rank_placement.toString() + " to " + (best_rank_placement + 1).toString();
+                    if(remainingTeamsForPL % 2 != 0) {
+                        plModeOnlyKoExtraInfo.style.display = 'block';
+                        plModeOnlyKoExtraInfo.textContent = "Info: You have " + remainingTeamsForPL + " teams. Knockout works best if # of teams is 2, 4, 8, etc...";
+                    }
+                    break;
+              }
+        }
+        else {
+            plOptions.style.display = 'none';
+        }
+
+        
         var levels = (Math.log(num_teams_soll) / Math.log(2)) - 1; // -1 because final is seperated by
         plData.levels_ranked = (Math.log(plData.num_teams_getting_ranked) / Math.log(2)) - 1;
         
@@ -483,6 +575,7 @@ bh = {
             $(tLevel).find("#templatePL_body").append(tLevel_items);
             bh.wzCalcPlacementLevel($(tLevel).find("#templatePL_body"), i, levelData.bestRankWinner, levelData.actNaming, levelData);
             $(row).append(tLevel);
+            $(rowTab).append(tLevel.clone());
             plData["level"].push(levelData);
         }
         bh.structureData.placement = plData;
@@ -682,6 +775,8 @@ bh = {
         wzNumOfGamesFinal = 0;
         var row = document.getElementById(idRow);
         $(row).empty();
+        var rowTab = document.getElementById("wz-ovw-tabKO_Final");
+        $(rowTab).empty();
 
         var num_teams_soll = $("#wz-sel-teams-knockout").val();
         var levels = (Math.log(num_teams_soll) / Math.log(2));
@@ -723,6 +818,7 @@ bh = {
             actGroup["teams"].push(actTeam);
         }
         $(row).append(templateGroup);
+        $(rowTab).append(templateGroup.clone());
         finalData["groups"].push(actGroup);
         wzNumOfGamesFinal++;
         bh.structureData.finals = finalData;
@@ -739,6 +835,8 @@ bh = {
         wzNumOfGamesKO = 0;
         var row = document.getElementById(idRow);
         $(row).empty();
+        var rowTab = document.getElementById("wz-ovw-tabKO");
+        $(rowTab).empty();
         var num_teams = $("#wz-num_teams_group_next_stage").val();
         koData.num_teams_soll = $("#wz-sel-teams-knockout").val();
         koData.levels = (Math.log(koData.num_teams_soll) / Math.log(2)); // -1 because final is seperated by
@@ -879,6 +977,7 @@ bh = {
                 wzNumOfGamesKO++;
             }
             $(row).append(tLevel);
+            $(rowTab).append(tLevel.clone());
             koData["level"].push(levelData);
             lastNaming = levelData.actNaming;
             lastTransitions = levelData.transitions

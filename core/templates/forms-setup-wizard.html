@@ -40,6 +40,11 @@
                 </a>
               </li>
               <li class="nav-item">
+                <a class="nav-link" href="#tabPL" data-toggle="tab" role="tab">
+                  Placement
+                </a>
+              </li>
+              <li class="nav-item">
                 <a class="nav-link" href="#tabResult" data-toggle="tab" role="tab">
                   Result
                 </a>
@@ -60,7 +65,7 @@
                   </div>
                   <div class="form-group">
                     <label class="form-label">Max. number of Teams</label>
-                    <input type="number" name="max_num_teams" id="wz-max_num_teams" class="input_group form-control" value="2" min="2" max="64" required>
+                    <input type="number" name="max_num_teams" id="wz-max_num_teams" class="input_group form-control" value="16" min="2" max="64" required>
                   </div>
                 </div>
 
@@ -93,34 +98,31 @@
                     </div>
                   </div>
                 </div>
-                
-                <h5 class="info-text">Define until which rank you want to play Placement games</h5>
-                <p class="text-left">The losing teams from Knockout Stage will continue playing for lower placements.</p>
 
-                <div class="input-group form-control-lg">
-                  <div class="input-group-prepend">
-                    <span class="input-group-text">
-                      <i class="material-icons">format_list_numbered</i>
-                    </span>
+                <div class="card">
+                  <div class="card-header">
+                    <h2 class="info-text">Preview</h2>
                   </div>
-                  <div class="form-group row">
-                    <div class="col-8">
-                    <label for="wz-sel-teams-getting-ranked" class="">Number of teams getting ranked?</label>
-                    
+                  <div class="card-body">
+                    <div class="row justify-content-center" id="wz-ovw-tabKO">
                     </div>
-                    <div class="col-4">
-                      <select name="sel_teams_getting_ranked" class="input_group form-control" id="wz-sel-teams-getting-ranked">
-                        <option selected value="2">2</option>
-                        <option value="4">4</option>
-                        <option value="8">8</option>
-                        <option value="16">16</option>
-                      </select>
+                  
+                    <div class="row justify-content-center">
+                      <div class="d-flex justify-content-lg-start justify-content-center p-2">
+                        <span class="material-icons my-auto">
+                          emoji_events
+                          </span>
+                          <h3>Finals</h3>
+                      </div>
+                    </div>
+                    <div class="row justify-content-center" id="wz-ovw-tabKO_Final">
                     </div>
                   </div>
                 </div>
+
               </div>
-
-
+                
+                
               <div class="tab-pane" id="tabGroupStage">
                 <h5 class="info-text"> Define number and size of groups</h5>
 
@@ -151,8 +153,187 @@
 
                 <p>Keep in mind that amount of groups is limited by number of teams can reach Knockout Stage which you have selected before.</p>
 
+                <div class="card">
+                  <div class="card-header">
+                    <h2 class="info-text">Preview</h2>
+                  </div>
+                  <div class="card-body">
+                    <div class="row justify-content-center" id="wz-ovw-tabGroup">
+                    </div>
+                  </div>
+                </div>
                 
               </div>
+
+
+
+              <div class="tab-pane" id="tabPL">
+                
+                <h5 class="info-text" id="wz-placement-info-ko">Define until which rank you want to play Placement games</h5>
+                <p class="text-left">The losing teams from Knockout Stage will continue playing for lower placements.</p>
+
+                <div class="input-group form-control-lg">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text">
+                      <i class="material-icons">format_list_numbered</i>
+                    </span>
+                  </div>
+                  <div class="form-group row">
+                    <div class="col-8">
+                    <label for="wz-sel-teams-getting-ranked" class="">Number of teams getting ranked?</label>
+                    
+                    </div>
+                    <div class="col-4">
+                      <select name="sel_teams_getting_ranked" class="input_group form-control" id="wz-sel-teams-getting-ranked">
+                        <option selected value="2">2</option>
+                        <option value="4">4</option>
+                        <option value="8">8</option>
+                        <option value="16">16</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+
+
+
+                <div id="wz-placement-info-group">
+                  <h5 class="info-text" id="wz-placement-info"> Define Placement </h5>
+
+                  <div class="form-check row" id="wz-enable-placement-form">
+                    
+                    <label class="form-check-label" for="wz-enable-placement">
+                      <input class="input_group form-check-input" type="checkbox" id="wz-enable-placement">
+                        <b>Enable Placement after Group Stage</b>
+                        <span class="form-check-sign">
+                          <span class="check"></span>
+                        </span>
+                    </label>
+                  </div>
+
+                  
+                  <div class="row justify-content-center" id="wz-placement-options">
+
+                    <h5 class="info-text">Define Placement Mode</h5>
+                  
+                    <div class="form-group row">
+                      <div class="col-6">
+                      <label for="wz-sel-pl-type" class="info-text">Select mode you like to play?</label>
+                      
+                      </div>
+                      <div class="col-6">
+                        <select name="sel_pl_mode" class="input_group form-control" id="wz-sel-pl-mode">
+                          <option selected value="0">Do nothing</option>
+                          <option value="1">Put all teams in 1 group. Ranking of group is final ranking</option>
+                          <option value="2">1 or more groups + Knockout mode</option>
+                          <option value="3">Directly to Knockout mode</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    <div class="input-group form-control-lg row" name="pl_mode_onegroup" id="wz-pl-mode-onegroup">                   
+                    </div>
+
+                    <div class="input-group form-control-lg row" name="pl_mode_multigroup" id="wz-pl-mode-multigroup">
+                      
+                      <h5 class="info-text">Select number of Groups</h5>
+                      <div class="col-sm-6">
+
+                        <div class="input-group form-control-lg">
+                          <div class="input-group-prepend">
+                            <span class="input-group-text">
+                              <i class="material-icons">numbers</i>
+                            </span>
+                          </div>
+                          <div class="form-group">
+                            <label class="form-label">Number of groups</label>
+                            <input type="number" name="pl_mode_num_of_groups" id="wz-pl-mode-num_of_groups" class="input_group form-control" value="2" min="1" max="32" required>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div class="col-sm-4">
+                      </div>
+                    </div>
+
+                    <div class="input-group form-control-lg row" name="pl_mode_onlyko" id="wz-pl-mode-onlyko">                   
+                      <p class="info-text text-center" id="wz-pl-mode-onlyko-extrainfo"></p>
+                    </div>                  
+                    
+                  </div>
+                </div>
+
+                <div class="card">
+                  <div class="card-header">
+                    <h2 class="info-text">Preview</h2>
+                  </div>
+                  <div class="card-body container">
+
+
+
+                    <div id="accordionPL" role="tablist">
+
+
+                      <div class="card-collapse">
+                        <div class="card-header" role="tab" id="headingPL_FromKO">
+                          <h5 class="mb-0">
+                            <a data-toggle="collapse" href="#collapsePL_FromKO" aria-expanded="true" aria-controls="collapsePL_FromKO" class="collapsed">
+                              <span class="material-icons align-middle mb-1">
+                                sports_mma
+                              </span>
+                                Placement for Loosers from Knockout-Stage
+                              <i class="material-icons">keyboard_arrow_down</i>
+                            </a>
+                          </h5>
+                        </div>
+                        <div id="collapsePL_FromKO" class="collapse show" role="tabpanel" aria-labelledby="headingPL_FromKO" data-parent="#accordionPL" style="">
+                          <div class="card-body">
+                            <div class="row justify-content-center">
+                              <div class="container justify-content-center" id="wz-ovw-tabPL">
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+
+                      <div class="card-collapse">
+                        <div class="card-header" role="tab" id="headingPL_FromGroup">
+                          <h5 class="mb-0">
+                            <a class="collapsed" data-toggle="collapse" href="#collapsePL_FromGroup" aria-expanded="false" aria-controls="collapsePL_FromGroup">
+                              <span class="material-icons align-middle mb-1">
+                                format_list_numbered
+                              </span>
+                              Placement for Loosers from Group-Stage
+                              <i class="material-icons">keyboard_arrow_down</i>
+                            </a>
+                          </h5>
+                        </div>
+                        <div id="collapsePL_FromGroup" class="collapse" role="tabpanel" aria-labelledby="headingPL_FromGroup" data-parent="#accordionPL">
+                          <div class="card-body">
+                            <div class="card-body">
+                              <div class="container justify-content-center" id="wz-ovw-placementXXX">
+                                <div class="card" id="wz-ovw-tabPL-finals-header">
+                                  <div class="card-header">
+                                    <h3 class="info-text" id="wz-ovw-tabPL-finals">Finals</h3>
+                                  </div>
+                                  <div class="card-body container">
+                                    <div class="row justify-content-center" id="wz-ovw-tabPL_Final">
+                                    </div>
+                                  </div>
+            
+                                </div> 
+                              </div>
+                              
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>                 
+                  </div>
+                </div>
+                
+              </div>
+
               
               <div class="tab-pane" id="tabResult">
                 <h5 class="info-text">Checkout the result of your settings.</h5>
@@ -286,10 +467,66 @@
                               <div id="collapsePlacement" class="collapse" role="tabpanel" aria-labelledby="headingPlacement" data-parent="#accordion">
                                 <div class="card-body">
                                   <div class="card-body">
-                                    <div class="container justify-content-center" id="wz-ovw-placement">
+                                     <div id="accordionPL_Result" role="tablist">
+
+
+                                      <div class="card-collapse col-10">
+                                        <div class="card-header" role="tab" id="headingResultPL_FromKO">
+                                          <h5 class="mb-0">
+                                            <a data-toggle="collapse" href="#collapseResultPL_FromKO" aria-expanded="true" aria-controls="collapseResultPL_FromKO" class="collapsed">
+                                              <span class="material-icons align-middle mb-1">
+                                                sports_mma
+                                              </span>
+                                                Placement for Loosers from Knockout-Stage
+                                              <i class="material-icons">keyboard_arrow_down</i>
+                                            </a>
+                                          </h5>
+                                        </div>
+                                        <div id="collapseResultPL_FromKO" class="collapse show" role="tabpanel" aria-labelledby="headingResultPL_FromKO" data-parent="#accordionPL_Result" style="">
+                                          <div class="card-body">
+                                            <div class="row justify-content-center">
+                                              <div class="container justify-content-center" id="wz-ovw-placement">
                                       
+                                              </div>
+                                            </div>
+                                          </div>
+                                        </div>
+                                      </div>
+                
+                
+                                      <div class="card-collapse col-10">
+                                        <div class="card-header" role="tab" id="headingResultPL_FromGroup">
+                                          <h5 class="mb-0">
+                                            <a class="collapsed" data-toggle="collapse" href="#collapseResultPL_FromGroup" aria-expanded="false" aria-controls="collapseResultPL_FromGroup">
+                                              <span class="material-icons align-middle mb-1">
+                                                format_list_numbered
+                                              </span>
+                                              Placement for Loosers from Group-Stage
+                                              <i class="material-icons">keyboard_arrow_down</i>
+                                            </a>
+                                          </h5>
+                                        </div>
+                                        <div id="collapseResultPL_FromGroup" class="collapse" role="tabpanel" aria-labelledby="headingResultPL_FromGroup" data-parent="#accordionPL_Result">
+                                          <div class="card-body">
+                                            <div class="card-body">
+                                              <div class="container justify-content-center" id="wz-ovw-placementXXX">
+                                                <div class="card" id="wz-ovw-PL-finals-header">
+                                                  <div class="card-header">
+                                                    <h3 class="info-text" id="wz-ovw-PL-finals">Finals</h3>
+                                                  </div>
+                                                  <div class="card-body container">
+                                                    <div class="row justify-content-center" id="wz-ovw-PL_Final">
+                                                    </div>
+                                                  </div>
+                            
+                                                </div> 
+                                              </div>
+                                              
+                                            </div>
+                                          </div>
+                                        </div>
+                                      </div>
                                     </div>
-                                    
                                   </div>
                                 </div>
                               </div>
@@ -423,7 +660,7 @@
           </div>
 
 
-          <div id="templateKO_level" class="justify-content-center" hidden>
+          <div id="templateKO_level" class="justify-content-center col-12" hidden>
             <div class="row justify-content-center mx-auto">
               <h3 id="templateKO_header" class="col-12 text-center">Best of 16</h3>
             </div>
@@ -431,7 +668,7 @@
             </div>
           </div>
 
-          <div id="templatePL_level" class="justify-content-center" hidden>
+          <div id="templatePL_level" class="container justify-content-center" hidden>
             <div class="row">
               <div class="col">
                 <div class="card">
