@@ -60,6 +60,24 @@ var teamCounter = 0;
 var tstatCounter = 0;
 var tttCounter = 0;
 
+
+var plAfterGroupContainer = document.getElementById("wz-placement-info-group");
+var plCheckOptionsForms = document.getElementById("wz-enable-placement-form");
+var plCheckOptions = document.getElementById("wz-enable-placement");
+var plOptions = document.getElementById("wz-placement-options");
+var plMode = document.getElementById("wz-sel-pl-mode");
+var plModeSelected = $("#wz-sel-pl-mode").val();
+var plModeOneGroup = document.getElementById("wz-pl-mode-onegroup");
+var plModeMultiGroup = document.getElementById("wz-pl-mode-multigroup");
+var plModeOnlyKo = document.getElementById("wz-pl-mode-onlyko");
+var plModeOnlyKoExtraInfo = document.getElementById("wz-pl-mode-onlyko-extrainfo");
+var plPreviewPLAfterGroupCard = document.getElementById("wz-ovw-tabPL-AfterGroup-card");
+var plPreviewPLAfterGroupHeader = document.getElementById("wz-ovw-tabPL-AfterGroup-header");
+var plPreviewPLAfterGroup = document.getElementById("wz-ovw-tabPL_AfterGroup");
+var plPreviewFinalsHeader = document.getElementById("wz-ovw-tabPL-finals-header");
+var plPreviewFinals = document.getElementById("wz-ovw-tabPL-finals");
+
+
 bh = {
     misc: {
       test_mode_active: 1,
@@ -81,6 +99,24 @@ bh = {
         "ttt": []
     },
 
+    wzInitUIElements: function() {
+        plAfterGroupContainer = document.getElementById("wz-placement-info-group");
+        plCheckOptionsForms = document.getElementById("wz-enable-placement-form");
+        plCheckOptions = document.getElementById("wz-enable-placement");
+        plOptions = document.getElementById("wz-placement-options");
+        plMode = document.getElementById("wz-sel-pl-mode");
+        plModeSelected = $("#wz-sel-pl-mode").val();
+        plModeOneGroup = document.getElementById("wz-pl-mode-onegroup");
+        plModeMultiGroup = document.getElementById("wz-pl-mode-multigroup");
+        plModeOnlyKo = document.getElementById("wz-pl-mode-onlyko");
+        plModeOnlyKoExtraInfo = document.getElementById("wz-pl-mode-onlyko-extrainfo");
+        //plPreviewPLAfterGroupCard = document.getElementById("wz-ovw-tabPL-AfterGroup-card");
+        //plPreviewPLAfterGroupHeader = document.getElementById("wz-ovw-tabPL-AfterGroup-header");
+        plPreviewPLAfterGroup = document.getElementById("wz-ovw-tabPL_AfterGroup");
+        //plPreviewFinalsHeader = document.getElementById("wz-ovw-tabPL-finals-header");
+        //plPreviewFinals = document.getElementById("wz-ovw-tabPL-finals");
+    },
+
     wzUpdateStructure: function(){ 
         wzNumOfGames = 0;
         tsCounter = 0;
@@ -91,6 +127,7 @@ bh = {
         bh.structureData.teams = [];
         bh.structureData.team_stats = [];
         bh.structureData.ttt = [];
+        bh.wzInitUIElements();
         bh.wzCalcGroups("wz-ovw-groups");
         bh.wzCalcKnockout('wz-ovw-knockout');
         bh.wzCalcPlacement('wz-ovw-placement');
@@ -134,7 +171,9 @@ bh = {
 
         var sel_val = $("#wz-sel-teams-knockout").val();
         document.getElementById("wz-num_of_groups").max = sel_val;
+        groupData.teams_total = parseInt(num_teams);
         groupData.teams_to_ko = parseInt(sel_val);
+        groupData.teams_remaining = groupData.teams_total - groupData.teams_to_ko;
         var teams_next_stage_residue = sel_val % num_groups;
         groupData.teams_next_stage = Math.floor(sel_val / num_groups);
         $("#wz-sel-teams-knockout").empty();
@@ -203,7 +242,7 @@ bh = {
             var addedResidue = false;
             
             for (let iTeam = 0; iTeam < teams_per_group; iTeam++) {
-                actTeam = {"idx":iTeam, "name":(iTeam+1) + '. TeamDummy', "rank": 0, "transition": { "uid": tttCounter, "tournament_state": tsCounter, "origin_rank": iTeam + 1, "origin_group_id": i, "origin_group_name": actGroup.name, "target_rank": 0, "target_group_id": 0} };
+                actTeam = {"idx":iTeam, "name":(iTeam+1) + '. TeamDummy', "rank": 0, "isWinning": 0, "transition": { "uid": tttCounter, "tournament_state": tsCounter, "origin_rank": iTeam + 1, "origin_group_id": i, "origin_group_name": actGroup.name, "target_rank": 0, "target_group_id": 0} };
                 teamData = {
                     "uid": teamCounter,
                     "tournament_state": tsCounter,
@@ -229,51 +268,18 @@ bh = {
 
                 // transition
                 var tar_gr_id = i + iTeam * num_groups;
-
-                //console.log('iTeam=' + iTeam + ' tar_gr_id=' + tar_gr_id + ' team_ko_quote='+ team_ko_quote + ' ko_free_first_seats=' + ko_free_first_seats);
-                // case if KO exists
-
-
-                //if(groupData.teams_to_ko / 2 >= 2)
-                //{
-                //    if(tar_gr_id <  groupData.teams_to_ko / 2)
-                //    {
-                //        actTeam.transition.target_rank = 1;
-                //        actTeam.transition.target_group_id = tar_gr_id;
-                //        transitions["ko_grp_" + tar_gr_id].push(actTeam.transition);
-                //        //console.log('FIRST ko_counter=' + ko_counter + ' tar_gr_id=' + actTeam.transition.target_group_id);
-                //        //ko_counter++;
-                //    }
-                //    else if(tar_gr_id >= groupData.teams_to_ko / 2 && tar_gr_id < groupData.teams_to_ko)
-                //    {
-                //        actTeam.transition.target_rank = 2;
-                //        tar_gr_id = (groupData.teams_to_ko-1) - tar_gr_id ;
-                //        actTeam.transition.target_group_id = tar_gr_id;
-                //        transitions["ko_grp_" + tar_gr_id].push(actTeam.transition);
-                //        //console.log('2nd: ko_counter=' + ko_counter + ' tar_gr_id=' + actTeam.transition.target_group_id);
-                //    }
-                //    else
-                //    {
-                //        actTeam.transition.target_rank = -1;
-                //        actTeam.transition.target_group_id = 999; 
-                //    }
-                //    bh.structureData.ttt.push(actTeam.transition);
-                //    tttCounter++;
-                //}
-                //else // from group directly to final
-                //{}
-
-
-                
+              
                 if( iTeam < groupData.teams_next_stage)
                 {
-                    $(tTeamItem).find("#templateTeamItem_icon").text('arrow_upward');                    
+                    $(tTeamItem).find("#templateTeamItem_icon").text('arrow_upward');
+                    actTeam.isWinning = 1;                    
                 }
                 else if(teams_next_stage_residue > 0 && addedResidue == false)
                 {
                     $(tTeamItem).find("#templateTeamItem_icon").text('arrow_upward');
                     addedResidue = true;
                     teams_next_stage_residue--;
+                    actTeam.isWinning = 1;  
                 }
                 else
                 {
@@ -392,30 +398,26 @@ bh = {
 
         plData.num_teams_getting_ranked = $("#wz-sel-teams-getting-ranked").val();
 
-        var num_teams_soll = $("#wz-sel-teams-knockout").val();    
-        var num_teams_total = $("#wz-max_num_teams").val();
-        var best_rank_placement = parseInt(num_teams_soll) + 1;
-
+        var num_teams_soll = groupData.teams_to_ko;    
+        var num_teams_total = groupData.teams_total;
+        var best_rank_placement = num_teams_soll + 1;
 
         // Enable/Disable Placement Options
-        var plAfterGroupContainer = document.getElementById("wz-placement-info-group");
-        var plCheckOptionsForms = document.getElementById("wz-enable-placement-form");
-        var plCheckOptions = document.getElementById("wz-enable-placement");
-        var plOptions = document.getElementById("wz-placement-options");
-        var plMode = document.getElementById("wz-sel-pl-mode");
-        var plModeSelected = $("#wz-sel-pl-mode").val();
-        var plModeOneGroup = document.getElementById("wz-pl-mode-onegroup");
-        var plModeMultiGroup = document.getElementById("wz-pl-mode-multigroup");
-        var plModeOnlyKo = document.getElementById("wz-pl-mode-onlyko");
-        var plModeOnlyKoExtraInfo = document.getElementById("wz-pl-mode-onlyko-extrainfo");
-        var plPreviewFinalsHeader = document.getElementById("wz-ovw-tabPL-finals-header");
-        var plPreviewFinals = document.getElementById("wz-ovw-tabPL-finals");
+        
         document.getElementById("wz-pl-mode-num_of_groups").max = Math.floor((num_teams_total - num_teams_soll) / 2).toString();
-        var plModeMultiGroup_num_groups = $("#wz-pl-mode-num_of_groups").val();
-
+        
         plAfterGroupContainer.style.display = 'none';
+        plModeOneGroup.style.display = 'none';
+        plModeMultiGroup.style.display = 'none';
+        plModeOnlyKo.style.display = 'none';
+        plModeOnlyKoExtraInfo.style.display = 'none';
+        //plPreviewPLAfterGroupCard.style.display = 'none';
+        //plPreviewPLAfterGroupHeader.style.display = 'none';
+        plPreviewPLAfterGroup.style.display = 'none';
+        //plPreviewFinalsHeader.style.display = 'none';
+        //plPreviewFinals.style.display = 'none';
 
-        var remainingTeamsForPL = parseInt(num_teams_total) - parseInt(plData.num_teams_getting_ranked);
+        var remainingTeamsForPL = groupData.teams_remaining;
 
         // Info Text Placement from KO
         if(parseInt(num_teams_soll) > 2 && parseInt(plData.num_teams_getting_ranked) > 2) {
@@ -440,35 +442,17 @@ bh = {
             $("#wz-placement-info").text("No Placement after Group Stage possible");
         }
 
-        plModeOneGroup.style.display = 'none';
-        plModeMultiGroup.style.display = 'none';
-        plModeOnlyKo.style.display = 'none';
-        plModeOnlyKoExtraInfo.style.display = 'none';
-        plPreviewFinalsHeader.style.display = 'none';
-        plPreviewFinals.style.display = 'none';
-
         if(plCheckOptions.checked) {
             plOptions.style.display = 'block';
             switch (plModeSelected) {
                 case "1":
-                    plModeOneGroup.style.display = 'block';
+                    bh.wzCalcPlacementOneGroup(best_rank_placement, remainingTeamsForPL);
                     break;
                 case "2":
-                    plModeMultiGroup.style.display = 'block';
-                    plPreviewFinalsHeader.style.display = 'block';
-                    plPreviewFinalsHeader.style.display = 'block';
-                    plPreviewFinals.style.display = 'block';
-                    plPreviewFinals.textContent = "Placement for rank " + best_rank_placement.toString() + " to " + (best_rank_placement + 1).toString();
+                    bh.wzCalcPlacementMultiGroup(best_rank_placement, remainingTeamsForPL);
                     break;
                 case "3":
-                    plModeOnlyKo.style.display = 'block';
-                    plPreviewFinalsHeader.style.display = 'block';
-                    plPreviewFinals.style.display = 'block';
-                    plPreviewFinals.textContent = "Placement for rank " + best_rank_placement.toString() + " to " + (best_rank_placement + 1).toString();
-                    if(remainingTeamsForPL % 2 != 0) {
-                        plModeOnlyKoExtraInfo.style.display = 'block';
-                        plModeOnlyKoExtraInfo.textContent = "Info: You have " + remainingTeamsForPL + " teams. Knockout works best if # of teams is 2, 4, 8, etc...";
-                    }
+                    bh.wzCalcPlacementDirectKO(best_rank_placement, remainingTeamsForPL);
                     break;
               }
         }
@@ -767,6 +751,83 @@ bh = {
         bodyLevel.append(tWinning);
         bh.wzCalcPlacementLevel(bodyLevel, levels-1, sublevelDataWinner.bestRank, actNaming, sublevelDataWinner);
         levelData["sublevel"].push(sublevelDataWinner);
+    },
+
+    wzCalcPlacementOneGroup: function(best_rank_placement, remainingTeamsForPL){
+        plModeOneGroup.style.display = 'block';
+        //plPreviewPLAfterGroupCard.style.display = 'block';
+        //plPreviewPLAfterGroupHeader.style.display = 'block';
+        plPreviewPLAfterGroup.style.display = 'block';
+        var rowTab = document.getElementById("wz-ovw-tabPL_AfterGroup");
+        $(rowTab).empty();
+
+        var transitions = {};
+        var num_of_transistions = groupData.teams_total - groupData.teams_to_ko;
+        
+        var width = 6;
+        var offset = 3;
+        var templateGroup = $("#templateGroup").clone();
+        $(templateGroup).attr("id", 'pl_after_group_one_group');
+        $(templateGroup).removeAttr('hidden');
+        $(templateGroup).find("#templateGroup_name").text("Placement for rank " + best_rank_placement + " to " + groupData.teams_total);
+        $(templateGroup).find("#templateGroup_name").css("background-color", "#BABABA");
+        $(templateGroup).attr("class", 'col-md-' + width + ' offset-md-' + offset);
+        var body = $(templateGroup).find("#templateGroup_body");
+        body.empty();
+        var actRank = best_rank_placement;
+        for(let i = 0; i < groupData.items.length; i++)
+        {
+            var actGroup = groupData.items[i];
+            for(let j = 0; j < actGroup.teams.length; j++)
+            {
+                var actTeam = actGroup.teams[j];
+                if(actTeam.isWinning == 0) {
+                    var teamName = actTeam.rank.toString() + ". " + actGroup.name;
+                    var tTeamItem = $("#templateTeamItem").clone();
+                    $(tTeamItem).find("#templateTeamItem_icon").attr('hidden', 'hidden');
+                    $(tTeamItem).attr("id", 'pl_after_group_one_group_' + i + '_' + j);
+                    $(tTeamItem).find("#templateTeamItem_rank").text(actRank.toString() + ".");
+                    $(tTeamItem).find("#templateTeamItem_rank").removeAttr('hidden');
+                    $(tTeamItem).removeAttr('hidden');
+                    $(tTeamItem).find("#templateTeamItem_name").text(teamName);
+                    body.append(tTeamItem);
+                    actRank++;
+                }
+            }
+        }
+        $(rowTab).append(templateGroup.clone());
+    },
+
+    wzCalcPlacementMultiGroup: function(best_rank_placement, remainingTeamsForPL){
+        plModeMultiGroup.style.display = 'block';
+        //plPreviewPLAfterGroupCard.style.display = 'block';
+        //plPreviewPLAfterGroupHeader.style.display = 'block';
+        plPreviewPLAfterGroup.style.display = 'block';
+        //plPreviewFinalsHeader.style.display = 'block';
+        //plPreviewFinalsHeader.style.display = 'block';
+        //plPreviewFinals.style.display = 'block';
+        //plPreviewFinals.textContent = "Placement for rank " + best_rank_placement.toString() + " to " + (best_rank_placement + 1).toString();
+        
+        var rowTab = document.getElementById("wz-ovw-tabPL_AfterGroup");
+        $(rowTab).empty();
+
+        var num_groups = $("#wz-pl-mode-num_of_groups").val();
+    },
+
+    wzCalcPlacementDirectKO: function(best_rank_placement, remainingTeamsForPL){
+        plModeOnlyKo.style.display = 'block';
+        //plPreviewPLAfterGroupCard.style.display = 'block';
+        //plPreviewPLAfterGroupHeader.style.display = 'block';
+        plPreviewPLAfterGroup.style.display = 'block';
+        //plPreviewFinalsHeader.style.display = 'block';
+        //plPreviewFinals.style.display = 'block';
+        //plPreviewFinals.textContent = "Placement for rank " + best_rank_placement.toString() + " to " + (best_rank_placement + 1).toString();
+        if(remainingTeamsForPL % 2 != 0) {
+            plModeOnlyKoExtraInfo.style.display = 'block';
+            plModeOnlyKoExtraInfo.textContent = "Info: You have " + remainingTeamsForPL + " teams. Knockout works best if # of teams is 2, 4, 8, etc...";
+        }
+        var rowTab = document.getElementById("wz-ovw-tabPL_AfterGroup");
+        $(rowTab).empty();
     },
 
     wzCalcFinals: function(idRow) {
