@@ -707,7 +707,7 @@ def sync_single_team_by_ranking(ranking, tevent, team_data_django, cup_type, gbo
     if len(player_bulk_create_list) > 0:
         Player.objects.bulk_create(player_bulk_create_list)
     if len(player_bulk_update_list) > 0:
-        Player.objects.bulk_update(player_bulk_update_list, ("tournament_event", "team", "name", "first_name", "gbo_position", "is_active", "number","season_team_id", "season_player_id", "subject_data",))
+        Player.objects.bulk_update(player_bulk_update_list, ("tournament_event", "team", "name", "first_name", "gbo_position", "is_active", "number","season_team_id", "season_player_id", "subject_data", "birthday",))
     for pl in players_list:
         pl.delete()
     
