@@ -113,6 +113,7 @@
                                 <tr>
                                   <th>#</th>
                                   <th class="text-center">Name</th>
+                                  <th class="text-center">Birthday</th>
                                   <th class="text-center">Position</th>
                                   <th class="text-center">ID</th>
                                 </tr>
@@ -123,6 +124,11 @@
                                 <tr>
                                   <td>{{ player.number }}</td>
                                   <td class="text-center">{{player.name}}, {{player.first_name}}</td>
+                                  <td class="text-center">
+                                    {% if player.birthday %}
+                                        {{ player.birthday.strftime('%d.%m.%Y') }}
+                                    {% endif %}
+                                  </td>
                                   <td class="text-center">{{ player.gbo_position }}</td>
                                   <td>{{ player.season_player_id }}</td>
                                 </tr>
@@ -138,6 +144,7 @@
                                 <tr>
                                   <th>#</th>
                                   <th class="text-center">Name</th>
+                                  <th class="text-center">Birthday</th>
                                   <th class="text-center">Position</th>
                                   <th class="text-center">ID</th>
                                 </tr>
@@ -148,6 +155,11 @@
                                 <tr>
                                   <td>{{ player.number }}</td>
                                   <td class="text-center">{{player.name}}, {{player.first_name}}</td>
+                                  <td class="text-center">
+                                    {% if player.birthday %}
+                                        {{ player.birthday.strftime('%d.%m.%Y') }}
+                                    {% endif %}
+                                  </td>      
                                   <td class="text-center">{{ player.gbo_position }}</td>
                                   <td>{{ player.season_player_id }}</td>
                                 </tr>
@@ -253,7 +265,7 @@
 
         // Initialize the output string with column headers
         var output = "Active Players\n\n";
-        output += "#\tName\tPosition\tID\n";
+        output += "#\tName\tBirthday\tPosition\tID\n";
 
         // Iterate over table rows and columns to build the output string
         for (var i = 0; i < tableActive.rows.length; i++) {
@@ -266,7 +278,7 @@
 
         output += "\n\n";
         output += "Not Active Players\n\n";
-        output += "#\tName\tPosition\tID\n";
+        output += "#\tName\tBirthday\tPosition\tID\n";
 
         for (var i = 0; i < table.rows.length; i++) {
           var row = table.rows[i];

@@ -678,6 +678,12 @@ def sync_single_team_by_ranking(ranking, tevent, team_data_django, cup_type, gbo
             players_list = [ x for x in players_list if x is not act_player ]
         act_player.tournament_event = tevent
         act_player.team = act_team
+        birthday_string =  ''
+        try:
+            birthday_string = season_player['seasonSubject']['subject']['user']['birthday']
+            act_player.birthday = datetime.strptime(birthday_string, "%Y-%m-%dT%H:%M:%S.%fZ").date()
+        except ValueError:
+            print("Cannor parse birthday: " + birthday_string)
         act_player.name = strip_accents(season_player['seasonSubject']['subject']['user']['family_name'])
         act_player.first_name = strip_accents(season_player['seasonSubject']['subject']['user']['name'])
         act_player.gbo_position = season_player['seasonSubject']['subject']['subjectLevel']['name']
