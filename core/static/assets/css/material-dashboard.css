@@ -15,7 +15,8 @@
 /*     brand Colors              */
 
 .selected-row {
-  border: 2px solid red; /* Set the desired border style */
+  border: 4px solid red; /* Set the desired border style */
+  background-color: red;
 }
 
 .card {
@@ -5202,6 +5203,9 @@ button.bg-dark:focus {
     position: sticky;
     top: 0;
     z-index: 1020; } }
+
+    body {position:relative;}
+    .bootstrap-datetimepicker-widget {z-index: 9999 !important;}
 
 .sr-only, .bootstrap-datetimepicker-widget .btn[data-action="incrementHours"]::after, .bootstrap-datetimepicker-widget .btn[data-action="incrementMinutes"]::after, .bootstrap-datetimepicker-widget .btn[data-action="decrementHours"]::after, .bootstrap-datetimepicker-widget .btn[data-action="decrementMinutes"]::after, .bootstrap-datetimepicker-widget .btn[data-action="showHours"]::after, .bootstrap-datetimepicker-widget .btn[data-action="showMinutes"]::after, .bootstrap-datetimepicker-widget .btn[data-action="togglePeriod"]::after, .bootstrap-datetimepicker-widget .btn[data-action="clear"]::after, .bootstrap-datetimepicker-widget .btn[data-action="today"]::after, .bootstrap-datetimepicker-widget .picker-switch::after, .bootstrap-datetimepicker-widget table th.prev::after, .bootstrap-datetimepicker-widget table th.next::after {
   position: absolute;

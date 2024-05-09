@@ -309,6 +309,31 @@ md = {
       showTodayButton: true,
       sideBySide: true,
       timeZone: 'Europe/Berlin',
+      widgetParent: 'body',
+      widgetPositioning: {
+        vertical: 'bottom'
+      }
+    });
+
+    $('.datetimepicker').on('dp.show', function() {
+      var datepicker = $('body').find('.bootstrap-datetimepicker-widget:last');
+      if (datepicker.hasClass('bottom')) {
+      var top = $(this).offset().top + $(this).outerHeight();
+      var left = $(this).offset().left;
+      datepicker.css({
+        'top': top + 'px',
+        'bottom': 'auto',
+        'left': left + 'px'
+      });
+      } else if (datepicker.hasClass('top')) {
+      var top = $(this).offset().top - datepicker.outerHeight();
+      var left = $(this).offset().left;
+      datepicker.css({
+        'top': top + 'px',
+        'bottom': 'auto',
+        'left': left + 'px'
+      });
+      }
     });
 
     $('.datepicker').datetimepicker({
@@ -323,7 +348,10 @@ md = {
         today: 'fa fa-screenshot',
         clear: 'fa fa-trash',
         close: 'fa fa-remove'
-      }
+      },
+      widgetPositioning: {
+        vertical: 'top'
+    }
     });
 
     $('.timepicker').datetimepicker({
@@ -340,7 +368,10 @@ md = {
         clear: 'fa fa-trash',
         close: 'fa fa-remove'
 
-      }
+      },
+      widgetPositioning: {
+        vertical: 'top'
+    }
     });
   },
 

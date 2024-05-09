@@ -27,11 +27,37 @@
       {% endif %}
     </div>
     <div class="card card-stats">
-      <div class="card-header">
-        <a class="btn btn-primary" data-toggle="collapse" href="#panel-filter" role="button" aria-expanded="false" aria-controls="collapseExample">
-          Filter
-          <i class="material-icons">keyboard_arrow_down</i>
-        </a>
+      <div class="card-header container">
+        <div class="row">
+          <div class="form-check col-3">
+                      
+            <label class="form-check-label" for="checkFilterHideFinished">
+              <input class="input_group form-check-input" type="checkbox" id="checkFilterHideFinished">
+                <b>Hide finished Games</b>
+                <span class="form-check-sign">
+                  <span class="check"></span>
+                </span>
+            </label>
+          </div>
+
+          <div class="form-check col-3">
+                      
+            <label class="form-check-label" for="checkFilterHideFinishedXX">
+              <input class="input_group form-check-input" type="checkbox" id="checkFilterHideFinishedXX">
+                <b>Hide finished Games</b>
+                <span class="form-check-sign">
+                  <span class="check"></span>
+                </span>
+            </label>
+          </div>
+        </div>
+
+        <div class="row">
+          <a class="btn btn-primary col-3" data-toggle="collapse" href="#panel-filter" role="button" aria-expanded="false" aria-controls="collapseExample">
+            More Filter
+            <i class="material-icons">keyboard_arrow_down</i>
+          </a>
+        </div>
       </div>
       <div id="panel-filter" class="collapse">
         <div class="card-body">
@@ -174,9 +200,9 @@
 <div class="row">
   <div class="col-lg-12 col-md-12 col-sm-12">
     <div class="card card-stats">
-      <div class="card-body">
+      <div class="card-body" id="table-card-body">
         <div class="table-responsive">
-              <table id="table-games" class="table">
+              <table id="table-games" class="table body">
                 <thead class=" text-primary">
                   <th hidden data-col="tournament_event">tournament_event</th>
                   <th class="text-left" data-col="date">Date</th>
@@ -269,7 +295,10 @@
 <script>
   let draggedRow = null;
   let selectedRow = null;
+  let selectedRowColor = '';
   let selectedGameId = 0;
+  let isDragging = false;
+  let lastMouseY = 0;
 
     $(document).ready(function() {
       //md.initFullCalendar();
@@ -283,6 +312,43 @@
         md.showNotification('top','center', '{{ message }}', 'info');
         {% endfor %}
       {% endif %}
+
+      var checkbox = document.getElementById("checkFilterHideFinished");
+        checkbox.addEventListener("change", function() {
+            if (this.checked) {
+                hideFinishedGames(1);
+            } else {
+              hideFinishedGames(-1);
+            }
+        });
+
+        $(document).on('mousemove', function(e) {
+          // Check if dragging is in progress
+          //console.log("MouseMove");
+          if (isDragging) {
+
+            console.log("MouseY: " + e.clientY + " Height: " + window.innerHeight);
+              // Calculate the difference in mouse position since the last event
+              const deltaY = (e.clientY - lastMouseY) * 2;
+              var height = window.innerHeight;
+              // Adjust the scroll position accordingly
+              //$('#table-games').scrollTop($('#table-games').scrollTop() + deltaY);
+              window.scrollBy(0, deltaY);
+              // Update the last mouse position
+              lastMouseY = e.clientY;
+
+              // Check if the mouse is over the last row of the screen
+              const containerTop = $('#table-games').offset().top;
+              const containerHeight = $('#table-games').height();
+              const lastRowOffset = $('#table-games tr:last').offset().top;
+              const lastRowHeight = $('#table-games tr:last').height();
+
+              if (e.clientY > (lastRowOffset - containerTop - lastRowHeight)) {
+                  // Mouse is over the last row of the screen
+                  console.log("Mouse over last row");
+              }
+          }
+      });
 
       var exportButtons = document.querySelectorAll(".export-button");
 
@@ -382,6 +448,8 @@
       $('#table-games').filterTable('#games-filter');
       //$('table').tableFilter('filterRows', 'The Beachers');
 
+    
+
       var actTime = '';
       var colors = ['#f2f2f2', '#d9d9d9'];
       var actColor = 'red';
@@ -423,11 +491,15 @@
       });
 
       $('.game-row').click(function() {
+        clearCssSelectedRow();
         // Remove the 'selected-row' class from all rows
         $('.game-row').removeClass('selected-row');
   
         // Add the 'selected-row' class to the clicked row
         $(this).addClass('selected-row');
+        selectedRowColor = $(this).css('background-color');
+        $(this).css('background-color', '#ff6347');
+        $(this).css('border', '2px solid black');
 
         selectedRow = $(this);
         var date_string_dragged = moment(selectedRow.find('#id_starttime')[0].value, "MM/DD/YYYY HH:mm").format("YYYY-MM-DD HH:mm:ss");
@@ -437,6 +509,15 @@
       });
 
     });
+
+    function clearCssSelectedRow() {
+      var findSelectedRow = $('.selected-row:first');
+        if(findSelectedRow.length > 0) {
+          findSelectedRow.css('background-color', selectedRowColor);
+          findSelectedRow.css('border', 'none');
+        }
+    }
+    
 
     function enable_dragging() {
       if (document.getElementById('checkBoxEnableDragging').checked) {
@@ -457,7 +538,19 @@
       console.log("Dragged row ID:", $(draggedRow).find('#game_id_counter')[0].innerText);
       //draggedRow.classList.add('tr-dragged');
       //e.dataTransfer.setData('text/plain', ''); // Needed for Firefox
+      //document.addEventListener('wheel', preventScroll, { passive: false });
+      //$('#table-games').on('wheel', preventScroll);
+      // Set dragging flag to true
+      isDragging = true;
+      // Save the initial mouse position
+      lastMouseY = e.clientY;
+
+      clearCssSelectedRow();
     }
+
+    function preventScroll(e) {
+      e.preventDefault();
+  }
 
     // Handle the dragging over of a row
     function dragOver(e) {
@@ -553,6 +646,10 @@
     // Handle the end of a drag event
     function dragEnd(e) {
       console.log("drag end");
+      draggedRow = null;
+      isDragging = false;
+      //document.removeEventListener('wheel', preventScroll);
+      //$('#table-games').off('wheel', preventScroll);
       $('#table-games').find('tr').each(function(index) {
         $(this).removeClass('tr-over');
       });
@@ -795,6 +892,24 @@
             opt_val = opt_val + "§" + this.value;
         });
         opt_val = opt_val.substring(1, opt_val.length);
+      }
+      var filter_obj = {'col': 'gamestate', 'filter': opt_val }
+      $('#games-filter').val(JSON.stringify(filter_obj));$('#games-filter').keyup();
+    }
+
+    function hideFinishedGames(hide) {
+      if(hide == -1)
+      {
+        opt_val = "";
+        $("#filter-gamestate > option").each(function() {
+            if((this.value == -1) || (this.value == '') )return;
+
+            opt_val = opt_val + "§" + this.value;
+        });
+        opt_val = opt_val.substring(1, opt_val.length);
+      }
+      else{
+        opt_val = '§RUNNING§APPENDING';
       }
       var filter_obj = {'col': 'gamestate', 'filter': opt_val }
       $('#games-filter').val(JSON.stringify(filter_obj));$('#games-filter').keyup();
