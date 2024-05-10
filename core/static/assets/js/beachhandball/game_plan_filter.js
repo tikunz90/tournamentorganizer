@@ -1,3 +1,16 @@
+$(document).ready(function () {
+  var checkbox = document.getElementById("checkFilterHideFinished");
+  checkbox.addEventListener("change", function () {
+    if (this.checked) {
+      hideFinishedGames(1);
+    } else {
+      hideFinishedGames(-1);
+    }
+  });
+
+  //$("#table-games").filterTable("#games-filter");
+});
+
 function add_filter(filter) {
   var filter_obj = { col: "Team A", filter: filter };
   $("#games-filter").val(JSON.stringify(filter_obj));

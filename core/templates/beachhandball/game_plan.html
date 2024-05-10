@@ -308,17 +308,18 @@
 {% endblock content %}
 
 {% block javascripts %}
-<script>
-  $(document).ready(function() {
-    {% if messages %}
-      console.log("Has messages...");
-      {% for message in messages %}
-      md.showNotification('top','center', '{{ message }}', 'info');
-      {% endfor %}
-    {% endif %}
-   
-  });
-</script>
+  <script>
+    $(document).ready(function() {
+      {% if messages %}
+        console.log("Has messages...");
+        {% for message in messages %}
+        md.showNotification('top','center', '{{ message }}', 'info');
+        {% endfor %}
+      {% endif %}
+    
+    });
+  </script>
   <script src="/static/assets/js/beachhandball/game_plan.js"></script>
+  <script src="/static/assets/js/beachhandball/game_plan_dragging.js"></script>
   <script src="/static/assets/js/beachhandball/game_plan_filter.js"></script>
 {% endblock javascripts %}
