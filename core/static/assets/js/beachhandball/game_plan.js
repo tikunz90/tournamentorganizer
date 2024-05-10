@@ -102,6 +102,10 @@ function setupRowClick() {
     // Remove the 'selected-row' class from all rows
     $(".game-row").removeClass("selected-row");
 
+    if(selectedRow === this) {
+      return;
+    }
+
     // Add the 'selected-row' class to the clicked row
     $(this).addClass("selected-row");
     selectedRowColor = $(this).css("background-color");
@@ -141,6 +145,7 @@ function setupDatetime() {
 
 function setupTable() {
   var table = $("#table-games").DataTable({
+    ordering: false,
     searching: false,
     paging: false,
     order: [[1, "asc"]],

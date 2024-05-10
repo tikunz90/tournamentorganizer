@@ -219,18 +219,19 @@
                 <thead class=" text-primary">
                   <th hidden data-col="tournament_event">tournament_event</th>
                   <th class="text-left" data-col="date">Date</th>
-                  <th class="text-left" data-col="id">ID</th>
-                  <th class="text-left" data-col="category"></th>
-                  <th class="text-left" data-col="tournament_state">State</th>
-                  <th class="text-left" data-col="team_a">Team A</th>
-                  <th class="text-left" data-col="team_b">Team B</th>
-                  <th class="text-left" data-col="court">Court</th>
-                  <th class="text-left" data-col="result_ht1">1. HT</th>
-                  <th class="text-left" data-col="result_ht2">2. HT</th>
-                  <th class="text-left" data-col="result_p">Shootout</th>
-                  <th class="text-left" data-col="sets">Sets</th>
-                  <th class="text-left" data-col="refs">Referee's</th>
-                  <th class="text-left" data-col="gamestate">Gamestate</th>
+                  <th class="text-center" data-col="time">Time</th>
+                  <th class="text-center" data-col="id">ID</th>
+                  <th class="text-center" data-col="category">Cat.</th>
+                  <th class="text-center" data-col="tournament_state">State</th>
+                  <th class="text-center" data-col="team_a">Team A</th>
+                  <th class="text-center" data-col="team_b">Team B</th>
+                  <th class="text-center" data-col="court">Court</th>
+                  <th class="text-center" data-col="result_ht1">1. HT</th>
+                  <th class="text-center" data-col="result_ht2">2. HT</th>
+                  <th class="text-center" data-col="result_p">Shootout</th>
+                  <th class="text-center" data-col="sets">Sets</th>
+                  <th class="text-center" data-col="refs">Referee's</th>
+                  <th class="text-center" data-col="gamestate">Gamestate</th>
                   <th data-col="actions">Actions</th>
                 </thead>
                 <tbody>
@@ -244,8 +245,9 @@
                       <input id="initial-id_starttime" type="hidden" class="game-list-datetime-init" name="initial-starttime" value="{{ game.starttime }}">
                     </div>
                     </td>
+                    <td id="{{ game.id }}_gametime" class="text-center" ">{{ game.starttime.strftime('%H:%M') }}</td>
                     <td id="game_id_counter" class="text-center" data-content="{{ game.id }}">{{ game.id_counter }}</td>
-                    <td data-content="{{ game.tournament_event.category }}">{{ game.tournament_event.category }}</td>
+                    <td class="text-center" data-content="{{ game.tournament_event.category }}">{{ game.tournament_event.category }}</td>
                     <td class="text-center" data-content="{{ game.tournament_state.id }}">
                     <div class="btn btn-small" style="background: {{ game.tournament_state.color }}">
                       <a href="{{ url('structure_setup.detail', kwargs={'pk': game.tournament_event.id }) }}" style="color:white;"><b>{{ game.tournament_event.category.abbreviation }} {{ game.tournament_state.abbreviation }}</b>

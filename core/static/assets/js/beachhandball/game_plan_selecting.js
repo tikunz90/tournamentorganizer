@@ -3,6 +3,7 @@ $(document).ready(function () {
 
   window.addEventListener("keydown", function (event) {
     if (event.key === "Escape") {
+      selectedRow = null;
       hideContextMenu();
       $(".game-row").removeClass("selected-row");
       doRowColoring();
@@ -137,7 +138,13 @@ function swapGameRows(row_src, row_tgt) {
 }
 
 function showContextMenu(event) {
+  if (selectedRow == null) {
+    return;
+  }
   if (selectedSecondRow != null) {
+    return;
+  }
+  if(selectedRow === event.currentTarget) {
     return;
   }
   event.preventDefault();
