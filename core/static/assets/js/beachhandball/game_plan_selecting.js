@@ -4,9 +4,18 @@ $(document).ready(function () {
   window.addEventListener("keydown", function (event) {
     if (event.key === "Escape") {
       selectedRow = null;
+      if (selectedGameTimeRow != null) {
+        $(selectedGameTimeRow).find("#id_starttime").datetimepicker("hide");
+      }
+      selectedGameTimeRow = null;
       hideContextMenu();
       $(".game-row").removeClass("selected-row");
       doRowColoring();
+    }
+    else if (event.key === "Enter") {
+      if (selectedGameTimeRow != null) {
+        changeGameTime(selectedGameTimeRow);
+      }
     }
   });
 
@@ -38,7 +47,8 @@ function swapGameRows(row_src, row_tgt) {
 
   // Get Source Row Info
   var game_id_src = $(row_src).find("#id_starttime").eq(0).data("game_id");
-  var gamestate_src = $(row_src).find("#" + game_id_src + "_gamestate")[0].innerText;
+  var gamestate_src = $(row_src).find("#" + game_id_src + "_gamestate")[0]
+    .innerText;
   var game_counter_src = $(row_src).find("#game_id_counter")[0].innerText;
 
   var date_label_src = moment(date_string_src, "YYYY-MM-DD HH:mm:ss").format(
@@ -50,12 +60,16 @@ function swapGameRows(row_src, row_tgt) {
 
   var court_col_src = $(row_src).find("#game-list-td-court-" + game_id_src);
   var court_id_src = court_col_src.data("content");
-  var court_name_src = $(court_col_src).children(".game-list-court-label").first().text();
+  var court_name_src = $(court_col_src)
+    .children(".game-list-court-label")
+    .first()
+    .text();
   var bg_color_src = $(row_src).css("background-color");
 
   // Get Target Row Info
   var game_id_target = $(row_tgt).find("#id_starttime").eq(0).data("game_id");
-  var gamestate_tgt = $(row_tgt).find("#" + game_id_target + "_gamestate")[0].innerText;
+  var gamestate_tgt = $(row_tgt).find("#" + game_id_target + "_gamestate")[0]
+    .innerText;
   var game_counter_target = $(row_tgt).find("#game_id_counter")[0].innerText;
   var date_label_target = moment(date_string_tgt, "YYYY-MM-DD HH:mm:ss").format(
     "HH:mm (DD.MM.YYYY)"
@@ -65,14 +79,17 @@ function swapGameRows(row_src, row_tgt) {
   );
   var court_col_tgt = $(row_tgt).find("#game-list-td-court-" + game_id_target);
   var court_id_tgt = court_col_tgt.data("content");
-  var court_name_tgt = $(court_col_tgt).children(".game-list-court-label").first().text();
+  var court_name_tgt = $(court_col_tgt)
+    .children(".game-list-court-label")
+    .first()
+    .text();
   var bg_color_target = $(row_tgt).css("background-color");
 
-  if(gamestate_src != "APPENDING") {
+  if (gamestate_src != "APPENDING") {
     return;
   }
 
-  if(gamestate_tgt != "APPENDING") {
+  if (gamestate_tgt != "APPENDING") {
     return;
   }
 
@@ -85,7 +102,10 @@ function swapGameRows(row_src, row_tgt) {
     "YYYY-MM-DD HH:mm:ss"
   ).format("YYYY-MM-DD HH:mm:ss");
   court_col_tgt.data("content", court_id_src);
-  $(court_col_tgt).children(".game-list-court-label").first().text(court_name_src);
+  $(court_col_tgt)
+    .children(".game-list-court-label")
+    .first()
+    .text(court_name_src);
   $(row_tgt).css("background-color", bg_color_src);
 
   // Change Source Row
@@ -97,7 +117,10 @@ function swapGameRows(row_src, row_tgt) {
     "YYYY-MM-DD HH:mm:ss"
   ).format("YYYY-MM-DD HH:mm:ss");
   court_col_src.data("content", court_id_tgt);
-  $(court_col_src).children(".game-list-court-label").first().text(court_name_tgt);
+  $(court_col_src)
+    .children(".game-list-court-label")
+    .first()
+    .text(court_name_tgt);
   $(row_src).css("background-color", bg_color_target);
 
   let srcIndex = $(row_src).index();
@@ -137,21 +160,42 @@ function swapGameRows(row_src, row_tgt) {
   postUpdateGameAfterDrag(game_id_target, gameJsonTarget);
 }
 
-function showContextMenu(event) {
+function showContextMenu(event, clickedColumnIndex) {
+  if (
+    clickedColumnIndex == 0 ||
+    clickedColumnIndex == 1 ||
+    clickedColumnIndex == 2
+  ) {
+    console.log("click on row  at col 0 1");
+    selectedGameTimeRow = event.currentTarget;
+    event.preventDefault();
+    contextMenuDateTime.style.display = "block";
+    contextMenuDateTime.style.left = event.clientX + "px";
+    contextMenuDateTime.style.top = event.clientY + "px";
+    return;
+  }
+  console.log("click on row");
   if (selectedRow == null) {
+    event.preventDefault();
     return;
   }
   if (selectedSecondRow != null) {
+    event.preventDefault();
     return;
   }
-  if(selectedRow === event.currentTarget) {
+  if (selectedRow === event.currentTarget) {
+    event.preventDefault();
     return;
   }
   event.preventDefault();
 
-  var game_id = $(event.currentTarget).find("#id_starttime").eq(0).data("game_id");
-  var gamestate = $(event.currentTarget).find("#" + game_id + "_gamestate")[0].innerText;
-  if(gamestate != "APPENDING") {
+  var game_id = $(event.currentTarget)
+    .find("#id_starttime")
+    .eq(0)
+    .data("game_id");
+  var gamestate = $(event.currentTarget).find("#" + game_id + "_gamestate")[0]
+    .innerText;
+  if (gamestate != "APPENDING") {
     return;
   }
 
@@ -170,6 +214,12 @@ function handleContextMenuClick(action) {
   } else if (action == "swapBtn") {
     swapGameRows(selectedRow, selectedSecondRow);
   } else if (action == "insertBehindBtn") {
+  } else if (action == "editDateTimeBtn") {
+    $(selectedGameTimeRow)
+      .find("#id_starttime")
+      .datetimepicker("widgetParent", $(selectedGameTimeRow));
+    $(selectedGameTimeRow).find("#id_starttime").datetimepicker("show");
+    return;
   }
   hideContextMenu();
   clearCssSelectedRow();
@@ -178,10 +228,12 @@ function handleContextMenuClick(action) {
 
 function hideContextMenu() {
   contextMenu.style.display = "none";
+  contextMenuDateTime.style.display = "none";
   if (selectedSecondRow != null) {
     $(selectedSecondRow).css("background-color", selectedSecondRowColor);
   }
   selectedSecondRow = null;
+  //selectedGameTimeRow = null;
 }
 
 function attachEventListeners() {

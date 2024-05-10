@@ -1,3 +1,4 @@
+let selectedGameTimeRow = null;
 let selectedRow = null;
 let selectedSecondRow = null;
 let selectedRowColor = "";
@@ -33,11 +34,29 @@ function setupRows() {
       this.addEventListener("drop", drop);
       this.addEventListener("dragend", dragEnd);
 
-      this.addEventListener("contextmenu", showContextMenu);
+      //this.addEventListener("contextmenu", showContextMenu);
+      this.addEventListener("contextmenu", function (event) {
+        // Get the clicked column index
+        var clickedColumnIndex = getColumnIndex(event.target);
+        // Call showContextMenu function with the clicked column index
+        showContextMenu(event, clickedColumnIndex);
+      });
 
       //console.log($row.find('#id_starttime').val());
     });
   doRowColoring();
+}
+
+function getColumnIndex(target) {
+  // Navigate up the DOM to find the cell element (td)
+  while (target && target.tagName !== "TD") {
+    target = target.parentNode;
+  }
+  // If the cell element is found, return its index within the row
+  if (target && target.tagName === "TD") {
+    return target.cellIndex;
+  }
+  return -1; // Return -1 if the cell element is not found
 }
 
 function doRowColoring() {
@@ -102,7 +121,7 @@ function setupRowClick() {
     // Remove the 'selected-row' class from all rows
     $(".game-row").removeClass("selected-row");
 
-    if(selectedRow === this) {
+    if (selectedRow === this) {
       return;
     }
 
@@ -243,6 +262,20 @@ function setupAddMinutesButton() {
   });
 }
 
+function changeGameTime(row) {
+  if (selectedGameTimeRow == null) {
+    return;
+  }
+
+  var game_id = $(row).data("content");
+  var dateInput = $(selectedGameTimeRow).find("#id_starttime");
+  var datetimeValue = dateInput.datetimepicker('date');
+  var date_string = moment(datetimeValue, "MM/DD/YYYY HH:mm").format(
+    "YYYY-MM-DD HH:mm:ss"
+  );
+  var data = postUpdateGameDateTime(game_id, date_string);
+}
+
 $(".game-list-datetime-label").on("dblclick", function () {
   $(this).attr("hidden", true);
   var close = $(this).parent().children(".game-list-datetime-input");
@@ -361,12 +394,17 @@ function postUpdateGameDateTime(game_id, new_datetime) {
       var date_label = moment(
         response.new_datetime,
         "YYYY-MM-DD HH:mm:ss"
-      ).format("HH:mm (DD.MM.YYYY)");
+      ).format("DD.MM.");
+      var time_label = moment(
+        response.new_datetime,
+        "YYYY-MM-DD HH:mm:ss"
+      ).format("HH:mm");
       var date_input = moment(
         response.new_datetime,
         "YYYY-MM-DD HH:mm:ss"
       ).format("MM/DD/YYYY HH:mm");
 
+      $("#" + response.game + "_gametime").text(time_label);
       var game_td = $("#game-list-td-id-" + response.game);
       $(game_td).children(".game-list-datetime-label").first().text(date_label);
       $(game_td)
@@ -382,6 +420,11 @@ function postUpdateGameDateTime(game_id, new_datetime) {
       //$(game_td)
       //  .children(".game-list-datetime-input")
       //  .find("#id_starttime")[0].value = date_input;
+
+      if (selectedGameTimeRow != null) {
+        $(selectedGameTimeRow).find("#id_starttime").datetimepicker("hide");
+      }
+      selectedGameTimeRow = null;
 
       var table = $("#table-games").DataTable();
       var order = table.order([1, "asc"]);

@@ -239,13 +239,13 @@
                   <tr class="game-row" data-content="{{ game.id }}">
                     <td hidden data-content="{{ game.tournament_event.id }}">{{ game.tournament_event.id }}</td>
                     <td id="game-list-td-id-{{ game.id }}" data-content="datetime" class="game-list-datetime-td">
-                    <div id="id_starttime_label" class="game-list-datetime-label">{{ game.starttime.strftime('%H:%M (%d.%m.%Y)') }}</div>
+                    <div id="id_starttime_label" class="game-list-datetime-label">{{ game.starttime.strftime('%d.%m.') }}</div>
                     <div class="game-list-datetime-input" hidden>
                       <input id="id_starttime" data-game_id="{{ game.id }}" class="game-list-datetime form-control datetimepicker" type="text" name="starttime" value="{{ game.starttime }}">
                       <input id="initial-id_starttime" type="hidden" class="game-list-datetime-init" name="initial-starttime" value="{{ game.starttime }}">
                     </div>
                     </td>
-                    <td id="{{ game.id }}_gametime" class="text-center" ">{{ game.starttime.strftime('%H:%M') }}</td>
+                    <td id="{{ game.id }}_gametime" class="text-center" data-content="{{ game.id }}">{{ game.starttime.strftime('%H:%M') }}</td>
                     <td id="game_id_counter" class="text-center" data-content="{{ game.id }}">{{ game.id_counter }}</td>
                     <td class="text-center" data-content="{{ game.tournament_event.category }}">{{ game.tournament_event.category }}</td>
                     <td class="text-center" data-content="{{ game.tournament_state.id }}">
@@ -309,6 +309,12 @@
     <li id="insertBeforeBtn" hidden><span class="icon">↑</span> Insert Before</li>
     <li id="swapBtn"><span class="icon">↔</span> Swap</li>   
     <li id="insertBehindBtn" hidden><span class="icon">↓</span> Insert Behind</li>
+  </ul>
+</div>
+
+<div id="contextMenuDateTime" class="context-menu">
+  <ul>
+    <li id="editDateTimeBtn"><span class="icon"><i class="material-icons">edit</i></span> Edit Datetime</li>
   </ul>
 </div>
 

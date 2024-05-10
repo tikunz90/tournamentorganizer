@@ -309,7 +309,7 @@ md = {
       showTodayButton: true,
       sideBySide: true,
       timeZone: 'Europe/Berlin',
-      widgetParent: 'body',
+      //widgetParent: 'body',
       widgetPositioning: {
         vertical: 'bottom'
       }
