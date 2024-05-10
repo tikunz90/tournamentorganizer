@@ -178,17 +178,30 @@
         </a>
       </div>
       <div id="panel-editing" class="collapse">
-        <div class="card-body">
-          <div class="form-check">
+        <div class="card-body container">
+          <!--div class="form-check row">
             <input type="checkbox" class="" id="checkBoxEnableDragging" onclick="enable_dragging()">
             <label class="form-check-label" for="updown-checkbox">Enable Game Dragging</label>
+          </div-->
+          <div class="form-check">
+            <label class="form-check-label">
+              <input class="form-check-input" type="checkbox" value="" id="checkBoxEnableDragging" onclick="enable_dragging()"> Enable Game Dragging
+              <span class="form-check-sign">
+                <span class="check"></span>
+              </span>
+            </label>
           </div>
 
           <div class="row">
-            <h4>Selected Game</h4>
-            <button id="add-minutes-button" class="btn btn-primary add-minutes-button" title="Click to add minutes to selected game and all following at the same day">Add minutes</button>
-
-            <input type="number" id="minutes-input" min="0" value="30">
+            <div class="col">
+              <h4>Selected Game</h4>
+            </div>
+            <div class="col">
+              <button id="add-minutes-button" class="btn btn-primary add-minutes-button" title="Click to add minutes to selected game and all following at the same day">Add minutes</button>
+            </div>
+            <div class="col">
+              <input type="number" id="minutes-input" min="0" value="30">
+            </div>
           </div>
         
         </div>

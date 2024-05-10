@@ -82,90 +82,7 @@ function drop(e) {
 
   let targetRow = $(this);
   if (targetRow.hasClass("tr-over") && draggedRow !== targetRow[0]) {
-    var date_string_dragged = moment(
-      $(draggedRow).find("#id_starttime")[0].value,
-      "MM/DD/YYYY HH:mm"
-    ).format("YYYY-MM-DD HH:mm:ss");
-    var date_string_target = moment(
-      targetRow.find("#id_starttime")[0].value,
-      "MM/DD/YYYY HH:mm"
-    ).format("YYYY-MM-DD HH:mm:ss");
-    //console.log("datestring dragged ", date_string_dragged);
-    var dateValueDragged = $(draggedRow).find("#id_starttime")[0].value;
-    var dateValueTarget = targetRow.find("#id_starttime")[0].value;
-
-    var game_id_dragged = $(draggedRow)
-      .find("#id_starttime")
-      .eq(0)
-      .data("game_id");
-    var game_counter_dragged =
-      $(draggedRow).find("#game_id_counter")[0].innerText;
-    var date_label_dragged = moment(
-      date_string_dragged,
-      "YYYY-MM-DD HH:mm:ss"
-    ).format("HH:mm (DD.MM.YYYY)");
-    var date_input_dragged = moment(
-      date_string_dragged,
-      "YYYY-MM-DD HH:mm:ss"
-    ).format("MM/DD/YYYY HH:mm");
-    var bg_color_dragged = $(draggedRow).css("background-color");
-
-    var game_id_target = targetRow.find("#id_starttime").eq(0).data("game_id");
-    var game_counter_target = targetRow.find("#game_id_counter")[0].innerText;
-    var date_label_target = moment(
-      date_string_target,
-      "YYYY-MM-DD HH:mm:ss"
-    ).format("HH:mm (DD.MM.YYYY)");
-    var date_input_target = moment(
-      date_string_target,
-      "YYYY-MM-DD HH:mm:ss"
-    ).format("MM/DD/YYYY HH:mm");
-    var bg_color_target = targetRow.css("background-color");
-
-    targetRow.find("#id_starttime_label")[0].innerText = date_label_dragged;
-    targetRow.find("#id_starttime")[0].value = date_input_dragged;
-    targetRow.find("#game_id_counter")[0].innerText = game_counter_dragged;
-    targetRow.css("background-color", bg_color_dragged);
-
-    $(draggedRow).find("#id_starttime_label")[0].innerText = date_label_target;
-    $(draggedRow).find("#id_starttime")[0].value = date_input_target;
-    $(draggedRow).find("#game_id_counter")[0].innerText = game_counter_target;
-    $(draggedRow).css("background-color", bg_color_target);
-
-    let parent = targetRow.parent();
-    let draggedIndex = $(draggedRow).index();
-    let targetIndex = targetRow.index();
-    var draggedSibbling = $(draggedRow)[0].nextSibling;
-    if (draggedIndex < targetIndex) {
-      targetRow[0].parentNode.insertBefore(
-        $(draggedRow)[0],
-        targetRow[0].nextSibling
-      );
-      targetRow[0].parentNode.insertBefore(targetRow[0], draggedSibbling);
-    } else {
-      targetRow[0].parentNode.insertBefore($(draggedRow)[0], targetRow[0]);
-      targetRow[0].parentNode.insertBefore(targetRow[0], draggedSibbling);
-    }
-
-    var gameJsonDragged = {
-      game: game_id_dragged,
-      datetime: moment(
-        $(draggedRow).find("#id_starttime")[0].value,
-        "MM/DD/YYYY HH:mm"
-      ).format("YYYY-MM-DD HH:mm:ss"),
-      game_counter: parseInt(game_counter_target),
-    };
-    postUpdateGameAfterDrag(game_id_dragged, gameJsonDragged);
-
-    var gameJsonTarget = {
-      game: game_id_target,
-      datetime: moment(
-        targetRow.find("#id_starttime")[0].value,
-        "MM/DD/YYYY HH:mm"
-      ).format("YYYY-MM-DD HH:mm:ss"),
-      game_counter: parseInt(game_counter_dragged),
-    };
-    postUpdateGameAfterDrag(game_id_target, gameJsonTarget);
+    swapGameRows(draggedRow, this);
   }
 }
 
@@ -199,6 +116,8 @@ function postUpdateGameAfterDrag(game_id, gameJsonData) {
     },
     success: function (response) {
       console.log("success: ");
+      clearCssSelectedRow();
+      doRowColoring();
     },
     complete: function () {
       console.debug("complete");

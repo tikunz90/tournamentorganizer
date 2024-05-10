@@ -134,8 +134,9 @@ class UpdateGameFromListAfterDrag(TemplateView):
         game = request.POST['game']
         new_dt = request.POST['datetime']
         game_counter = int(request.POST['game_counter'])
+        court_id = int(request.POST['court_id'])
         dt = parse_datetime(new_dt)
-        game_obj = Game.objects.filter(pk=game).update(starttime=dt, id_counter=game_counter)
+        game_obj = Game.objects.filter(pk=game).update(starttime=dt, id_counter=game_counter, court_id=court_id)
         context = {'game':game, 'new_datetime': new_dt}
         return JsonResponse(context)
 

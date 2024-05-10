@@ -35,9 +35,6 @@ function swapGameRows(row_src, row_tgt) {
     "MM/DD/YYYY HH:mm"
   ).format("YYYY-MM-DD HH:mm:ss");
 
-  var dateValueSource = $(row_src).find("#id_starttime")[0].value;
-  var dateValueTarget = $(row_tgt).find("#id_starttime")[0].value;
-
   // Get Source Row Info
   var game_id_src = $(row_src).find("#id_starttime").eq(0).data("game_id");
   var game_counter_src = $(row_src).find("#game_id_counter")[0].innerText;
@@ -48,6 +45,10 @@ function swapGameRows(row_src, row_tgt) {
   var date_input_src = moment(date_string_src, "YYYY-MM-DD HH:mm:ss").format(
     "MM/DD/YYYY HH:mm"
   );
+
+  var court_col_src = $(row_src).find("#game-list-td-court-" + game_id_src);
+  var court_id_src = court_col_src.data("content");
+  var court_name_src = $(court_col_src).children(".game-list-court-label").first().text();
   var bg_color_src = $(row_src).css("background-color");
 
   // Get Target Row Info
@@ -59,18 +60,33 @@ function swapGameRows(row_src, row_tgt) {
   var date_input_target = moment(date_string_tgt, "YYYY-MM-DD HH:mm:ss").format(
     "MM/DD/YYYY HH:mm"
   );
+  var court_col_tgt = $(row_tgt).find("#game-list-td-court-" + game_id_target);
+  var court_id_tgt = court_col_tgt.data("content");
+  var court_name_tgt = $(court_col_tgt).children(".game-list-court-label").first().text();
   var bg_color_target = $(row_tgt).css("background-color");
 
   // Change Target Row
   $(row_tgt).find("#id_starttime_label")[0].innerText = date_label_src;
   $(row_tgt).find("#id_starttime")[0].value = date_input_src;
   $(row_tgt).find("#game_id_counter")[0].innerText = game_counter_src;
+  $(row_tgt).find("#initial-id_starttime")[0].value = moment(
+    date_string_src,
+    "YYYY-MM-DD HH:mm:ss"
+  ).format("YYYY-MM-DD HH:mm:ss");
+  court_col_tgt.data("content", court_id_src);
+  $(court_col_tgt).children(".game-list-court-label").first().text(court_name_src);
   $(row_tgt).css("background-color", bg_color_src);
 
   // Change Source Row
   $(row_src).find("#id_starttime_label")[0].innerText = date_label_target;
   $(row_src).find("#id_starttime")[0].value = date_input_target;
   $(row_src).find("#game_id_counter")[0].innerText = game_counter_target;
+  $(row_src).find("#initial-id_starttime")[0].value = moment(
+    date_string_tgt,
+    "YYYY-MM-DD HH:mm:ss"
+  ).format("YYYY-MM-DD HH:mm:ss");
+  court_col_src.data("content", court_id_tgt);
+  $(court_col_src).children(".game-list-court-label").first().text(court_name_tgt);
   $(row_src).css("background-color", bg_color_target);
 
   let srcIndex = $(row_src).index();
@@ -94,6 +110,7 @@ function swapGameRows(row_src, row_tgt) {
       "MM/DD/YYYY HH:mm"
     ).format("YYYY-MM-DD HH:mm:ss"),
     game_counter: parseInt(game_counter_target),
+    court_id: parseInt(court_id_tgt),
   };
   postUpdateGameAfterDrag(game_id_src, gameJsonSrc);
 
@@ -104,6 +121,7 @@ function swapGameRows(row_src, row_tgt) {
       "MM/DD/YYYY HH:mm"
     ).format("YYYY-MM-DD HH:mm:ss"),
     game_counter: parseInt(game_counter_src),
+    court_id: parseInt(court_id_src),
   };
   postUpdateGameAfterDrag(game_id_target, gameJsonTarget);
 }
