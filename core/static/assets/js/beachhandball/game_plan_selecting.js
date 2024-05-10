@@ -1,5 +1,14 @@
 $(document).ready(function () {
   window.addEventListener("click", hideContextMenu);
+
+  window.addEventListener("keydown", function (event) {
+    if (event.key === "Escape") {
+      hideContextMenu();
+      $(".game-row").removeClass("selected-row");
+      doRowColoring();
+    }
+  });
+
   attachEventListeners();
 });
 
@@ -116,14 +125,10 @@ function showContextMenu(event) {
 
 function handleContextMenuClick(action) {
   console.log("Performing action: " + action);
-  if(action == "insertBeforeBtn") {
-
-  }
-  else if(action == "swapBtn") {
+  if (action == "insertBeforeBtn") {
+  } else if (action == "swapBtn") {
     swapGameRows(selectedRow, selectedSecondRow);
-  }
-  else if(action == "insertBehindBtn") {
-    
+  } else if (action == "insertBehindBtn") {
   }
   hideContextMenu();
   clearCssSelectedRow();

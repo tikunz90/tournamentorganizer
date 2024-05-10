@@ -43,6 +43,7 @@ function setupRows() {
 function doRowColoring() {
   selectedRowColor = "";
   selectedSecondRowColor = "";
+  $(".game-row").removeClass("selected-row");
   var actTime = "";
   var colors = ["#f2f2f2", "#d9d9d9"];
   var actColor = "red";
@@ -83,6 +84,7 @@ function doRowColoring() {
       colCourt = $(this).find("#game-list-td-court-" + selectedGameId);
       newCourt = colCourt.data("content");
       if (!courts.includes(newCourt)) {
+        colCourt.css("background-color", colors[colorIdx]);
         // If not in array, add it
         courts.push(newCourt);
       } else {
@@ -251,6 +253,7 @@ $(".game-list-datetime").on("keyup", function (e) {
     var table = $("#table-games").DataTable();
     var order = table.order([1, "asc"]);
 
+    clearCssSelectedRow();
     doRowColoring();
   } // missing closing if brace
 });
@@ -269,8 +272,6 @@ $(".game-list-court-select").on("change", function (e) {
     .first()
     .children(".game-list-court-label");
   $(close[0]).attr("hidden", false);
-  var table = $("#table-games").DataTable();
-  var order = table.order([1, "asc"]);
 });
 
 var asyncSuccessMessage2 = ["<div>", "</div>", "<script>", "</script>"].join();
@@ -402,6 +403,14 @@ function postUpdateGameCourt(game_id, new_court_id) {
         .children(".game-list-court-label")
         .first()
         .text(response.court);
+
+      colCourt = $(this).closest(".game-list-court-td").first()[0];
+      $(game_td).data("content", response.court_id);
+
+      var table = $("#table-games").DataTable();
+      var order = table.order([1, "asc"]);
+      clearCssSelectedRow();
+      doRowColoring();
     },
     complete: function () {
       console.debug("complete");

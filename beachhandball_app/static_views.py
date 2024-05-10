@@ -155,7 +155,7 @@ class UpdateGameCourtFromList(TemplateView):
         new_c = request.POST['new_court']
         court = Court.objects.get(id=new_c)
         game_obj = Game.objects.filter(pk=game).update(court=court)
-        context = {'game':game, 'court': court.name}
+        context = {'game':game, 'court': court.name, 'court_id': court.id }
         return JsonResponse(context)
 
 def not_in_student_group(user):
