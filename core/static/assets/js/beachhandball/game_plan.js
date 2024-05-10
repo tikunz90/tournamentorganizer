@@ -8,9 +8,138 @@ $(document).ready(function () {
   $("#update-game-result-form").modal("hide");
   $("#update-game-result-form").LoadingOverlay("hide");
 
-  window.addEventListener("click", hideContextMenu);
-  attachEventListeners();
+  setupExportButtons();
+  setupAddMinutesButton();
 
+  md.initFormExtendedDatetimepickers();
+  $.fn.dataTable.moment("HH:mm (DD.MM.YYYY)");
+
+  setupDatetime();
+  setupTable();
+
+  setupRows();
+  setupRowClick();
+}); // Closing doc ready
+
+function setupRows() {
+  $("#table-games")
+    .find("tr")
+    .each(function (index) {
+      //$row = $(this);
+      this.addEventListener("dragstart", dragStart);
+      this.addEventListener("dragover", dragOver);
+      this.addEventListener("dragenter", dragEnter);
+      this.addEventListener("dragleave", dragLeave);
+      this.addEventListener("drop", drop);
+      this.addEventListener("dragend", dragEnd);
+
+      this.addEventListener("contextmenu", showContextMenu);
+
+      //console.log($row.find('#id_starttime').val());
+    });
+  doRowColoring();
+}
+
+function doRowColoring() {
+  selectedRowColor = "";
+  selectedSecondRowColor = "";
+  var actTime = "";
+  var colors = ["#f2f2f2", "#d9d9d9"];
+  var actColor = "red";
+  var isFirst = true;
+  var colorIdx = 0;
+  var courts = [];
+  var actCourt = "";
+  var newCourt = "";
+  $("#table-games")
+    .find("tr")
+    .each(function (index) {
+      $starttime = $(this).find("#id_starttime");
+
+      if ($starttime.length == 0) {
+        return;
+      }
+
+      if (isFirst) {
+        isFirst = false;
+        actTime = $starttime.val();
+        $(this).css("background-color", colors[colorIdx]);
+      }
+
+      if ($starttime.val() == actTime) {
+      } else {
+        actTime = $starttime.val();
+        courts = [];
+        colorIdx++;
+        if (colorIdx == 2) {
+          colorIdx = 0;
+        }
+      }
+
+      let selectedGameId = $(this)
+        .find("#game_id_counter")[0]
+        .getAttribute("data-content");
+
+      colCourt = $(this).find("#game-list-td-court-" + selectedGameId);
+      newCourt = colCourt.data("content");
+      if (!courts.includes(newCourt)) {
+        // If not in array, add it
+        courts.push(newCourt);
+      } else {
+        colCourt.css("background-color", "red");
+      }
+
+      $(this).css("background-color", colors[colorIdx]);
+    });
+}
+
+function setupRowClick() {
+  $(".game-row").click(function () {
+    clearCssSelectedRow();
+    // Remove the 'selected-row' class from all rows
+    $(".game-row").removeClass("selected-row");
+
+    // Add the 'selected-row' class to the clicked row
+    $(this).addClass("selected-row");
+    selectedRowColor = $(this).css("background-color");
+    $(this).css("background-color", "#ff6347");
+    $(this).css("border", "2px solid black");
+
+    selectedRow = this;
+    var date_string_dragged = moment(
+      $(selectedRow).find("#id_starttime")[0].value,
+      "MM/DD/YYYY HH:mm"
+    ).format("YYYY-MM-DD HH:mm:ss");
+    selectedGameId = $(selectedRow)
+      .find("#game_id_counter")[0]
+      .getAttribute("data-content");
+    var game_cnt = $(selectedRow).find("#game_id_counter")[0].innerText;
+    console.log(selectedGameId + " " + game_cnt + " " + date_string_dragged);
+  });
+}
+
+function setupDatetime() {
+  // Repair DateTime Form because datetimepicker.min.js deletes input value on load
+  $(".game-list-datetime").each(function (i, datetime_input) {
+    var userDate = datetime_input.attributes.value.value;
+    var date_string = moment(userDate, "YYYY-MM-DD HH:mm:ss").format(
+      "MM/DD/YYYY HH:mm"
+    );
+    $(datetime_input).val(date_string);
+  });
+}
+
+function setupTable() {
+  var table = $("#table-games").DataTable({
+    searching: false,
+    paging: false,
+    order: [[1, "asc"]],
+  });
+
+  $("#table-games").filterTable("#games-filter");
+}
+
+function setupExportButtons() {
   var exportButtons = document.querySelectorAll(".export-button");
 
   exportButtons.forEach(function (button) {
@@ -48,7 +177,9 @@ $(document).ready(function () {
       link.click();
     });
   });
+}
 
+function setupAddMinutesButton() {
   var addMinutesButtons = document.querySelectorAll(".add-minutes-button");
   addMinutesButtons.forEach(function (button) {
     button.addEventListener("click", function () {
@@ -95,170 +226,6 @@ $(document).ready(function () {
       });
     });
   });
-
-  md.initFormExtendedDatetimepickers();
-  $.fn.dataTable.moment("HH:mm (DD.MM.YYYY)");
-
-  var table = $("#table-games").DataTable({
-    searching: false,
-    paging: false,
-    order: [[1, "asc"]],
-  });
-
-  // Repair DateTime Form because datetimepicker.min.js deletes input value on load
-  $(".game-list-datetime").each(function (i, datetime_input) {
-    var userDate = datetime_input.attributes.value.value;
-    var date_string = moment(userDate, "YYYY-MM-DD HH:mm:ss").format(
-      "MM/DD/YYYY HH:mm"
-    );
-    $(datetime_input).val(date_string);
-  });
-
-  $("#table-games").filterTable("#games-filter");
-
-  var actTime = "";
-  var colors = ["#f2f2f2", "#d9d9d9"];
-  var actColor = "red";
-  var isFirst = true;
-  var colorIdx = 0;
-  $("#table-games")
-    .find("tr")
-    .each(function (index) {
-      $row = $(this);
-      $(this).on("dragstart", dragStart);
-      $(this).on("dragover", dragOver);
-      $(this).on("dragenter", dragEnter);
-      $(this).on("dragleave", dragLeave);
-      $(this).on("drop", drop);
-      $(this).on("dragend", dragEnd);
-
-      //$(this).addEventListener("click", handleRowClick);
-      this.addEventListener("contextmenu", showContextMenu);
-
-      //console.log($row.find('#id_starttime').val());
-      $starttime = $row.find("#id_starttime");
-      if ($starttime.length == 0) {
-        return;
-      }
-      if (isFirst) {
-        isFirst = false;
-        actTime = $starttime.val();
-        $row.css("background-color", colors[colorIdx]);
-      }
-
-      if ($starttime.val() == actTime) {
-      } else {
-        actTime = $starttime.val();
-        colorIdx++;
-        if (colorIdx == 2) {
-          colorIdx = 0;
-        }
-      }
-
-      $row.css("background-color", colors[colorIdx]);
-    });
-
-  $(".game-row").click(function () {
-    clearCssSelectedRow();
-    // Remove the 'selected-row' class from all rows
-    $(".game-row").removeClass("selected-row");
-
-    // Add the 'selected-row' class to the clicked row
-    $(this).addClass("selected-row");
-    selectedRowColor = $(this).css("background-color");
-    $(this).css("background-color", "#ff6347");
-    $(this).css("border", "2px solid black");
-
-    selectedRow = $(this);
-    var date_string_dragged = moment(
-      selectedRow.find("#id_starttime")[0].value,
-      "MM/DD/YYYY HH:mm"
-    ).format("YYYY-MM-DD HH:mm:ss");
-    selectedGameId = selectedRow
-      .find("#game_id_counter")[0]
-      .getAttribute("data-content");
-    var game_cnt = selectedRow.find("#game_id_counter")[0].innerText;
-    console.log(selectedGameId + " " + game_cnt + " " + date_string_dragged);
-  });
-}); // Closing doc ready
-
-function showContextMenu(event) {
-  if (selectedSecondRow != null) {
-    return;
-  }
-  event.preventDefault();
-
-  selectedSecondRow = $(event.currentTarget);
-  selectedSecondRowColor = selectedSecondRow.css("background-color");
-  selectedSecondRow.css("background-color", "#DC143C");
-
-  contextMenu.style.display = "block";
-  contextMenu.style.left = event.clientX + "px";
-  contextMenu.style.top = event.clientY + "px";
-}
-
-function handleContextMenuClick(action) {
-  console.log("Performing action: " + action);
-  hideContextMenu();
-}
-
-function hideContextMenu() {
-  contextMenu.style.display = "none";
-  if (selectedSecondRow != null) {
-    selectedSecondRow.css("background-color", selectedSecondRowColor);
-  }
-  selectedSecondRow = null;
-}
-
-function showModal() {
-  var modal = document.getElementById("modal-row-options");
-  modal.style.display = "block";
-}
-
-function hideModal() {
-  var modal = document.getElementById("modal-row-options");
-  modal.style.display = "none";
-}
-
-function attachEventListeners() {
-  var menuItems = document.querySelectorAll(".context-menu li");
-  menuItems.forEach(function (item) {
-    item.addEventListener("click", function () {
-      handleContextMenuClick(item.id);
-    });
-  });
-
-  var buttons = document.querySelectorAll(
-    ".modal-gameplan-row-selection-content button"
-  );
-  buttons.forEach(function (button) {
-    button.addEventListener("click", function () {
-      handleButtonClick(button.id);
-    });
-  });
-
-  var closeBtn = document.querySelector(".modal-gameplan-row-selection-close");
-  closeBtn.addEventListener("click", hideModal);
-
-  window.onclick = function (event) {
-    var modal = document.getElementById("modal-row-options");
-    if (event.target == modal) {
-      hideModal();
-    }
-  };
-}
-function handleButtonClick(action) {
-  console.log("Performing action: " + action);
-  // Perform action based on button clicked
-  hideModal();
-}
-
-function clearCssSelectedRow() {
-  var findSelectedRow = $(".selected-row:first");
-  if (findSelectedRow.length > 0) {
-    findSelectedRow.css("background-color", selectedRowColor);
-    findSelectedRow.css("border", "none");
-  }
 }
 
 $(".game-list-datetime-label").on("dblclick", function () {
@@ -283,6 +250,8 @@ $(".game-list-datetime").on("keyup", function (e) {
     $(close[0]).attr("hidden", false);
     var table = $("#table-games").DataTable();
     var order = table.order([1, "asc"]);
+
+    doRowColoring();
   } // missing closing if brace
 });
 

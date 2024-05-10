@@ -42,7 +42,7 @@
 
           <div class="form-check col-3">
                       
-            <label class="form-check-label" for="checkFilterHideFinishedXX">
+            <label class="form-check-label" for="checkFilterHideFinishedXX" hidden>
               <input class="input_group form-check-input" type="checkbox" id="checkFilterHideFinishedXX">
                 <b>Hide finished Games</b>
                 <span class="form-check-sign">
@@ -222,7 +222,7 @@
                 </thead>
                 <tbody>
                   {% for game in games %}
-                  <tr class="game-row">
+                  <tr class="game-row" data-content="{{ game.id }}">
                     <td hidden data-content="{{ game.tournament_event.id }}">{{ game.tournament_event.id }}</td>
                     <td id="game-list-td-id-{{ game.id }}" data-content="datetime" class="game-list-datetime-td">
                     <div id="id_starttime_label" class="game-list-datetime-label">{{ game.starttime.strftime('%H:%M (%d.%m.%Y)') }}</div>
@@ -288,19 +288,11 @@
   </div>
 </div>
 
-<div id="modal-row-options" class="modal-gameplan-row-selection">
-  <div class="modal-gameplan-row-selection-content">
-      <span class="modal-gameplan-row-selection-close">&times;</span>
-      <button id="swapBtn">Swap</button>
-      <button id="insertBeforeBtn">Insert Before</button>
-      <button id="insertBehindBtn">Insert Behind</button>
-  </div>
-</div>
 
 <div id="contextMenu" class="context-menu">
   <ul>
-    <li id="swapBtn"><span class="icon">↔</span> Swap</li>
     <li id="insertBeforeBtn"><span class="icon">↑</span> Insert Before</li>
+    <li id="swapBtn"><span class="icon">↔</span> Swap</li>   
     <li id="insertBehindBtn"><span class="icon">↓</span> Insert Behind</li>
   </ul>
 </div>
@@ -320,6 +312,7 @@
     });
   </script>
   <script src="/static/assets/js/beachhandball/game_plan.js"></script>
+  <script src="/static/assets/js/beachhandball/game_plan_selecting.js"></script>
   <script src="/static/assets/js/beachhandball/game_plan_dragging.js"></script>
   <script src="/static/assets/js/beachhandball/game_plan_filter.js"></script>
 {% endblock javascripts %}

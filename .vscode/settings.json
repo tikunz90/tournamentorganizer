@@ -41,5 +41,6 @@
         "tstate",
         "tstates",
         "tstats"
-    ]
+    ],
+    "editor.tabSize": 2
 }
