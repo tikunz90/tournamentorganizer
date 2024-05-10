@@ -55,7 +55,7 @@ function doRowColoring() {
   $("#table-games")
     .find("tr")
     .each(function (index) {
-      $starttime = $(this).find("#id_starttime");
+      $starttime = $(this).find("#initial-id_starttime");
 
       if ($starttime.length == 0) {
         return;
@@ -68,6 +68,7 @@ function doRowColoring() {
       }
 
       if ($starttime.val() == actTime) {
+        $(this).css("background-color", colors[colorIdx]);
       } else {
         actTime = $starttime.val();
         courts = [];
@@ -126,6 +127,13 @@ function setupDatetime() {
     var userDate = datetime_input.attributes.value.value;
     var date_string = moment(userDate, "YYYY-MM-DD HH:mm:ss").format(
       "MM/DD/YYYY HH:mm"
+    );
+    $(datetime_input).val(date_string);
+  });
+  $(".game-list-datetime-init").each(function (i, datetime_input) {
+    var userDate = datetime_input.attributes.value.value;
+    var date_string = moment(userDate, "YYYY-MM-DD HH:mm:ss").format(
+      "YYYY-MM-DD HH:mm:ss"
     );
     $(datetime_input).val(date_string);
   });
@@ -250,11 +258,6 @@ $(".game-list-datetime").on("keyup", function (e) {
       .first()
       .children(".game-list-datetime-label");
     $(close[0]).attr("hidden", false);
-    var table = $("#table-games").DataTable();
-    var order = table.order([1, "asc"]);
-
-    clearCssSelectedRow();
-    doRowColoring();
   } // missing closing if brace
 });
 
@@ -370,7 +373,16 @@ function postUpdateGameDateTime(game_id, new_datetime) {
         });
       $(game_td)
         .children(".game-list-datetime-input")
-        .find("#id_starttime")[0].value = date_input;
+        .find("#initial-id_starttime")[0].value = response.new_datetime;
+      //$(game_td)
+      //  .children(".game-list-datetime-input")
+      //  .find("#id_starttime")[0].value = date_input;
+
+      var table = $("#table-games").DataTable();
+      var order = table.order([1, "asc"]);
+      $("#table-games").filterTable("#games-filter");
+      clearCssSelectedRow();
+      doRowColoring();
     },
     complete: function () {
       console.debug("complete");
