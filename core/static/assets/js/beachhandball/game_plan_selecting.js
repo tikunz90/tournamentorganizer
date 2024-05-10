@@ -37,6 +37,7 @@ function swapGameRows(row_src, row_tgt) {
 
   // Get Source Row Info
   var game_id_src = $(row_src).find("#id_starttime").eq(0).data("game_id");
+  var gamestate_src = $(row_src).find("#" + game_id_src + "_gamestate")[0].innerText;
   var game_counter_src = $(row_src).find("#game_id_counter")[0].innerText;
 
   var date_label_src = moment(date_string_src, "YYYY-MM-DD HH:mm:ss").format(
@@ -53,6 +54,7 @@ function swapGameRows(row_src, row_tgt) {
 
   // Get Target Row Info
   var game_id_target = $(row_tgt).find("#id_starttime").eq(0).data("game_id");
+  var gamestate_tgt = $(row_tgt).find("#" + game_id_target + "_gamestate")[0].innerText;
   var game_counter_target = $(row_tgt).find("#game_id_counter")[0].innerText;
   var date_label_target = moment(date_string_tgt, "YYYY-MM-DD HH:mm:ss").format(
     "HH:mm (DD.MM.YYYY)"
@@ -64,6 +66,14 @@ function swapGameRows(row_src, row_tgt) {
   var court_id_tgt = court_col_tgt.data("content");
   var court_name_tgt = $(court_col_tgt).children(".game-list-court-label").first().text();
   var bg_color_target = $(row_tgt).css("background-color");
+
+  if(gamestate_src != "APPENDING") {
+    return;
+  }
+
+  if(gamestate_tgt != "APPENDING") {
+    return;
+  }
 
   // Change Target Row
   $(row_tgt).find("#id_starttime_label")[0].innerText = date_label_src;
@@ -131,6 +141,12 @@ function showContextMenu(event) {
     return;
   }
   event.preventDefault();
+
+  var game_id = $(event.currentTarget).find("#id_starttime").eq(0).data("game_id");
+  var gamestate = $(event.currentTarget).find("#" + game_id + "_gamestate")[0].innerText;
+  if(gamestate != "APPENDING") {
+    return;
+  }
 
   selectedSecondRow = event.currentTarget;
   selectedSecondRowColor = $(selectedSecondRow).css("background-color");

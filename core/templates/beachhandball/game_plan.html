@@ -271,7 +271,7 @@
                     <td id="{{ game.id }}_refs" class="text-center" data-content="refs">
                       {{ game.ref_a.abbreviation|default('-') }} / {{ game.ref_b.abbreviation|default('-') }}
                     </td>
-                    <td class="text-center" data-content="{{ game.gamestate }}">{{ game.gamestate }}</td>
+                    <td id="{{ game.id }}_gamestate" class="text-center" data-content="{{ game.gamestate }}">{{ game.gamestate }}</td>
                     <td class="td-actions text-right" data-content="">
                       <button type="button" class="update_game btn btn-success btn-link" rel="tooltip" title="Edit Game" data-form-url='{{ url("update_game", kwargs={"pk_tevent":game.tournament_event.id, "pk_tstage": game.tournament_state.tournament_stage.id, "pk":  game.id, "from_gameplan": 1}) }}' data-list-url="{{ url('game_plan') }}" onclick="modalShowSpinner();">
                           <i class="material-icons">edit</i>
