@@ -79,6 +79,7 @@ var plPreviewPLAfterGroupHeader = document.getElementById(
   "wz-ovw-tabPL-AfterGroup-header"
 );
 var plPreviewPLAfterGroup = document.getElementById("wz-ovw-tabPL_AfterGroup");
+var plResultPLAfterGroup = document.getElementById("wz-ovw-PL_AfterGroup");
 var plPreviewFinalsHeader = document.getElementById(
   "wz-ovw-tabPL-finals-header"
 );
@@ -97,32 +98,13 @@ bh = {
     finals: "",
     transitions: {
       groups_to_ko: {},
+      groups_to_placement: {},
       ko_to_pl: {},
     },
     tournament_states: [],
     teams: [],
     team_stats: [],
     ttt: [],
-  },
-
-  wzInitUIElements: function () {
-    plAfterGroupContainer = document.getElementById("wz-placement-info-group");
-    plCheckOptionsForms = document.getElementById("wz-enable-placement-form");
-    plCheckOptions = document.getElementById("wz-enable-placement");
-    plOptions = document.getElementById("wz-placement-options");
-    plMode = document.getElementById("wz-sel-pl-mode");
-    plModeSelected = $("#wz-sel-pl-mode").val();
-    plModeOneGroup = document.getElementById("wz-pl-mode-onegroup");
-    plModeMultiGroup = document.getElementById("wz-pl-mode-multigroup");
-    plModeOnlyKo = document.getElementById("wz-pl-mode-onlyko");
-    plModeOnlyKoExtraInfo = document.getElementById(
-      "wz-pl-mode-onlyko-extrainfo"
-    );
-    //plPreviewPLAfterGroupCard = document.getElementById("wz-ovw-tabPL-AfterGroup-card");
-    //plPreviewPLAfterGroupHeader = document.getElementById("wz-ovw-tabPL-AfterGroup-header");
-    plPreviewPLAfterGroup = document.getElementById("wz-ovw-tabPL_AfterGroup");
-    //plPreviewFinalsHeader = document.getElementById("wz-ovw-tabPL-finals-header");
-    //plPreviewFinals = document.getElementById("wz-ovw-tabPL-finals");
   },
 
   wzUpdateStructure: function () {
@@ -135,11 +117,11 @@ bh = {
     bh.structureData.teams = [];
     bh.structureData.team_stats = [];
     bh.structureData.ttt = [];
-    bh.wzInitUIElements();
-    bh.wzCalcGroups("wz-ovw-groups");
-    bh.wzCalcKnockout("wz-ovw-knockout");
-    bh.wzCalcPlacement("wz-ovw-placement");
-    bh.wzCalcFinals("wz-ovw-finals");
+    wzInitUIElements();
+    wzCalcGroups("wz-ovw-groups");
+    wzCalcKnockout("wz-ovw-knockout");
+    wzCalcPlacement("wz-ovw-placement");
+    wzCalcFinals("wz-ovw-finals");
 
     $("#wz-structure-data").val(JSON.stringify(bh.structureData));
     wzNumOfGames =
@@ -148,1156 +130,6 @@ bh = {
       wzNumOfGamesPlacement +
       wzNumOfGamesFinal;
     $("#wz-res_num_of_games_total").val(wzNumOfGames);
-  },
-
-  wzCalcGroups: function (idRow) {
-    console.log("wzCalcGroups: " + idRow);
-    var category = $("#wz-tevent-category").val();
-    var colors = [];
-    if (category == "man") {
-      colors = COLORS_GROUP_MEN;
-    } else if (category == "woman") {
-      colors = COLORS_GROUP_WOMEN;
-    }
-    groupData = {
-      num_groups: 0,
-      teams_per_group: 0,
-      num_teams_res: 0,
-      teams_to_ko: 0,
-      teams_next_stage: 0,
-      items: [],
-    };
-    var transitions = {};
-    bh.structureData.groups = groupData;
-
-    wzNumOfGamesGroup = 0;
-    var row = document.getElementById(idRow);
-    $(row).empty();
-    var rowTab = document.getElementById("wz-ovw-tabGroup");
-    $(rowTab).empty();
-    var num_teams = $("#wz-max_num_teams").val();
-    var num_groups = $("#wz-num_of_groups").val();
-
-    bh.structureData.max_num_teams = num_teams;
-
-    var teams_per_group = Math.floor(num_teams / num_groups);
-    var num_teams_res = num_teams % num_groups;
-    //var teams_per_group = $("#wz-teams_per_groups").val();
-    //var teams_next_stage = $("#wz-num_teams_group_next_stage").val();
-
-    var sel_val = $("#wz-sel-teams-knockout").val();
-    document.getElementById("wz-num_of_groups").max = sel_val;
-    groupData.teams_total = parseInt(num_teams);
-    groupData.teams_to_ko = parseInt(sel_val);
-    groupData.teams_remaining = groupData.teams_total - groupData.teams_to_ko;
-    var teams_next_stage_residue = sel_val % num_groups;
-    groupData.teams_next_stage = Math.floor(sel_val / num_groups);
-    $("#wz-sel-teams-knockout").empty();
-    var sel_val_ranked = $("#wz-sel-teams-getting-ranked").val();
-    if (parseInt(sel_val_ranked) > parseInt(sel_val)) {
-      sel_val_ranked = sel_val;
-    }
-    $("#wz-sel-teams-getting-ranked").empty();
-    var num_choices = Math.floor(Math.log(num_teams) / Math.log(2));
-    for (let i = 1; i <= num_choices; i++) {
-      var opt = "";
-      if (Math.pow(2, i) == sel_val) {
-        opt =
-          "<option selected value=" +
-          Math.pow(2, i) +
-          ">" +
-          Math.pow(2, i) +
-          "</option>";
-      } else {
-        opt =
-          "<option value=" +
-          Math.pow(2, i) +
-          ">" +
-          Math.pow(2, i) +
-          "</option>";
-      }
-      $("#wz-sel-teams-knockout").append(opt);
-      if (Math.pow(2, i) == sel_val_ranked) {
-        opt =
-          "<option selected value=" +
-          Math.pow(2, i) +
-          ">" +
-          Math.pow(2, i) +
-          "</option>";
-        $("#wz-sel-teams-getting-ranked").append(opt);
-      } else if (Math.pow(2, i) <= sel_val) {
-        opt =
-          "<option value=" +
-          Math.pow(2, i) +
-          ">" +
-          Math.pow(2, i) +
-          "</option>";
-        $("#wz-sel-teams-getting-ranked").append(opt);
-      }
-    }
-
-    for (let i = 0; i < groupData.teams_to_ko / 2; i++) {
-      transitions["ko_grp_" + i] = [];
-    }
-
-    groupData.num_groups = num_groups;
-    groupData.teams_per_group = teams_per_group;
-    groupData.num_teams_res = num_teams_res;
-    console.log(
-      "wzCalcGroups: #groups:" + num_groups + " teams p gr: " + teams_per_group
-    );
-    for (let i = 0; i < num_groups; i++) {
-      actGroup = { idx: i, name: "Group " + (i + 1), teams: [] };
-      tournament_state = {
-        uid: tsCounter,
-        id_db: 0,
-        name: "Group " + (i + 1),
-        abbreviation: "G" + (i + 1),
-        hierarchy: 0,
-        max_number_teams: teams_per_group,
-        index: i - 1,
-        direct_compare: true,
-        round_type: "GROUP",
-        order: i,
-      };
-
-      var GameCounter = 0;
-      var templateGroup = $("#templateGroup").clone();
-      $(templateGroup).attr("id", "group_" + i);
-      $(templateGroup).removeAttr("hidden");
-      $(templateGroup).find("#templateGroup_name").text(actGroup.name);
-      $(templateGroup)
-        .find("#templateGroup_name")
-        .css("background-color", colors[i]);
-
-      var body = $(templateGroup).find("#templateGroup_body");
-      body.empty();
-      var addedResidue = false;
-
-      for (let iTeam = 0; iTeam < teams_per_group; iTeam++) {
-        actTeam = {
-          idx: iTeam,
-          name: iTeam + 1 + ". TeamDummy",
-          rank: 0,
-          isWinning: 0,
-          transition: {
-            uid: tttCounter,
-            tournament_state: tsCounter,
-            origin_rank: iTeam + 1,
-            origin_group_id: i,
-            origin_group_name: actGroup.name,
-            target_rank: 0,
-            target_group_id: 0,
-          },
-        };
-        teamData = {
-          uid: teamCounter,
-          tournament_state: tsCounter,
-          name: iTeam + 1 + ". " + tournament_state.name,
-          abbreviation: iTeam + 1 + ". " + tournament_state.abbreviation,
-          category_id: 0,
-          season_cup_tournament_id: 0,
-          is_dummy: true,
-        };
-        teamStatData = {
-          uid: tstatCounter,
-          tournament_state: tsCounter,
-          team_id: teamCounter,
-          rank_initial: iTeam + 1,
-          rank: iTeam + 1,
-        };
-        actTeam.rank = iTeam + 1;
-        actTeam.transition.origin_rank = actTeam.rank;
-
-        var tTeamItem = $("#templateTeamItem").clone();
-        $(tTeamItem).attr("id", "teamitem_" + i + "_" + iTeam);
-        $(tTeamItem).removeAttr("hidden");
-
-        // transition
-        var tar_gr_id = i + iTeam * num_groups;
-
-        if (iTeam < groupData.teams_next_stage) {
-          $(tTeamItem).find("#templateTeamItem_icon").text("arrow_upward");
-          actTeam.isWinning = 1;
-        } else if (teams_next_stage_residue > 0 && addedResidue == false) {
-          $(tTeamItem).find("#templateTeamItem_icon").text("arrow_upward");
-          addedResidue = true;
-          teams_next_stage_residue--;
-          actTeam.isWinning = 1;
-        } else {
-          $(tTeamItem).find("#templateTeamItem_icon").text("clear");
-        }
-
-        $(tTeamItem).find("#templateTeamItem_name").text(actTeam.name);
-        body.append(tTeamItem);
-        actGroup["teams"].push(actTeam);
-        GameCounter++;
-        bh.structureData.teams.push(teamData);
-        teamCounter++;
-        bh.structureData.team_stats.push(teamData);
-        tstatCounter++;
-      }
-      if (num_teams_res > 0) {
-        actTeam = {
-          idx: teams_per_group,
-          name: teams_per_group + 1 + ". TeamDummy",
-          rank: 0,
-          transition: {
-            origin_rank: teams_per_group + 1,
-            origin_group_id: i,
-            origin_group_name: actGroup.name,
-            target_rank: 0,
-            target_group_id: 0,
-          },
-        };
-
-        teamData = {
-          uid: teamCounter,
-          tournament_state: tsCounter,
-          name: teams_per_group + 1 + ". " + tournament_state.name,
-          abbreviation:
-            teams_per_group + 1 + ". " + tournament_state.abbreviation,
-          category_id: 0,
-          season_cup_tournament_id: 0,
-          is_dummy: true,
-        };
-        teamStatData = {
-          uid: tstatCounter,
-          tournament_state: tsCounter,
-          team_id: teamCounter,
-          rank_initial: teams_per_group + 1,
-          rank: teams_per_group + 1,
-        };
-
-        actTeam.rank = teams_per_group + 1;
-        actTeam.transition.origin_rank = actTeam.rank;
-        var tTeamItem = $("#templateTeamItem").clone();
-        $(tTeamItem).attr("id", "teamitem_" + (teams_per_group + 1));
-        $(tTeamItem).removeAttr("hidden");
-        if (teams_per_group < groupData.teams_next_stage) {
-          $(tTeamItem).find("#templateTeamItem_icon").text("arrow_upward");
-        } else {
-          $(tTeamItem).find("#templateTeamItem_icon").text("clear");
-          actTeam.transition.target_rank = -1;
-          actTeam.transition.target_group_id = 999;
-        }
-
-        $(tTeamItem).find("#templateTeamItem_name").text(actTeam.name);
-        body.append(tTeamItem);
-        actGroup.teams.push(actTeam);
-        GameCounter++;
-        num_teams_res--;
-        tournament_state.max_number_teams += 1;
-
-        bh.structureData.teams.push(teamData);
-        teamCounter++;
-        bh.structureData.team_stats.push(teamData);
-        tstatCounter++;
-      }
-
-      GameCounter--;
-      wzNumOfGamesGroup += (GameCounter * (GameCounter + 1)) / 2;
-      groupData.items.push(actGroup);
-      $(row).append(templateGroup);
-      $(rowTab).append(templateGroup.clone());
-      bh.structureData.tournament_states.push(tournament_state);
-      tsCounter++;
-    }
-    var grIdx = 0;
-    var teamIdx = 0;
-    var target_gr_idx = 0;
-    var target_gr_idx_end = groupData.teams_to_ko / 2 - 1;
-    for (let i = 1; i <= groupData.teams_to_ko; i++) {
-      var targetRnk = 1;
-      var targetGroup = target_gr_idx;
-      if (i % 2 == 0) {
-        targetRnk = 2;
-        targetGroup = target_gr_idx_end;
-        target_gr_idx_end--;
-      } else {
-        targetGroup = target_gr_idx;
-        target_gr_idx++;
-      }
-      groupData.items[grIdx].teams[teamIdx].transition.target_rank = targetRnk;
-      groupData.items[grIdx].teams[teamIdx].transition.target_group_id =
-        targetGroup;
-      transitions["ko_grp_" + targetGroup].push(
-        groupData.items[grIdx].teams[teamIdx].transition
-      );
-      bh.structureData.ttt.push(
-        groupData.items[grIdx].teams[teamIdx].transition
-      );
-      tttCounter++;
-
-      grIdx++;
-      if (grIdx >= groupData.items.length) {
-        grIdx = 0;
-        teamIdx++;
-      }
-    }
-    bh.structureData.transitions.groups_to_ko = transitions;
-    $("#wz-res_num_of_games_group").val(wzNumOfGamesGroup);
-  },
-
-  wzCalcPlacement: function (idRow) {
-    console.log("wzCalcPlacement: " + idRow);
-    var plData = { levels_ranked: 0, num_teams_getting_ranked: 0, level: [] };
-    wzNumOfGamesPlacement = 0;
-    var row = document.getElementById(idRow);
-    $(row).empty();
-
-    var rowTab = document.getElementById("wz-ovw-tabPL");
-    $(rowTab).empty();
-
-    plData.num_teams_getting_ranked = $("#wz-sel-teams-getting-ranked").val();
-
-    var num_teams_soll = groupData.teams_to_ko;
-    var num_teams_total = groupData.teams_total;
-    var best_rank_placement = num_teams_soll + 1;
-
-    // Enable/Disable Placement Options
-
-    document.getElementById("wz-pl-mode-num_of_groups").max = Math.floor(
-      (num_teams_total - num_teams_soll) / 2
-    ).toString();
-
-    plAfterGroupContainer.style.display = "none";
-    plModeOneGroup.style.display = "none";
-    plModeMultiGroup.style.display = "none";
-    plModeOnlyKo.style.display = "none";
-    plModeOnlyKoExtraInfo.style.display = "none";
-    //plPreviewPLAfterGroupCard.style.display = 'none';
-    //plPreviewPLAfterGroupHeader.style.display = 'none';
-    plPreviewPLAfterGroup.style.display = "none";
-    //plPreviewFinalsHeader.style.display = 'none';
-    //plPreviewFinals.style.display = 'none';
-
-    var remainingTeamsForPL = groupData.teams_remaining;
-
-    // Info Text Placement from KO
-    if (
-      parseInt(num_teams_soll) > 2 &&
-      parseInt(plData.num_teams_getting_ranked) > 2
-    ) {
-      $("#wz-placement-info-ko").text(
-        "Placement playing for Rank 3 to " +
-          parseInt(plData.num_teams_getting_ranked)
-      );
-    } else {
-      $("#wz-placement-info-ko").text(
-        "Only 2 teams ranked. No Placement available"
-      );
-    }
-
-    if (
-      parseInt(num_teams_soll) > 2 &&
-      parseInt(num_teams_soll) == parseInt(plData.num_teams_getting_ranked) &&
-      parseInt(num_teams_total) - parseInt(num_teams_soll) > 0
-    ) {
-      plAfterGroupContainer.style.display = "block";
-    }
-
-    // Info Text for Placement
-    if (num_teams_total - num_teams_soll - 1 > 0) {
-      plCheckOptionsForms.style.display = "block";
-      $("#wz-placement-info").text(
-        "Define Placement after Group Stage playing for Rank " +
-          best_rank_placement +
-          " to " +
-          num_teams_total +
-          " (#teams: " +
-          remainingTeamsForPL.toString() +
-          ")"
-      );
-    } else {
-      plCheckOptionsForms.style.display = "none";
-      $("#wz-placement-info").text("No Placement after Group Stage possible");
-    }
-
-    if (plCheckOptions.checked) {
-      plOptions.style.display = "block";
-      switch (plModeSelected) {
-        case "1":
-          bh.wzCalcPlacementOneGroup(best_rank_placement, remainingTeamsForPL);
-          break;
-        case "2":
-          bh.wzCalcPlacementMultiGroup(
-            best_rank_placement,
-            remainingTeamsForPL
-          );
-          break;
-        case "3":
-          bh.wzCalcPlacementDirectKO(best_rank_placement, remainingTeamsForPL);
-          break;
-      }
-    } else {
-      plOptions.style.display = "none";
-    }
-
-    var levels = Math.log(num_teams_soll) / Math.log(2) - 1; // -1 because final is seperated by
-    plData.levels_ranked =
-      Math.log(plData.num_teams_getting_ranked) / Math.log(2) - 1;
-
-    for (let i = plData.levels_ranked; i >= 1; i--) {
-      // this instance is the first instance when losers  come from knockout stage
-      levelData = {
-        idx: i,
-        name: "",
-        actNaming: "",
-        bestRankWinner: 0,
-        bestRankLoser: 0,
-        num_groups: 0,
-        groups: [],
-        sublevel: [],
-        transitions_w: [],
-        transitions_l: [],
-      };
-      var tLevel = $("#templatePL_level").clone();
-
-      var actTransFromKO =
-        bh.structureData.transitions.ko_to_pl[
-          KNOCKOUT_NAMES[Math.pow(2, i + 1)]
-        ];
-
-      $(tLevel).attr("id", "level_" + i);
-      $(tLevel).removeAttr("hidden");
-      levelData.bestRankWinner = Math.pow(2, i) + 1; //Math.pow(2, i-1) + 1;
-      levelData.bestRankLoser = 2 * Math.pow(2, i);
-      var width = 3;
-      var offset = 0;
-      levelData.actNaming = PLACEMENT_NAMES[Math.pow(2, i)] + " ";
-      levelData.name =
-        "Placement for rank " +
-        (Math.pow(2, i) + 1) +
-        " to " +
-        2 * Math.pow(2, i);
-      $(tLevel).find("#templatePL_header").text(levelData.name);
-      var tLevel_items = $("#templatePL_items").clone();
-      $(tLevel_items).removeAttr("hidden");
-      $(tLevel_items).attr("id", "level_items_" + i);
-      levelData.num_groups = Math.pow(2, i - 1);
-      var next_group_counter_winning = 0;
-      var next_group_counter_losing = 0;
-      var act_target_rank_winning = 1;
-      var act_target_rank_losing = 1;
-      for (var j = 1; j <= levelData.num_groups; j++) {
-        actGroup = { idx: j, name: levelData.actNaming + j, teams: [] };
-        var templateGroup = $("#templateGroup").clone();
-        $(templateGroup).attr("id", "pl_group_" + j);
-        $(templateGroup).removeAttr("hidden");
-        $(templateGroup).find("#templateGroup_name").text(actGroup.name);
-        $(templateGroup)
-          .find("#templateGroup_name")
-          .css("background-color", "#BABABA");
-        $(templateGroup).attr(
-          "class",
-          "col-md-" + width + " offset-md-" + offset
-        );
-        var body = $(templateGroup).find("#templateGroup_body");
-        body.empty();
-        for (let iTeam = 0; iTeam < 2; iTeam++) {
-          actTeam = {
-            idx: iTeam,
-            name: iTeam + 1 + ". TeamDummy",
-            rank: 0,
-            transition: {
-              origin_rank: iTeam + 1,
-              origin_group_id: j - 1,
-              origin_group_name: levelData.actNaming + j,
-              target_rank: 0,
-              target_lvl_id: 0,
-              target_group_id: 0,
-            },
-          };
-          actTeam.rank = 1 + iTeam;
-          var tTeamItem = $("#templateTeamItem").clone();
-          $(tTeamItem).attr("id", "pl_teamitem_" + j + "_" + iTeam);
-          $(tTeamItem).removeAttr("hidden");
-
-          actTeam.transition.target_lvl_id = j - 1;
-
-          var trans_from_ko = actTransFromKO.items.find(
-            (trans) =>
-              trans.target_group_id == j - 1 &&
-              trans.target_rank == actTeam.rank
-          );
-          var NameExtension =
-            iTeam + 1 + ". Loser " + trans_from_ko.origin_group_name;
-
-          if (iTeam == 0 && Math.pow(2, i - 1) > 1) {
-            $(tTeamItem).find("#templateTeamItem_icon").text("arrow_upward");
-            actTeam.transition.target_rank = act_target_rank_winning;
-            actTeam.transition.target_group_id = next_group_counter_winning;
-            levelData.transitions_w.push(actTeam.transition);
-            next_group_counter_winning++;
-            if (
-              next_group_counter_winning >= Math.pow(2, i - 2) &&
-              act_target_rank_winning == 1
-            ) {
-              act_target_rank_winning = 2;
-              next_group_counter_winning = 0;
-            }
-          } else if (Math.pow(2, i - 1) > 1) {
-            $(tTeamItem).find("#templateTeamItem_icon").text("clear");
-            actTeam.transition.target_rank = act_target_rank_losing;
-            actTeam.transition.target_group_id = next_group_counter_losing;
-            levelData.transitions_l.push(actTeam.transition);
-            next_group_counter_losing++;
-            if (
-              next_group_counter_losing >= Math.pow(2, i - 2) &&
-              act_target_rank_losing == 1
-            ) {
-              act_target_rank_losing = 2;
-              next_group_counter_losing = 0;
-            }
-          } else if (Math.pow(2, i - 1) == 1) {
-            actTeam.rank = levelData.bestRankWinner + iTeam;
-            actTeam.transition.target_rank = actTeam.rank;
-            actTeam.transition.target_group_id = 999;
-            $(tTeamItem)
-              .find("#templateTeamItem_icon")
-              .attr("hidden", "hidden");
-            $(tTeamItem)
-              .find("#templateTeamItem_rank")
-              .text(actTeam.rank + ".");
-            $(tTeamItem).find("#templateTeamItem_rank").removeAttr("hidden");
-          }
-          actTeam.name = NameExtension;
-          $(tTeamItem).find("#templateTeamItem_name").text(actTeam.name);
-          body.append(tTeamItem);
-          actGroup["teams"].push(actTeam);
-        }
-        $(tLevel_items).append(templateGroup);
-        levelData["groups"].push(actGroup);
-        wzNumOfGamesPlacement++;
-      }
-      $(tLevel).find("#templatePL_body").append(tLevel_items);
-      bh.wzCalcPlacementLevel(
-        $(tLevel).find("#templatePL_body"),
-        i,
-        levelData.bestRankWinner,
-        levelData.actNaming,
-        levelData
-      );
-      $(row).append(tLevel);
-      $(rowTab).append(tLevel.clone());
-      plData["level"].push(levelData);
-    }
-    bh.structureData.placement = plData;
-    $("#wz-res_num_of_games_placement").val(wzNumOfGamesPlacement);
-  },
-
-  wzCalcPlacementLevel(
-    bodyLevel,
-    levels,
-    bestRankWinner,
-    namingParent,
-    levelData
-  ) {
-    if (levels <= 1) return;
-    var sublevelDataLoser = {
-      idx: 0,
-      name: "Losing",
-      actNaming: "",
-      bestRank: 0,
-      worstRank: 0,
-      num_groups: 0,
-      groups: [],
-      sublevel: [],
-      transitions_w: [],
-      transitions_l: [],
-    };
-    var width = 3;
-    var offset = 0;
-    if (levels <= 3) {
-      width = 5;
-      offset = 1;
-    }
-    sublevelDataLoser.bestRank = bestRankWinner + Math.pow(2, levels - 1);
-    sublevelDataLoser.worstRank =
-      sublevelDataLoser.bestRank - 1 + Math.pow(2, levels - 1);
-    sublevelDataLoser.idx = Math.pow(2, levels - 2);
-
-    // Losing part
-    var tLoser = $("#templatePLsub_level").clone();
-    $(tLoser).attr("id", "level_l_" + sublevelDataLoser.bestRank);
-    $(tLoser).removeAttr("hidden");
-    sublevelDataLoser.name =
-      "Placement for rank " +
-      sublevelDataLoser.bestRank +
-      " to " +
-      sublevelDataLoser.worstRank;
-    $(tLoser).find("#templatePLsub_header").text(sublevelDataLoser.name);
-    var tLoser_items = $(tLoser).find("#templatePLsub_items");
-    var actNamingLoser =
-      "P" + sublevelDataLoser.bestRank + "to" + sublevelDataLoser.worstRank;
-    var next_group_counter_winning = 0;
-    var next_group_counter_losing = 0;
-    var act_target_rank_winning = 1;
-    var act_target_rank_losing = 1;
-    for (var j = 1; j <= sublevelDataLoser.idx; j++) {
-      actGroup = { idx: j, name: actNamingLoser + " " + j, teams: [] };
-      var templateGroup = $("#templateGroup").clone();
-      $(templateGroup).attr("id", "pl_level_l_" + levels + "_" + j);
-      $(templateGroup).removeAttr("hidden");
-      $(templateGroup).find("#templateGroup_name").text(actGroup.name);
-      $(templateGroup)
-        .find("#templateGroup_name")
-        .css("background-color", "#BABABA");
-      $(templateGroup).attr(
-        "class",
-        "col-md-" + width + " offset-md-" + offset
-      );
-      var body = $(templateGroup).find("#templateGroup_body");
-      body.empty();
-      for (let iTeam = 0; iTeam < 2; iTeam++) {
-        actTeam = {
-          idx: iTeam,
-          name: iTeam + 1 + ". TeamDummy",
-          rank: iTeam + 1,
-          transition: {
-            origin_rank: iTeam + 1,
-            origin_group_id: j - 1,
-            origin_group_name: actNamingLoser + " " + j,
-            target_rank: 0,
-            target_lvl_id: 0,
-            target_group_id: 0,
-          },
-        };
-        var tTeamItem = $("#templateTeamItem").clone();
-        $(tTeamItem).attr("id", "pl_level_teamitem_l_" + j + "_" + iTeam);
-        $(tTeamItem).removeAttr("hidden");
-
-        actTeam.transition.target_lvl_id = j - 1;
-
-        var trans_from_pl = levelData.transitions_l.find(
-          (trans) =>
-            trans.target_group_id == j - 1 && trans.target_rank == actTeam.rank
-        );
-        var NameExtension =
-          iTeam + 1 + ". Loser " + trans_from_pl.origin_group_name;
-
-        if (iTeam == 0 && sublevelDataLoser.idx > 1) {
-          $(tTeamItem).find("#templateTeamItem_icon").text("arrow_upward");
-          actTeam.transition.target_rank = act_target_rank_winning;
-          actTeam.transition.target_group_id = next_group_counter_winning;
-          sublevelDataLoser.transitions_w.push(actTeam.transition);
-          next_group_counter_winning++;
-          if (
-            next_group_counter_winning >= sublevelDataLoser.idx / 2 &&
-            act_target_rank_winning == 1
-          ) {
-            act_target_rank_winning = 2;
-            next_group_counter_winning = 0;
-          }
-        } else if (sublevelDataLoser.idx > 1) {
-          $(tTeamItem).find("#templateTeamItem_icon").text("clear");
-          actTeam.transition.target_rank = act_target_rank_losing;
-          actTeam.transition.target_group_id = next_group_counter_losing;
-          sublevelDataLoser.transitions_l.push(actTeam.transition);
-          next_group_counter_losing++;
-          if (
-            next_group_counter_losing >= sublevelDataLoser.idx / 2 &&
-            act_target_rank_losing == 1
-          ) {
-            act_target_rank_losing = 2;
-            next_group_counter_losing = 0;
-          }
-        } else if (sublevelDataLoser.idx == 1) {
-          actTeam.rank = sublevelDataLoser.bestRank + iTeam;
-          actTeam.transition.target_rank = sublevelDataLoser.bestRank + iTeam;
-          actTeam.transition.target_group_id = 999;
-          $(tTeamItem).find("#templateTeamItem_icon").attr("hidden", "hidden");
-          $(tTeamItem)
-            .find("#templateTeamItem_rank")
-            .text(sublevelDataLoser.bestRank + iTeam + ".");
-          $(tTeamItem).find("#templateTeamItem_rank").removeAttr("hidden");
-        }
-        actTeam.name = NameExtension;
-        $(tTeamItem).find("#templateTeamItem_name").text(actTeam.name);
-        body.append(tTeamItem);
-        actGroup["teams"].push(actTeam);
-      }
-      $(tLoser_items).append(templateGroup);
-      sublevelDataLoser["groups"].push(actGroup);
-      wzNumOfGamesPlacement++;
-    }
-    bodyLevel.append(tLoser);
-    //var next_best_losing_rank = sublevelDataLoser.bestRank + (sublevelDataLoser.worstRank - sublevelDataLoser.bestRank + 1) / 2;
-    bh.wzCalcPlacementLevel(
-      bodyLevel,
-      levels - 1,
-      sublevelDataLoser.bestRank,
-      actNamingLoser,
-      sublevelDataLoser
-    );
-    levelData["sublevel"].push(sublevelDataLoser);
-
-    // Winning part
-    var sublevelDataWinner = {
-      idx: 0,
-      name: "Winning",
-      actNaming: "",
-      bestRank: 0,
-      worstRank: 0,
-      num_groups: 0,
-      groups: [],
-      sublevel: [],
-      transitions_w: [],
-      transitions_l: [],
-    };
-    sublevelDataWinner.bestRank = bestRankWinner;
-    sublevelDataWinner.worstRank = sublevelDataLoser.bestRank - 1; //(sublevelDataWinner.bestRank - 1 + Math.pow(2, levels-1));
-    sublevelDataWinner.idx = Math.pow(2, levels - 2);
-    sublevelDataWinner.name =
-      "Placement for rank " +
-      sublevelDataWinner.bestRank +
-      " to " +
-      sublevelDataWinner.worstRank;
-
-    var tWinning = $("#templatePLsub_level").clone();
-    $(tWinning).attr("id", "level_w_" + sublevelDataWinner.bestRank);
-    $(tWinning).removeAttr("hidden");
-    $(tWinning).find("#templatePLsub_header").text(sublevelDataWinner.name);
-    var tWinning_items = $(tWinning).find("#templatePLsub_items");
-    var actNaming =
-      "P" + sublevelDataWinner.bestRank + "to" + sublevelDataWinner.worstRank;
-    var lastNaming = "";
-
-    next_group_counter_winning = 0;
-    next_group_counter_losing = 0;
-    act_target_rank_winning = 1;
-    act_target_rank_losing = 1;
-    for (var j = 1; j <= sublevelDataWinner.idx; j++) {
-      actGroup = { idx: j, name: actNaming + " " + j, teams: [] };
-      var templateGroup = $("#templateGroup").clone();
-      $(templateGroup).attr("id", "pl_level_w_" + levels + "_" + j);
-      $(templateGroup).removeAttr("hidden");
-      $(templateGroup)
-        .find("#templateGroup_name")
-        .text(actNaming + " " + j);
-      $(templateGroup).attr(
-        "class",
-        "col-md-" + width + " offset-md-" + offset
-      );
-      var body = $(templateGroup).find("#templateGroup_body");
-      body.empty();
-      for (let iTeam = 0; iTeam < 2; iTeam++) {
-        actTeam = {
-          idx: iTeam,
-          name: iTeam + 1 + ". TeamDummy",
-          rank: iTeam + 1,
-          transition: {
-            origin_rank: iTeam + 1,
-            origin_group_id: j - 1,
-            origin_group_name: actNaming + " " + j,
-            target_rank: 0,
-            target_lvl_id: 0,
-            target_group_id: 0,
-          },
-        };
-        var tTeamItem = $("#templateTeamItem").clone();
-        $(tTeamItem).attr("id", "pl_level_teamitem_" + j + "_" + iTeam);
-        $(tTeamItem).removeAttr("hidden");
-
-        actTeam.transition.target_lvl_id = j - 1;
-
-        var trans_from_pl = levelData.transitions_w.find(
-          (trans) =>
-            trans.target_group_id == j - 1 && trans.target_rank == actTeam.rank
-        );
-        var NameExtension =
-          iTeam + 1 + ". Winner " + trans_from_pl.origin_group_name;
-
-        if (iTeam == 0 && sublevelDataWinner.idx > 1) {
-          $(tTeamItem).find("#templateTeamItem_icon").text("arrow_upward");
-          actTeam.transition.target_rank = act_target_rank_winning;
-          actTeam.transition.target_group_id = next_group_counter_winning;
-          sublevelDataWinner.transitions_w.push(actTeam.transition);
-          next_group_counter_winning++;
-          if (
-            next_group_counter_winning >= sublevelDataWinner.idx / 2 &&
-            act_target_rank_winning == 1
-          ) {
-            act_target_rank_winning = 2;
-            next_group_counter_winning = 0;
-          }
-        } else if (sublevelDataWinner.idx > 1) {
-          $(tTeamItem).find("#templateTeamItem_icon").text("clear");
-          actTeam.transition.target_rank = act_target_rank_losing;
-          actTeam.transition.target_group_id = next_group_counter_losing;
-          sublevelDataWinner.transitions_l.push(actTeam.transition);
-          next_group_counter_losing++;
-          if (
-            next_group_counter_losing >= sublevelDataWinner.idx / 2 &&
-            act_target_rank_losing == 1
-          ) {
-            act_target_rank_losing = 2;
-            next_group_counter_losing = 0;
-          }
-        } else if (sublevelDataWinner.idx == 1) {
-          actTeam.rank = sublevelDataWinner.bestRank + iTeam;
-          actTeam.transition.target_rank = sublevelDataWinner.bestRank + iTeam;
-          actTeam.transition.target_group_id = 999;
-          $(tTeamItem).find("#templateTeamItem_icon").attr("hidden", "hidden");
-          $(tTeamItem)
-            .find("#templateTeamItem_rank")
-            .text(sublevelDataWinner.bestRank + iTeam + ".");
-          $(tTeamItem).find("#templateTeamItem_rank").removeAttr("hidden");
-        }
-        actTeam.name = NameExtension;
-        $(tTeamItem).find("#templateTeamItem_name").text(actTeam.name);
-        body.append(tTeamItem);
-        actGroup["teams"].push(actTeam);
-      }
-      $(tWinning_items).append(templateGroup);
-      sublevelDataWinner["groups"].push(actGroup);
-      wzNumOfGamesPlacement++;
-    }
-    bodyLevel.append(tWinning);
-    bh.wzCalcPlacementLevel(
-      bodyLevel,
-      levels - 1,
-      sublevelDataWinner.bestRank,
-      actNaming,
-      sublevelDataWinner
-    );
-    levelData["sublevel"].push(sublevelDataWinner);
-  },
-
-  wzCalcPlacementOneGroup: function (best_rank_placement, remainingTeamsForPL) {
-    plModeOneGroup.style.display = "block";
-    //plPreviewPLAfterGroupCard.style.display = 'block';
-    //plPreviewPLAfterGroupHeader.style.display = 'block';
-    plPreviewPLAfterGroup.style.display = "block";
-    var rowTab = document.getElementById("wz-ovw-tabPL_AfterGroup");
-    $(rowTab).empty();
-
-    var transitions = {};
-    var num_of_transistions = groupData.teams_total - groupData.teams_to_ko;
-
-    var width = 6;
-    var offset = 3;
-    var templateGroup = $("#templateGroup").clone();
-    $(templateGroup).attr("id", "pl_after_group_one_group");
-    $(templateGroup).removeAttr("hidden");
-    $(templateGroup)
-      .find("#templateGroup_name")
-      .text(
-        "Placement for rank " +
-          best_rank_placement +
-          " to " +
-          groupData.teams_total
-      );
-    $(templateGroup)
-      .find("#templateGroup_name")
-      .css("background-color", "#BABABA");
-    $(templateGroup).attr("class", "col-md-" + width + " offset-md-" + offset);
-    var body = $(templateGroup).find("#templateGroup_body");
-    body.empty();
-    var actRank = best_rank_placement;
-    for (let i = 0; i < groupData.items.length; i++) {
-      var actGroup = groupData.items[i];
-      for (let j = 0; j < actGroup.teams.length; j++) {
-        var actTeam = actGroup.teams[j];
-        if (actTeam.isWinning == 0) {
-          var teamName = actTeam.rank.toString() + ". " + actGroup.name;
-          var tTeamItem = $("#templateTeamItem").clone();
-          $(tTeamItem).find("#templateTeamItem_icon").attr("hidden", "hidden");
-          $(tTeamItem).attr("id", "pl_after_group_one_group_" + i + "_" + j);
-          $(tTeamItem)
-            .find("#templateTeamItem_rank")
-            .text(actRank.toString() + ".");
-          $(tTeamItem).find("#templateTeamItem_rank").removeAttr("hidden");
-          $(tTeamItem).removeAttr("hidden");
-          $(tTeamItem).find("#templateTeamItem_name").text(teamName);
-          body.append(tTeamItem);
-          actRank++;
-        }
-      }
-    }
-    $(rowTab).append(templateGroup.clone());
-  },
-
-  wzCalcPlacementMultiGroup: function (
-    best_rank_placement,
-    remainingTeamsForPL
-  ) {
-    plModeMultiGroup.style.display = "block";
-    //plPreviewPLAfterGroupCard.style.display = 'block';
-    //plPreviewPLAfterGroupHeader.style.display = 'block';
-    plPreviewPLAfterGroup.style.display = "block";
-    //plPreviewFinalsHeader.style.display = 'block';
-    //plPreviewFinalsHeader.style.display = 'block';
-    //plPreviewFinals.style.display = 'block';
-    //plPreviewFinals.textContent = "Placement for rank " + best_rank_placement.toString() + " to " + (best_rank_placement + 1).toString();
-
-    var rowTab = document.getElementById("wz-ovw-tabPL_AfterGroup");
-    $(rowTab).empty();
-
-    var num_groups = $("#wz-pl-mode-num_of_groups").val();
-  },
-
-  wzCalcPlacementDirectKO: function (best_rank_placement, remainingTeamsForPL) {
-    plModeOnlyKo.style.display = "block";
-    //plPreviewPLAfterGroupCard.style.display = 'block';
-    //plPreviewPLAfterGroupHeader.style.display = 'block';
-    plPreviewPLAfterGroup.style.display = "block";
-    //plPreviewFinalsHeader.style.display = 'block';
-    //plPreviewFinals.style.display = 'block';
-    //plPreviewFinals.textContent = "Placement for rank " + best_rank_placement.toString() + " to " + (best_rank_placement + 1).toString();
-    if (remainingTeamsForPL % 2 != 0) {
-      plModeOnlyKoExtraInfo.style.display = "block";
-      plModeOnlyKoExtraInfo.textContent =
-        "Info: You have " +
-        remainingTeamsForPL +
-        " teams. Knockout works best if # of teams is 2, 4, 8, etc...";
-    }
-    var rowTab = document.getElementById("wz-ovw-tabPL_AfterGroup");
-    $(rowTab).empty();
-  },
-
-  wzCalcFinals: function (idRow) {
-    console.log("wzCalcFinals: " + idRow);
-    finalData = { levels_ranked: 0, groups: [] };
-    wzNumOfGamesFinal = 0;
-    var row = document.getElementById(idRow);
-    $(row).empty();
-    var rowTab = document.getElementById("wz-ovw-tabKO_Final");
-    $(rowTab).empty();
-
-    var num_teams_soll = $("#wz-sel-teams-knockout").val();
-    var levels = Math.log(num_teams_soll) / Math.log(2);
-
-    var width = 3;
-    var offset = 0;
-    actGroup = { idx: 0, name: "F", teams: [] };
-    var templateGroup = $("#templateGroup").clone();
-    $(templateGroup).attr("id", "f_group_1");
-    $(templateGroup).removeAttr("hidden");
-    $(templateGroup).find("#templateGroup_name").text(actGroup.name);
-    $(templateGroup)
-      .find("#templateGroup_name")
-      .css("background-color", "#EFC501");
-    $(templateGroup).attr("class", "col-md-" + width + " offset-md-" + offset);
-    var body = $(templateGroup).find("#templateGroup_body");
-    body.empty();
-    for (let iTeam = 0; iTeam < 2; iTeam++) {
-      actTeam = {
-        idx: iTeam,
-        name: iTeam + 1 + ". TeamDummy",
-        rank: 0,
-        transition: {
-          origin_rank: iTeam + 1,
-          origin_group_id: 0,
-          origin_group_name: actGroup.name,
-          target_rank: 0,
-          target_lvl_id: 0,
-          target_group_id: 0,
-        },
-      };
-      var tTeamItem = $("#templateTeamItem").clone();
-      $(tTeamItem).attr("id", "f_teamitem_" + iTeam);
-      $(tTeamItem).removeAttr("hidden");
-      if (iTeam == 0) {
-        $(tTeamItem).find("#templateTeamItem_icon").text("looks_one");
-      } else {
-        $(tTeamItem).find("#templateTeamItem_icon").text("looks_two");
-      }
-      var tempName = iTeam + 1 + ". TeamDummy";
-      if (levels > 1) tempName = iTeam + 1 + ". Winner SF" + (iTeam + 1);
-      actTeam.rank = 1 + iTeam;
-      actTeam.name = tempName;
-      actTeam.rank = 1 + iTeam;
-      actTeam.transition.target_rank = actTeam.rank;
-      actTeam.transition.target_group_id = 999;
-      $(tTeamItem).find("#templateTeamItem_name").text(tempName);
-      body.append(tTeamItem);
-      actGroup["teams"].push(actTeam);
-    }
-    $(row).append(templateGroup);
-    $(rowTab).append(templateGroup.clone());
-    finalData["groups"].push(actGroup);
-    wzNumOfGamesFinal++;
-    bh.structureData.finals = finalData;
-    $("#wz-res_num_of_games_final").val(wzNumOfGamesFinal);
-  },
-
-  wzCalcKnockout: function (idRow) {
-    console.log("wzCalcKnockout: " + idRow);
-    var category = $("#wz-tevent-category").val();
-    var color = "#1F51FF";
-
-    var koData = { levels: 0, num_teams_soll: 0, level: [] };
-    var transitions_pl = {};
-    wzNumOfGamesKO = 0;
-    var row = document.getElementById(idRow);
-    $(row).empty();
-    var rowTab = document.getElementById("wz-ovw-tabKO");
-    $(rowTab).empty();
-    var num_teams = $("#wz-num_teams_group_next_stage").val();
-    koData.num_teams_soll = $("#wz-sel-teams-knockout").val();
-    koData.levels = Math.log(koData.num_teams_soll) / Math.log(2); // -1 because final is seperated by
-    var actNaming = "";
-    var lastNaming = "";
-    var lastTransitions = [];
-    for (let i = koData.levels; i > 1; i--) {
-      var levelData = {
-        idx: i,
-        header: "",
-        actNaming: "",
-        groups: [],
-        transitions: [],
-      };
-      var transFromGroup = bh.structureData.transitions.groups_to_ko;
-      transitions_pl[KNOCKOUT_NAMES[Math.pow(2, i)]] = { idx: i, items: [] };
-      var tLevel = $("#templateKO_level").clone();
-      $(tLevel).attr("id", "level_" + i);
-      $(tLevel).removeAttr("hidden");
-      var width = 1;
-      var offset = 0;
-      var header = "Round of " + Math.pow(2, i);
-      if (category == "man") {
-        color = "#191970"; // midnight blue
-      } else if (category == "woman") {
-        color = "#880808"; // blood red
-      }
-      if (Math.pow(2, i) == 8) {
-        header = "Quarter Finals";
-        width = 3;
-        if (category == "man") {
-          color = "#3F00FF"; // indigo blue
-        } else if (category == "woman") {
-          color = "#80461B"; // russet red
-        }
-      }
-      if (Math.pow(2, i) == 4) {
-        header = "Semi Finals";
-        width = 5;
-        offset = 1;
-        if (category == "man") {
-          color = "#000080"; // navy blue
-        } else if (category == "woman") {
-          color = "#DC143C"; // crimson red
-        }
-      }
-      levelData.actNaming = KNOCKOUT_NAMES[Math.pow(2, i)];
-      $(tLevel).find("#templateKO_header").text(header);
-      levelData.header = header;
-      var tLevel_items = $(tLevel).find("#templateKO_items");
-      var num_of_states = Math.pow(2, i - 1);
-      var next_group_counter = 0;
-      var next_group_counter_pl = 0;
-      var act_target_rank_ko = 1;
-      var act_target_rank_placement = 1;
-      for (var j = 1; j <= num_of_states; j++) {
-        var actGroup = {
-          idx: j,
-          name: levelData.actNaming + " " + j,
-          teams: [],
-        };
-        var templateGroup = $("#templateGroup").clone();
-        $(templateGroup).attr("id", "ko_grp_" + (j - 1));
-        $(templateGroup).removeAttr("hidden");
-        $(templateGroup).find("#templateGroup_name").text(actGroup.name);
-        $(templateGroup)
-          .find("#templateGroup_name")
-          .css("background-color", color);
-        $(templateGroup).attr(
-          "class",
-          "col-md-" + width + " offset-md-" + offset
-        );
-        var body = $(templateGroup).find("#templateGroup_body");
-        body.empty();
-        for (let iTeam = 0; iTeam < 2; iTeam++) {
-          actTeam = {
-            idx: iTeam,
-            name: iTeam + 1 + ". TeamDummy",
-            rank: 0,
-            transition: {
-              origin_rank: iTeam + 1,
-              origin_group_id: j - 1,
-              origin_group_name: levelData.actNaming + " " + j,
-              target_rank: 0,
-              target_lvl_id: 0,
-              target_group_id: 0,
-            },
-          };
-          var tTeamItem = $("#templateTeamItem").clone();
-          $(tTeamItem).attr("id", "ko_teamitem_" + j + "_" + iTeam);
-          $(tTeamItem).removeAttr("hidden");
-
-          actTeam.transition.target_lvl_id = i - 1;
-
-          // transition
-          if (iTeam === 0) {
-            actTeam.transition.target_rank = act_target_rank_ko;
-            actTeam.transition.target_group_id = next_group_counter;
-            next_group_counter++;
-            if (
-              next_group_counter >= Math.pow(2, i - 2) &&
-              act_target_rank_ko == 1
-            ) {
-              act_target_rank_ko = 2;
-              next_group_counter = 0;
-            }
-          } else {
-            actTeam.transition.target_rank = act_target_rank_placement;
-            actTeam.transition.target_group_id = next_group_counter_pl;
-            transitions_pl[levelData.actNaming].items.push(actTeam.transition);
-            next_group_counter_pl++;
-            if (
-              next_group_counter_pl >= Math.pow(2, i - 2) &&
-              act_target_rank_placement == 1
-            ) {
-              act_target_rank_placement = 2;
-              next_group_counter_pl = 0;
-            }
-          }
-
-          if (i == koData.levels) {
-            NameExtension = ". TeamDummy";
-            // get name from transition
-            var actTrans = transFromGroup["ko_grp_" + (j - 1)].find(
-              (e) => e.target_rank === iTeam + 1
-            );
-            NameExtension =
-              actTrans.origin_rank + ". " + actTrans.origin_group_name;
-          } else {
-            var actTrans = lastTransitions.find(
-              (e) => e.target_rank === iTeam + 1 && e.target_group_id == j - 1
-            );
-            NameExtension =
-              actTrans.origin_rank + ". " + actTrans.origin_group_name;
-          }
-          if (iTeam == 0) {
-            $(tTeamItem).find("#templateTeamItem_icon").text("arrow_upward");
-            actTeam.rank = 1;
-            actTeam.transition.origin_rank = 1;
-          } else {
-            $(tTeamItem).find("#templateTeamItem_icon").text("clear");
-            actTeam.rank = 2;
-            actTeam.transition.origin_rank = 2;
-          }
-          actTeam.name = NameExtension;
-          $(tTeamItem).find("#templateTeamItem_name").text(actTeam.name);
-          actGroup["teams"].push(actTeam);
-          levelData.transitions.push(actTeam.transition);
-          body.append(tTeamItem);
-        }
-        $(tLevel_items).append(templateGroup);
-        levelData["groups"].push(actGroup);
-        wzNumOfGamesKO++;
-      }
-      $(row).append(tLevel);
-      $(rowTab).append(tLevel.clone());
-      koData["level"].push(levelData);
-      lastNaming = levelData.actNaming;
-      lastTransitions = levelData.transitions;
-    }
-    bh.structureData.ko = koData;
-    bh.structureData.transitions.ko_to_pl = transitions_pl;
-    $("#wz-res_num_of_games_ko").val(wzNumOfGamesKO);
   },
 
   tournamentData: "",
@@ -2203,3 +1035,1195 @@ bh = {
     return;
   },
 };
+
+function wzCalcGroups(idRow) {
+  console.log("wzCalcGroups: " + idRow);
+  var category = $("#wz-tevent-category").val();
+  var colors = [];
+  if (category == "man") {
+    colors = COLORS_GROUP_MEN;
+  } else if (category == "woman") {
+    colors = COLORS_GROUP_WOMEN;
+  }
+  groupData = {
+    num_groups: 0,
+    teams_per_group: 0,
+    num_teams_res: 0,
+    teams_to_ko: 0,
+    teams_next_stage: 0,
+    items: [],
+  };
+  var transitions = {};
+  bh.structureData.groups = groupData;
+
+  wzNumOfGamesGroup = 0;
+  var row = document.getElementById(idRow);
+  $(row).empty();
+  var rowTab = document.getElementById("wz-ovw-tabGroup");
+  $(rowTab).empty();
+  var num_teams = $("#wz-max_num_teams").val();
+  var num_groups = $("#wz-num_of_groups").val();
+
+  bh.structureData.max_num_teams = num_teams;
+
+  var teams_per_group = Math.floor(num_teams / num_groups);
+  var num_teams_res = num_teams % num_groups;
+  //var teams_per_group = $("#wz-teams_per_groups").val();
+  //var teams_next_stage = $("#wz-num_teams_group_next_stage").val();
+
+  var sel_val = $("#wz-sel-teams-knockout").val();
+  document.getElementById("wz-num_of_groups").max = sel_val;
+  groupData.teams_total = parseInt(num_teams);
+  groupData.teams_to_ko = parseInt(sel_val);
+  groupData.teams_remaining = groupData.teams_total - groupData.teams_to_ko;
+  var teams_next_stage_residue = sel_val % num_groups;
+  groupData.teams_next_stage = Math.floor(sel_val / num_groups);
+  $("#wz-sel-teams-knockout").empty();
+  var sel_val_ranked = $("#wz-sel-teams-getting-ranked").val();
+  if (parseInt(sel_val_ranked) > parseInt(sel_val)) {
+    sel_val_ranked = sel_val;
+  }
+  $("#wz-sel-teams-getting-ranked").empty();
+  var num_choices = Math.floor(Math.log(num_teams) / Math.log(2));
+  for (let i = 1; i <= num_choices; i++) {
+    var opt = "";
+    if (Math.pow(2, i) == sel_val) {
+      opt =
+        "<option selected value=" +
+        Math.pow(2, i) +
+        ">" +
+        Math.pow(2, i) +
+        "</option>";
+    } else {
+      opt =
+        "<option value=" + Math.pow(2, i) + ">" + Math.pow(2, i) + "</option>";
+    }
+    $("#wz-sel-teams-knockout").append(opt);
+    if (Math.pow(2, i) == sel_val_ranked) {
+      opt =
+        "<option selected value=" +
+        Math.pow(2, i) +
+        ">" +
+        Math.pow(2, i) +
+        "</option>";
+      $("#wz-sel-teams-getting-ranked").append(opt);
+    } else if (Math.pow(2, i) <= sel_val) {
+      opt =
+        "<option value=" + Math.pow(2, i) + ">" + Math.pow(2, i) + "</option>";
+      $("#wz-sel-teams-getting-ranked").append(opt);
+    }
+  }
+
+  for (let i = 0; i < groupData.teams_to_ko / 2; i++) {
+    transitions["ko_grp_" + i] = [];
+  }
+
+  groupData.num_groups = num_groups;
+  groupData.teams_per_group = teams_per_group;
+  groupData.num_teams_res = num_teams_res;
+  console.log(
+    "wzCalcGroups: #groups:" + num_groups + " teams p gr: " + teams_per_group
+  );
+  for (let i = 0; i < num_groups; i++) {
+    actGroup = { idx: i, name: "Group " + (i + 1), teams: [] };
+    tournament_state = {
+      uid: tsCounter,
+      id_db: 0,
+      name: "Group " + (i + 1),
+      abbreviation: "G" + (i + 1),
+      hierarchy: 0,
+      max_number_teams: teams_per_group,
+      index: i - 1,
+      direct_compare: true,
+      round_type: "GROUP",
+      order: i,
+    };
+
+    var GameCounter = 0;
+    var templateGroup = $("#templateGroup").clone();
+    $(templateGroup).attr("id", "group_" + i);
+    $(templateGroup).removeAttr("hidden");
+    $(templateGroup).find("#templateGroup_name").text(actGroup.name);
+    $(templateGroup)
+      .find("#templateGroup_name")
+      .css("background-color", colors[i]);
+
+    var body = $(templateGroup).find("#templateGroup_body");
+    body.empty();
+    var addedResidue = false;
+
+    for (let iTeam = 0; iTeam < teams_per_group; iTeam++) {
+      actTeam = {
+        idx: iTeam,
+        name: iTeam + 1 + ". TeamDummy",
+        rank: 0,
+        isWinning: 0,
+        transition: {
+          uid: tttCounter,
+          tournament_state: tsCounter,
+          origin_rank: iTeam + 1,
+          origin_group_id: i,
+          origin_group_name: actGroup.name,
+          target_rank: 0,
+          target_group_id: 0,
+        },
+      };
+      teamData = {
+        uid: teamCounter,
+        tournament_state: tsCounter,
+        name: iTeam + 1 + ". " + tournament_state.name,
+        abbreviation: iTeam + 1 + ". " + tournament_state.abbreviation,
+        category_id: 0,
+        season_cup_tournament_id: 0,
+        is_dummy: true,
+      };
+      teamStatData = {
+        uid: tstatCounter,
+        tournament_state: tsCounter,
+        team_id: teamCounter,
+        rank_initial: iTeam + 1,
+        rank: iTeam + 1,
+      };
+      actTeam.rank = iTeam + 1;
+      actTeam.transition.origin_rank = actTeam.rank;
+
+      var tTeamItem = $("#templateTeamItem").clone();
+      $(tTeamItem).attr("id", "teamitem_" + i + "_" + iTeam);
+      $(tTeamItem).removeAttr("hidden");
+
+      // transition
+      var tar_gr_id = i + iTeam * num_groups;
+
+      if (iTeam < groupData.teams_next_stage) {
+        $(tTeamItem).find("#templateTeamItem_icon").text("arrow_upward");
+        actTeam.isWinning = 1;
+      } else if (teams_next_stage_residue > 0 && addedResidue == false) {
+        $(tTeamItem).find("#templateTeamItem_icon").text("arrow_upward");
+        addedResidue = true;
+        teams_next_stage_residue--;
+        actTeam.isWinning = 1;
+      } else {
+        $(tTeamItem).find("#templateTeamItem_icon").text("clear");
+      }
+
+      $(tTeamItem).find("#templateTeamItem_name").text(actTeam.name);
+      body.append(tTeamItem);
+      actGroup["teams"].push(actTeam);
+      GameCounter++;
+      bh.structureData.teams.push(teamData);
+      teamCounter++;
+      bh.structureData.team_stats.push(teamData);
+      tstatCounter++;
+    }
+    if (num_teams_res > 0) {
+      actTeam = {
+        idx: teams_per_group,
+        name: teams_per_group + 1 + ". TeamDummy",
+        rank: 0,
+        transition: {
+          origin_rank: teams_per_group + 1,
+          origin_group_id: i,
+          origin_group_name: actGroup.name,
+          target_rank: 0,
+          target_group_id: 0,
+        },
+      };
+
+      teamData = {
+        uid: teamCounter,
+        tournament_state: tsCounter,
+        name: teams_per_group + 1 + ". " + tournament_state.name,
+        abbreviation:
+          teams_per_group + 1 + ". " + tournament_state.abbreviation,
+        category_id: 0,
+        season_cup_tournament_id: 0,
+        is_dummy: true,
+      };
+      teamStatData = {
+        uid: tstatCounter,
+        tournament_state: tsCounter,
+        team_id: teamCounter,
+        rank_initial: teams_per_group + 1,
+        rank: teams_per_group + 1,
+      };
+
+      actTeam.rank = teams_per_group + 1;
+      actTeam.transition.origin_rank = actTeam.rank;
+      var tTeamItem = $("#templateTeamItem").clone();
+      $(tTeamItem).attr("id", "teamitem_" + (teams_per_group + 1));
+      $(tTeamItem).removeAttr("hidden");
+      if (teams_per_group < groupData.teams_next_stage) {
+        $(tTeamItem).find("#templateTeamItem_icon").text("arrow_upward");
+      } else {
+        $(tTeamItem).find("#templateTeamItem_icon").text("clear");
+        actTeam.transition.target_rank = -1;
+        actTeam.transition.target_group_id = 999;
+      }
+
+      $(tTeamItem).find("#templateTeamItem_name").text(actTeam.name);
+      body.append(tTeamItem);
+      actGroup.teams.push(actTeam);
+      GameCounter++;
+      num_teams_res--;
+      tournament_state.max_number_teams += 1;
+
+      bh.structureData.teams.push(teamData);
+      teamCounter++;
+      bh.structureData.team_stats.push(teamData);
+      tstatCounter++;
+    }
+
+    GameCounter--;
+    wzNumOfGamesGroup += (GameCounter * (GameCounter + 1)) / 2;
+    groupData.items.push(actGroup);
+    $(row).append(templateGroup);
+    $(rowTab).append(templateGroup.clone());
+    bh.structureData.tournament_states.push(tournament_state);
+    tsCounter++;
+  }
+  var grIdx = 0;
+  var teamIdx = 0;
+  var target_gr_idx = 0;
+  var target_gr_idx_end = groupData.teams_to_ko / 2 - 1;
+  for (let i = 1; i <= groupData.teams_to_ko; i++) {
+    var targetRnk = 1;
+    var targetGroup = target_gr_idx;
+    if (i % 2 == 0) {
+      targetRnk = 2;
+      targetGroup = target_gr_idx_end;
+      target_gr_idx_end--;
+    } else {
+      targetGroup = target_gr_idx;
+      target_gr_idx++;
+    }
+    groupData.items[grIdx].teams[teamIdx].transition.target_rank = targetRnk;
+    groupData.items[grIdx].teams[teamIdx].transition.target_group_id =
+      targetGroup;
+    transitions["ko_grp_" + targetGroup].push(
+      groupData.items[grIdx].teams[teamIdx].transition
+    );
+    bh.structureData.ttt.push(groupData.items[grIdx].teams[teamIdx].transition);
+    tttCounter++;
+
+    grIdx++;
+    if (grIdx >= groupData.items.length) {
+      grIdx = 0;
+      teamIdx++;
+    }
+  }
+  bh.structureData.transitions.groups_to_ko = transitions;
+  $("#wz-res_num_of_games_group").val(wzNumOfGamesGroup);
+}
+
+function wzCalcKnockout(idRow) {
+  console.log("wzCalcKnockout: " + idRow);
+  var category = $("#wz-tevent-category").val();
+  var color = "#1F51FF";
+
+  var koData = { levels: 0, num_teams_soll: 0, level: [] };
+  var transitions_pl = {};
+  wzNumOfGamesKO = 0;
+  var row = document.getElementById(idRow);
+  $(row).empty();
+  var rowTab = document.getElementById("wz-ovw-tabKO");
+  $(rowTab).empty();
+  var num_teams = $("#wz-num_teams_group_next_stage").val();
+  koData.num_teams_soll = $("#wz-sel-teams-knockout").val();
+  koData.levels = Math.log(koData.num_teams_soll) / Math.log(2); // -1 because final is seperated by
+  var actNaming = "";
+  var lastNaming = "";
+  var lastTransitions = [];
+  for (let i = koData.levels; i > 1; i--) {
+    var levelData = {
+      idx: i,
+      header: "",
+      actNaming: "",
+      groups: [],
+      transitions: [],
+    };
+    var transFromGroup = bh.structureData.transitions.groups_to_ko;
+    transitions_pl[KNOCKOUT_NAMES[Math.pow(2, i)]] = { idx: i, items: [] };
+    var tLevel = $("#templateKO_level").clone();
+    $(tLevel).attr("id", "level_" + i);
+    $(tLevel).removeAttr("hidden");
+    var width = 1;
+    var offset = 0;
+    var header = "Round of " + Math.pow(2, i);
+    if (category == "man") {
+      color = "#191970"; // midnight blue
+    } else if (category == "woman") {
+      color = "#880808"; // blood red
+    }
+    if (Math.pow(2, i) == 8) {
+      header = "Quarter Finals";
+      width = 3;
+      if (category == "man") {
+        color = "#3F00FF"; // indigo blue
+      } else if (category == "woman") {
+        color = "#80461B"; // russet red
+      }
+    }
+    if (Math.pow(2, i) == 4) {
+      header = "Semi Finals";
+      width = 5;
+      offset = 1;
+      if (category == "man") {
+        color = "#000080"; // navy blue
+      } else if (category == "woman") {
+        color = "#DC143C"; // crimson red
+      }
+    }
+    levelData.actNaming = KNOCKOUT_NAMES[Math.pow(2, i)];
+    $(tLevel).find("#templateKO_header").text(header);
+    levelData.header = header;
+    var tLevel_items = $(tLevel).find("#templateKO_items");
+    var num_of_states = Math.pow(2, i - 1);
+    var next_group_counter = 0;
+    var next_group_counter_pl = 0;
+    var act_target_rank_ko = 1;
+    var act_target_rank_placement = 1;
+    for (var j = 1; j <= num_of_states; j++) {
+      var actGroup = {
+        idx: j,
+        name: levelData.actNaming + " " + j,
+        teams: [],
+      };
+      var templateGroup = $("#templateGroup").clone();
+      $(templateGroup).attr("id", "ko_grp_" + (j - 1));
+      $(templateGroup).removeAttr("hidden");
+      $(templateGroup).find("#templateGroup_name").text(actGroup.name);
+      $(templateGroup)
+        .find("#templateGroup_name")
+        .css("background-color", color);
+      $(templateGroup).attr(
+        "class",
+        "col-md-" + width + " offset-md-" + offset
+      );
+      var body = $(templateGroup).find("#templateGroup_body");
+      body.empty();
+      for (let iTeam = 0; iTeam < 2; iTeam++) {
+        actTeam = {
+          idx: iTeam,
+          name: iTeam + 1 + ". TeamDummy",
+          rank: 0,
+          transition: {
+            origin_rank: iTeam + 1,
+            origin_group_id: j - 1,
+            origin_group_name: levelData.actNaming + " " + j,
+            target_rank: 0,
+            target_lvl_id: 0,
+            target_group_id: 0,
+          },
+        };
+        var tTeamItem = $("#templateTeamItem").clone();
+        $(tTeamItem).attr("id", "ko_teamitem_" + j + "_" + iTeam);
+        $(tTeamItem).removeAttr("hidden");
+
+        actTeam.transition.target_lvl_id = i - 1;
+
+        // transition
+        if (iTeam === 0) {
+          actTeam.transition.target_rank = act_target_rank_ko;
+          actTeam.transition.target_group_id = next_group_counter;
+          next_group_counter++;
+          if (
+            next_group_counter >= Math.pow(2, i - 2) &&
+            act_target_rank_ko == 1
+          ) {
+            act_target_rank_ko = 2;
+            next_group_counter = 0;
+          }
+        } else {
+          actTeam.transition.target_rank = act_target_rank_placement;
+          actTeam.transition.target_group_id = next_group_counter_pl;
+          transitions_pl[levelData.actNaming].items.push(actTeam.transition);
+          next_group_counter_pl++;
+          if (
+            next_group_counter_pl >= Math.pow(2, i - 2) &&
+            act_target_rank_placement == 1
+          ) {
+            act_target_rank_placement = 2;
+            next_group_counter_pl = 0;
+          }
+        }
+
+        if (i == koData.levels) {
+          NameExtension = ". TeamDummy";
+          // get name from transition
+          var actTrans = transFromGroup["ko_grp_" + (j - 1)].find(
+            (e) => e.target_rank === iTeam + 1
+          );
+          NameExtension =
+            actTrans.origin_rank + ". " + actTrans.origin_group_name;
+        } else {
+          var actTrans = lastTransitions.find(
+            (e) => e.target_rank === iTeam + 1 && e.target_group_id == j - 1
+          );
+          NameExtension =
+            actTrans.origin_rank + ". " + actTrans.origin_group_name;
+        }
+        if (iTeam == 0) {
+          $(tTeamItem).find("#templateTeamItem_icon").text("arrow_upward");
+          actTeam.rank = 1;
+          actTeam.transition.origin_rank = 1;
+        } else {
+          $(tTeamItem).find("#templateTeamItem_icon").text("clear");
+          actTeam.rank = 2;
+          actTeam.transition.origin_rank = 2;
+        }
+        actTeam.name = NameExtension;
+        $(tTeamItem).find("#templateTeamItem_name").text(actTeam.name);
+        actGroup["teams"].push(actTeam);
+        levelData.transitions.push(actTeam.transition);
+        body.append(tTeamItem);
+      }
+      $(tLevel_items).append(templateGroup);
+      levelData["groups"].push(actGroup);
+      wzNumOfGamesKO++;
+    }
+    $(row).append(tLevel);
+    $(rowTab).append(tLevel.clone());
+    koData["level"].push(levelData);
+    lastNaming = levelData.actNaming;
+    lastTransitions = levelData.transitions;
+  }
+  bh.structureData.ko = koData;
+  bh.structureData.transitions.ko_to_pl = transitions_pl;
+  $("#wz-res_num_of_games_ko").val(wzNumOfGamesKO);
+}
+
+function wzInitUIElements() {
+  plAfterGroupContainer = document.getElementById("wz-placement-info-group");
+  plCheckOptionsForms = document.getElementById("wz-enable-placement-form");
+  plCheckOptions = document.getElementById("wz-enable-placement");
+  plOptions = document.getElementById("wz-placement-options");
+  plMode = document.getElementById("wz-sel-pl-mode");
+  plModeSelected = $("#wz-sel-pl-mode").val();
+  plModeOneGroup = document.getElementById("wz-pl-mode-onegroup");
+  plModeMultiGroup = document.getElementById("wz-pl-mode-multigroup");
+  plModeOnlyKo = document.getElementById("wz-pl-mode-onlyko");
+  plModeOnlyKoExtraInfo = document.getElementById(
+    "wz-pl-mode-onlyko-extrainfo"
+  );
+  //plPreviewPLAfterGroupCard = document.getElementById("wz-ovw-tabPL-AfterGroup-card");
+  //plPreviewPLAfterGroupHeader = document.getElementById("wz-ovw-tabPL-AfterGroup-header");
+  plPreviewPLAfterGroup = document.getElementById("wz-ovw-tabPL_AfterGroup");
+  plResultPLAfterGroup = document.getElementById("wz-ovw-PL_AfterGroup");
+  //plPreviewFinalsHeader = document.getElementById("wz-ovw-tabPL-finals-header");
+  //plPreviewFinals = document.getElementById("wz-ovw-tabPL-finals");
+}
+
+function wzCalcPlacement(idRow) {
+  console.log("wzCalcPlacement: " + idRow);
+  var plData = {
+    levels_ranked: 0,
+    num_teams_getting_ranked: 0,
+    level: [],
+    placement_type: 0,
+    placement: {},
+  };
+  wzNumOfGamesPlacement = 0;
+  var row = document.getElementById(idRow);
+  $(row).empty();
+
+  var rowTab = document.getElementById("wz-ovw-tabPL");
+  $(rowTab).empty();
+
+  plData.num_teams_getting_ranked = $("#wz-sel-teams-getting-ranked").val();
+
+  var num_teams_soll = groupData.teams_to_ko;
+  var num_teams_total = groupData.teams_total;
+  var best_rank_placement = num_teams_soll + 1;
+
+  // Enable/Disable Placement Options
+
+  document.getElementById("wz-pl-mode-num_of_groups").max = Math.floor(
+    (num_teams_total - num_teams_soll) / 2
+  ).toString();
+
+  plAfterGroupContainer.style.display = "none";
+  plModeOneGroup.style.display = "none";
+  plModeMultiGroup.style.display = "none";
+  plModeOnlyKo.style.display = "none";
+  plModeOnlyKoExtraInfo.style.display = "none";
+  //plPreviewPLAfterGroupCard.style.display = 'none';
+  //plPreviewPLAfterGroupHeader.style.display = 'none';
+  plPreviewPLAfterGroup.style.display = "none";
+  //plResultLAfterGroup.style.display = "none";
+  //plPreviewFinalsHeader.style.display = 'none';
+  //plPreviewFinals.style.display = 'none';
+
+  var remainingTeamsForPL = groupData.teams_remaining;
+
+  // Info Text Placement from KO
+  if (
+    parseInt(num_teams_soll) > 2 &&
+    parseInt(plData.num_teams_getting_ranked) > 2
+  ) {
+    $("#wz-placement-info-ko").text(
+      "Placement playing for Rank 3 to " +
+        parseInt(plData.num_teams_getting_ranked)
+    );
+  } else {
+    $("#wz-placement-info-ko").text(
+      "Only 2 teams ranked. No Placement available"
+    );
+  }
+
+  if (
+    parseInt(num_teams_soll) > 2 &&
+    parseInt(num_teams_soll) == parseInt(plData.num_teams_getting_ranked) &&
+    parseInt(num_teams_total) - parseInt(num_teams_soll) > 0
+  ) {
+    plAfterGroupContainer.style.display = "block";
+  }
+
+  // Info Text for Placement
+  if (num_teams_total - num_teams_soll - 1 > 0) {
+    plCheckOptionsForms.style.display = "block";
+    $("#wz-placement-info").text(
+      "Define Placement after Group Stage playing for Rank " +
+        best_rank_placement +
+        " to " +
+        num_teams_total +
+        " (#teams: " +
+        remainingTeamsForPL.toString() +
+        ")"
+    );
+  } else {
+    plCheckOptionsForms.style.display = "none";
+    $("#wz-placement-info").text("No Placement after Group Stage possible");
+  }
+
+  plData.placement_type = parseInt(plModeSelected);
+
+  if (plCheckOptions.checked) {
+    plOptions.style.display = "block";
+    switch (plModeSelected) {
+      case "1":
+        plData.placement = wzCalcPlacementOneGroup(
+          best_rank_placement,
+          remainingTeamsForPL
+        );
+        break;
+      case "2":
+        plData.placement = wzCalcPlacementMultiGroup(
+          best_rank_placement,
+          remainingTeamsForPL
+        );
+        break;
+      case "3":
+        plData.placement = wzCalcPlacementDirectKO(
+          best_rank_placement,
+          remainingTeamsForPL
+        );
+        break;
+    }
+  } else {
+    plOptions.style.display = "none";
+  }
+
+  var levels = Math.log(num_teams_soll) / Math.log(2) - 1; // -1 because final is seperated by
+  plData.levels_ranked =
+    Math.log(plData.num_teams_getting_ranked) / Math.log(2) - 1;
+
+  for (let i = plData.levels_ranked; i >= 1; i--) {
+    // this instance is the first instance when losers  come from knockout stage
+    levelData = {
+      idx: i,
+      name: "",
+      actNaming: "",
+      bestRankWinner: 0,
+      bestRankLoser: 0,
+      num_groups: 0,
+      groups: [],
+      sublevel: [],
+      transitions_w: [],
+      transitions_l: [],
+    };
+    var tLevel = $("#templatePL_level").clone();
+
+    var actTransFromKO =
+      bh.structureData.transitions.ko_to_pl[KNOCKOUT_NAMES[Math.pow(2, i + 1)]];
+
+    $(tLevel).attr("id", "level_" + i);
+    $(tLevel).removeAttr("hidden");
+    levelData.bestRankWinner = Math.pow(2, i) + 1; //Math.pow(2, i-1) + 1;
+    levelData.bestRankLoser = 2 * Math.pow(2, i);
+    var width = 3;
+    var offset = 0;
+    levelData.actNaming = PLACEMENT_NAMES[Math.pow(2, i)] + " ";
+    levelData.name =
+      "Placement for rank " +
+      (Math.pow(2, i) + 1) +
+      " to " +
+      2 * Math.pow(2, i);
+    $(tLevel).find("#templatePL_header").text(levelData.name);
+    var tLevel_items = $("#templatePL_items").clone();
+    $(tLevel_items).removeAttr("hidden");
+    $(tLevel_items).attr("id", "level_items_" + i);
+    levelData.num_groups = Math.pow(2, i - 1);
+    var next_group_counter_winning = 0;
+    var next_group_counter_losing = 0;
+    var act_target_rank_winning = 1;
+    var act_target_rank_losing = 1;
+    for (var j = 1; j <= levelData.num_groups; j++) {
+      actGroup = { idx: j, name: levelData.actNaming + j, teams: [] };
+      var templateGroup = $("#templateGroup").clone();
+      $(templateGroup).attr("id", "pl_group_" + j);
+      $(templateGroup).removeAttr("hidden");
+      $(templateGroup).find("#templateGroup_name").text(actGroup.name);
+      $(templateGroup)
+        .find("#templateGroup_name")
+        .css("background-color", "#BABABA");
+      $(templateGroup).attr(
+        "class",
+        "col-md-" + width + " offset-md-" + offset
+      );
+      var body = $(templateGroup).find("#templateGroup_body");
+      body.empty();
+      for (let iTeam = 0; iTeam < 2; iTeam++) {
+        actTeam = {
+          idx: iTeam,
+          name: iTeam + 1 + ". TeamDummy",
+          rank: 0,
+          transition: {
+            origin_rank: iTeam + 1,
+            origin_group_id: j - 1,
+            origin_group_name: levelData.actNaming + j,
+            target_rank: 0,
+            target_lvl_id: 0,
+            target_group_id: 0,
+          },
+        };
+        actTeam.rank = 1 + iTeam;
+        var tTeamItem = $("#templateTeamItem").clone();
+        $(tTeamItem).attr("id", "pl_teamitem_" + j + "_" + iTeam);
+        $(tTeamItem).removeAttr("hidden");
+
+        actTeam.transition.target_lvl_id = j - 1;
+
+        var trans_from_ko = actTransFromKO.items.find(
+          (trans) =>
+            trans.target_group_id == j - 1 && trans.target_rank == actTeam.rank
+        );
+        var NameExtension =
+          iTeam + 1 + ". Loser " + trans_from_ko.origin_group_name;
+
+        if (iTeam == 0 && Math.pow(2, i - 1) > 1) {
+          $(tTeamItem).find("#templateTeamItem_icon").text("arrow_upward");
+          actTeam.transition.target_rank = act_target_rank_winning;
+          actTeam.transition.target_group_id = next_group_counter_winning;
+          levelData.transitions_w.push(actTeam.transition);
+          next_group_counter_winning++;
+          if (
+            next_group_counter_winning >= Math.pow(2, i - 2) &&
+            act_target_rank_winning == 1
+          ) {
+            act_target_rank_winning = 2;
+            next_group_counter_winning = 0;
+          }
+        } else if (Math.pow(2, i - 1) > 1) {
+          $(tTeamItem).find("#templateTeamItem_icon").text("clear");
+          actTeam.transition.target_rank = act_target_rank_losing;
+          actTeam.transition.target_group_id = next_group_counter_losing;
+          levelData.transitions_l.push(actTeam.transition);
+          next_group_counter_losing++;
+          if (
+            next_group_counter_losing >= Math.pow(2, i - 2) &&
+            act_target_rank_losing == 1
+          ) {
+            act_target_rank_losing = 2;
+            next_group_counter_losing = 0;
+          }
+        } else if (Math.pow(2, i - 1) == 1) {
+          actTeam.rank = levelData.bestRankWinner + iTeam;
+          actTeam.transition.target_rank = actTeam.rank;
+          actTeam.transition.target_group_id = 999;
+          $(tTeamItem).find("#templateTeamItem_icon").attr("hidden", "hidden");
+          $(tTeamItem)
+            .find("#templateTeamItem_rank")
+            .text(actTeam.rank + ".");
+          $(tTeamItem).find("#templateTeamItem_rank").removeAttr("hidden");
+        }
+        actTeam.name = NameExtension;
+        $(tTeamItem).find("#templateTeamItem_name").text(actTeam.name);
+        body.append(tTeamItem);
+        actGroup["teams"].push(actTeam);
+      }
+      $(tLevel_items).append(templateGroup);
+      levelData["groups"].push(actGroup);
+      wzNumOfGamesPlacement++;
+    }
+    $(tLevel).find("#templatePL_body").append(tLevel_items);
+    wzCalcPlacementLevel(
+      $(tLevel).find("#templatePL_body"),
+      i,
+      levelData.bestRankWinner,
+      levelData.actNaming,
+      levelData
+    );
+    $(row).append(tLevel);
+    $(rowTab).append(tLevel.clone());
+    plData["level"].push(levelData);
+  }
+  bh.structureData.placement = plData;
+  $("#wz-res_num_of_games_placement").val(wzNumOfGamesPlacement);
+}
+
+function wzCalcPlacementLevel(
+  bodyLevel,
+  levels,
+  bestRankWinner,
+  namingParent,
+  levelData
+) {
+  if (levels <= 1) return;
+  var sublevelDataLoser = {
+    idx: 0,
+    name: "Losing",
+    actNaming: "",
+    bestRank: 0,
+    worstRank: 0,
+    num_groups: 0,
+    groups: [],
+    sublevel: [],
+    transitions_w: [],
+    transitions_l: [],
+  };
+  var width = 3;
+  var offset = 0;
+  if (levels <= 3) {
+    width = 5;
+    offset = 1;
+  }
+  sublevelDataLoser.bestRank = bestRankWinner + Math.pow(2, levels - 1);
+  sublevelDataLoser.worstRank =
+    sublevelDataLoser.bestRank - 1 + Math.pow(2, levels - 1);
+  sublevelDataLoser.idx = Math.pow(2, levels - 2);
+
+  // Losing part
+  var tLoser = $("#templatePLsub_level").clone();
+  $(tLoser).attr("id", "level_l_" + sublevelDataLoser.bestRank);
+  $(tLoser).removeAttr("hidden");
+  sublevelDataLoser.name =
+    "Placement for rank " +
+    sublevelDataLoser.bestRank +
+    " to " +
+    sublevelDataLoser.worstRank;
+  $(tLoser).find("#templatePLsub_header").text(sublevelDataLoser.name);
+  var tLoser_items = $(tLoser).find("#templatePLsub_items");
+  var actNamingLoser =
+    "P" + sublevelDataLoser.bestRank + "to" + sublevelDataLoser.worstRank;
+  var next_group_counter_winning = 0;
+  var next_group_counter_losing = 0;
+  var act_target_rank_winning = 1;
+  var act_target_rank_losing = 1;
+  for (var j = 1; j <= sublevelDataLoser.idx; j++) {
+    actGroup = { idx: j, name: actNamingLoser + " " + j, teams: [] };
+    var templateGroup = $("#templateGroup").clone();
+    $(templateGroup).attr("id", "pl_level_l_" + levels + "_" + j);
+    $(templateGroup).removeAttr("hidden");
+    $(templateGroup).find("#templateGroup_name").text(actGroup.name);
+    $(templateGroup)
+      .find("#templateGroup_name")
+      .css("background-color", "#BABABA");
+    $(templateGroup).attr("class", "col-md-" + width + " offset-md-" + offset);
+    var body = $(templateGroup).find("#templateGroup_body");
+    body.empty();
+    for (let iTeam = 0; iTeam < 2; iTeam++) {
+      actTeam = {
+        idx: iTeam,
+        name: iTeam + 1 + ". TeamDummy",
+        rank: iTeam + 1,
+        transition: {
+          origin_rank: iTeam + 1,
+          origin_group_id: j - 1,
+          origin_group_name: actNamingLoser + " " + j,
+          target_rank: 0,
+          target_lvl_id: 0,
+          target_group_id: 0,
+        },
+      };
+      var tTeamItem = $("#templateTeamItem").clone();
+      $(tTeamItem).attr("id", "pl_level_teamitem_l_" + j + "_" + iTeam);
+      $(tTeamItem).removeAttr("hidden");
+
+      actTeam.transition.target_lvl_id = j - 1;
+
+      var trans_from_pl = levelData.transitions_l.find(
+        (trans) =>
+          trans.target_group_id == j - 1 && trans.target_rank == actTeam.rank
+      );
+      var NameExtension =
+        iTeam + 1 + ". Loser " + trans_from_pl.origin_group_name;
+
+      if (iTeam == 0 && sublevelDataLoser.idx > 1) {
+        $(tTeamItem).find("#templateTeamItem_icon").text("arrow_upward");
+        actTeam.transition.target_rank = act_target_rank_winning;
+        actTeam.transition.target_group_id = next_group_counter_winning;
+        sublevelDataLoser.transitions_w.push(actTeam.transition);
+        next_group_counter_winning++;
+        if (
+          next_group_counter_winning >= sublevelDataLoser.idx / 2 &&
+          act_target_rank_winning == 1
+        ) {
+          act_target_rank_winning = 2;
+          next_group_counter_winning = 0;
+        }
+      } else if (sublevelDataLoser.idx > 1) {
+        $(tTeamItem).find("#templateTeamItem_icon").text("clear");
+        actTeam.transition.target_rank = act_target_rank_losing;
+        actTeam.transition.target_group_id = next_group_counter_losing;
+        sublevelDataLoser.transitions_l.push(actTeam.transition);
+        next_group_counter_losing++;
+        if (
+          next_group_counter_losing >= sublevelDataLoser.idx / 2 &&
+          act_target_rank_losing == 1
+        ) {
+          act_target_rank_losing = 2;
+          next_group_counter_losing = 0;
+        }
+      } else if (sublevelDataLoser.idx == 1) {
+        actTeam.rank = sublevelDataLoser.bestRank + iTeam;
+        actTeam.transition.target_rank = sublevelDataLoser.bestRank + iTeam;
+        actTeam.transition.target_group_id = 999;
+        $(tTeamItem).find("#templateTeamItem_icon").attr("hidden", "hidden");
+        $(tTeamItem)
+          .find("#templateTeamItem_rank")
+          .text(sublevelDataLoser.bestRank + iTeam + ".");
+        $(tTeamItem).find("#templateTeamItem_rank").removeAttr("hidden");
+      }
+      actTeam.name = NameExtension;
+      $(tTeamItem).find("#templateTeamItem_name").text(actTeam.name);
+      body.append(tTeamItem);
+      actGroup["teams"].push(actTeam);
+    }
+    $(tLoser_items).append(templateGroup);
+    sublevelDataLoser["groups"].push(actGroup);
+    wzNumOfGamesPlacement++;
+  }
+  bodyLevel.append(tLoser);
+  //var next_best_losing_rank = sublevelDataLoser.bestRank + (sublevelDataLoser.worstRank - sublevelDataLoser.bestRank + 1) / 2;
+  wzCalcPlacementLevel(
+    bodyLevel,
+    levels - 1,
+    sublevelDataLoser.bestRank,
+    actNamingLoser,
+    sublevelDataLoser
+  );
+  levelData["sublevel"].push(sublevelDataLoser);
+
+  // Winning part
+  var sublevelDataWinner = {
+    idx: 0,
+    name: "Winning",
+    actNaming: "",
+    bestRank: 0,
+    worstRank: 0,
+    num_groups: 0,
+    groups: [],
+    sublevel: [],
+    transitions_w: [],
+    transitions_l: [],
+  };
+  sublevelDataWinner.bestRank = bestRankWinner;
+  sublevelDataWinner.worstRank = sublevelDataLoser.bestRank - 1; //(sublevelDataWinner.bestRank - 1 + Math.pow(2, levels-1));
+  sublevelDataWinner.idx = Math.pow(2, levels - 2);
+  sublevelDataWinner.name =
+    "Placement for rank " +
+    sublevelDataWinner.bestRank +
+    " to " +
+    sublevelDataWinner.worstRank;
+
+  var tWinning = $("#templatePLsub_level").clone();
+  $(tWinning).attr("id", "level_w_" + sublevelDataWinner.bestRank);
+  $(tWinning).removeAttr("hidden");
+  $(tWinning).find("#templatePLsub_header").text(sublevelDataWinner.name);
+  var tWinning_items = $(tWinning).find("#templatePLsub_items");
+  var actNaming =
+    "P" + sublevelDataWinner.bestRank + "to" + sublevelDataWinner.worstRank;
+  var lastNaming = "";
+
+  next_group_counter_winning = 0;
+  next_group_counter_losing = 0;
+  act_target_rank_winning = 1;
+  act_target_rank_losing = 1;
+  for (var j = 1; j <= sublevelDataWinner.idx; j++) {
+    actGroup = { idx: j, name: actNaming + " " + j, teams: [] };
+    var templateGroup = $("#templateGroup").clone();
+    $(templateGroup).attr("id", "pl_level_w_" + levels + "_" + j);
+    $(templateGroup).removeAttr("hidden");
+    $(templateGroup)
+      .find("#templateGroup_name")
+      .text(actNaming + " " + j);
+    $(templateGroup).attr("class", "col-md-" + width + " offset-md-" + offset);
+    var body = $(templateGroup).find("#templateGroup_body");
+    body.empty();
+    for (let iTeam = 0; iTeam < 2; iTeam++) {
+      actTeam = {
+        idx: iTeam,
+        name: iTeam + 1 + ". TeamDummy",
+        rank: iTeam + 1,
+        transition: {
+          origin_rank: iTeam + 1,
+          origin_group_id: j - 1,
+          origin_group_name: actNaming + " " + j,
+          target_rank: 0,
+          target_lvl_id: 0,
+          target_group_id: 0,
+        },
+      };
+      var tTeamItem = $("#templateTeamItem").clone();
+      $(tTeamItem).attr("id", "pl_level_teamitem_" + j + "_" + iTeam);
+      $(tTeamItem).removeAttr("hidden");
+
+      actTeam.transition.target_lvl_id = j - 1;
+
+      var trans_from_pl = levelData.transitions_w.find(
+        (trans) =>
+          trans.target_group_id == j - 1 && trans.target_rank == actTeam.rank
+      );
+      var NameExtension =
+        iTeam + 1 + ". Winner " + trans_from_pl.origin_group_name;
+
+      if (iTeam == 0 && sublevelDataWinner.idx > 1) {
+        $(tTeamItem).find("#templateTeamItem_icon").text("arrow_upward");
+        actTeam.transition.target_rank = act_target_rank_winning;
+        actTeam.transition.target_group_id = next_group_counter_winning;
+        sublevelDataWinner.transitions_w.push(actTeam.transition);
+        next_group_counter_winning++;
+        if (
+          next_group_counter_winning >= sublevelDataWinner.idx / 2 &&
+          act_target_rank_winning == 1
+        ) {
+          act_target_rank_winning = 2;
+          next_group_counter_winning = 0;
+        }
+      } else if (sublevelDataWinner.idx > 1) {
+        $(tTeamItem).find("#templateTeamItem_icon").text("clear");
+        actTeam.transition.target_rank = act_target_rank_losing;
+        actTeam.transition.target_group_id = next_group_counter_losing;
+        sublevelDataWinner.transitions_l.push(actTeam.transition);
+        next_group_counter_losing++;
+        if (
+          next_group_counter_losing >= sublevelDataWinner.idx / 2 &&
+          act_target_rank_losing == 1
+        ) {
+          act_target_rank_losing = 2;
+          next_group_counter_losing = 0;
+        }
+      } else if (sublevelDataWinner.idx == 1) {
+        actTeam.rank = sublevelDataWinner.bestRank + iTeam;
+        actTeam.transition.target_rank = sublevelDataWinner.bestRank + iTeam;
+        actTeam.transition.target_group_id = 999;
+        $(tTeamItem).find("#templateTeamItem_icon").attr("hidden", "hidden");
+        $(tTeamItem)
+          .find("#templateTeamItem_rank")
+          .text(sublevelDataWinner.bestRank + iTeam + ".");
+        $(tTeamItem).find("#templateTeamItem_rank").removeAttr("hidden");
+      }
+      actTeam.name = NameExtension;
+      $(tTeamItem).find("#templateTeamItem_name").text(actTeam.name);
+      body.append(tTeamItem);
+      actGroup["teams"].push(actTeam);
+    }
+    $(tWinning_items).append(templateGroup);
+    sublevelDataWinner["groups"].push(actGroup);
+    wzNumOfGamesPlacement++;
+  }
+  bodyLevel.append(tWinning);
+  wzCalcPlacementLevel(
+    bodyLevel,
+    levels - 1,
+    sublevelDataWinner.bestRank,
+    actNaming,
+    sublevelDataWinner
+  );
+  levelData["sublevel"].push(sublevelDataWinner);
+}
+
+function wzCalcPlacementOneGroup(best_rank_placement, remainingTeamsForPL) {
+  plModeOneGroup.style.display = "block";
+  //plPreviewPLAfterGroupCard.style.display = 'block';
+  //plPreviewPLAfterGroupHeader.style.display = 'block';
+  plPreviewPLAfterGroup.style.display = "block";
+  var row = document.getElementById("wz-ovw-PL_AfterGroup");
+  var rowTab = document.getElementById("wz-ovw-tabPL_AfterGroup");
+  $(row).empty();
+  $(rowTab).empty();
+
+  var tstateName =
+    "Placement for rank " +
+    best_rank_placement +
+    " to " +
+    groupData.teams_total;
+    var abbr = "PL" + best_rank_placement + "to" + groupData.teams_total;
+  var newGroup = { idx: 0, name: tstateName, abbr: abbr, teams: [] };
+  var transitions = {};
+  var num_of_transistions = groupData.teams_total - groupData.teams_to_ko;
+  var numTeams = parseInt(groupData.teams_total) - best_rank_placement - 1;
+  wzNumOfGamesPlacement += numTeams * (numTeams-1) / 2;
+
+  var width = 6;
+  var offset = 3;
+  var templateGroup = $("#templateGroup").clone();
+  $(templateGroup).attr("id", "pl_after_group_one_group");
+  $(templateGroup).removeAttr("hidden");
+  $(templateGroup).find("#templateGroup_name").text(tstateName);
+  $(templateGroup)
+    .find("#templateGroup_name")
+    .css("background-color", "#BABABA");
+  $(templateGroup).attr("class", "col-md-" + width + " offset-md-" + offset);
+  var body = $(templateGroup).find("#templateGroup_body");
+  body.empty();
+  var actRank = best_rank_placement;
+  for (let i = 0; i < groupData.items.length; i++) {
+    var actGroup = groupData.items[i];
+    for (let j = 0; j < actGroup.teams.length; j++) {
+      var actTeam = actGroup.teams[j];
+      if (actTeam.isWinning == 0) {
+        var teamName = actTeam.rank.toString() + ". " + actGroup.name;
+
+        newTeam = {
+          idx: j,
+          name: teamName,
+          rank: j+1,
+          transition: {
+            origin_rank: j+1,
+            origin_group_id: i,
+            origin_group_name: actGroup.name,
+            target_rank: actRank,
+            target_group_id: 999,
+          },
+        };
+
+        
+        var tTeamItem = $("#templateTeamItem").clone();
+        $(tTeamItem).find("#templateTeamItem_icon").attr("hidden", "hidden");
+        $(tTeamItem).attr("id", "pl_after_group_one_group_" + i + "_" + j);
+        $(tTeamItem)
+          .find("#templateTeamItem_rank")
+          .text(actRank.toString() + ".");
+        $(tTeamItem).find("#templateTeamItem_rank").removeAttr("hidden");
+        $(tTeamItem).removeAttr("hidden");
+        $(tTeamItem).find("#templateTeamItem_name").text(teamName);
+        body.append(tTeamItem);
+        actRank++;
+
+        newGroup.teams.push(newTeam);
+      }
+    }
+  }
+  $(row).append(templateGroup);
+  $(rowTab).append(templateGroup.clone());
+
+  return newGroup;
+}
+
+function wzCalcPlacementMultiGroup(best_rank_placement, remainingTeamsForPL) {
+  plModeMultiGroup.style.display = "block";
+  //plPreviewPLAfterGroupCard.style.display = 'block';
+  //plPreviewPLAfterGroupHeader.style.display = 'block';
+  plPreviewPLAfterGroup.style.display = "block";
+  //plPreviewFinalsHeader.style.display = 'block';
+  //plPreviewFinalsHeader.style.display = 'block';
+  //plPreviewFinals.style.display = 'block';
+  //plPreviewFinals.textContent = "Placement for rank " + best_rank_placement.toString() + " to " + (best_rank_placement + 1).toString();
+
+  var plData = { num_groups: 0, groups: [] };
+
+  var row = document.getElementById("wz-ovw-PL_AfterGroup");
+  var rowTab = document.getElementById("wz-ovw-tabPL_AfterGroup");
+  $(row).empty();
+  $(rowTab).empty();
+
+  plData.num_groups = parseInt($("#wz-pl-mode-num_of_groups").val());
+
+  return plData;
+}
+
+function wzCalcPlacementDirectKO(best_rank_placement, remainingTeamsForPL) {
+  plModeOnlyKo.style.display = "block";
+  //plPreviewPLAfterGroupCard.style.display = 'block';
+  //plPreviewPLAfterGroupHeader.style.display = 'block';
+  plPreviewPLAfterGroup.style.display = "block";
+  //plPreviewFinalsHeader.style.display = 'block';
+  //plPreviewFinals.style.display = 'block';
+  //plPreviewFinals.textContent = "Placement for rank " + best_rank_placement.toString() + " to " + (best_rank_placement + 1).toString();
+  if (remainingTeamsForPL % 2 != 0) {
+    plModeOnlyKoExtraInfo.style.display = "block";
+    plModeOnlyKoExtraInfo.textContent =
+      "Info: You have " +
+      remainingTeamsForPL +
+      " teams. Knockout works best if # of teams is 2, 4, 8, etc...";
+  }
+  var rowTab = document.getElementById("wz-ovw-tabPL_AfterGroup");
+  $(rowTab).empty();
+}
+
+function wzCalcFinals(idRow) {
+  console.log("wzCalcFinals: " + idRow);
+  finalData = { levels_ranked: 0, groups: [] };
+  wzNumOfGamesFinal = 0;
+  var row = document.getElementById(idRow);
+  $(row).empty();
+  var rowTab = document.getElementById("wz-ovw-tabKO_Final");
+  $(rowTab).empty();
+
+  var num_teams_soll = $("#wz-sel-teams-knockout").val();
+  var levels = Math.log(num_teams_soll) / Math.log(2);
+
+  var width = 3;
+  var offset = 0;
+  actGroup = { idx: 0, name: "F", teams: [] };
+  var templateGroup = $("#templateGroup").clone();
+  $(templateGroup).attr("id", "f_group_1");
+  $(templateGroup).removeAttr("hidden");
+  $(templateGroup).find("#templateGroup_name").text(actGroup.name);
+  $(templateGroup)
+    .find("#templateGroup_name")
+    .css("background-color", "#EFC501");
+  $(templateGroup).attr("class", "col-md-" + width + " offset-md-" + offset);
+  var body = $(templateGroup).find("#templateGroup_body");
+  body.empty();
+  for (let iTeam = 0; iTeam < 2; iTeam++) {
+    actTeam = {
+      idx: iTeam,
+      name: iTeam + 1 + ". TeamDummy",
+      rank: 0,
+      transition: {
+        origin_rank: iTeam + 1,
+        origin_group_id: 0,
+        origin_group_name: actGroup.name,
+        target_rank: 0,
+        target_lvl_id: 0,
+        target_group_id: 0,
+      },
+    };
+    var tTeamItem = $("#templateTeamItem").clone();
+    $(tTeamItem).attr("id", "f_teamitem_" + iTeam);
+    $(tTeamItem).removeAttr("hidden");
+    if (iTeam == 0) {
+      $(tTeamItem).find("#templateTeamItem_icon").text("looks_one");
+    } else {
+      $(tTeamItem).find("#templateTeamItem_icon").text("looks_two");
+    }
+    var tempName = iTeam + 1 + ". TeamDummy";
+    if (levels > 1) tempName = iTeam + 1 + ". Winner SF" + (iTeam + 1);
+    actTeam.rank = 1 + iTeam;
+    actTeam.name = tempName;
+    actTeam.rank = 1 + iTeam;
+    actTeam.transition.target_rank = actTeam.rank;
+    actTeam.transition.target_group_id = 999;
+    $(tTeamItem).find("#templateTeamItem_name").text(tempName);
+    body.append(tTeamItem);
+    actGroup["teams"].push(actTeam);
+  }
+  $(row).append(templateGroup);
+  $(rowTab).append(templateGroup.clone());
+  finalData["groups"].push(actGroup);
+  wzNumOfGamesFinal++;
+  bh.structureData.finals = finalData;
+  $("#wz-res_num_of_games_final").val(wzNumOfGamesFinal);
+}

@@ -38,6 +38,7 @@ def wizard_create_structure(tevent, structure_data):
     tstageGroup.order = 0
     tstageGroup.save()
     tstatesGroup = []
+    tttLoosersGroup = []
 
     tttGroup = {}
     colorIdx = 0
@@ -188,6 +189,97 @@ def wizard_create_structure(tevent, structure_data):
             hierarchy_counter += 1
             colorIdx += 1
 
+        if pl_data["placement_type"] == 0: # PlacementStraightToFinalRanking
+            actRank = 1
+            actTargetRank = group_data["teams_to_ko"] + 1
+            #get transitions from groups
+            for gr in group_data["items"]:
+                idx = gr["idx"]
+
+                for tttGr in tttGroup[idx]:
+                    for wzTTT in gr["teams"]:
+                        if wzTTT["transition"]["origin_rank"] == tttGr.origin_rank and wzTTT["isWinning"] == 0:
+                            tttGr.target_rank = actTargetRank
+                            tttGr.target_ts_id = ts_final_ranking
+                            tttGr.save()
+                            actRank += 1
+                            actTargetRank += 1
+
+        elif pl_data["placement_type"] == 1: # PlacementOneGroup
+            gr = pl_data["placement"]
+            trans = [tr["transition"] for tr in gr["teams"]]
+            state, team_stats, tttAct = create_state_from_group(tstagePlace, tevent, 'LOOSER_ROUND', gr, color, gr["name"], gr["abbr"], hierarchy_counter, ROUND_TYPES.PLAYOFF)
+            
+            actRank = 1
+            #get transitions from groups to placement group
+            for gr in group_data["items"]:
+                idx = gr["idx"]
+
+                for tttGr in tttGroup[idx]:
+                    for wzTTT in gr["teams"]:
+                        if wzTTT["transition"]["origin_rank"] == tttGr.origin_rank and wzTTT["isWinning"] == 0:
+                            tttGr.target_rank = actRank
+                            tttGr.target_ts_id = state
+                            tttGr.save()
+                            actRank += 1
+
+            #get transitions from placement group to fr
+            actRank = 1
+            actTargetRank = group_data["teams_to_ko"] + 1
+            
+            for ttt in tttAct:
+                tstat_rank = [t for t in tstats_final_ranking if t.rank_initial == actTargetRank][0]
+                ttt.target_rank = actTargetRank
+                ttt.target_ts_id = ts_final_ranking
+
+                tstat_rank.name_table = '{}. {}'.format(ttt.origin_rank, ttt.origin_ts_id)
+                if tstat_rank.team.is_dummy is True:
+                    tstat_rank.team.name = '{}. {}'.format(ttt.origin_rank, ttt.origin_ts_id)
+                    tstat_rank.team.abbreviation = '{}. {}'.format(ttt.origin_rank, ttt.origin_ts_id.abbreviation)
+                ttt.save()
+                tstat_rank.team.save()
+                tstat_rank.save()
+
+                ttt.save()
+                actTargetRank += 1
+
+        elif pl_data["placement_type"] == 2: # PlacementMultiGroup
+            gr = pl_data["placement"]
+            trans = [tr["transition"] for tr in gr["teams"]]
+            state, team_stats, tttAct = create_state_from_group(tstagePlace, tevent, 'LOOSER_ROUND', gr, color, gr["name"], gr["abbr"], hierarchy_counter, ROUND_TYPES.PLAYOFF)
+            
+            actRank = 1
+            #get transitions from groups to placement group
+            for gr in group_data["items"]:
+                idx = gr["idx"]
+
+                for tttGr in tttGroup[idx]:
+                    for wzTTT in gr["teams"]:
+                        if wzTTT["transition"]["origin_rank"] == tttGr.origin_rank and wzTTT["isWinning"] == 0:
+                            tttGr.target_rank = actRank
+                            tttGr.target_ts_id = state
+                            tttGr.save()
+                            actRank += 1
+
+            #get transitions from placement group to fr
+            actRank = 1
+            actTargetRank = group_data["teams_to_ko"] + 1
+            
+            for ttt in tttAct:
+                tstat_rank = [t for t in tstats_final_ranking if t.rank_initial == actTargetRank][0]
+                ttt.target_rank = actTargetRank
+                ttt.target_ts_id = ts_final_ranking
+
+                tstat_rank.name_table = '{}. {}'.format(ttt.origin_rank, ttt.origin_ts_id)
+                if tstat_rank.team.is_dummy is True:
+                    tstat_rank.team.name = '{}. {}'.format(ttt.origin_rank, ttt.origin_ts_id)
+                    tstat_rank.team.abbreviation = '{}. {}'.format(ttt.origin_rank, ttt.origin_ts_id.abbreviation)
+                ttt.save()
+                tstat_rank.team.save()
+                tstat_rank.save()
+
+                ttt.save()
+                actTargetRank += 1
     ####################################################
     # FINALS
     ####################################################
@@ -337,8 +429,6 @@ def handle_transitions_ranking(ts_final_ranking, tstats_final_ranking, ttt):
     ttt2nd.save()
     tstat_rank.team.save()
     tstat_rank.save()
-
-
 
 def wizard_create_gameplan(tourn, gameplan_data, num_courts):
     courts = {}

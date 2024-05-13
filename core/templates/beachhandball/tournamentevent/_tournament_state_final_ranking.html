@@ -11,10 +11,10 @@
                 </tr>
             </thead>
             <tbody>
-                {% for tstat in tstate.teamstats_set.all() %}
+                {% for tstat in tstate.teamstats_set.all().order_by('rank') %}
                     <tr>
                     <td class="text-center">{{loop.index}}</td>
-                    <td>{{ tstat.team.name }} ({{ tstat.team.abbreviation}})</td>
+                    <td>{{ tstat.name_table }}</td>
                     </tr>
                 {% endfor %}
             </tbody>
