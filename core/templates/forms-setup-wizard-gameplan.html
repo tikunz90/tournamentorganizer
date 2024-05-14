@@ -54,7 +54,7 @@
                       </div>
                       <div class="form-group">
                         <label class="form-label">datetime of first game</label>
-                        <input type="text" name="gameplan-data-datetime-firstgame" id="wzgp-GameDays_DateTimeFirstGame" class="input_group form-control datetimepicker" value="01/06/2022 08:00">
+                        <input type="text" name="gameplan-data-datetime-firstgame" id="wzgp-GameDays_DateTimeFirstGame" class="input_group form-control datetimepicker" value="{{tournament_settings.first_game_slot}}" data-content="{{tournament_settings.first_game_slot}}">
                       </div>
                     </div>
                   </div>
@@ -69,7 +69,7 @@
                       </div>
                       <div class="form-group">
                         <label class="form-label">number of courts</label>
-                        <input type="number" name="num_courts" id="wzgp-num_courts" class="input_group form-control" value="1" min="1" max="64" required>
+                        <input type="number" name="num_courts" id="wzgp-num_courts" class="input_group form-control" value="{{num_courts}}" min="1" max="64" required>
                       </div>
                       <h5 class="info-text">Choose minimum 1 and maximum 64 courts</h5>
                     </div>
@@ -85,7 +85,7 @@
                       </div>
                       <div class="form-group">
                         <label class="form-label">minutes per game</label>
-                        <input type="number" name="gameplan-data-minutes-per-game" id="wzgp-time-slot" class="input_group form-control" value="30" min="20" max="60" required>
+                        <input type="number" name="gameplan-data-minutes-per-game" id="wzgp-time-slot" class="input_group form-control" value="{{tournament_settings.game_slot_mins}}" min="20" max="60" required>
                       </div>
                       <h5 class="info-text">Choose minimum 20 and maximum 60 minutes</h5>
                     </div>
@@ -269,6 +269,12 @@
     $('.input_group').on('change keyup', function() {
       bh.wzUpdateGamePlan();
     });
+
+    var userDate = $("#wzgp-GameDays_DateTimeFirstGame").data("content");
+    var date_string = moment(userDate, "YYYY-MM-DD HH:mm:ss").format(
+      "MM/DD/YYYY HH:mm"
+    );
+    $("#wzgp-GameDays_DateTimeFirstGame").val(date_string);
 
     $("#wzgp-GameDays_DateTimeFirstGame").on("change.datetimepicker", ({date, oldDate}) => {              
       console.log("date:" + date);

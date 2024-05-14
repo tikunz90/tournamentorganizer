@@ -13,7 +13,10 @@ from beachhandball_app.models.choices import COLOR_CHOICES, COLOR_CHOICES_DICT, 
 
 def wizard_create_structure(tevent, structure_data):
     print('ENTER wizard_create_structure ' + str(datetime.now()))
-
+    existingFR = TournamentState.objects.filter(tournament_event=tevent, is_final=True).all()
+    for fr in existingFR:
+        fr.delete()
+        
     ts_final_ranking, cr = TournamentState.objects.get_or_create(tournament_event=tevent,
         tournament_state=TOURNAMENT_STATE_CHOICES[-1][1],
         name='Final Ranking',

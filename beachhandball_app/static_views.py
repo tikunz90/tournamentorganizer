@@ -235,6 +235,7 @@ def setup_wizard_gameplan(request):
     context['segment_title'] = 'Game Plan'
     context['tournament_data'] = ''
     context['tournament_settings'] = TournamentSettings.objects.get(tournament=context['tourn'])
+    context['num_courts'] = Court.objects.filter(tournament=context['tourn'] ).count()
 
     if request.method == 'POST':
         context['tournament_settings'].game_slot_mins = int(request.POST['gameplan-data-minutes-per-game'])
