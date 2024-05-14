@@ -49,6 +49,24 @@ var COLORS_GROUP_WOMEN = [
   "#FF0000",
 ];
 
+var COLORS_PLACEMENT_GROUP_MEN = [
+  "#40E0D0",
+  "#00CED1",
+  "#5F9EA0",
+  "#008080",
+  "#E0FFFF",
+  "#00FFFF",
+];
+
+var COLORS_PLACEMENT_GROUP_WOMEN = [
+  "#FF7F50",
+  "#F0E68C",
+  "#FFA07A",
+  "#FFA500",
+  "#FFDAB9",
+  "#FFFACD",
+];
+
 var wzNumOfGames = 0;
 var wzNumOfGamesGroup = 0;
 var wzNumOfGamesKO = 0;
@@ -2050,6 +2068,8 @@ function wzCalcPlacementOneGroup(best_rank_placement, remainingTeamsForPL) {
   plPreviewPLAfterGroup.style.display = "block";
   var row = document.getElementById("wz-ovw-PL_AfterGroup");
   var rowTab = document.getElementById("wz-ovw-tabPL_AfterGroup");
+  row.style.display = '';
+  rowTab.style.display = '';
   $(row).empty();
   $(rowTab).empty();
 
@@ -2058,12 +2078,12 @@ function wzCalcPlacementOneGroup(best_rank_placement, remainingTeamsForPL) {
     best_rank_placement +
     " to " +
     groupData.teams_total;
-    var abbr = "PL" + best_rank_placement + "to" + groupData.teams_total;
+  var abbr = "PL" + best_rank_placement + "to" + groupData.teams_total;
   var newGroup = { idx: 0, name: tstateName, abbr: abbr, teams: [] };
   var transitions = {};
   var num_of_transistions = groupData.teams_total - groupData.teams_to_ko;
   var numTeams = parseInt(groupData.teams_total) - best_rank_placement - 1;
-  wzNumOfGamesPlacement += numTeams * (numTeams-1) / 2;
+  wzNumOfGamesPlacement += (numTeams * (numTeams - 1)) / 2;
 
   var width = 6;
   var offset = 3;
@@ -2088,9 +2108,9 @@ function wzCalcPlacementOneGroup(best_rank_placement, remainingTeamsForPL) {
         newTeam = {
           idx: j,
           name: teamName,
-          rank: j+1,
+          rank: j + 1,
           transition: {
-            origin_rank: j+1,
+            origin_rank: j + 1,
             origin_group_id: i,
             origin_group_name: actGroup.name,
             target_rank: actRank,
@@ -2098,7 +2118,6 @@ function wzCalcPlacementOneGroup(best_rank_placement, remainingTeamsForPL) {
           },
         };
 
-        
         var tTeamItem = $("#templateTeamItem").clone();
         $(tTeamItem).find("#templateTeamItem_icon").attr("hidden", "hidden");
         $(tTeamItem).attr("id", "pl_after_group_one_group_" + i + "_" + j);
@@ -2131,14 +2150,104 @@ function wzCalcPlacementMultiGroup(best_rank_placement, remainingTeamsForPL) {
   //plPreviewFinals.style.display = 'block';
   //plPreviewFinals.textContent = "Placement for rank " + best_rank_placement.toString() + " to " + (best_rank_placement + 1).toString();
 
+  var tstateName =
+    "Placement for rank " +
+    best_rank_placement +
+    " to " +
+    groupData.teams_total;
+
+  var tstateNameShort =
+    "PL " + best_rank_placement + " to " + groupData.teams_total;
   var plData = { num_groups: 0, groups: [] };
+  var templatesGroup = [];
 
   var row = document.getElementById("wz-ovw-PL_AfterGroup");
   var rowTab = document.getElementById("wz-ovw-tabPL_AfterGroup");
+  row.style.display = '';
+  rowTab.style.display = '';
   $(row).empty();
   $(rowTab).empty();
 
+  var category = $("#wz-tevent-category").val();
+  var colors = [];
+  var colorIdx = 0;
+  if (category == "man") {
+    colors = COLORS_PLACEMENT_GROUP_MEN;
+  } else if (category == "woman") {
+    colors = COLORS_PLACEMENT_GROUP_WOMEN;
+  }
+
   plData.num_groups = parseInt($("#wz-pl-mode-num_of_groups").val());
+
+  for (let i = 0; i < plData.num_groups; i++) {
+    actGroup = {
+      idx: i,
+      name: "Group " + (i + 1) + " - " + tstateNameShort,
+      teams: [],
+    };
+    plData.groups.push(actGroup);
+
+    var templateGroup = $("#templateGroup").clone();
+    $(templateGroup).attr("id", "pl_group_" + i);
+    $(templateGroup).removeAttr("hidden");
+    $(templateGroup).find("#templateGroup_name").text(actGroup.name);
+    $(templateGroup)
+      .find("#templateGroup_name")
+      .css("background-color", colors[colorIdx]);
+
+    var body = $(templateGroup).find("#templateGroup_body");
+    body.empty();
+    colorIdx += 1;
+    if (colorIdx == colors.length) {
+      colorIdx = 0;
+    }
+    templatesGroup.push(templateGroup);
+  }
+  var groupIdx = 0;
+
+  for (let i = 0; i < groupData.items.length; i++) {
+    var actGroup = groupData.items[i];
+    for (let j = 0; j < actGroup.teams.length; j++) {
+      var actTeam = actGroup.teams[j];
+      if (actTeam.isWinning == 0) {
+        var teamName = actTeam.rank.toString() + ". " + actGroup.name;
+
+        actTeam = {
+          idx: j,
+          name: teamName,
+          rank: j + 1,
+          transition: {
+            origin_rank: j + 1,
+            origin_group_id: i,
+            origin_group_name: actGroup.name,
+            target_rank: 0,
+            target_group_id: 999,
+          },
+        };
+
+        var tTeamItem = $("#templateTeamItem").clone();
+        $(tTeamItem).attr("id", "teamitem_" + i + "_" + j);
+        $(tTeamItem).removeAttr("hidden");
+
+        $(tTeamItem).find("#templateTeamItem_name").text(actTeam.name);
+        templatesGroup[groupIdx].find("#templateGroup_body").append(tTeamItem);
+
+        plData.groups[groupIdx].teams.push(actTeam);
+
+        groupIdx += 1;
+        if (groupIdx == plData.num_groups) {
+          groupIdx = 0;
+        }
+      }
+    }
+  }
+
+  for (let i = 0; i < plData.num_groups; i++) {
+    $(row).append(templatesGroup[i]);
+    $(rowTab).append(templatesGroup[i].clone());
+
+    wzNumOfGamesPlacement += (plData.groups[i].teams.length * (plData.groups[i].teams.length - 1)) / 2;
+  }
 
   return plData;
 }
