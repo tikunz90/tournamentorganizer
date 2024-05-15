@@ -401,12 +401,16 @@ bh = {
     bh.gameDays[gameday_counter].game_slots = [];
 
     bh.tournamentData.events.forEach((event) => {
-      event.stages.find((stage) => stage.tournament_stage == "KNOCKOUT_STAGE")[
-        "actHierarchy"
-      ] = 1;
-      event.stages.find((stage) => stage.tournament_stage == "PLAYOFF_STAGE")[
-        "actHierarchy"
-      ] = -1;
+      const knockoutStage = event.stages.find((stage) => stage.tournament_stage === "KNOCKOUT_STAGE");
+      const playoffStage = event.stages.find((stage) => stage.tournament_stage === "PLAYOFF_STAGE");
+
+      if (knockoutStage !== undefined) {
+        knockoutStage.actHierarchy = 1;
+      }
+
+      if (playoffStage !== undefined) {
+        playoffStage.actHierarchy = -1;
+      }
     });
 
     var minutes_per_slot = parseInt(bh.minutesPerGame);
@@ -484,6 +488,7 @@ bh = {
 
         eventCounter++;
       }
+      eventCounter = 0;
       //window.alert("Set BreakPoint");
       while (total_num_games_ko > 0 || total_num_games_pl > 0) {
         if (
@@ -498,7 +503,7 @@ bh = {
             eventCounter % bh.tournamentData.events.length
           ].stages.find((stage) => stage.tournament_stage == "PLAYOFF_STAGE");
 
-          if (stageKO["wz-games"].length > 0 && stagePL.actHierarchy == -1) {
+          if (stageKO !== undefined && stageKO["wz-games"].length > 0 && stagePL.actHierarchy == -1) {
             var actGame = stageKO["wz-games"][0];
             // handle KO of act hierarchy
             var statesKOActHierarchy = stageKO.states.find(
@@ -570,6 +575,7 @@ bh = {
               eventCounter++;
             }
           } else if (
+            stageKO !== undefined && 
             stageKO["wz-games"].length == 0 &&
             stagePL.actHierarchy == -1
           ) {
@@ -577,6 +583,7 @@ bh = {
             stageKO.actHierarchy++;
             eventCounter++;
           } else if (
+            stagePL !== undefined && 
             stagePL["wz-games"].length > 0 &&
             stagePL.actHierarchy >= 500
           ) {
@@ -650,6 +657,7 @@ bh = {
               eventCounter++;
             }
           } else if (
+            stagePL !== undefined && 
             stagePL["wz-games"].length == 0 &&
             stagePL.actHierarchy >= 500
           ) {
@@ -662,6 +670,7 @@ bh = {
         //eventCounter++;
       }
 
+      eventCounter = 0;
       while (total_num_games_final > 0) {
         if (
           bh.tournamentData.events[
@@ -2079,7 +2088,7 @@ function wzCalcPlacementOneGroup(best_rank_placement, remainingTeamsForPL) {
     " to " +
     groupData.teams_total;
   var abbr = "PL" + best_rank_placement + "to" + groupData.teams_total;
-  var newGroup = { idx: 0, name: tstateName, abbr: abbr, teams: [] };
+  var newGroup = { idx: 0, name: tstateName, abbreviation: abbr, teams: [] };
   var transitions = {};
   var num_of_transistions = groupData.teams_total - groupData.teams_to_ko;
   var numTeams = parseInt(groupData.teams_total) - best_rank_placement - 1;

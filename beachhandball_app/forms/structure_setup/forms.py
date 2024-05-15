@@ -15,6 +15,8 @@ from colorfield.widgets import ColorWidget
 from bootstrap_modal_forms.forms import BSModalModelForm
 from bootstrap_modal_forms.utils import is_ajax
 
+from ...models.choices import ROUND_TYPES, TOURNAMENT_STAGE_TYPE_CHOICES, TOURNAMENT_STATE_CHOICES
+
 """
 
 Tournament Stage Forms
@@ -64,27 +66,36 @@ Tournament State Forms
 
 class TournamentStateForm(BSModalModelForm):
 
+    round_type = forms.ChoiceField(choices=[(round_type.value, round_type.value) for round_type in ROUND_TYPES], label='Round Types', widget=forms.Select(attrs={'class': "form-control selectpicker", 'data-style':"btn btn-info btn-round"}))
+
     def clean(self):
         print('Clean TournamentStateForm')
         cleaned_data = super(TournamentStateForm, self).clean()
         name = self.cleaned_data['name']
         tstage = self.cleaned_data['tournament_stage']
-        
-        #if TournamentState.objects.filter(name = name, tournament_stage=tstage).exists():
+
+        if tstage.tournament_stage == TOURNAMENT_STAGE_TYPE_CHOICES[3][1]:
+            states = TournamentState.objects.filter(tournament_stage=tstage).all()
+            hierarchy = 500
+            for s in states:
+                if s.hierarchy > hierarchy:
+                    hierarchy = s.hierarchy
+            hierarchy += 1
+            self.cleaned_data['hierarchy'] = hierarchy
+            self.cleaned_data['tournament_state'] = TOURNAMENT_STATE_CHOICES[-6][1]
+        # if TournamentState.objects.filter(name=name, tournament_stage=tstage).exists():
         #    self.add_error('name', 'Already exists!')
-        
 
         # Always return a value to use as the new cleaned data, even if
         # this method didn't change it.
         return cleaned_data
-    
-    
+
     class Meta:
         model = TournamentState
-        exclude = ['tournament_event', 'tournament_state','grid_row', 'grid_col', 'is_populated', 'is_final', 'is_finished', 'transitions_done', 'min_number_teams']
+        exclude = ['tournament_event', 'tournament_state', 'grid_row', 'grid_col', 'is_populated', 'is_final', 'is_finished', 'transitions_done', 'min_number_teams']
         widgets = {
-            'tournament_stage': forms.widgets.Select(attrs={'class': "form-control selectpicker", 'data-style':"btn btn-info btn-round"}),
-           'color': forms.widgets.TextInput(attrs={'type': 'color'}),
+            'tournament_stage': forms.widgets.Select(attrs={'class': "form-control selectpicker", 'data-style': "btn btn-info btn-round"}),
+            'color': forms.widgets.TextInput(attrs={'type': 'color'}),
         }
 
 class TournamentStateUpdateForm(BSModalModelForm):

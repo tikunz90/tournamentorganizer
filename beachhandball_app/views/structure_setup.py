@@ -37,6 +37,7 @@ from bootstrap_modal_forms.generic import BSModalCreateView, BSModalDeleteView, 
 from ..models.Tournaments import Court, Tournament, TournamentEvent, TournamentStage, TournamentState, TournamentTeamTransition
 from ..models.Series import Season
 from ..models.Team import Team, TeamStats
+from ..models.choices import ROUND_TYPES, TOURNAMENT_STAGE_TYPE_CHOICES, TOURNAMENT_STATE_CHOICES
 
 from beachhandball_app.forms.structure_setup.forms import GameUpdateForm, GameUpdateResultForm, TTTUpdateForm, TeamStatsUpdateInitialTeamForm, TournamentStageForm, TournamentStateFinishForm, TournamentStateForm, TournamentStateUpdateForm, TeamStatsUpdateTeamForm, GameForm
 
@@ -310,6 +311,15 @@ class StateCreateView(BSModalCreateView):
         tstage = get_object_or_404(TournamentStage, id=self.kwargs.get('pk_tstage'))
 
         context['form'].fields['tournament_stage'].queryset = TournamentStage.objects.filter(id=tstage.id)
+        if tstage.tournament_stage == TOURNAMENT_STAGE_TYPE_CHOICES[0][1]:
+            context['form'].fields['hierarchy'].initial = 0
+        if tstage.tournament_stage == TOURNAMENT_STAGE_TYPE_CHOICES[2][1]:
+            context['form'].fields['hierarchy'].initial = 1
+        if tstage.tournament_stage == TOURNAMENT_STAGE_TYPE_CHOICES[3][1]:
+            context['form'].fields['hierarchy'].initial = 500 + TournamentState.objects.filter(tournament_stage=tstage).count()
+            context['form'].fields['round_type'].initial = str(ROUND_TYPES.PLAYOFF)
+        if tstage.tournament_stage == TOURNAMENT_STAGE_TYPE_CHOICES[4][1]:
+            context['form'].fields['hierarchy'].initial = 100
         return context
 
     def get_initial(self):
@@ -327,6 +337,8 @@ class StateCreateView(BSModalCreateView):
         tstage = get_object_or_404(TournamentStage, id=self.kwargs.get('pk_tstage'))
         form.instance.tournament_event = tevent
         form.instance.tournament_stage = tstage
+        if tstage.tournament_stage == TOURNAMENT_STAGE_TYPE_CHOICES[3][1]:
+            form.instance.tournament_state = TOURNAMENT_STATE_CHOICES[-6][1]
         return super().form_valid(form)
 
     def get_success_url(self):

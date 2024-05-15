@@ -23,7 +23,7 @@
   <div class="row">
   {% if events %}
   {% for tevent in events %}
-    <div class="col-md-4">
+    <div class="col-md-3">
       <div class="card card-product">
         <div class="card-header card-header-image" data-header-animation="true">
           <a href="{{ url('structure_setup.detail', kwargs={'pk': tevent.id }) }}">
@@ -39,9 +39,9 @@
               <a href="{{ url('structure_setup.detail', kwargs={'pk': tevent.id }) }}"><i class="material-icons">edit</i></a>
             </button>
           </div>
-          <h3 class="card-title">
+          <h4 class="card-title">
             <a href="{{ url('structure_setup.detail', kwargs={'pk': tevent.id }) }}">{{ tevent.name }} ({{ tevent.id }})</a>
-          </h3>
+          </h4>
           <div>
             <h6 class="card-subtitle">{{ tevent.category }} ({{ tevent.category.classification}})</h6>
           </div>
@@ -79,13 +79,19 @@
         </div>
         <div class="card-footer">
           <div>
-            <h4>#Teams: {{ tevent.max_number_teams }}</h4>
+            <p>#Teams: {{ tevent.max_number_teams }}</p>
           </div>
           <div class="justify-content-center">
-            <button class="btn btn-outline-info" rel="tooltip" data-placement="bottom" title="last sync with GBO"><i class="material-icons">sync</i>{{ tevent.last_sync_at.strftime('%H:%M:%S (%d.%m.%Y)') }}</button>
+            <button class="btn btn-outline-info" rel="tooltip" data-placement="bottom" title="last sync with GBO" hidden><i class="material-icons">sync</i>{{ tevent.last_sync_at.strftime('%H:%M:%S (%d.%m.%Y)') }}</button>
           </div>
           <div class="stats">
-            <h4 class="card-category"><i class="material-icons">{{ tevent.category.icon }}</i>{{ tevent.category }} {{ tevent.category.classification }}</h4>
+            <h4 class="card-category"><i class="material-icons" style="font-size: 24px;">
+              {% if 'woman' in tevent.category.category %}
+              woman
+              {% else %}
+              man
+              {% endif %}
+            </i>{{ tevent.category }} {{ tevent.category.classification }}</h4>
           </div>
         </div>
       </div>
