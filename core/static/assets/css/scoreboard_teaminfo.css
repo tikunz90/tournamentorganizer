@@ -1,0 +1,31 @@
+
+@font-face {
+  font-family: 'LemonMilk';
+  src: url('/static/assets/font/LEMONMILK-Regular.otf') format('truetype');
+}
+
+body {
+  background-color: transparent;
+  font-family: 'LemonMilk';
+  margin: 0;
+  padding: 0;
+}
+
+thead {
+  display: none;
+}
+
+.box {justify-content:center;}
+
+.centered {
+  text-align: center;
+  vertical-align: middle;
+}
+
+.numbercol {
+  width: 15%;
+}
+
+.namecol {
+  width: 85%;
+}

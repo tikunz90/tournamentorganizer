@@ -1,6 +1,11 @@
 @import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@300&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300&display=swap');
 
+@font-face {
+  font-family: "LemonMilk";
+  src: url("/static/assets/font/LEMONMILK-Regular.otf") format("truetype");
+}
+
 /*----- Common Classes ----*/
 :root {
 --skew: 3deg;
@@ -25,7 +30,7 @@
 html, body {margin:0; padding:0;}
 em {font-style:normal;}
 .box, div {box-sizing: border-box; display:flex; align-items:center; height:100%;}
-.container {position:relative; box-sizing: border-box; height:auto; float:left; clear:both; width:auto; display:grid; column-gap: 1vw; background:var(--bkgimage); color:var(--text); border-left:solid 2vw var(--bordercolors); padding:.3vw; font-family: 'Roboto', sans-serif;
+.container {position:relative; box-sizing: border-box; height:auto; float:left; clear:both; width:auto; display:grid; column-gap: 1vw; background:var(--bkgimage); color:var(--text); border-left:solid 2vw var(--bordercolors); padding:.3vw; font-family: 'LemonMilk', sans-serif;
 transform:skew(var(--skew));}
 
 .boxtimer {padding:var(--timerpadding); float:left; background:var(--bkgmedium);}

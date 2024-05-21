@@ -1,0 +1,72 @@
+{% extends "base_livescore.html" %}
+
+{% block content %}
+<div class="container">
+    
+    <div class="row">
+        <div class="col">
+            <h5>{{ game.team_a.name }}</h5>
+        </div>
+        <div class="col">
+            <h5>{{ game.team_b.name }}</h5>
+        </div>
+    </div>
+    <div class="row">
+
+
+        <div class="col">
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Number</th>
+                        <th>Name</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for player in game.team_a.player_set.all() %}
+                        <tr>
+                            <td class="centered numbercol">{{ player.number }}</td>
+                            <td class="namecol">{{ player.name }}, {{ player.first_name }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+
+        <div class="col">
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Number</th>
+                        <th>Name</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for player in game.team_b.player_set.all() %}
+                        <tr>
+                            <td class="centered">{{ player.number }}</td>
+                            <td>{{ player.name }}, {{ player.first_name }}</td>
+                        </tr>
+                    {% endfor %}
+                    {% for i in range(10) %}
+                        <tr>
+                            <td class="centered numbercol">0</td>
+                            <td class="namecol">No Player</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+
+    </div>
+</div>
+
+<div>
+    <h1 id="tournament_id" style="display: none">{{ tournament_id }}</h1>
+    <h1 id="court_id" style="display: none">{{ court_id }}</h1>
+    <h1 id="game_id" style="display: none">{{ game.id }}</h1>
+</div>
+{% endblock %}
+
