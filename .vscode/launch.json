@@ -17,6 +17,18 @@
             "justMyCode": true
         },
         {
+            "name": "Python Win: Django",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}\\manage.py",
+            "args": [
+                "runserver",
+                "0.0.0.0:8000"
+            ],
+            "django": true,
+            "justMyCode": true
+        },
+        {
             "name": "Extension",
             "type": "extensionHost",
             "request": "launch",
@@ -24,5 +36,5 @@
             "args": [
                 "--extensionDevelopmentPath=${workspaceFolder}"
             ]
-        }
+        },
 }
