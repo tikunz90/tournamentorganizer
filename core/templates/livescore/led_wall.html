@@ -3,11 +3,11 @@
 {% block content %}
 
 <div class="screen">
-    <div class="logo-container">
+    <div class="image-container" data-id="logo">
         <img src="/static/assets/img/karacho_logo.png" alt="Image">
     </div>
 
-    <div class="container content">
+    <div class="container image-container" data-id="content">
         
         <div class="row">
             <div class="col" style="text-align: center;">
@@ -17,10 +17,10 @@
 
         <div class="row">
             <div class="col tableheaderA">
-                <h5>{{ game.team_a.name }}</h5>
+                <h4>{{ game.team_a.name }}</h4>
             </div>
             <div class="col tableheaderB">
-                <h5>{{ game.team_b.name }}</h5>
+                <h4>{{ game.team_b.name }}</h4>
             </div>
         </div>
         <div class="row">
@@ -69,7 +69,7 @@
         </div>
     </div>
 
-    <div class="advertise-container">
+    <div class="image-container"  data-id="advertise">
         <img src="/static/assets/img/gbo_logo.png" alt="Image">
     </div>
 
@@ -79,37 +79,14 @@
 <div>
     <h1 id="tournament_id" style="display: none">{{ tournament_id }}</h1>
     <h1 id="court_id" style="display: none">{{ court_id }}</h1>
-    <h1 id="game_id" style="display: none">{{ game.id }}</h1>
+    <h1 id="mqtt_broker" style="display: none">{{ mqtt_broker }}</h1>
+    <h1 id="mqtt_port" style="display: none">{{ mqtt_port }}</h1>
 </div>
 
 <script>
-    function updateClock() {
-        const now = new Date();
-        const hours = String(now.getHours()).padStart(2, '0');
-        const minutes = String(now.getMinutes()).padStart(2, '0');
-        const seconds = String(now.getSeconds()).padStart(2, '0');
-        const timeString = `${hours}:${minutes}:${seconds}`;
-        document.getElementById('clock').textContent = timeString;
-    }
+    
 
-    setInterval(updateClock, 1000);
-    updateClock(); // Initial call to set the clock immediately
-
-    // Show logo for 5 seconds, then transition to main content
-    window.addEventListener('load', () => {
-        setTimeout(() => {
-            document.querySelector('.logo-container').classList.add('hidden');
-            document.querySelector('.advertise-container').classList.add('hidden');
-            document.querySelector('.content').classList.add('visible');
-
-            setTimeout(() => {
-                document.querySelector('.logo-container').classList.add('hidden');
-                document.querySelector('.content').classList.add('hidden');
-                document.querySelector('.advertise-container').classList.add('visible');
-            }, 5000);
-
-        }, 500); // 5000 milliseconds = 5 seconds
-    });
+    
 </script>
 {% endblock %}
 

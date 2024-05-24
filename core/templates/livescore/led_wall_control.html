@@ -1,0 +1,29 @@
+{% extends "base_ledwall_control.html" %}
+
+{% block content %}
+
+<div class="container">
+  <div class="col">
+    <button id="command-button" class="btn btn-primary command-button" data-command="showPage" data-content="content">Show Game</button>
+  </div>
+  <div class="col">
+    <button id="command-button" class="btn btn-primary command-button" data-command="showPage" data-content="logo">Show Logo</button>
+  </div>
+  <div class="col">
+    <button id="command-button" class="btn btn-primary command-button" data-command="showPage" data-content="advertise">Show Ads</button>
+  </div>
+</div>
+
+<div>
+    <h1 id="tournament_id" style="display: none">{{ tournament_id }}</h1>
+    <h1 id="court_id" style="display: none">{{ court_id }}</h1>
+    <h1 id="mqtt_broker" style="display: none">{{ mqtt_broker }}</h1>
+    <h1 id="mqtt_port" style="display: none">{{ mqtt_port }}</h1>
+</div>
+
+<script>
+    
+
+    
+</script>
+{% endblock %}

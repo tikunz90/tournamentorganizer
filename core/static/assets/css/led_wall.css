@@ -13,8 +13,8 @@ body {
 }
 
 .screen {
-  width: 896px;
-  height: 512px;
+  width: 1280px; /*896px;*/
+  height: 720px; /*512px;*/
   position: relative; /* Necessary for absolute positioning of child elements */
   border: 1px solid #000; /* Optional: just to see the container border */
   margin: 0 auto; /* Center the container horizontally */
@@ -22,6 +22,35 @@ body {
   background-size: cover; /* Adjust the image size to cover the cell */
   background-repeat: no-repeat;
   background-position: center; /* Center the image within the cell */
+}
+
+.image-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: #000; /* Background color behind logo */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  opacity: 1;
+  transition: opacity 1s ease-in-out;
+}
+
+.image-container img {
+  max-width: 100%;
+  max-height: 100%;
+}
+
+.image-container.hidden {
+  opacity: 0;
+  visibility: hidden;
+}
+
+.image-container.visible {
+  opacity: 1;
 }
 
 .logo-container {
@@ -47,6 +76,10 @@ body {
 .logo-container.hidden {
   opacity: 0;
   visibility: hidden;
+}
+
+.logo-container.visible {
+  opacity: 1;
 }
 
 .content {
@@ -93,7 +126,7 @@ body {
 .table {
   position: absolute;
   border-collapse: collapse;
-  width: 350px; /* Example width */
+  width: 500px; /* Example width */
   height: 150px; /* Example height */
   color: white;
 }
@@ -130,7 +163,7 @@ body {
 .numbercol {
   width: 15%;
   width: 50px;
-  font-size: 18px;
+  font-size: 24px;
 }
 
 .namecol {
@@ -140,14 +173,14 @@ body {
   text-overflow: ellipsis;
   white-space: nowrap;
   text-align: left;
-  font-size: 18px;
+  font-size: 24px;
 }
 
 /* Clock styles */
 #clock {
   position: absolute;
-  top: 480px;
+  top: 660px;
   right: 10px;
-  font-size: 20px;
+  font-size: 30px;
   font-weight: bold;
 }

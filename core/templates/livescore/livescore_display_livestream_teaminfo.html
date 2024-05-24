@@ -26,7 +26,7 @@
                     {% for player in game.team_a.player_set.all()[:12] %}
                         <tr>
                             <td class="centered numbercol">{{ player.number }}</td>
-                            <td class="namecol">{{ player.name }}, {{ player.first_name }}</td>
+                            <td class="namecol">{{ player.first_name }} {{ player.name }}</td>
                         </tr>
                     {% endfor %}
                 </tbody>
@@ -46,7 +46,7 @@
                     {% for player in game.team_b.player_set.all()[:12] %}
                         <tr>
                             <td class="centered">{{ player.number }}</td>
-                            <td>{{ player.name }}, {{ player.first_name }}</td>
+                            <td>{{ player.first_name }} {{ player.name }}</td>
                         </tr>
                     {% endfor %}
                     {% for i in range(10) %}
