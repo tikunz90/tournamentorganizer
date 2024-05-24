@@ -283,3 +283,40 @@ def livescore_display_big_scoreboard(request, pk_tourn, pk_court):
         print(e)
         html_template = loader.get_template('page-500.html')
         return HttpResponse(html_template.render(context, request))
+    
+
+def livescore_ledwall(request, pk_tourn, pk_court):
+    context = {}
+    # All resource paths end in .html.
+    # Pick out the html file name from the url. And load that template.
+    try:
+
+        t = Tournament.objects.get(season_cup_tournament_id=pk_tourn)
+        #game = Game.objects.filter(tournament = t, court_id=pk_court).first()
+        game = Game.objects.prefetch_related("team_a__player_set",
+            "team_b__player_set").filter(tournament = t, court_id=pk_court, gamestate='RUNNING').first()
+        if game is None:
+            game = Game.objects.prefetch_related("team_a__player_set",
+            "team_b__player_set").filter(tournament = t, court_id=pk_court, gamestate='APPENDING').first()
+        context['tournament_id'] = pk_tourn
+        context['court_id'] = pk_court
+        context['game'] = game
+
+        load_template = request.path.split('/')[-1]
+
+        if load_template == 'admin':
+            return HttpResponseRedirect(reverse('admin:index'))
+        context['segment'] = load_template
+
+        html_template = loader.get_template('livescore/led_wall.html')
+        return HttpResponse(html_template.render(context, request))
+
+    except template.TemplateDoesNotExist:
+
+        html_template = loader.get_template('page-404.html')
+        return HttpResponse(html_template.render(context, request))
+
+    except Exception as e:
+        print(e)
+        html_template = loader.get_template('page-500.html')
+        return HttpResponse(html_template.render(context, request))

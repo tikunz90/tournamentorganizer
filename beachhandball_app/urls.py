@@ -84,5 +84,6 @@ urlpatterns = [
     path('livescore/<int:pk_tourn>/display_livestream/<int:pk_court>/', livescore_views.livescore_display_livestream, name='livescore'),
     path('livescore/<int:pk_tourn>/display_livestream_teaminfo/<int:pk_court>/', livescore_views.livescore_display_livestream_teaminfo, name='livescore_teaminfo'),
     path('livescore/<int:pk_tourn>/display_big_scoreboard/<int:pk_court>/', livescore_views.livescore_display_big_scoreboard, name='livescore_bigscoreboard'),
+    path('livescore/<int:pk_tourn>/ledwall/<int:pk_court>/', livescore_views.livescore_ledwall, name='livescore_ledwall'),
 
 ]

@@ -97,13 +97,23 @@ transform:skew(var(--skew));}
 .containerbeachhandball {grid-template: auto / auto var(--pointswidth) 1.2em auto;grid-template-rows: 40px minmax(0, 1fr); grid-template-columns: 10px minmax(0, 1fr); column-gap:0; row-gap: 4; font-size:5.5vw;}
 .containerbeachhandball .space {display:none;}
 .containerbeachhandball .box {justify-content:center;}
-.containerbeachhandball .boxteams {justify-content:flex-start;}
+.containerbeachhandball .boxteams {justify-content:flex-start;
+  min-width: 550px;
+  max-width: 550px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: left;
+  padding-right: 7%; padding-left: 3%;
+  background: rgb(0,0,0);
+  background: linear-gradient(90deg, rgba(0,0,0,1) 0%, rgba(4,68,98,1) 48%, rgba(0,0,0,1) 100%);
+}
 
 
 .containerbeachhandball .sgrlogo {grid-row: 1/4; grid-column: 1/1;}
 .containerbeachhandball .toplabel {grid-row: 1/1; grid-column: 2/11;}
-.containerbeachhandball .boxhometeam { width: 300px; box-sizing: border-box; overflow: hidden; text-overflow: ellipsis;white-space: nowrap; grid-row: 2/3; grid-column: 2/5; border: 2px solid #fff ; padding-right: 7%; padding-left: 9%;}
-.containerbeachhandball .boxawayteam { width: 300px; box-sizing: border-box; overflow: hidden; text-overflow: ellipsis;white-space: nowrap; grid-row: 3/4; grid-column: 2/5; border: 2px solid #fff ; padding-right: 7%; padding-left: 9%; }
+.containerbeachhandball .boxhometeam { box-sizing: border-box; grid-row: 2/3; grid-column: 2/5; border: 2px solid #fff ;}
+.containerbeachhandball .boxawayteam { box-sizing: border-box; grid-row: 3/4; grid-column: 2/5; border: 2px solid #fff ; }
 .containerbeachhandball .boxhomepoints {grid-row: 2/3; grid-column: 5/7; border: 2px solid #fff ;}
 .containerbeachhandball .boxawaypoints {grid-row: 3/4; grid-column: 5/7; border: 2px solid #fff ;}
 .containerbeachhandball .boxhomepointsht2 {grid-row: 2/3; grid-column: 7/9; border: 2px solid #fff ;}
@@ -118,26 +128,32 @@ transform:skew(var(--skew));}
 
 .containerbeachhandball .sgrlogo {margin: 0 .1em;}
 .containerbeachhandball .toplabel {color: transparent;}
-.containerbeachhandball .boxteams {padding-right: .2em;}
+/*.containerbeachhandball .boxteams {padding-right: .2em;}*/
 .containerbeachhandball .toplabel {
   background-image: url('/static/assets/img/banner_sprungwurftv2.png');
   background-size: contain; /* Adjust the image size to cover the cell */
   background-repeat: no-repeat;
   background-position: center; /* Center the image within the cell */
+  visibility: hidden;
 }
-.containerbeachhandball .boxhometeam {
+/*.containerbeachhandball .boxhometeam {
   background-image: url('/static/assets/img/space3.PNG');
-  background-size: cover; /* Adjust the image size to cover the cell */
-  background-position: center; /* Center the image within the cell */
+  background-size: cover;
+  background-position: center;
 }
 .containerbeachhandball .boxawayteam {
   background-image: url('/static/assets/img/space4.PNG');
-  background-size: cover; /* Adjust the image size to cover the cell */
-  background-position: center; /* Center the image within the cell */
-}
+  background-size: cover;
+  background-position: center;
+} */
 .containerbeachhandball .boxpoints {border-right: solid 0.3vw #fff;}
 .containerbeachhandball .boxmoment {font-size: .7em; padding:0;}
-.containerbeachhandball .boxtimer {min-width:var(--timerwidth);justify-self: start;}
+.containerbeachhandball .boxtimer {min-width:var(--timerwidth);
+  justify-self: start;
+  background-color: whitesmoke;
+  color: black;
+  padding: 2%;
+}
 .containerbeachhandball .boxovertimeon {background: transparent; color: var(--signalcolor);}
 
 

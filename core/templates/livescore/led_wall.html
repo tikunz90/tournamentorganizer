@@ -1,0 +1,115 @@
+{% extends "base_ledwall.html" %}
+
+{% block content %}
+
+<div class="screen">
+    <div class="logo-container">
+        <img src="/static/assets/img/karacho_logo.png" alt="Image">
+    </div>
+
+    <div class="container content">
+        
+        <div class="row">
+            <div class="col" style="text-align: center;">
+                <h4>{{ game.tournament_state }}</h4>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col tableheaderA">
+                <h5>{{ game.team_a.name }}</h5>
+            </div>
+            <div class="col tableheaderB">
+                <h5>{{ game.team_b.name }}</h5>
+            </div>
+        </div>
+        <div class="row">
+
+
+            <div class="col">
+                <table class="table table-borderless">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for player in game.team_a.player_set.all()[:10] %}
+                            <tr>
+                                <td class="centered numbercol">{{ player.number }}</td>
+                                <td class="namecol">{{ player.name }}, {{ player.first_name[0] }}.</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+
+            <div class="col">
+                <table class="table  table-borderless">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for player in game.team_b.player_set.all()[:10] %}
+                            <tr>
+                                <td class="centered numbercol">{{ player.number }}</td>
+                                <td class="namecol">{{ player.name }}, {{ player.first_name[0] }}.</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+
+        </div>
+    </div>
+
+    <div class="advertise-container">
+        <img src="/static/assets/img/gbo_logo.png" alt="Image">
+    </div>
+
+    <div id="clock"></div>
+</div>
+
+<div>
+    <h1 id="tournament_id" style="display: none">{{ tournament_id }}</h1>
+    <h1 id="court_id" style="display: none">{{ court_id }}</h1>
+    <h1 id="game_id" style="display: none">{{ game.id }}</h1>
+</div>
+
+<script>
+    function updateClock() {
+        const now = new Date();
+        const hours = String(now.getHours()).padStart(2, '0');
+        const minutes = String(now.getMinutes()).padStart(2, '0');
+        const seconds = String(now.getSeconds()).padStart(2, '0');
+        const timeString = `${hours}:${minutes}:${seconds}`;
+        document.getElementById('clock').textContent = timeString;
+    }
+
+    setInterval(updateClock, 1000);
+    updateClock(); // Initial call to set the clock immediately
+
+    // Show logo for 5 seconds, then transition to main content
+    window.addEventListener('load', () => {
+        setTimeout(() => {
+            document.querySelector('.logo-container').classList.add('hidden');
+            document.querySelector('.advertise-container').classList.add('hidden');
+            document.querySelector('.content').classList.add('visible');
+
+            setTimeout(() => {
+                document.querySelector('.logo-container').classList.add('hidden');
+                document.querySelector('.content').classList.add('hidden');
+                document.querySelector('.advertise-container').classList.add('visible');
+            }, 5000);
+
+        }, 500); // 5000 milliseconds = 5 seconds
+    });
+</script>
+{% endblock %}
+
