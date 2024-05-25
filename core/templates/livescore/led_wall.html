@@ -2,25 +2,24 @@
 
 {% block content %}
 
-<div class="screen">
-    <div class="image-container" data-id="logo">
+
+    <div class="imagecontainer contains-img" data-id="logo">
         <img src="/static/assets/img/karacho_logo.png" alt="Image">
     </div>
 
-    <div class="container image-container" data-id="content">
-        
+    <div class="imagecontainer" data-id="info">
         <div class="row">
-            <div class="col" style="text-align: center;">
-                <h4>{{ game.tournament_state }}</h4>
+            <div class="col" style="text-align: center; padding: 1%">
+                <h2>{{ game.tournament_state }}</h2>
             </div>
         </div>
 
         <div class="row">
             <div class="col tableheaderA">
-                <h4>{{ game.team_a.name }}</h4>
+                <h3>{{ game.team_a.name }}</h3>
             </div>
             <div class="col tableheaderB">
-                <h4>{{ game.team_b.name }}</h4>
+                <h3>{{ game.team_b.name }}</h3>
             </div>
         </div>
         <div class="row">
@@ -69,12 +68,11 @@
         </div>
     </div>
 
-    <div class="image-container"  data-id="advertise">
-        <img src="/static/assets/img/gbo_logo.png" alt="Image">
+    <div id="image-container" class="imagecontainer contains-img advertise"  data-id="advertise">
     </div>
 
-    <div id="clock"></div>
-</div>
+    <div id="clock" class="bottom-right"></div>
+
 
 <div>
     <h1 id="tournament_id" style="display: none">{{ tournament_id }}</h1>

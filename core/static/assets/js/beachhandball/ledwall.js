@@ -57,13 +57,63 @@ window.addEventListener("load", function() {
     console.log("ledwall loaded...");
     connectMqtt();
 
-    
+    showPage("info");
+
     setTimeout(() => {
         //document.querySelector('.logo-container').classList.add('hidden');
         //document.querySelector('.advertise-container').classList.add('hidden');
         //document.querySelector('.content').classList.add('visible');
     }, 500); // 5000 milliseconds = 5 seconds
   });
+
+  var images = [
+    "/static/assets/img/gbo_logo.png",
+    "/static/assets/img/ball.png",
+    "/static/assets/img/dhb_logo.png",
+    "/static/assets/img/beachandthegang.png",
+    // Add more image URLs as needed
+  ];
+
+  var currentImageIndex = -1;
+
+// Function to get a random image index that is different from the current one
+function getRandomImageIndex() {
+  var newIndex;
+  do {
+    newIndex = Math.floor(Math.random() * images.length);
+  } while (newIndex === currentImageIndex);
+  return newIndex;
+}
+
+// Function to display a random image
+function displayRandomImage() {
+  var container = document.getElementById("image-container");
+  var randomIndex = getRandomImageIndex();
+  var randomImage = images[randomIndex];
+
+  // Create new image element
+  var newImage = new Image();
+  newImage.src = randomImage;
+  newImage.className = "fade";
+
+  // Append new image to container
+  container.innerHTML = '';
+  container.appendChild(newImage);
+
+  // After a short delay, fade in the new image
+  setTimeout(function() {
+    newImage.classList.add("active");
+  }, 100); // Adjust as needed for transition timing
+
+  // Update current image index
+  currentImageIndex = randomIndex;
+}
+  
+
+  displayRandomImage();
+
+// Change the image every 2 seconds
+setInterval(displayRandomImage, 4000);
 
 // Show logo for 5 seconds, then transition to main content
 //window.addEventListener('load', () => {
@@ -100,13 +150,17 @@ function onMessageArrived(message) {
 }
 
 function showPage(pagename){
-    document.querySelector('.image-container').classList.remove('visible');
-
-    document.querySelector('.image-container').classList.add('hidden');
+    document.querySelectorAll('.imagecontainer').forEach(function(element) {
+        element.classList.remove('visible');
+    });
+    document.querySelectorAll('.imagecontainer').forEach(function(element) {
+        element.classList.add('hidden');
+    });
 
     var selector = '[data-id="' + pagename + '"]';
     var element = document.querySelector(selector);
     if (element) {
+        element.classList.remove('hidden');
         element.classList.add('visible');
     } else {
         console.log('The element with class '+ pagename +' does not exist.');
