@@ -38,7 +38,7 @@ em {font-style:normal;}
 .container {position:relative;justify-content:center; box-sizing: border-box; height:auto; float:none; clear:both; width:auto; display:grid; column-gap: 1vw; background:var(--bkgimage); color:var(--text); border-left:solid 2vw var(--bordercolors); padding:.3vw; font-family: 'LemonMilk', sans-serif;
 transform:skew(var(--skew));}
 
-.toplabel {padding:0; float:left;justify-self: start; padding: 3px; background:var(--bkgtimer); font-weight:bold; color:var(--textpenalty); font-size:1.25vw;}
+.toplabel {padding:0; float:left;justify-self: start; padding: 3px; background:var(--bkgtimer); font-weight:bold; color:var(--textpenalty); font-size:2.75vw;}
 .boxtimer {padding:var(--timerpadding); float:left;padding: 1px; background:var(--bkgtimer); font-weight:bold; color:var(--textpenalty)}
 .boxhometeam {padding:var(--timerpadding); padding-left: 1px; float:left; background:var(--bkgmedium); font-weight:bold; font-size:3.0vw;}
 .boxawayteam {padding:var(--timerpadding); padding-left: 1px;float:left; background:var(--bkgmedium); font-weight:bold; font-size:3.0vw;}
@@ -127,15 +127,21 @@ transform:skew(var(--skew));}
 
 
 .containerbeachhandball .sgrlogo {margin: 0 .1em;}
-.containerbeachhandball .toplabel {color: transparent;}
-/*.containerbeachhandball .boxteams {padding-right: .2em;}*/
+
 .containerbeachhandball .toplabel {
-  background-image: url('/static/assets/img/banner_sprungwurftv2.png');
-  background-size: contain; /* Adjust the image size to cover the cell */
-  background-repeat: no-repeat;
-  background-position: center; /* Center the image within the cell */
-  visibility: hidden;
+    justify-self: start;
+    background-color: whitesmoke;
+    color: black;
+    padding: 2%;
 }
+/*.containerbeachhandball .boxteams {padding-right: .2em;}*/
+/*.containerbeachhandball .toplabel {
+  background-image: url('/static/assets/img/banner_sprungwurftv2.png');
+  background-size: contain; 
+  background-repeat: no-repeat;
+  background-position: center; 
+  visibility: hidden;
+}*/
 /*.containerbeachhandball .boxhometeam {
   background-image: url('/static/assets/img/space3.PNG');
   background-size: cover;
