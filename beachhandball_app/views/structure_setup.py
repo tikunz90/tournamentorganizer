@@ -654,6 +654,7 @@ def postUpdateGameResult(request, pk_tevent, pk_tstage, pk):
         calculate_tstate(game.tournament_state)
         helper.create_global_pstats(game.tournament_event.id)
         helper.recalc_global_pstats(game.tournament_event.id)
+        helper.check_tournamentstate_finished(tevent, game.tournament_state)
         if form.data['upload-data']:
             upload_data = json.loads(form.data['upload-data'])
             helper_game_report.import_playerstats_game_report(game, upload_data)

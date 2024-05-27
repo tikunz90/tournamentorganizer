@@ -20,7 +20,7 @@ var paused_time = 0;
 var paused_timedelta = 0;
 var max_time = 600000; // 10 minutes in milliseconds
 
-var active_halftime = 3; // 1=ht1, 2 = ht2, 3 = penalty
+var active_halftime = 1; // 1=ht1, 2 = ht2, 3 = penalty
 var gameMode = 1; // 
 
 var act_time = 0;
