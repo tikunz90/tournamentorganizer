@@ -89,6 +89,12 @@ def serialize_tournament_state_and_games(state: TournamentState, games) -> Dict[
     }
 
 def serialize_game(game: Game) -> Dict[str, Any]:
+    ps_a = []
+    ps_b = []
+    if hasattr(game, 'player_stats'):
+        ps_a = [serialize_playerstat(ps) for ps in game.player_stats if ps.player.team_id == game.team_a.id]
+        ps_b = [serialize_playerstat(ps) for ps in game.player_stats if ps.player.team_id == game.team_b.id]
+        
     return {
         'id': game.id,
         'team_a': serialize_team(game.team_a),
@@ -106,8 +112,8 @@ def serialize_game(game: Game) -> Dict[str, Any]:
         'score_team_b_penalty': game.score_team_b_penalty,
         'gamestate': game.gamestate,
         'gamingstate': game.gamingstate,
-        'player_stats_team_a': [serialize_playerstat(ps) for ps in game.player_stats if ps.player.team_id == game.team_a.id],
-        'player_stats_team_b': [serialize_playerstat(ps) for ps in game.player_stats if ps.player.team_id == game.team_b.id],
+        'player_stats_team_a': ps_a,
+        'player_stats_team_b': ps_b,
         'tournament': serialize_tournament(game.tournament),
         'tournament_event': serialize_tournament_event(game.tournament_event),
         'tournament_state': serialize_tournament_state(game.tournament_state),
