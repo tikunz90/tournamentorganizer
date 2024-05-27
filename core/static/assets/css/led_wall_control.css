@@ -1,0 +1,167 @@
+
+@font-face {
+  font-family: 'LemonMilk';
+  src: url('/static/assets/font/LEMONMILK-Regular.otf') format('truetype');
+}
+
+body {
+  background: radial-gradient(circle, rgba(242,242,242,1) 0%, rgba(47,189,255,1) 48%, rgba(200,198,198,1) 100%);
+  font-family: 'LemonMilk';
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  color: black;
+  overflow: hidden;
+}
+
+.screen {
+  width: 1280px; /*896px;*/
+  height: 720px; /*512px;*/
+  display: grid;
+  position: relative; /* Necessary for absolute positioning of child elements */
+  border: 1px solid #000; /* Optional: just to see the container border */
+  margin: 0 auto; /* Center the container horizontally */
+}
+
+
+.imagecontainer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: radial-gradient(circle, rgba(0,0,0,1) 0%, rgba(4,68,98,1) 48%, rgba(0,0,0,1) 100%);
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  opacity: 1;
+  transition: opacity 1s ease-in-out;
+}
+
+.imagecontainer.contains-img {
+  display: flex;
+}
+
+
+img {
+  max-width: 100%;
+  max-height: 100%;
+  display: block;
+  margin: 0 auto;
+  position: relative;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  transition: opacity 0.5s ease-in-out;
+}
+
+
+.imagecontainer.hidden {
+  opacity: 0;
+  visibility: hidden;
+}
+
+.imagecontainer.visible {
+  opacity: 1;
+}
+
+.imagecontainer.info {
+  background-image: url('/static/assets/img/space.png');
+  background-size: cover; /* Adjust the image size to cover the cell */
+  background-repeat: no-repeat;
+  background-position: center; /* Center the image within the cell */
+}
+
+
+.table {
+  position: absolute;
+  border-collapse: collapse;
+  width: 500px; /* Example width */
+  height: 150px; /* Example height */
+  color: white;
+}
+
+.table th, .table td {
+  border: 1px solid #000;
+  padding: 5px;
+  text-align: center;
+}
+
+.tableheaderA {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: left;
+  padding-top: 0.5%;
+  padding-bottom: 1%;
+  padding-left: 3%;
+}
+
+.tableheaderB {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: right;
+  padding-top: 0.5%;
+  padding-bottom: 1%;
+  padding-right: 3%;
+}
+
+.table-borderless > tbody > tr > td,
+.table-borderless > tbody > tr > th,
+.table-borderless > tfoot > tr > td,
+.table-borderless > tfoot > tr > th,
+.table-borderless > thead > tr > td,
+.table-borderless > thead > tr > th {
+    border: none;
+}
+
+.numbercol {
+  width: 15%;
+  width: 50px;
+  font-size: 24px;
+}
+
+.namecol {
+  width: 85%;
+  width: 150px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: left;
+  font-size: 24px;
+}
+
+.row-full-width {
+  width: 100%;
+}
+
+/* Clock styles */
+#clock {
+  font-size: 30px;
+  font-weight: bold;
+  z-index: 9999;
+}
+
+.bottom-right {
+  position: fixed;
+  bottom: 0;
+  right: 0;
+  color: #fff; /* Example text color */
+  padding: 10px; /* Example padding */
+}
+
+
+/* ADVERTISE */
+img.fade {
+  opacity: 0;
+  position: relative;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+img.fade.active {
+  opacity: 1;
+}

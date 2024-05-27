@@ -112,7 +112,8 @@ def get_tournament_struct(request, season_tournament_id):
     )
 ).filter(season_cup_tournament_id=season_tournament_id).first()
 
-    data = serialize_tournament_event_stats(tourn_data)
+    #data = serialize_tournament_full(tourn_data)
+    data = helper.get_tournament_info_json(tourn_data)
     #global_pstats = PlayerStats.objects.filter(tournament_event=tevent, is_ranked=True).order_by('-score')[:amount]
     #print('After objects')
     #ser = PlayerStatsSerializer(global_pstats, many=True)

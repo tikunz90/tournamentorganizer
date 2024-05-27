@@ -16,7 +16,7 @@ CORE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = config('SECRET_KEY', default='S#perS3crEt_1122')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False#config('DEBUG', default=True, cast=bool)
+DEBUG = True#config('DEBUG', default=True, cast=bool)
 
 # load production server from .env
 ALLOWED_HOSTS = ['*', 'localhost', '127.0.0.1', config('SERVER', default='127.0.0.1')]
@@ -124,7 +124,7 @@ DATABASES = {
             'read_default_file': os.path.join(BASE_DIR, 'database_config.cnf'),
             "init_command": "SET foreign_key_checks = 0;",
         },
-        'CONN_MAX_AGE ': 60,
+        'CONN_MAX_AGE ': 0,
     }
 }
 
