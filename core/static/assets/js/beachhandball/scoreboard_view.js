@@ -92,6 +92,8 @@ function onConnectSuccess(context) {
     isConnected = true;
     clientMqtt.send(topicName, "Hello");  // Replace "topic" with the topic you want to publish the message to
     clientMqtt.subscribe(topicName);
+
+    update_score_display();
 }
 
 function onConnectionLost(responseObject) {
@@ -267,11 +269,15 @@ function update_score_display() {
     var lblScoreB_TOT = document.getElementById("team_b_score_total");
 
     var lblMoment = document.getElementById("moment");
+    var lblHeader = document.getElementById("header");
+    lblHeader.style.visibility = "hidden";
     var lblHalftime = document.getElementById("halftime");
 
     lblMoment.textContent = active_halftime;
     if(gameMode == 1 && active_halftime == 3) {
         lblMoment.textContent = "P";
+        lblHeader.textContent = "SHOOTOUT";
+        lblHeader.style.visibility = "visible";
         if (lblHalftime.classList.contains('boxovertimeoff')) {
             lblHalftime.classList.remove('boxovertimeoff');
             lblHalftime.classList.add('boxovertimeon');

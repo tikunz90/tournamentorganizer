@@ -189,35 +189,46 @@
                 </div>
         </div>
         <div class="card-footer">
-        <div class="row">
-            <div class="col-md">
-            <button type="button" class="update-tstate btn btn-sm btn-primary" rel="tooltip" title="Edit TournamentState" data-form-url="{{ url('structure_setup.update_tstate', kwargs={'pk_tevent':tevent.id, 'pk_tstage':stage.id, 'pk':tstate.id}) }}">
-                <span class="fa fa-pencil"></span>
-            </button>
+            <div class="container"> 
+                <div class="row d-flex justify-content-center">
+                    <div class="col-md-3 align-items-center">
+                        <button type="button" class="update-tstate btn btn-primary w-100" rel="tooltip" title="Edit TournamentState" data-form-url="{{ url('structure_setup.update_tstate', kwargs={'pk_tevent':tevent.id, 'pk_tstage':stage.id, 'pk':tstate.id}) }}" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                            <span class="fa fa-pencil text-truncate"></span> Edit State
+                        </button>
+                    </div>
+
+                    <div class="col-md-3 align-items-center">
+                        <button type="button" rel="tooltip" class="download-pregame-report btn btn-info w-100" rel="tooltip" title="Download Pre-Game Report" data-form-url="{{ url('download_pre_game_all', kwargs={'pk_tevent':tevent.id, 'pk_tstage':stage.id, 'pk':tstate.id}) }}" data-list-url="{{ url('games_list', kwargs={'pk_tstate':tstate.id}) }}" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                            <a class="" href="{{ url('download_pre_game_all', kwargs={'pk_tevent':tevent.id, 'pk_tstage':stage.id, 'pk':tstate.id}) }}">
+                                <i class="material-icons">file_download</i> All Pre-Game Reports
+                            </a>
+                        </button>
+                    </div>
+
+                    <div class="col-md-3 align-items-center">
+                        <button type="button" class="finish-tstate btn btn-primary w-100" rel="tooltip" title="Finishes TournamentState after all games played" data-form-url="{{ url('structure_setup.finish_tstate', kwargs={'pk_tevent':tevent.id, 'pk_tstage':stage.id, 'pk':tstate.id}) }}" onclick="modalShowSpinner();" {% if not tstate.is_finished  %}disabled{% endif %} style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                            <i class="material-icons">check_circle_outline</i>Finish State
+                        </button>
+                    </div>
+                </div>
+
+                <div class="row d-flex justify-content-center">
+                    
+                    <div class="col-md-3">
+                        <button type="button" class="create-game btn btn-primary w-100" rel="tooltip" title="Add Game" data-form-url="{{ url('structure_setup.create_game', kwargs={'pk_tevent':tevent.id, 'pk_tstage':stage.id, 'pk_tstate':tstate.id}) }}" {% if tstate.is_finished and tstate.transitions_done %} disabled {% else %} onclick="modalShowSpinner();"{% endif %} style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                            <i class="material-icons">note_add</i>Add Game
+                        </button>
+                    </div>
+                    
+                    
+                    <div class="col-md-3">
+                        <button type="button" class="delete-tstate btn btn-danger w-100" rel="tooltip" title="Delete TournamentState" data-form-url="{{ url('structure_setup.delete_tstate', kwargs={'pk_tevent':tevent.id, 'pk_tstage':stage.id, 'pk':tstate.id}) }}" {% if tstate.is_finished and tstate.transitions_done %}disabled{% endif %} style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                            <span class="fa fa-trash"></span>Delete State
+                        </button>
+                    </div>
+                </div>
+
             </div>
-            <div class="col-md">
-            <button type="button" class="create-game btn btn-sm btn-primary" rel="tooltip" title="Add Game" data-form-url="{{ url('structure_setup.create_game', kwargs={'pk_tevent':tevent.id, 'pk_tstage':stage.id, 'pk_tstate':tstate.id}) }}" {% if tstate.is_finished and tstate.transitions_done %} disabled {% else %} onclick="modalShowSpinner();"{% endif %}>
-                <i class="material-icons">note_add</i>Add Game
-            </button>
-            </div>
-            <div class="col-md">
-            <button type="button" rel="tooltip" class="download-pregame-report btn btn-info" rel="tooltip" title="Download Pre-Game Report" data-form-url="{{ url('download_pre_game_all', kwargs={'pk_tevent':tevent.id, 'pk_tstage':stage.id, 'pk':tstate.id}) }}" data-list-url="{{ url('games_list', kwargs={'pk_tstate':tstate.id}) }}">
-                <a class="" href="{{ url('download_pre_game_all', kwargs={'pk_tevent':tevent.id, 'pk_tstage':stage.id, 'pk':tstate.id}) }}">
-                    <i class="material-icons">file_download</i> All Pre-Game Reports
-                </a>
-            </button>
-            </div>
-            <div class="col-md">
-            <button type="button" class="finish-tstate btn btn-sm btn-primary" rel="tooltip" title="Finishes TournamentState after all games played" data-form-url="{{ url('structure_setup.finish_tstate', kwargs={'pk_tevent':tevent.id, 'pk_tstage':stage.id, 'pk':tstate.id}) }}" onclick="modalShowSpinner();" {% if not tstate.is_finished  or tstate.transitions_done %}disabled{% endif %}>
-                <i class="material-icons">check_circle_outline</i>Finish State
-            </button>
-            </div>
-            <div class="col-md">
-            <button type="button" class="delete-tstate btn btn-sm btn-danger" rel="tooltip" title="Delete TournamentState" data-form-url="{{ url('structure_setup.delete_tstate', kwargs={'pk_tevent':tevent.id, 'pk_tstage':stage.id, 'pk':tstate.id}) }}" {% if tstate.is_finished and tstate.transitions_done %}disabled{% endif %}>
-                <span class="fa fa-trash"></span>
-            </button>
-            </div>
-        </div>
         </div>
     </div>
 </div>

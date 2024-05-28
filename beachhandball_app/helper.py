@@ -5,10 +5,12 @@ import time
 from datetime import datetime
 
 from django.db.models.query import Prefetch
+from django.db.models.signals import post_save
 from authentication.models import GBOUser, GBOUserSerializer
 from beachhandball_app.api.serializers.tournament.serializer import serialize_tournament_full
 from beachhandball_app.models.Player import Player, PlayerStats
 from django.db.models.query_utils import Q, check_rel_lookup_compatibility
+from beachhandball_app import signals
 from beachhandball_app.models.choices import GAMESTATE_CHOICES, TOURNAMENT_STAGE_TYPE_CHOICES
 from beachhandball_app.models.Tournaments import Court, Referee, Tournament, TournamentEvent, TournamentSettings, TournamentStage, TournamentState, TournamentTeamTransition
 from beachhandball_app.models.Game import Game
@@ -1086,6 +1088,8 @@ def check_all_tournamentstate_finshed(tevent, states):
     TournamentState.objects.bulk_update(ts_bulk_list, ("is_finished",))
 
 def check_tournamentstate_finished(tevent, ts):
+
+    post_save.disconnect(signals.ttt_changed, sender=TournamentTeamTransition)
     games_played = Game.objects.all().filter(tournament_event=tevent,
                                              tournament_state=ts,
                                              gamestate=GAMESTATE_CHOICES[2][1]).count()
@@ -1104,7 +1108,7 @@ def check_tournamentstate_finished(tevent, ts):
             # get TournamentTeamTransition
             trans = TournamentTeamTransition.objects.filter(tournament_event=tevent,
                                                             origin_ts_id=ts,
-                                                            is_executed=False,
+                                                            #is_executed=False,
                                                             origin_rank=iRank)
 
             if trans.count() > 0:
@@ -1114,8 +1118,12 @@ def check_tournamentstate_finished(tevent, ts):
                                                                 tournamentstate=trans.target_ts_id,
                                                                 rank_initial=trans.target_rank)
                     if target_stat.count() == 1:
+                        trans.is_executed = True
+                        trans.save(update_fields=['is_executed'])
+
                         target_stat = target_stat.get()
                         target_stat.team = stat.team
+                        target_stat.name_table = stat.team.name
                         if trans.keep_stats:
                             target_stat.number_of_played_games = 0
                             target_stat.sets_win = stat.sets_win
@@ -1126,8 +1134,8 @@ def check_tournamentstate_finished(tevent, ts):
                         target_stat.game_points_bonus = 0
                         target_stat.ranking_points = 0
                         target_stat.save()
-                trans.is_executed = True
-                trans.save(update_fields=['is_executed'])
+                #trans.is_executed = True
+                #trans.save(update_fields=['is_executed'])
 
             iRank = iRank + 1
 
@@ -1140,6 +1148,7 @@ def check_tournamentstate_finished(tevent, ts):
         else:
             ts.transitions_done = True
         ts.save(update_fields=['transitions_done'])
+    post_save.connect(signals.ttt_changed, sender=TournamentTeamTransition)
 
 def get_tournament_info_json(tourn):
     tourn_data = Tournament.objects.prefetch_related(
