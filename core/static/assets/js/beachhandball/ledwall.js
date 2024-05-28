@@ -62,10 +62,11 @@ window.addEventListener("load", function () {
     showPage("info");
 
     setTimeout(() => {
+        fetchWeather();
         //document.querySelector('.logo-container').classList.add('hidden');
         //document.querySelector('.advertise-container').classList.add('hidden');
         //document.querySelector('.content').classList.add('visible');
-    }, 500); // 5000 milliseconds = 5 seconds
+    }, 300000); // 5000 milliseconds = 5 seconds
 });
 
 var images = [
@@ -178,7 +179,7 @@ function updateGameData(data) {
 
     try {
 
-        if(data.id == -1) {
+        if (data.id == -1) {
             return;
         }
         gameData = data;
@@ -196,7 +197,7 @@ function updateGameData(data) {
         var playersB = data.player_st_b;
 
         var catLetter = "M";
-        if(category.category.includes("woman")) {
+        if (category.category.includes("woman")) {
             catLetter = "W";
         }
         var tstateName = catLetter + " - " + tstate.name;
@@ -248,6 +249,34 @@ function fillPlayersTable(tableId, jsonData) {
 
         tableBody.appendChild(row);
     });
+}
+
+function fetchWeather() {
+    try {
+        fetch(`https://api.openweathermap.org/data/2.5/weather?lat=50.136181&lon=8.450800&appid=cb4b76afff33313fc2d263c5b83c82b6`)
+            .then(response => response.json())
+            .then(data => {
+                const weatherResult = document.getElementById('weatherResult');
+                if (data.cod === 200) {
+                    var iconUrl = `https://openweathermap.org/img/wn/${data.weather[0].icon}@2x.png`;
+                    document.getElementById('weather-icon').src = iconUrl;
+                    weatherResult.textContent = `${roundToNearestHalf(data.main.temp -273.15)}°C`;
+                } else {
+                    weatherResult.innerHTML = `<p>Error: ${data.message}</p>`;
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching weather data:', error);
+                document.getElementById('weatherResult').innerHTML = `<p>Error fetching weather data</p>`;
+            });
+    } catch (error) {
+
+    }
+
+}
+
+function roundToNearestHalf(num) {
+    return Math.round(num * 2) / 2;
 }
 
 function connectMqtt() {

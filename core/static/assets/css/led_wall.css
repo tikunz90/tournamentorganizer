@@ -144,10 +144,34 @@ img {
   z-index: 9999;
 }
 
+.weather {
+  font-size: 28px;
+  font-weight: bold;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+}
+.weather img {
+  margin-right: 10px;
+  max-width: 40px;
+  max-height: 40px;
+}
+.weather h2 {
+  margin: 0;
+}
+
 .bottom-right {
   position: fixed;
   bottom: 0;
   right: 0;
+  color: #fff; /* Example text color */
+  padding: 10px; /* Example padding */
+}
+
+.bottom-left {
+  position: fixed;
+  bottom: 0;
+  left: 0;
   color: #fff; /* Example text color */
   padding: 10px; /* Example padding */
 }
