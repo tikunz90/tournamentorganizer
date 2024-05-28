@@ -160,6 +160,25 @@ img {
   margin: 0;
 }
 
+.forecast-container {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+.forecast-item {
+  width: calc(66% - 10px);
+  margin-bottom: 20px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  padding: 10px;
+}
+.forecast-time {
+  font-weight: bold;
+}
+.forecast-icon {
+  margin-bottom: 10px;
+}
+
 .bottom-right {
   position: fixed;
   bottom: 0;
@@ -188,4 +207,10 @@ img.fade {
 }
 img.fade.active {
   opacity: 1;
+}
+
+
+h2 {
+  margin-top: 30px; /* Adjust as needed */
+  margin-bottom: 30px; /* Adjust as needed */
 }

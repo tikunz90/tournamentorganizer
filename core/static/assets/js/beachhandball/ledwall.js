@@ -59,7 +59,8 @@ window.addEventListener("load", function () {
     console.log("ledwall loaded...");
     connectMqtt();
 
-    showPage("info");
+    //showPage("info");
+    showPage("weatherforecast");
 
     setTimeout(() => {
         fetchWeather();
@@ -158,6 +159,10 @@ function onMessageArrived(message) {
 }
 
 function showPage(pagename) {
+
+    if(pagename == "weatherforecast") {
+        fetchWeather();
+    }
     document.querySelectorAll('.imagecontainer').forEach(function (element) {
         element.classList.remove('visible');
     });
@@ -262,7 +267,7 @@ function fetchWeather() {
                     document.getElementById('weather-icon').src = iconUrl;
                     weatherResult.textContent = `${roundToNearestHalf(data.main.temp -273.15)}°C`;
                 } else {
-                    weatherResult.innerHTML = `<p>Error: ${data.message}</p>`;
+                    console.log("Error weather:" + data.cod);
                 }
             })
             .catch(error => {
@@ -273,6 +278,90 @@ function fetchWeather() {
 
     }
 
+
+    try {
+        fetch(`https://api.openweathermap.org/data/2.5/forecast?lat=50.136181&lon=8.450800&appid=cb4b76afff33313fc2d263c5b83c82b6`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.cod == "200") {
+
+                const forecastContainer = document.querySelector('#weatherforecast-container');
+
+                forecastContainer.innerHTML = '';
+
+                let itemCount = 0;
+                data.list.forEach(forecast => {
+                    if (itemCount >= 3) {
+                        // If three items are already added, exit the loop
+                        return;
+                    }
+
+                    
+                    const forecastItem = document.createElement('div');
+                    forecastItem.classList.add('forecast-item', 'd-flex', 'align-items-center', 'justify-content-between', 'mb-3');
+
+                    var time = unixTimestampToHHMM(forecast.dt);
+                    const weatherTime = document.createElement('h2');
+                    weatherTime.classList.add('forecastTime');
+                    weatherTime.textContent = time;
+                
+                    var iconUrl = `https://openweathermap.org/img/wn/${forecast.weather[0].icon}@2x.png`;
+
+                    const weatherIcon = document.createElement('img');
+                    weatherIcon.classList.add('weather-icon');
+                    weatherIcon.src = iconUrl;
+                    weatherIcon.alt = 'Weather Icon';
+                
+                    const weatherResult = document.createElement('h2');
+                    weatherResult.classList.add('weatherResult');
+                    weatherResult.textContent = `${roundToNearestHalf(forecast.main.temp -273.15)}°C`;
+                
+                    forecastItem.appendChild(weatherTime);
+                    forecastItem.appendChild(weatherIcon);
+                    forecastItem.appendChild(weatherResult);
+                
+                    forecastContainer.appendChild(forecastItem);
+
+                    itemCount++;
+                });
+
+            } else {
+                console.log("Error Forecast:" + data.cod);
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching weather data:', error);
+            document.getElementById('weatherResult').innerHTML = `<p>Error fetching weather data</p>`;
+        });
+
+
+        
+
+    } catch (error) {
+        
+    }
+
+}
+
+function unixTimestampToHHMM(unixTimestamp) {
+    // Convert Unix timestamp to milliseconds
+    const milliseconds = unixTimestamp * 1000;
+
+    // Create a new Date object
+    const dateObject = new Date(milliseconds);
+
+    // Get hours and minutes from the Date object
+    const hours = dateObject.getHours();
+    const minutes = dateObject.getMinutes();
+
+    // Format hours and minutes to have leading zeros if necessary
+    const formattedHours = String(hours).padStart(2, '0');
+    const formattedMinutes = String(minutes).padStart(2, '0');
+
+    // Concatenate hours and minutes with a colon separator
+    const formattedTime = `${formattedHours}:${formattedMinutes}`;
+
+    return formattedTime;
 }
 
 function roundToNearestHalf(num) {
