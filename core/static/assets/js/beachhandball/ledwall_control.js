@@ -4,6 +4,7 @@ var topicNameBase = "beach_livescore";
 var topicLedWallNameBase = "led_wall";
 var topicName = "";
 var topicLedWallName = "";
+var topicLedWallError = "";
 var isConnected = false;
 
 
@@ -55,6 +56,7 @@ function connectMqtt() {
     var headerGameId = document.getElementById('game_id');
     topicName = topicNameBase + "/tournament_" + headerTournId.textContent + "/court_" + headerCourtId.textContent + "/";
     topicLedWallName = topicLedWallNameBase + "/tournament_" + headerTournId.textContent + "/court_" + headerCourtId.textContent + "/";
+    topicLedWallError = topicLedWallNameBase + "/error/";
     
     var urlParams = new URLSearchParams(window.location.search);
     // Get the value of the "myparam" parameter

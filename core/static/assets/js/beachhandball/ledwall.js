@@ -3,9 +3,11 @@ var mqtt_interval;
 var topicNameBase = "beach_livescore";
 var topicLedWallNameBase = "led_wall";
 var topicName = "";
-topicLedWallName = "";
+var topicLedWallName = "";
+var topicLedWallError = "";
 var isConnected = false;
 
+var gameData;
 var start_time;
 var elapsed_time;
 var remaining_time;
@@ -43,7 +45,7 @@ function updateClock() {
     const hours = String(now.getHours()).padStart(2, '0');
     const minutes = String(now.getMinutes()).padStart(2, '0');
     const seconds = String(now.getSeconds()).padStart(2, '0');
-    const timeString = `${hours}:${minutes}:${seconds}`;
+    const timeString = `${hours}:${minutes}`;
     document.getElementById('clock').textContent = timeString;
 }
 
@@ -52,7 +54,7 @@ updateClock(); // Initial call to set the clock immediately
 
 
 // attach an event listener to the "load" event of the window object
-window.addEventListener("load", function() {
+window.addEventListener("load", function () {
     // your code here
     console.log("ledwall loaded...");
     connectMqtt();
@@ -64,53 +66,53 @@ window.addEventListener("load", function() {
         //document.querySelector('.advertise-container').classList.add('hidden');
         //document.querySelector('.content').classList.add('visible');
     }, 500); // 5000 milliseconds = 5 seconds
-  });
+});
 
-  var images = [
+var images = [
     "/static/assets/img/gbo_logo.png",
     "/static/assets/img/ball.png",
     "/static/assets/img/dhb_logo.png",
     "/static/assets/img/beachandthegang.png",
     // Add more image URLs as needed
-  ];
+];
 
-  var currentImageIndex = -1;
+var currentImageIndex = -1;
 
 // Function to get a random image index that is different from the current one
 function getRandomImageIndex() {
-  var newIndex;
-  do {
-    newIndex = Math.floor(Math.random() * images.length);
-  } while (newIndex === currentImageIndex);
-  return newIndex;
+    var newIndex;
+    do {
+        newIndex = Math.floor(Math.random() * images.length);
+    } while (newIndex === currentImageIndex);
+    return newIndex;
 }
 
 // Function to display a random image
 function displayRandomImage() {
-  var container = document.getElementById("image-container");
-  var randomIndex = getRandomImageIndex();
-  var randomImage = images[randomIndex];
+    var container = document.getElementById("image-container");
+    var randomIndex = getRandomImageIndex();
+    var randomImage = images[randomIndex];
 
-  // Create new image element
-  var newImage = new Image();
-  newImage.src = randomImage;
-  newImage.className = "fade";
+    // Create new image element
+    var newImage = new Image();
+    newImage.src = randomImage;
+    newImage.className = "fade";
 
-  // Append new image to container
-  container.innerHTML = '';
-  container.appendChild(newImage);
+    // Append new image to container
+    container.innerHTML = '';
+    container.appendChild(newImage);
 
-  // After a short delay, fade in the new image
-  setTimeout(function() {
-    newImage.classList.add("active");
-  }, 100); // Adjust as needed for transition timing
+    // After a short delay, fade in the new image
+    setTimeout(function () {
+        newImage.classList.add("active");
+    }, 100); // Adjust as needed for transition timing
 
-  // Update current image index
-  currentImageIndex = randomIndex;
+    // Update current image index
+    currentImageIndex = randomIndex;
 }
-  
 
-  displayRandomImage();
+
+displayRandomImage();
 
 // Change the image every 2 seconds
 setInterval(displayRandomImage, 4000);
@@ -132,28 +134,33 @@ setInterval(displayRandomImage, 4000);
 //});
 
 function onMessageArrived(message) {
-    console.log("onMessageArrived:"+message.payloadString);
+    //console.log("onMessageArrived:" + message.payloadString);
     var data;
     try {
-    data = JSON.parse(message.payloadString);
+        data = JSON.parse(message.payloadString);
     } catch (e) {
-    console.error("Error parsing JSON: " + e);
-    return;
+        console.error("Error parsing JSON: " + e);
+        if (isConnected) {
+            clientMqtt.send(topicLedWallError, "Error parsing JSON: " + e);
+        }
+        return;
     }
     if (data) {
-        if(data['command'] == 'showPage')
-        {
+        console.log("onMessageArrived: " + data['command']);
+        if (data['command'] == 'showPage') {
             showPage(data['content']);
+        } else if (data['command'] == 'score') {
+            updateGameData(data);
         }
-        
+
     }
 }
 
-function showPage(pagename){
-    document.querySelectorAll('.imagecontainer').forEach(function(element) {
+function showPage(pagename) {
+    document.querySelectorAll('.imagecontainer').forEach(function (element) {
         element.classList.remove('visible');
     });
-    document.querySelectorAll('.imagecontainer').forEach(function(element) {
+    document.querySelectorAll('.imagecontainer').forEach(function (element) {
         element.classList.add('hidden');
     });
 
@@ -163,9 +170,86 @@ function showPage(pagename){
         element.classList.remove('hidden');
         element.classList.add('visible');
     } else {
-        console.log('The element with class '+ pagename +' does not exist.');
-    }   
+        console.log('The element with class ' + pagename + ' does not exist.');
+    }
 }
+
+function updateGameData(data) {
+
+    try {
+
+        if(data.id == -1) {
+            return;
+        }
+        gameData = data;
+
+        var headerTournamentState = document.getElementById('gameTournamentState');
+        var headerTeamA = document.getElementById('gameTeamA_Name');
+        var headerTeamB = document.getElementById('gameTeamB_Name');
+
+        var tevent = data.tournament_event;
+        var category = tevent.category;
+        var tstate = data.tournament_state;
+        var teamA = data.team_a;
+        var teamB = data.team_b;
+        var playersA = data.player_st_a;
+        var playersB = data.player_st_b;
+
+        var catLetter = "M";
+        if(category.category.includes("woman")) {
+            catLetter = "W";
+        }
+        var tstateName = catLetter + " - " + tstate.name;
+        headerTournamentState.textContent = tstateName;
+
+        headerTeamA.textContent = teamA.name;
+        headerTeamB.textContent = teamB.name;
+
+        fillPlayersTable("gamePlayersA", playersA);
+        fillPlayersTable("gamePlayersB", playersB);
+
+    } catch (error) {
+        if (isConnected) {
+            clientMqtt.send(topicLedWallError, "Error updateGameData: " + error);
+        }
+        console.log("Error updateGameData: " + error);
+    }
+}
+
+function fillPlayersTable(tableId, jsonData) {
+    var tableBody = document.querySelector(`#${tableId} tbody`);
+    tableBody.innerHTML = ''; // Clear any existing rows
+
+    jsonData.forEach(player => {
+        var playerInfo = player.seasonPlayer.seasonSubject.subject.user;
+        var number = player.seasonPlayer.number;
+        var name = playerInfo.name;
+        var familyName = playerInfo.family_name;
+        var initial = name.charAt(0) + ".";
+        var score = player.score;
+
+        var row = document.createElement('tr');
+
+        var numberCell = document.createElement('td');
+        numberCell.classList.add('centered', 'numbercol');
+        numberCell.textContent = number;
+
+        var nameCell = document.createElement('td');
+        nameCell.classList.add('namecol');
+        nameCell.textContent = `${familyName}, ${initial}`;
+
+        var scoreCell = document.createElement('td');
+        scoreCell.classList.add('centered', 'numbercol');
+        scoreCell.textContent = score;
+
+        row.appendChild(numberCell);
+        row.appendChild(nameCell);
+        row.appendChild(scoreCell);
+
+        tableBody.appendChild(row);
+    });
+}
+
 function connectMqtt() {
     console.log("connect mqtt...");
     var headerTournId = document.getElementById('tournament_id');
@@ -173,16 +257,16 @@ function connectMqtt() {
     var headerGameId = document.getElementById('game_id');
     topicName = topicNameBase + "/tournament_" + headerTournId.textContent + "/court_" + headerCourtId.textContent + "/";
     topicLedWallName = topicLedWallNameBase + "/tournament_" + headerTournId.textContent + "/court_" + headerCourtId.textContent + "/";
-    
+    topicLedWallError = topicLedWallNameBase + "/error/";
+
     var urlParams = new URLSearchParams(window.location.search);
     // Get the value of the "myparam" parameter
     var passedTopicName = urlParams.get('court');
 
-    if(passedTopicName != null)
-    {
+    if (passedTopicName != null) {
         topicName = topicNameBase + "/" + passedTopicName + "/";
     }
-    
+
     console.log("Topic: " + topicName);
     var headerMqttBroker = document.getElementById('mqtt_broker');
     var headerMqttPort = document.getElementById('mqtt_port');
@@ -197,8 +281,8 @@ function connectMqtt() {
 
     console.log("Mqtt: " + headerMqttBroker.textContent + ":" + portNumber);
     let uniqueId = Date.now().toString(36) + Math.random().toString(36).substring(2);
-    clientMqtt = new Paho.MQTT.Client(headerMqttBroker.textContent, portNumber, "livescore_display_beach_" + uniqueId); 
-    
+    clientMqtt = new Paho.MQTT.Client(headerMqttBroker.textContent, portNumber, "livescore_display_beach_" + uniqueId);
+
     var options = {
         useSSL: useSSL,
         userName: "tim",
@@ -214,16 +298,14 @@ function connectMqtt() {
 function onConnectSuccess(context) {
     console.log("mqtt connected...");
     isConnected = true;
-    clientMqtt.send(topicName, "Hello");  // Replace "topic" with the topic you want to publish the message to
+    clientMqtt.send(topicName, "Hello"); // Replace "topic" with the topic you want to publish the message to
     clientMqtt.subscribe(topicName);
     clientMqtt.subscribe(topicLedWallName);
 }
 
 function onConnectionLost(responseObject) {
     if (responseObject.errorCode !== 0) {
-      console.log("onConnectionLost:"+responseObject.errorMessage);
-      isConnected = false;
+        console.log("onConnectionLost:" + responseObject.errorMessage);
+        isConnected = false;
     }
 }
-
-
