@@ -72,9 +72,15 @@ window.addEventListener("load", function () {
 
 var images = [
     "/static/assets/img/gbo_logo.png",
-    "/static/assets/img/ball.png",
-    "/static/assets/img/dhb_logo.png",
     "/static/assets/img/beachandthegang.png",
+    "/static/assets/img/advertise/ring.png",
+    "/static/assets/img/advertise/swag.png",
+    "/static/assets/img/advertise/voba.png",
+    "/static/assets/img/advertise/dig.png",
+    "/static/assets/img/advertise/gl.png",
+    "/static/assets/img/advertise/ht.png",
+    "/static/assets/img/advertise/horn.jpg",
+    "/static/assets/img/advertise/zelser.png",
     // Add more image URLs as needed
 ];
 
@@ -99,6 +105,7 @@ function displayRandomImage() {
     var newImage = new Image();
     newImage.src = randomImage;
     newImage.className = "fade";
+    newImage.style.maxHeight = '550px';
 
     // Append new image to container
     container.innerHTML = '';
@@ -257,6 +264,7 @@ function fillPlayersTable(tableId, jsonData) {
 }
 
 function fetchWeather() {
+    console.log("ENTER featchWeather");
     try {
         fetch(`https://api.openweathermap.org/data/2.5/weather?lat=50.136181&lon=8.450800&appid=cb4b76afff33313fc2d263c5b83c82b6`)
             .then(response => response.json())
@@ -302,22 +310,28 @@ function fetchWeather() {
 
                     var time = unixTimestampToHHMM(forecast.dt);
                     const weatherTime = document.createElement('h2');
-                    weatherTime.classList.add('forecastTime');
+                    weatherTime.classList.add('forecastTime', 'mb-2');
                     weatherTime.textContent = time;
                 
                     var iconUrl = `https://openweathermap.org/img/wn/${forecast.weather[0].icon}@2x.png`;
 
                     const weatherIcon = document.createElement('img');
-                    weatherIcon.classList.add('weather-icon');
+                    weatherIcon.classList.add('weather-icon', 'mb-2');
                     weatherIcon.src = iconUrl;
                     weatherIcon.alt = 'Weather Icon';
+
+                    var wind = forecast.wind.speed * 3.6;
+                    const weatherWind = document.createElement('h2');
+                    weatherWind.classList.add('forecastWind', 'mb-2');
+                    weatherWind.textContent = `${Math.round(wind)} km/h`;
                 
                     const weatherResult = document.createElement('h2');
-                    weatherResult.classList.add('weatherResult');
+                    weatherResult.classList.add('weatherResult', 'mb-2');
                     weatherResult.textContent = `${roundToNearestHalf(forecast.main.temp -273.15)}°C`;
                 
                     forecastItem.appendChild(weatherTime);
                     forecastItem.appendChild(weatherIcon);
+                    //forecastItem.appendChild(weatherWind);
                     forecastItem.appendChild(weatherResult);
                 
                     forecastContainer.appendChild(forecastItem);
