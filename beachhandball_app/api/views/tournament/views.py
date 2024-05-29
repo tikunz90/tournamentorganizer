@@ -85,7 +85,7 @@ def get_tournament_struct(request, season_tournament_id):
     print( 'ENTER get_tournament_info season_tournament_id=' + str(season_tournament_id))
     isError = False
     errorCode = 200
-    tourn_data = Tournament.objects.prefetch_related(
+    """ tourn_data = Tournament.objects.prefetch_related(
     Prefetch(
         "tournamentevent_set",
         queryset=TournamentEvent.objects.select_related("tournament", "category").prefetch_related(
@@ -110,10 +110,12 @@ def get_tournament_struct(request, season_tournament_id):
         ),
         to_attr="all_tevents"
     )
-).filter(season_cup_tournament_id=season_tournament_id).first()
-
+).filter(season_cup_tournament_id=season_tournament_id).first() """
+    tourn_data = Tournament.objects.filter(season_cup_tournament_id=season_tournament_id).first()
+    print('Query Done')
     #data = serialize_tournament_full(tourn_data)
     data = helper.get_tournament_info_json(tourn_data)
+    print('Serialize Done')
     #global_pstats = PlayerStats.objects.filter(tournament_event=tevent, is_ranked=True).order_by('-score')[:amount]
     #print('After objects')
     #ser = PlayerStatsSerializer(global_pstats, many=True)
@@ -132,6 +134,24 @@ def get_tournament_struct(request, season_tournament_id):
     #print('After response')
     return Response({"isError": isError, "errorCode": errorCode, "message": data})
 
+
+@api_view(['GET'])
+#@authentication_classes([SessionAuthentication, BasicAuthentication])
+#@permission_classes([IsAuthenticated])
+@cache_page(1)
+@renderer_classes([JSONRenderer])
+def get_tournament_struct_light(request, season_tournament_id):
+    print( 'ENTER get_tournament_info_light season_tournament_id=' + str(season_tournament_id))
+    isError = False
+    errorCode = 200
+    try:
+
+        tourn_data = Tournament.objects.filter(season_cup_tournament_id=season_tournament_id).first()
+        data = helper.get_tournament_info_light_json(tourn_data)
+    except Exception as ex:
+        errorCode = 401
+        data = repr(ex)
+    return Response({"isError": isError, "errorCode": errorCode, "message": data})
 
 @api_view(['GET'])
 #@authentication_classes([SessionAuthentication, BasicAuthentication])

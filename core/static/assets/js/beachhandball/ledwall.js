@@ -81,7 +81,6 @@ var images = [
     "/static/assets/img/advertise/ht.png",
     "/static/assets/img/advertise/horn.jpg",
     "/static/assets/img/advertise/zelser.png",
-    // Add more image URLs as needed
 ];
 
 var currentImageIndex = -1;
@@ -125,22 +124,6 @@ displayRandomImage();
 
 // Change the image every 2 seconds
 setInterval(displayRandomImage, 4000);
-
-// Show logo for 5 seconds, then transition to main content
-//window.addEventListener('load', () => {
-//    setTimeout(() => {
-//        document.querySelector('.logo-container').classList.add('hidden');
-//        document.querySelector('.advertise-container').classList.add('hidden');
-//        document.querySelector('.content').classList.add('visible');
-//
-//        setTimeout(() => {
-//            document.querySelector('.logo-container').classList.add('hidden');
-//            document.querySelector('.content').classList.add('hidden');
-//            document.querySelector('.advertise-container').classList.add('visible');
-//        }, 5000);
-//
-//    }, 500); // 5000 milliseconds = 5 seconds
-//});
 
 function onMessageArrived(message) {
     //console.log("onMessageArrived:" + message.payloadString);

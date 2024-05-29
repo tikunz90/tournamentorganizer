@@ -26,6 +26,17 @@ def serialize_tournament_full(tournament: Tournament) -> Dict[str, Any]:
         'events': [serialize_tournament_event_and_games(event, tournament.all_games) for event in tournament.all_tevents]
     }
 
+def serialize_tournament_light(tournament: Tournament) -> Dict[str, Any]:
+    return {
+        'id': tournament.id,
+        'created_at': tournament.created_at,#tournament.starttime.strftime('%H:%M (%d.%m.%Y)'),
+        'is_active': tournament.is_active,
+        'last_sync_at': tournament.last_sync_at,
+        'season_tournament_id': tournament.season_tournament_id,
+        'season_cup_tournament_id': tournament.season_cup_tournament_id,
+        'events': [serialize_tournament_event_light(event) for event in tournament.all_tevents]
+    }
+
 def serialize_tournament_event_and_games(tournamentEvent: TournamentEvent, games) -> Dict[str, Any]:
     data = {
         'id': tournamentEvent.id,
@@ -39,6 +50,21 @@ def serialize_tournament_event_and_games(tournamentEvent: TournamentEvent, games
         data['top10_player_stats_defense'] = [serialize_playerstat(stat) for stat in tournamentEvent.top10_player_stats_defense[:10]]
     if hasattr(tournamentEvent, 'top10_player_stats_gk'):
         data['top10_player_stats_gk'] = [serialize_playerstat(stat) for stat in tournamentEvent.top10_player_stats_gk[:10]]
+    return data
+
+def serialize_tournament_event_light(tournamentEvent: TournamentEvent) -> Dict[str, Any]:
+    data = {
+        'id': tournamentEvent.id,
+        'name': tournamentEvent.name,
+        'category': serialize_tournament_category(tournamentEvent.category),
+        'stages': [serialize_tournament_stage_light(stage, []) for stage in tournamentEvent.all_tstages]
+    }
+    if hasattr(tournamentEvent, 'top10_player_stats_offense'):
+        data['top10_player_stats_offense'] = [serialize_playerstat(stat) for stat in tournamentEvent.top10_player_stats_offense[:5]]
+    if hasattr(tournamentEvent, 'top10_player_stats_defense'):
+        data['top10_player_stats_defense'] = [serialize_playerstat(stat) for stat in tournamentEvent.top10_player_stats_defense[:5]]
+    if hasattr(tournamentEvent, 'top10_player_stats_gk'):
+        data['top10_player_stats_gk'] = [serialize_playerstat(stat) for stat in tournamentEvent.top10_player_stats_gk[:5]]
     return data
 
 def serialize_tournament_event_stats(tournamentEvent: TournamentEvent) -> Dict[str, Any]:
@@ -75,6 +101,15 @@ def serialize_tournament_stage(stage: TournamentStage, games) -> Dict[str, Any]:
         'states': [serialize_tournament_state_and_games(state, games) for state in stage.all_tstates]
     }
 
+def serialize_tournament_stage_light(stage: TournamentStage, games) -> Dict[str, Any]:
+    return {
+        'id': stage.id,
+        'name': stage.name,
+        'tournament_stage': stage.tournament_stage,
+        'order': stage.order,
+        'states': [serialize_tournament_state_light(state) for state in stage.all_tstates]
+    }
+
 def serialize_tournament_state_and_games(state: TournamentState, games) -> Dict[str, Any]:
     return {
         'id': state.id,
@@ -88,13 +123,26 @@ def serialize_tournament_state_and_games(state: TournamentState, games) -> Dict[
         'ranking': [serialize_teamstat(stat) for stat in state.all_team_stats]
     }
 
+def serialize_tournament_state_light(state: TournamentState) -> Dict[str, Any]:
+    return {
+        'id': state.id,
+        'abbreviation': state.abbreviation,
+        'hierarchy': state.hierarchy,
+        'max_number_teams': state.max_number_teams,
+        'min_number_teams': state.min_number_teams,
+        'is_final': state.is_final,
+        'is_finished': state.is_finished,
+        'games' : [],
+        'ranking': [serialize_teamstat(stat) for stat in state.all_team_stats]
+    }
+
 def serialize_game(game: Game) -> Dict[str, Any]:
     ps_a = []
     ps_b = []
     if hasattr(game, 'player_stats'):
         ps_a = [serialize_playerstat(ps) for ps in game.player_stats if ps.player.team_id == game.team_a.id]
         ps_b = [serialize_playerstat(ps) for ps in game.player_stats if ps.player.team_id == game.team_b.id]
-        
+
     return {
         'id': game.id,
         'team_a': serialize_team(game.team_a),

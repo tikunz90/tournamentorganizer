@@ -7,7 +7,7 @@ from datetime import datetime
 from django.db.models.query import Prefetch
 from django.db.models.signals import post_save
 from authentication.models import GBOUser, GBOUserSerializer
-from beachhandball_app.api.serializers.tournament.serializer import serialize_tournament_full
+from beachhandball_app.api.serializers.tournament.serializer import serialize_tournament_full, serialize_tournament_light
 from beachhandball_app.models.Player import Player, PlayerStats
 from django.db.models.query_utils import Q, check_rel_lookup_compatibility
 from beachhandball_app import signals
@@ -1170,6 +1170,21 @@ def get_tournament_info_json(tourn):
     if tourn_data is None:
         return '{}'
     return serialize_tournament_full(tourn_data)
+
+def get_tournament_info_light_json(tourn):
+    tourn_data = Tournament.objects.prefetch_related(
+            Prefetch("tournamentevent_set", queryset=TournamentEvent.objects.select_related("tournament", "category").prefetch_related(
+                Prefetch("tournamentstage_set", queryset=TournamentStage.objects.select_related("tournament_event__category").prefetch_related(
+                    Prefetch("tournamentstate_set", queryset=TournamentState.objects.select_related("tournament_event__category", "tournament_stage").prefetch_related(
+                        Prefetch("teamstats_set", queryset=TeamStats.objects.select_related("team").order_by("rank")
+                        , to_attr="all_team_stats"))
+                            , to_attr="all_tstates"))
+                                , to_attr="all_tstages"),),
+                to_attr="all_tevents"),
+                ).filter(id=tourn.id).first()
+    if tourn_data is None:
+        return '{}'
+    return serialize_tournament_light(tourn_data)
 
 def create_teams_testdata(tevent):
     tevent = TournamentEvent.objects.get(id=tevent)

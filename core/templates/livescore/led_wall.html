@@ -72,6 +72,40 @@
         </div>
     </div>
 
+    <div class="imagecontainer" data-id="info_tournamentstate">
+        <div class="row">
+            <div class="col" style="text-align: center; padding: 1%">
+                <h2 id="tstateName">{{ game.tournament_state }}</h2>
+            </div>
+        </div>
+
+        <div class="row">
+
+            <div class="col">
+                <table id="tstateRanking" class="table table-borderless">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th>Team</th>
+                            <th>Pts.</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for player in game.team_a.player_set.all()[:10] %}
+                            <tr>
+                                <td class="centered numbercol">{{ player.number }}</td>
+                                <td class="namecol">{{ player.name }}, {{ player.first_name[0] }}.</td>
+                                <td class="centered numbercol">0</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+
+        </div>
+    </div>
+
     <div id="image-container" class="imagecontainer contains-img advertise"  data-id="advertise">
     </div>
 
