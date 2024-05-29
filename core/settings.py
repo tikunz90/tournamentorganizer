@@ -226,19 +226,19 @@ CELERY_TASK_ALWAYS_EAGER  = False
 #CELERY_RESULT_SERIALIZER = 'json'
 #CELERY_TIMEZONE = 'Africa/Nairobi'
 
-#LOGGING = {
-#    'version': 1,
-#    'disable_existing_loggers': False,
-#    'handlers': {
-#        'console': {
-#            'level': 'DEBUG',
-#            'class': 'logging.StreamHandler',
-#        }
-#    },
-#    'loggers': {
-#        'django.db.backends': {
-#            'handlers': ['console'],
-#            'level': 'DEBUG',
-#        },
-#    }
-#}
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+        }
+    },
+    'loggers': {
+        'django.db.backends': {
+            'handlers': ['console'],
+            'level': 'DEBUG',
+        },
+    }
+}
