@@ -124,7 +124,7 @@ DATABASES = {
             'read_default_file': os.path.join(BASE_DIR, 'database_config.cnf'),
             "init_command": "SET foreign_key_checks = 0;",
         },
-        'CONN_MAX_AGE ': 0,
+        'CONN_MAX_AGE ': 30,
     }
 }
 
