@@ -183,7 +183,7 @@ bh = {
 
     var startTime = $("#wzgp-GameDays_DateTimeFirstGame").val();
     if (startTime == "") {
-      startTime = moment();
+      startTime = moment($("#wzgp-GameDays_DateTimeFirstGame").data("content"), "YYYY-MM-DD HH:mm:ssZ");
     }
     var dateFirstGame = moment(startTime, "MM/DD/YYYY HH:mm");
     bh.DateTimeFirstGame = dateFirstGame.format("MM/DD/YYYY HH:mm");
@@ -312,6 +312,12 @@ bh = {
       for (var i = 0; i < bh.numGameDays; i++) {
         var actMoment = moment(dateFirstGame).add(i, "days");
         var endMoment = moment(actMoment).add(defaultHoursGameDay, "hours");
+
+        var limitMoment = moment(actMoment).set({ hour: 23, minute: 0, second: 0, millisecond: 0 });
+
+        if (endMoment.isAfter(limitMoment)) {
+            endMoment = limitMoment;
+        }
 
         var gameDay = {
           id: i,
