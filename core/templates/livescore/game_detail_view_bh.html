@@ -3,6 +3,7 @@
 {% if game %}
 <div class="container containerbeachhandball">
 <div class="box toplabel" id="header"></div>
+<div class="" id="halftime" hidden></div>
 <div class="box boxtimer" id="stopwatch">00:00</div>
 
 <div class="box boxteams boxhometeam" id="team_1">{{ game.team_a.name }}</div>
@@ -20,6 +21,10 @@
 
 <div class="box boxpointsp boxhomepointsp" id="team_a_score_p">{{ game.score_team_a_penalty }}</div>
 <div class="box boxpointsp boxawaypointsp" id="team_b_score_p">{{ game.score_team_b_penalty }}</div>
+
+<div class="box boxshootouthome" id="team_a_shootout"></div>
+<div class="box boxshootoutaway" id="team_b_shootout"></div>
+
 {% else %}
 
 <div class="container containerbeachhandball">
@@ -41,6 +46,9 @@
 
 <div class="box boxpointsp boxhomepointsp" id="team_a_score_p">0</div>
 <div class="box boxpointsp boxawaypointsp" id="team_b_score_p">0</div>
+
+<div class="box boxshootouthome" id="team_a_shootout"></div>
+<div class="box boxshootoutaway" id="team_b_shootout"></div>
 
 {% endif %}
 

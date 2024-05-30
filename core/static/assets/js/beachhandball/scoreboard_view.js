@@ -29,12 +29,16 @@ var score_teama_ht1 = 0;
 var score_teama_ht2 = 0;
 var score_teama_p = 0;
 var score_teama_total = 0;
+var score_teama_num_so = 0;
 
 var teamb_name = "A";
 var score_teamb_ht1 = 0;
 var score_teamb_ht2 = 0;
 var score_teamb_p = 0;
 var score_teamb_total = 0;
+var score_teamb_num_so = 0;
+
+var shootoutTeamFirstShot = 0;
 
 
 // attach an event listener to the "load" event of the window object
@@ -128,7 +132,7 @@ function onMessageArrived(message) {
         else if(data['command'] == 'pause')
         {
             gameMode = data['gameMode'];
-            active_halftime = data['active_halftime'];
+            active_halftime = setActiveHalftime(data['gamingstate']);
             pause_stopwatch();
             isRunning = false;
             paused_time = data['paused_time'];
@@ -136,7 +140,7 @@ function onMessageArrived(message) {
         else if(data['command'] == 'reset')
         {
             gameMode = data['gameMode'];
-            active_halftime = data['active_halftime'];
+            active_halftime = setActiveHalftime(data['gamingstate']);
             reset_stopwatch();
             isRunning = false;
         }
@@ -144,15 +148,18 @@ function onMessageArrived(message) {
         {
             act_time = data['act_time'];
             update_stopwatch_display2()
-            active_halftime = data['gamingstate'];
+            active_halftime = setActiveHalftime(data['gamingstate']);
             score_teama_ht1 = data['score_team_a_halftime_1'];
             score_teama_ht2 = data['score_team_a_halftime_2'];
             score_teama_p = data['score_team_a_penalty'];
             score_teama_total = data['score_teama_total'];
+            score_teama_num_so = data['penalty_count_team_a'];
             score_teamb_ht1 = data['score_team_b_halftime_1'];
             score_teamb_ht2 = data['score_team_b_halftime_2'];
             score_teamb_p = data['score_team_b_penalty'];
             score_teamb_total = data['score_teamb_total'];
+            score_teamb_num_so = data['penalty_count_team_b'];
+            
             update_score_display();
             teama_name = data['team_a']['name']
             teamb_name = data['team_b']['name']
@@ -161,7 +168,7 @@ function onMessageArrived(message) {
         }
         else if(data['command'] == 'active_halftime')
         {
-            active_halftime = data['active_halftime'];
+            active_halftime = setActiveHalftime(data['gamingstate']);
             update_score_display();
             return;
         }
@@ -180,6 +187,20 @@ function onMessageArrived(message) {
     {
         document.getElementById('command').textContent = message.payloadString;
     }
+}
+
+function setActiveHalftime(gamingstate) {
+    let result = 0;
+    if(gamingstate == "1.HT") {
+        result = 1;
+    }
+    else if(gamingstate == "2.HT") {
+        result = 2;
+    }
+    if(gamingstate == "P") {
+        result = 3;
+    }
+    return result;
 }
 
 function update_stopwatch_display() {
@@ -262,11 +283,13 @@ function update_score_display() {
     var lblScoreA_H2 = document.getElementById("team_a_score_ht2");
     var lblScoreA_P = document.getElementById("team_a_score_p");
     var lblScoreA_TOT = document.getElementById("team_a_score_total");
+    var lblScoreA_Shootout = document.getElementById("team_a_shootout");
 
     var lblScoreB_H1 = document.getElementById("team_b_score_ht1");
     var lblScoreB_H2 = document.getElementById("team_b_score_ht2");
     var lblScoreB_P = document.getElementById("team_b_score_p");
     var lblScoreB_TOT = document.getElementById("team_b_score_total");
+    var lblScoreB_Shootout = document.getElementById("team_b_shootout");
 
     var lblMoment = document.getElementById("moment");
     var lblHeader = document.getElementById("header");
@@ -278,12 +301,24 @@ function update_score_display() {
         lblMoment.textContent = "P";
         lblHeader.textContent = "SHOOTOUT";
         lblHeader.style.visibility = "visible";
+
+        lblScoreA_Shootout.style.visibility = "visible";
+        lblScoreB_Shootout.style.visibility = "visible";
+        if( score_teama_num_so > 0) {
+            lblScoreA_Shootout.textContent = score_teama_num_so;
+        }
+        if( score_teamb_num_so > 0) {
+            lblScoreB_Shootout.textContent = score_teamb_num_so;
+        }
+
         if (lblHalftime.classList.contains('boxovertimeoff')) {
             lblHalftime.classList.remove('boxovertimeoff');
             lblHalftime.classList.add('boxovertimeon');
         }
     }
     else if(gameMode == 1 && active_halftime < 3) {
+        lblScoreA_Shootout.style.visibility = "hidden";
+        lblScoreB_Shootout.style.visibility = "hidden";
         if (lblHalftime.classList.contains('boxovertimeon')) {
             lblHalftime.classList.remove('boxovertimeon');
             lblHalftime.classList.add('boxovertimeoff');
