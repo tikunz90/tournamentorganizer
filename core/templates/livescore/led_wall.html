@@ -35,7 +35,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        {% for player in game.team_a.player_set.all()[:10] %}
+                        {% for player in players_a[:12] %}
                             <tr>
                                 <td class="centered numbercol">{{ player.number }}</td>
                                 <td class="namecol">{{ player.name }}, {{ player.first_name[0] }}.</td>
@@ -57,7 +57,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        {% for player in game.team_b.player_set.all()[:10] %}
+                        {% for player in players_b[:12] %}
                             <tr>
                                 <td class="centered numbercol">{{ player.number }}</td>
                                 <td class="namecol">{{ player.name }}, {{ player.first_name[0] }}.</td>
@@ -91,7 +91,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        {% for player in game.team_a.player_set.all()[:10] %}
+                        {% for player in players_a[:12] %}
                             <tr>
                                 <td class="centered numbercol">{{ player.number }}</td>
                                 <td class="namecol">{{ player.name }}, {{ player.first_name[0] }}.</td>

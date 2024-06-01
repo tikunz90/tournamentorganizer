@@ -37,7 +37,7 @@ window.addEventListener("load", function() {
 
 
 function onMessageArrived(message) {
-    console.log("onMessageArrived:"+message.payloadString);
+    //console.log("onMessageArrived:"+message.payloadString);
     var data;
     try {
     data = JSON.parse(message.payloadString);

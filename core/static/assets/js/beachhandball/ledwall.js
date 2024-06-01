@@ -59,8 +59,8 @@ window.addEventListener("load", function () {
     console.log("ledwall loaded...");
     connectMqtt();
 
-    //showPage("info");
-    showPage("weatherforecast");
+    showPage("info");
+    //showPage("weatherforecast");
 
     setTimeout(() => {
         fetchWeather();

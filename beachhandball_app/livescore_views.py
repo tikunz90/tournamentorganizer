@@ -26,6 +26,7 @@ from django.db.models import Q
 from authentication.models import GBOUser, ScoreBoardUser
 from .models.Tournaments import Court, Referee, Tournament, TournamentEvent, TournamentSettings, TournamentStage, TournamentState
 from .models.Team import Team, TeamStats
+from .models.Player import Player
 from .models.Series import Season
 from .models.Game import Game
 from beachhandball_app.forms.basic_setup.forms import CourtForm, TournamentSettingsForm
@@ -222,14 +223,41 @@ def livescore_display_livestream_teaminfo(request, pk_tourn, pk_court):
 
         t = Tournament.objects.get(season_cup_tournament_id=pk_tourn)
         #game = Game.objects.filter(tournament = t, court_id=pk_court).first()
-        game = Game.objects.prefetch_related("team_a__player_set",
-            "team_b__player_set").filter(tournament = t, court_id=pk_court, gamestate='RUNNING').first()
+        #game = Game.objects.prefetch_related("team_a__player_set",
+        #    "team_b__player_set").filter(tournament = t, court_id=pk_court, gamestate='RUNNING').first()
+        #if game is None:
+        #    game = Game.objects.prefetch_related("team_a__player_set",
+        #    "team_b__player_set").filter(tournament = t, court_id=pk_court, gamestate='APPENDING').first()
+        
+        game = Game.objects.prefetch_related(
+                Prefetch('team_a__player_set', queryset=Player.objects.filter(is_active=True), to_attr='active_players'),
+                Prefetch('team_b__player_set', queryset=Player.objects.filter(is_active=True), to_attr='active_players')
+            ).filter(
+                tournament=t,
+                court_id=pk_court,
+                gamestate='RUNNING'
+            ).first()
+        
         if game is None:
             game = Game.objects.prefetch_related("team_a__player_set",
             "team_b__player_set").filter(tournament = t, court_id=pk_court, gamestate='APPENDING').first()
+            game = Game.objects.prefetch_related(
+                    Prefetch('team_a__player_set', queryset=Player.objects.filter(is_active=True), to_attr='active_players'),
+                    Prefetch('team_b__player_set', queryset=Player.objects.filter(is_active=True), to_attr='active_players')
+                ).filter(
+                    tournament=t,
+                    court_id=pk_court,
+                    gamestate='APPENDING'
+                ).first()
+        
+        
+        
+        
         context['tournament_id'] = pk_tourn
         context['court_id'] = pk_court
         context['game'] = game
+        context['players_a'] = game.team_a.active_players
+        context['players_b'] = game.team_b.active_players
 
         load_template = request.path.split('/')[-1]
 
@@ -293,14 +321,35 @@ def livescore_ledwall(request, pk_tourn, pk_court):
 
         t = Tournament.objects.get(season_cup_tournament_id=pk_tourn)
         #game = Game.objects.filter(tournament = t, court_id=pk_court).first()
-        game = Game.objects.prefetch_related("team_a__player_set",
-            "team_b__player_set").filter(tournament = t, court_id=pk_court, gamestate='RUNNING').first()
+        #game = Game.objects.prefetch_related("team_a__player_set",
+        #    "team_b__player_set").filter(tournament = t, court_id=pk_court, gamestate='RUNNING').first()
+        
+        game = Game.objects.prefetch_related(
+                Prefetch('team_a__player_set', queryset=Player.objects.filter(is_active=True), to_attr='active_players'),
+                Prefetch('team_b__player_set', queryset=Player.objects.filter(is_active=True), to_attr='active_players')
+            ).filter(
+                tournament=t,
+                court_id=pk_court,
+                gamestate='RUNNING'
+            ).first()
+        
         if game is None:
             game = Game.objects.prefetch_related("team_a__player_set",
             "team_b__player_set").filter(tournament = t, court_id=pk_court, gamestate='APPENDING').first()
+            game = Game.objects.prefetch_related(
+                    Prefetch('team_a__player_set', queryset=Player.objects.filter(is_active=True), to_attr='active_players'),
+                    Prefetch('team_b__player_set', queryset=Player.objects.filter(is_active=True), to_attr='active_players')
+                ).filter(
+                    tournament=t,
+                    court_id=pk_court,
+                    gamestate='APPENDING'
+                ).first()
+            
         context['tournament_id'] = pk_tourn
         context['court_id'] = pk_court
         context['game'] = game
+        context['players_a'] = game.team_a.active_players
+        context['players_b'] = game.team_b.active_players
 
         context['mqtt_broker'] = settings.MQTT_BROKER
         context['mqtt_port'] = settings.MQTT_PORT
