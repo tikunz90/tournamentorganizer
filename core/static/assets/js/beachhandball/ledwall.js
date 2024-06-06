@@ -232,7 +232,7 @@ function fillPlayersTable(tableId, jsonData) {
 
         var nameCell = document.createElement('td');
         nameCell.classList.add('namecol');
-        nameCell.textContent = `${familyName}, ${initial}`;
+        nameCell.textContent = `${familyName}, ${name}`;
 
         var scoreCell = document.createElement('td');
         scoreCell.classList.add('centered', 'numbercol');

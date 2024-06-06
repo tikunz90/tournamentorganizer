@@ -38,7 +38,7 @@
                         {% for player in players_a[:12] %}
                             <tr>
                                 <td class="centered numbercol">{{ player.number }}</td>
-                                <td class="namecol">{{ player.name }}, {{ player.first_name[0] }}.</td>
+                                <td class="namecol">{{ player.name }}, {{ player.first_name }}.</td>
                                 <td class="centered numbercol">0</td>
                             </tr>
                         {% endfor %}
@@ -60,7 +60,7 @@
                         {% for player in players_b[:12] %}
                             <tr>
                                 <td class="centered numbercol">{{ player.number }}</td>
-                                <td class="namecol">{{ player.name }}, {{ player.first_name[0] }}.</td>
+                                <td class="namecol">{{ player.name }}, {{ player.first_name }}.</td>
                                 <td class="centered numbercol">0</td>
                             </tr>
                         {% endfor %}

@@ -339,6 +339,69 @@
       
       //function modalShowSpinner(){$("#main-content").LoadingOverlay("show");}
 
+      const urlParams = new URLSearchParams(window.location.search);
+      const tabState = urlParams.get('tab_tstate');
+  
+      console.log("URL Parameters:", urlParams.toString());
+      console.log("Tab State:", tabState);
+  
+      $('.tstate_item').each(function() {
+          // Determine the suffix for the tab ID based on tabState
+        let tabSuffix = '_ov'; // default to 'Overview'
+        if (tabState === '1') {
+            tabSuffix = '_ts'; // 'Team Setup'
+        } else if (tabState === '2') {
+            tabSuffix = '_tr'; // 'Transitions'
+        }
+
+        // Generate the correct tab ID
+        const tabId = $(this).find('.nav-link:first').attr('href').substring(1).split('_')[0] + tabSuffix;
+  
+          console.log("Tab ID:", tabId);
+  
+          const tabLink = $(this).find(`a[href="#${tabId}"]`);
+          const tabPane = $(this).find(`#${tabId}`);
+  
+          console.log("Tab Link:", tabLink);
+          console.log("Tab Pane:", tabPane);
+  
+          if (tabLink.length && tabPane.length) {
+              // Remove active classes from other tabs and panes
+              $(this).find('.nav-link').removeClass('active');
+              $(this).find('.tab-pane').removeClass('active show');
+  
+              // Add active classes to the selected tab and pane
+              tabLink.addClass('active');
+              tabPane.addClass('active show');
+          } else {
+              console.error("Tab Link or Tab Pane not found!");
+          }
+      });
+
+
+
+      $('.delete-tstate-games').on('click', function() {
+        const formUrl = $(this).data('form-url');
+
+        if (confirm('Are you sure you want to delete all games for this TournamentState?')) {
+            $.ajax({
+                url: formUrl,
+                type: 'POST',
+                data: {
+                    csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val()
+                },
+                success: function(response) {
+                    alert('Games deleted successfully.');
+                    location.reload(); // Optionally reload the page to reflect changes
+                },
+                error: function(xhr, status, error) {
+                    alert('An error occurred while deleting games: ' + error);
+                }
+            });
+        }
+    });
+    
+
   
 </script>
 

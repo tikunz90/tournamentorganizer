@@ -26,6 +26,8 @@ from django.template.loader import render_to_string
 from django.contrib.messages.views import SuccessMessageMixin
 from django.conf import settings
 from django.forms import modelformset_factory
+from django.views.decorators.csrf import csrf_exempt
+from django.utils.decorators import method_decorator
 
 from beachhandball_app.helper import reverse_querystring, calculate_tstate
 from beachhandball_app.game_report import helper_game_report
@@ -348,11 +350,20 @@ class StateCreateView(BSModalCreateView):
 class StateDeleteView(BSModalDeleteView):
     model = TournamentState
     template_name = 'beachhandball/tournamentevent/delete_state.html'
-    success_message = 'Success: Stage was deleted.'
+    success_message = 'Success: State was deleted.'
 
     def get_success_url(self):
            pk = self.kwargs["pk_tevent"]
            return reverse("structure_setup.detail", kwargs={"pk": pk})
+    
+@csrf_exempt
+def delete_tstate_games(request, pk_tevent, pk_tstage, pk_tstate):
+    if request.method == 'POST':
+        tstate = get_object_or_404(TournamentState, pk=pk_tstate)
+        # Assuming Game model has a foreign key to TournamentState
+        Game.objects.filter(tournament_state=tstate).delete()
+        return JsonResponse({'success': True})
+    return JsonResponse({'error': 'Invalid request method'}, status=400)
 
 
 class StateUpdateView(BSModalUpdateView):

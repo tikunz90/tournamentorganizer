@@ -9,7 +9,9 @@
     
 {%- endmacro %}
 
-<div class="col-md">
+
+
+<div class="col-md tstate_item">
     <div class="card">
         <div class="card-header card-header-icon">
             <div class="card-icon" style="background: {{ tstate.color }}">
@@ -22,181 +24,128 @@
                 <br />
                 <ul class="nav nav-pills nav-pills-warning justify-content-center" role="tablist">
                     <li class="nav-item">
-                    {% if request.GET.tab_tstate %}
-                        {% if request.GET.tab_tstate == '0' %}
-                        <a class="nav-link active" data-toggle="tab" href="#{{tstate.id}}_ov" role="tablist">Overview</a>
-                        {% else %}
-                        <a class="nav-link" data-toggle="tab" href="#{{tstate.id}}_ov" role="tablist">Overview</a>
-                        {% endif %}
-                    {% else %}
-                        <a class="nav-link active" data-toggle="tab" href="#{{tstate.id}}_ov" role="tablist">Overview</a>
-                    {% endif %}
+                        <a class="nav-link" data-toggle="tab" href="#{{tstate.id}}_ov" role="tablist" id="tab_overview">Overview</a>
                     </li>
                     <li class="nav-item">
-                    {% if request.GET.tab_tstate %}
-                        {% if request.GET.tab_tstate == '1' %}
-                        <a class="nav-link active" data-toggle="tab" href="#{{tstate.id}}_ts" role="tablist">Team Setup</a>
-                        {% else %}
-                        <a class="nav-link" data-toggle="tab" href="#{{tstate.id}}_ts" role="tablist">Team Setup</a>
-                        {% endif %}
-                    {% else %}
-                        <a class="nav-link" data-toggle="tab" href="#{{tstate.id}}_ts" role="tablist">Team Setup</a>
-                    {% endif %}
+                        <a class="nav-link" data-toggle="tab" href="#{{tstate.id}}_ts" role="tablist" id="tab_team_setup">Team Setup</a>
                     </li>
                     <li class="nav-item">
-                    {% if request.GET.tab_tstate %}
-                        {% if request.GET.tab_tstate == '2' %}
-                        <a class="nav-link active" data-toggle="tab" href="#{{tstate.id}}_tr" role="tablist">Transitions</a>
-                        {% else %}
-                        <a class="nav-link" data-toggle="tab" href="#{{tstate.id}}_tr" role="tablist">Transitions</a>
-                        {% endif %}
-                    {% else %}
-                        <a class="nav-link" data-toggle="tab" href="#{{tstate.id}}_tr" role="tablist">Transitions</a>
-                    {% endif %}
+                        <a class="nav-link" data-toggle="tab" href="#{{tstate.id}}_tr" role="tablist" id="tab_transitions">Transitions</a>
                     </li>
                 </ul>
                 <div class="tab-content tab-space tab-subcategories">
-                    {% if request.GET.tab_tstate %}
-                        {% if request.GET.tab_tstate == '0' %}
-                        <div class="tab-pane active" id="{{tstate.id}}_ov">
-                        {% else %}
-                        <div class="tab-pane" id="{{tstate.id}}_ov">
-                        {% endif %}
-                    {% else %}
-                        <div class="tab-pane active" id="{{tstate.id}}_ov">
-                    {% endif %}
+                    <div class="tab-pane" id="{{tstate.id}}_ov">
                         <div class="card">
                             <div class="card-header">
-                            <h4 class="card-title">Overview</h4>
-                            <p class="card-category">
-                                Overview ranking, game plan, editing game result
-                            </p>
-                            {% if tstate.is_finished %}<h4>ALL Games PLAYED!</h4>{% if not tstate.transitions_done %}Click "Finish State" to execute transitions{% endif %}{% endif %}
+                                <h4 class="card-title">Overview</h4>
+                                <p class="card-category">
+                                    Overview ranking, game plan, editing game result
+                                </p>
+                                {% if tstate.is_finished %}<h4>ALL Games PLAYED!</h4>{% if not tstate.transitions_done %}Click "Finish State" to execute transitions{% endif %}{% endif %}
                             </div>
                             <div class="card-body">
                                 {% include "beachhandball/tournamentevent/_tournament_state_overview.html" %}
                             </div>
                         </div>
                     </div>
-                    {% if not request.GET.tab_tstate %}
-                        {% if request.GET.tab_tstate == '1' %}
-                        <div class="tab-pane active" id="{{tstate.id}}_ts">
-                        {% else %}
-                        <div class="tab-pane" id="{{tstate.id}}_ts">
-                        {% endif %}
-                    {% else %}
-                        <div class="tab-pane" id="{{tstate.id}}_ts">
-                    {% endif %}
+                    <div class="tab-pane" id="{{tstate.id}}_ts">
                         <div class="card">
                             <div class="card-header">
-                            <h4 class="card-title">Team Setup</h4>
-                            <p class="card-category">
-                                Define starting place of a Team in TournamentState
-                            </p>
+                                <h4 class="card-title">Team Setup</h4>
+                                <p class="card-category">
+                                    Define starting place of a Team in TournamentState
+                                </p>
                             </div>
                             <div class="card-body">
-                            <form method="post" action="{{ url('structure_setup.update_teamsetup', kwargs={'pk_tevent':tevent.id, 'pk_tstage':stage.id, 'pk_tstate':tstate.id}) }}">
-                                <input type="hidden" name="csrfmiddlewaretoken" value="{{csrf_token}}">
+                                <form method="post" action="{{ url('structure_setup.update_teamsetup', kwargs={'pk_tevent':tevent.id, 'pk_tstage':stage.id, 'pk_tstate':tstate.id}) }}">
+                                    <input type="hidden" name="csrfmiddlewaretoken" value="{{csrf_token}}">
+                                    <div class="table-responsive">
+                                        <table id="{{tstate.id}}-teamsetup-table" class="table table-striped">
+                                            <thead>
+                                                <tr>
+                                                    <th>id</th>
+                                                    <th class="text-center">Rank</th>
+                                                    <th>Team</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {% for form in tstat_forms[tstate.id] %}
+                                                    <tr>
+                                                        <td class="text-center">{{ input_field(form['id'], form.hide_labels) }}</td>
+                                                        <td class="text-center">{{ form.initial['rank_initial'] }}</td>
+                                                        <td class="text-center">{{ input_field(form['team'], form.hide_labels) }}</td>
+                                                    </tr>
+                                                {% endfor %}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    {{ tstat_forms[tstate.id].management_form }}
+                                    <div class="row">
+                                        <div class="col">
+                                            <button type="submit" class="btn btn-primary">Save</button>
+                                        </div>
+                                        <div class="col">
+                                            <a id="delete-last-team" class="btn btn-primary" href="{{ url('structure_setup.tstate_add_team', kwargs={'pk_tevent':tevent.id, 'pk_tstage':stage.id, 'pk':tstate.id}) }}">
+                                                <i class="material-icons">note_add</i> Add Teams
+                                            </a>
+                                        </div>
+                                        <div class="col">
+                                            <a id="delete-last-team" class="btn btn-danger" href="{{ url('structure_setup.tstate_delete_team', kwargs={'pk_tevent':tevent.id, 'pk_tstage':stage.id, 'pk':tstate.id}) }}">
+                                                <i class="material-icons">delete</i> Remove last Team
+                                            </a>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tab-pane" id="{{tstate.id}}_tr">
+                        <div class="card">
+                            <div class="card-header">
+                                <h4 class="card-title">Setup Transition of Teams</h4>
+                                <p class="card-category">
+                                    Define where a Team will play in next Tournament Stage
+                                </p>
+                            </div>
+                            <div class="card-body">
                                 <div class="table-responsive">
-                                    <table id="{{tstate.id}}-teamsetup-table" class="table table-striped">
-                                    <thead>
-                                        <tr>
-                                        <th>id</th>
-                                        <th class="text-center">Rank</th>
-                                        <th>Team</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {% for form in tstat_forms[tstate.id] %}
-                                        <tr>
-                                        <td class="text-center">{{ input_field(form['id'], form.hide_labels) }}</td>
-                                        <td class="text-center">{{ form.initial['rank_initial'] }}</td>
-                                        <td class="text-center">{{ input_field(form['team'], form.hide_labels) }}</td>
-                                        </tr>
-                                        {% endfor %}
-                                    </tbody>
+                                    <table class="table table-striped">
+                                        <thead>
+                                            <th class="text-center">Rank</th>
+                                            <th>State</th>
+                                            <th>Place</th>
+                                            <th></th>
+                                        </thead>
+                                        <tbody>
+                                            {% for ttt in tstate.ttt_origin_pre %}
+                                                <tr>
+                                                    <td class="text-center">{{ ttt.origin_rank }}</td>
+                                                    <td>{{ ttt.target_ts_id.name }}</td>
+                                                    <td>{{ ttt.target_rank }}</td>
+                                                    <td>
+                                                        <button type="button" class="update_tttransition btn btn-sm btn-primary" data-form-url="{{ url('structure_setup.update_tttransition', kwargs={'pk_tevent':tevent.id, 'pk_tstage':stage.id, 'pk':ttt.id}) }}" onclick="modalShowSpinner();">
+                                                            <span class="fa fa-pencil"></span>
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            {% endfor %}
+                                        </tbody>
                                     </table>
                                 </div>
-                                {{ tstat_forms[tstate.id].management_form }}
-                                <div class="row">
-                                    <div class="col">
-                                        <button type="submit" class="btn btn-primary">Save</button>
-                                    </div>
-                                    <div class="col">
-                                        <a id="delete-last-team" class=" btn btn-primary" href="{{ url('structure_setup.tstate_add_team', kwargs={'pk_tevent':tevent.id, 'pk_tstage':stage.id, 'pk':tstate.id}) }}">
-                                            <i class="material-icons">note_add</i> Add Teams
-                                        </a>
-                                    </div>
-                                    
-                                    <div class="col">
-                                        <a id="delete-last-team" class=" btn btn-danger" href="{{ url('structure_setup.tstate_delete_team', kwargs={'pk_tevent':tevent.id, 'pk_tstage':stage.id, 'pk':tstate.id}) }}">
-                                            <i class="material-icons">delete</i> Remove last Team
-                                        </a>
-                                    </div>
-                                </div>
-                            </form>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    {% if not request.GET.tab_tstate %}
-                        {% if request.GET.tab_tstate == '2' %}
-                        <div class="tab-pane active" id="{{tstate.id}}_tr">
-                        {% else %}
-                        <div class="tab-pane" id="{{tstate.id}}_tr">
-                        {% endif %}
-                    {% else %}
-                        <div class="tab-pane" id="{{tstate.id}}_tr">
-                    {% endif %}
-                        <div class="card">
-                            <div class="card-header">
-                            <h4 class="card-title">Setup Transition of Teams</h4>
-                            <p class="card-category">
-                                Define where a Team will play in next Tournament Stage
-                            </p>
-                            </div>
-                            <div class="card-body">
-                            <div class="table-responsive">
-                                <table class="table table-striped">
-                                <thead>
-                                    <th class="text-center">Rank</th>
-                                    <th>State</th>
-                                    <th>Place</th>
-                                    <th></th>
-                                </thead>
-                                <tbody>
-                                    {% for ttt in tstate.ttt_origin_pre %}
-                                        <tr>
-                                        <td class="text-center">{{ ttt.origin_rank }}</td>
-                                        <td>
-                                            {{ ttt.target_ts_id.name }}
-                                        </td>
-                                        <td>{{ ttt.target_rank }}</td>
-                                        <td>
-                                            <button type="button" class="update_tttransition btn btn-sm btn-primary" data-form-url="{{ url('structure_setup.update_tttransition', kwargs={'pk_tevent':tevent.id, 'pk_tstage':stage.id, 'pk':ttt.id}) }}" onclick="modalShowSpinner();">
-                                                <span class="fa fa-pencil"></span>
-                                            </button>
-                                        </td>
-                                        </tr>
-                                    {% endfor %}
-                                </tbody>
-                                </table>
-                            </div>
                             </div>
                         </div>
                     </div>
                 </div>
-                </div>
+            </div>
         </div>
         <div class="card-footer">
-            <div class="container"> 
+            <div class="container">
                 <div class="row d-flex justify-content-center">
                     <div class="col-md-3 align-items-center">
                         <button type="button" class="update-tstate btn btn-primary w-100" rel="tooltip" title="Edit TournamentState" data-form-url="{{ url('structure_setup.update_tstate', kwargs={'pk_tevent':tevent.id, 'pk_tstage':stage.id, 'pk':tstate.id}) }}" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
                             <span class="fa fa-pencil text-truncate"></span> Edit State
                         </button>
                     </div>
-
                     <div class="col-md-3 align-items-center">
                         <button type="button" rel="tooltip" class="download-pregame-report btn btn-info w-100" rel="tooltip" title="Download Pre-Game Report" data-form-url="{{ url('download_pre_game_all', kwargs={'pk_tevent':tevent.id, 'pk_tstage':stage.id, 'pk':tstate.id}) }}" data-list-url="{{ url('games_list', kwargs={'pk_tstate':tstate.id}) }}" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
                             <a class="" href="{{ url('download_pre_game_all', kwargs={'pk_tevent':tevent.id, 'pk_tstage':stage.id, 'pk':tstate.id}) }}">
@@ -204,31 +153,31 @@
                             </a>
                         </button>
                     </div>
-
                     <div class="col-md-3 align-items-center">
                         <button type="button" class="finish-tstate btn btn-primary w-100" rel="tooltip" title="Finishes TournamentState after all games played" data-form-url="{{ url('structure_setup.finish_tstate', kwargs={'pk_tevent':tevent.id, 'pk_tstage':stage.id, 'pk':tstate.id}) }}" onclick="modalShowSpinner();" {% if not tstate.is_finished  %}disabled{% endif %} style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
                             <i class="material-icons">check_circle_outline</i>Finish State
                         </button>
                     </div>
                 </div>
-
                 <div class="row d-flex justify-content-center">
-                    
                     <div class="col-md-3">
                         <button type="button" class="create-game btn btn-primary w-100" rel="tooltip" title="Add Game" data-form-url="{{ url('structure_setup.create_game', kwargs={'pk_tevent':tevent.id, 'pk_tstage':stage.id, 'pk_tstate':tstate.id}) }}" {% if tstate.is_finished and tstate.transitions_done %} disabled {% else %} onclick="modalShowSpinner();"{% endif %} style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
                             <i class="material-icons">note_add</i>Add Game
                         </button>
                     </div>
-                    
-                    
+                    <div class="col-md-3">
+                        <button type="button" class="delete-tstate-games btn btn-danger w-100" rel="tooltip" title="Delete Games" data-form-url="{{ url('structure_setup.delete_tstate_games', kwargs={'pk_tevent': tevent.id, 'pk_tstage': stage.id, 'pk_tstate': tstate.id}) }}" {% if tstate.is_finished and tstate.transitions_done %}disabled{% endif %} style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                            <span class="fa fa-trash"></span>Delete Games
+                        </button>
+                    </div>
                     <div class="col-md-3">
                         <button type="button" class="delete-tstate btn btn-danger w-100" rel="tooltip" title="Delete TournamentState" data-form-url="{{ url('structure_setup.delete_tstate', kwargs={'pk_tevent':tevent.id, 'pk_tstage':stage.id, 'pk':tstate.id}) }}" {% if tstate.is_finished and tstate.transitions_done %}disabled{% endif %} style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
                             <span class="fa fa-trash"></span>Delete State
                         </button>
                     </div>
                 </div>
-
             </div>
         </div>
     </div>
 </div>
+
