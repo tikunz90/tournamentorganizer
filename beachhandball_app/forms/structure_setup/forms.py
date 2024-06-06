@@ -186,7 +186,7 @@ class TTTUpdateForm(BSModalModelForm):
         return cleaned_data
     class Meta:
         model = TournamentTeamTransition
-        fields = ['target_ts_id', 'target_rank']
+        fields = ['target_ts_id', 'target_rank', 'keep_stats']
         widgets = {
             'target_ts_id': forms.widgets.Select(attrs={'class': "form-control selectpicker", 'data-style':"btn btn-info btn-round"}),
         }
