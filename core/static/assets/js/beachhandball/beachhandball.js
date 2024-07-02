@@ -1552,7 +1552,7 @@ function wzCalcPlacement(idRow) {
     levels_ranked: 0,
     num_teams_getting_ranked: 0,
     level: [],
-    placement_type: 0,
+    placement_type: -1,
     placement: {},
   };
   wzNumOfGamesPlacement = 0;
@@ -1623,6 +1623,7 @@ function wzCalcPlacement(idRow) {
         remainingTeamsForPL.toString() +
         ")"
     );
+    
   } else {
     plCheckOptionsForms.style.display = "none";
     $("#wz-placement-info").text("No Placement after Group Stage possible");
@@ -1654,6 +1655,7 @@ function wzCalcPlacement(idRow) {
     }
   } else {
     plOptions.style.display = "none";
+    plData.placement_type = -1;
   }
 
   var levels = Math.log(num_teams_soll) / Math.log(2) - 1; // -1 because final is seperated by

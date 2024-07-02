@@ -25,6 +25,37 @@ def wizard_create_structure(tevent, structure_data):
         max_number_teams=int(structure_data['max_num_teams']),
         is_final=True)
     tstats_final_ranking = [ts for ts in TeamStats.objects.filter(tournament_event=tevent, tournamentstate=ts_final_ranking).all()]
+
+    if len(tstats_final_ranking) == 0:
+        ts_final_ranking.delete()
+        ts_final_ranking, cr = TournamentState.objects.get_or_create(tournament_event=tevent,
+        tournament_state=TOURNAMENT_STATE_CHOICES[-1][1],
+        name='Final Ranking',
+        abbreviation='FR',
+        hierarchy=999,
+        max_number_teams=int(structure_data['max_num_teams']),
+        is_final=True)
+
+        # Create dummy teamstats
+        for i in range(1, ts_final_ranking.max_number_teams+1):
+            new_dummy_team, cr = Team.objects.get_or_create(tournament_event=ts_final_ranking.tournament_event,
+                                                            tournamentstate=ts_final_ranking,
+                                                            name="{}. {}".format(i, ts_final_ranking),
+                                                            abbreviation="{}.{}".format(i, ts_final_ranking.abbreviation),
+                                                            season_cup_tournament_id=ts_final_ranking.tournament_event.season_cup_tournament_id,
+                                                            category=ts_final_ranking.tournament_event.category,
+                                                            is_dummy=True)
+
+            act_team_st, cr = TeamStats.objects.get_or_create(tournament_event=ts_final_ranking.tournament_event,
+                                                              tournamentstate=ts_final_ranking,
+                                                              team=new_dummy_team,
+                                                              rank_initial=i)
+                            
+
+            if cr:
+                act_team_st.rank = act_team_st.rank_initial
+                act_team_st.save()
+        tstats_final_ranking = [ts for ts in TeamStats.objects.filter(tournament_event=tevent, tournamentstate=ts_final_ranking).all()]
         
     ts_final_ranking.round_type = ROUND_TYPES.RANKING
     ts_final_ranking.save()
