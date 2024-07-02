@@ -15,11 +15,14 @@ RUN apt-get update && \
 COPY id_rsa_to_server /root/.ssh/id_rsa
 RUN chmod 600 /root/.ssh/id_rsa
 
+RUN echo "$SSH_PASSPHRASE"
+
+
 # Add the private key to the SSH agent
 RUN eval $(ssh-agent -s) && \
     echo "$SSH_PASSPHRASE" | ssh-add /root/.ssh/id_rsa && \
     rm -f /root/.ssh/id_rsa
-    
+
 # Copy application files
 COPY manage.py gunicorn-cfg.py requirements.txt .env ./
 COPY beachhandball_app beachhandball_app
