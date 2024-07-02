@@ -118,22 +118,10 @@ DATABASES = {
     #    'ENGINE': 'django.db.backends.sqlite3',
     #    'NAME'  : 'db.sqlite3',
     #}
-    #'default': {
-    #    'ENGINE': 'django.db.backends.mysql',
-    #    'OPTIONS': {
-    #        'read_default_file': os.path.join(BASE_DIR, 'database_config.cnf'),
-    #        "init_command": "SET foreign_key_checks = 0;",
-    #    },
-    #    'CONN_MAX_AGE ': 30,
-    #}
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'beachhandball_2022',
-        'USER': 'tim',
-        'PASSWORD': 'qs12fhw5',
-        'HOST': '127.0.0.1',  # Connect to the local end of the SSH tunnel
-        'PORT': '3307',  # Local port specified in the SSH tunnel setup
         'OPTIONS': {
+            'read_default_file': os.path.join(BASE_DIR, 'database_config.cnf'),
             "init_command": "SET foreign_key_checks = 0;",
         },
         'CONN_MAX_AGE ': 30,
