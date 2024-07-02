@@ -1,2 +1,7 @@
 TO App prod server 
 ssh root@185.197.250.201 Qs
+
+
+Run SSH tunnel
+ ssh -i "C:\Users\Win11 Pro\id_rsa_tim_lenovo" -L 3307:127.0.0.1:3306 root@38.242.148.70
+ 
