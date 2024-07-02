@@ -3,7 +3,12 @@ services:
   appseed-app:
     restart: always
     env_file: .env
-    build: .
+    build: 
+      context: .
+      args: 
+        SSH_PASSPHRASE: ${SSH_PASSPHRASE}
+    environment:
+      SSH_PASSPHRASE: ${SSH_PASSPHRASE}
     ports:
       - "8080:8080"
     networks:

@@ -12,7 +12,7 @@ RUN apt-get update && \
 
 # Copy the private key file and set permissions
 # Assuming the private key file is named id_rsa and located in the same directory as your Dockerfile
-COPY id_rsa /root/.ssh/id_rsa
+COPY id_rsa_to_server /root/.ssh/id_rsa
 RUN chmod 600 /root/.ssh/id_rsa
 
 # Add the private key to the SSH agent
