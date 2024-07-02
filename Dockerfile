@@ -1,5 +1,7 @@
 FROM python:3.6
 
+ARG SSH_PASSPHRASE
+
 ENV PYTHONUNBUFFERED 1
 
 # Install system dependencies
