@@ -25,7 +25,7 @@ COPY core core
 RUN pip install -r requirements.txt
 
 # Run Django management commands
-#RUN python manage.py makemigrations
+# -o StrictHostKeyChecking=noRUN python manage.py makemigrations
 #RUN python manage.py migrate
 #RUN python manage.py collectstatic --noinput
 
@@ -37,7 +37,7 @@ EXPOSE 8080
 #    gunicorn --config gunicorn-cfg.py core.wsgi
 
     # Start SSH tunnel in the background (adjust the tunnel setup as needed)
-CMD autossh -M 0 -N -L 3307:127.0.0.1:3306 root@38.242.148.70 & \
+CMD autossh -M 0 -N -o StrictHostKeyChecking=no -L 3307:127.0.0.1:3306 root@38.242.148.70 & \
   python manage.py makemigrations && \
   python manage.py migrate && \
   python manage.py collectstatic --noinput && \
