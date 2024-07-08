@@ -192,6 +192,15 @@ class TournamentEventDetail(LoginRequiredMixin, UserPassesTestMixin, DetailView)
         kwargs['tourn'] = context['tourn']
         kwargs['tevent'] = tevent
 
+        ##stages = TournamentStage.objects.select_related("tournament_event").prefetch_related(
+        ##    Prefetch("tournamentstate_set", queryset=TournamentState.objects.select_related("tournament_event__category").prefetch_related(
+        ##        Prefetch("teamstats_set", queryset=TeamStats.objects.select_related("team").all(), to_attr="stats"),
+        ##        Prefetch("game_set", queryset=Game.objects.all(), to_attr="games"),
+        ##        Prefetch("ttt_origin", queryset=TournamentTeamTransition.objects.select_related("origin_ts_id", "target_ts_id").all(), to_attr="ttt_origin_pre")
+        ##        )
+        ##        , to_attr="tstates")
+        ##        )
+        
         stages = TournamentStage.objects.select_related("tournament_event").prefetch_related(
             Prefetch("tournamentstate_set", queryset=TournamentState.objects.select_related("tournament_event__category").prefetch_related(
                 Prefetch("teamstats_set", queryset=TeamStats.objects.select_related("team").all(), to_attr="stats"),
@@ -199,7 +208,7 @@ class TournamentEventDetail(LoginRequiredMixin, UserPassesTestMixin, DetailView)
                 Prefetch("ttt_origin", queryset=TournamentTeamTransition.objects.select_related("origin_ts_id", "target_ts_id").all(), to_attr="ttt_origin_pre")
                 )
                 , to_attr="tstates")
-                )
+        ).filter(tournament_event__id=tevent.id)
 
         tstages_pre = []
         tstates_pre = []

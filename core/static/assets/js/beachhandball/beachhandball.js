@@ -134,7 +134,7 @@ bh = {
     bh.structureData.tournament_states = [];
     bh.structureData.teams = [];
     bh.structureData.team_stats = [];
-    bh.structureData.ttt = [];
+    bh.structureData.ttt = [];""
     wzInitUIElements();
     wzCalcGroups("wz-ovw-groups");
     wzCalcKnockout("wz-ovw-knockout");
@@ -148,6 +148,8 @@ bh = {
       wzNumOfGamesPlacement +
       wzNumOfGamesFinal;
     $("#wz-res_num_of_games_total").val(wzNumOfGames);
+
+    console.log(JSON.stringify(bh.structureData));
   },
 
   tournamentData: "",
@@ -1446,6 +1448,7 @@ function wzCalcKnockout(idRow) {
             target_rank: 0,
             target_lvl_id: 0,
             target_group_id: 0,
+            isWinning: 0,
           },
         };
         var tTeamItem = $("#templateTeamItem").clone();
@@ -1458,26 +1461,36 @@ function wzCalcKnockout(idRow) {
         if (iTeam === 0) {
           actTeam.transition.target_rank = act_target_rank_ko;
           actTeam.transition.target_group_id = next_group_counter;
-          next_group_counter++;
-          if (
-            next_group_counter >= Math.pow(2, i - 2) &&
-            act_target_rank_ko == 1
-          ) {
-            act_target_rank_ko = 2;
-            next_group_counter = 0;
+          actTeam.transition.isWinning = 1;
+          act_target_rank_ko++;
+          if(j > 0 && j % 2 == 0) {
+            next_group_counter++;
+            act_target_rank_ko = 1;
+          }
+          else {
+            
+          }
+          
+          if (next_group_counter >= Math.pow(2, i - 2)) {
+            //act_target_rank_ko = 1;
+            //next_group_counter = 0;
           }
         } else {
           actTeam.transition.target_rank = act_target_rank_placement;
           actTeam.transition.target_group_id = next_group_counter_pl;
           transitions_pl[levelData.actNaming].items.push(actTeam.transition);
-          next_group_counter_pl++;
-          if (
-            next_group_counter_pl >= Math.pow(2, i - 2) &&
-            act_target_rank_placement == 1
-          ) {
-            act_target_rank_placement = 2;
-            next_group_counter_pl = 0;
+          act_target_rank_placement++;
+          if(j > 0 && j % 2 == 0) {
+            next_group_counter_pl++;
+            act_target_rank_placement = 1;
           }
+          //if (
+          //  next_group_counter_pl >= Math.pow(2, i - 2) &&
+          //  act_target_rank_placement == 1
+          //) {
+          //  act_target_rank_placement = 2;
+          //  next_group_counter_pl = 0;
+          //}
         }
 
         if (i == koData.levels) {
@@ -1490,7 +1503,7 @@ function wzCalcKnockout(idRow) {
             actTrans.origin_rank + ". " + actTrans.origin_group_name;
         } else {
           var actTrans = lastTransitions.find(
-            (e) => e.target_rank === iTeam + 1 && e.target_group_id == j - 1
+            (e) => e.target_rank === iTeam + 1 && e.target_group_id == j - 1 && e.isWinning == 1
           );
           NameExtension =
             actTrans.origin_rank + ". " + actTrans.origin_group_name;
