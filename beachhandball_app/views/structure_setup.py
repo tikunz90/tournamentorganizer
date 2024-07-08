@@ -91,6 +91,15 @@ class StructureSetupDetail(LoginRequiredMixin, UserPassesTestMixin, DetailView):
         #prefTeamStats = Prefetch("teamstats_set", queryset=TeamStats.objects.all(), to_attr="tstats")
         #pref=Prefetch("tournamentstate_set", queryset=TournamentState.objects.filter(is_final=False).prefetch_related(prefTeamStats), to_attr="sstates")
         #print(len(connection.queries))
+        #stages = TournamentStage.objects.select_related("tournament_event").prefetch_related(
+        #    Prefetch("tournamentstate_set", queryset=TournamentState.objects.select_related("tournament_event__category").prefetch_related(
+        #        Prefetch("teamstats_set", queryset=TeamStats.objects.select_related("team").all(), to_attr="stats"),
+        #        Prefetch("game_set", queryset=Game.objects.all(), to_attr="games"),
+        #        Prefetch("ttt_origin", queryset=TournamentTeamTransition.objects.select_related("origin_ts_id", "target_ts_id").all(), to_attr="ttt_origin_pre")
+        #        )
+        #        , to_attr="tstates")
+        #        )
+        print('Before stage loop: ', datetime.now())
         stages = TournamentStage.objects.select_related("tournament_event").prefetch_related(
             Prefetch("tournamentstate_set", queryset=TournamentState.objects.select_related("tournament_event__category").prefetch_related(
                 Prefetch("teamstats_set", queryset=TeamStats.objects.select_related("team").all(), to_attr="stats"),
@@ -98,7 +107,7 @@ class StructureSetupDetail(LoginRequiredMixin, UserPassesTestMixin, DetailView):
                 Prefetch("ttt_origin", queryset=TournamentTeamTransition.objects.select_related("origin_ts_id", "target_ts_id").all(), to_attr="ttt_origin_pre")
                 )
                 , to_attr="tstates")
-                )
+        ).filter(tournament_event__id=tevent.id)
 
         
         #for stage in stages:
@@ -125,6 +134,8 @@ class StructureSetupDetail(LoginRequiredMixin, UserPassesTestMixin, DetailView):
                         tstates_pre.append(state)
                 stage.tstates_wo_final = tstates
                 tstages_pre.append(stage)
+
+        print('After stage loop: ', datetime.now())
 
         kwargs['tstages_pre'] = tstages_pre#[stage for stage in stages if stage.tournament_event.id==tevent.id]
         

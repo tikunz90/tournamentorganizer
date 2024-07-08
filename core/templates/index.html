@@ -11,11 +11,15 @@
   <h2>Welcome</h2>
 {% else %}
   <h2>Welcome to {{ tourn.name_short }} in Season {{ tourn.season.name }}</h2>
-  <h4>SeasonCupTournamentId: {{ tourn.season_cup_tournament_id }}</h4>
+  {% if tourn.season_cup_tournament_id > 0 %}
+    <h4>SeasonCupTournamentId: {{ tourn.season_cup_tournament_id }}</h4>
+  {% else %}
+    <h4>SeasonGerman Championship id: {{ tourn.season_german_championship_id }}</h4>
+  {% endif %}
 {% endif %}
 
 <form action="{{ url('sync_tournament_data') }}" method='GET'>
-<button type='submit' class="btn btn-primary">Sync Tournament Data</button>
+<button type='submit' class="btn btn-primary" hidden>Sync Tournament Data</button>
 </form>
 
   <br>
