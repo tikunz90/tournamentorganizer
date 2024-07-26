@@ -460,7 +460,8 @@ def StartGameScouting(request, game_id):
         game = Game.objects.select_related("tournament", "tournament_event__category", "team_st_a__team", "team_st_b__team").prefetch_related(
             Prefetch("team_a__player_set", queryset=Player.objects.all(), to_attr="players"),
             Prefetch("team_b__player_set", queryset=Player.objects.all(), to_attr="players"),
-            Prefetch("playerstats_set", queryset=PlayerStats.objects.select_related("tournament_event__category", "player__team", "teamstat").all(), to_attr="pstat")
+            Prefetch("playerstats_set", queryset=PlayerStats.objects.select_related("tournament_event__category", "player__team", "teamstat").all(), to_attr="pstat"),
+            Prefetch("gameaction_set", queryset=GameAction.objects.all(), to_attr="gameactions")
         ).get(id=game_id)
         players_a = game.team_a.players #[pl for pl in game.team_a.player_set.all()]
         players_b = game.team_b.players #[pl for pl in game.team_b.player_set.all()]
@@ -537,6 +538,8 @@ def StartGameScouting(request, game_id):
         
         response['playerstats_a'] = PlayerStatsSerializer(pstats_a, many=True).data
         response['playerstats_b'] = PlayerStatsSerializer(pstats_b, many=True).data
+
+        response['gameactions'] = GameActionSerializer(game.gameactions, many=True).data
         response['success'] = True
         return JsonResponse(response)
         #games = Game.objects.filter(gamestate='RUNNING').all()

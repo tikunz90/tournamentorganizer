@@ -51,3 +51,25 @@ class PlayerStatsSerializer(serializers.ModelSerializer):
         )
         depth = 0
         read_only_fields = fields
+
+
+class GameActionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = GameAction
+        fields = ('id','tournament',
+        'timestamp',
+        'gametime',
+        'period', 
+        'game', 
+        'player' ,
+        'team' ,
+        'action' ,
+        'action_result',
+        'score_team_a',
+        'score_team_b',
+        'time_min',
+        'time_sec',
+        'guid',
+        'active_defending_gk_id')
+        depth = 0
+        read_only_fields = fields
