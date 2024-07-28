@@ -41,7 +41,8 @@ urlpatterns = [
     path('player_stats_by_tevent/<int:tevent_id>/<int:amount>/', get_pstats_tevent, name='get_pstats_tevent'),
     # GAME
     path('gameaction/', GameActionViewSet.as_view({'get': 'list', 'post': 'create'})),
-    path('gameaction/<int:pk>/', GameActionViewSet.as_view({'get': 'retrieve'})),
+    path('gameaction/<int:pk>/', GameActionViewSet.as_view({'get': 'retrieve', 'put': 'update', 'patch': 'partial_update', 'delete': 'destroy'})),
+    path('gameaction/bulk-delete/', GameActionViewSet.as_view({'delete': 'bulk_delete'})),
 
     # TEAM
     path('teams/', TeamViewSet.as_view({'get': 'list'})),

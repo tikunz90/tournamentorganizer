@@ -410,8 +410,44 @@ class GameActionViewSet(viewsets.ModelViewSet):
                 periodString = 'P'
             ga = GameAction(tournament_id=request.data['tournament_id'], gametime=datetime_obj.time(), period=periodString, game_id=request.data['game_id'], player_id=request.data['player_id'], team_id=request.data['team_id'], action=request.data['action'], action_result=request.data['action_result'], score_team_a=request.data['score_team_a'], score_team_b=request.data['score_team_b'], time_min=request.data['time_min'], time_sec=request.data['time_sec'], guid='', active_defending_gk_id=request.data['active_defending_gk_id'])
             ga.save()
+            request.data['id'] = ga.id
         except Exception as ex:
             print(ex)
+        return Response(request.data)
+
+    @action(detail=False, methods=['delete'], url_path='bulk-delete')
+    def bulk_delete(self, request):
+        ids = request.data.get('ids', [])
+        if not isinstance(ids, list):
+            return Response({"error": "ids should be a list."}, status=status.HTTP_400_BAD_REQUEST)
+        
+        deleted_count, _ = GameAction.objects.filter(id__in=ids).delete()
+        return Response({"deleted": deleted_count}, status=status.HTTP_204_NO_CONTENT)
+    
+    def partial_update(self, request, *args, **kwargs):
+        instance = self.get_object()
+        #data = json.loads(request.data)
+        try:
+            #instance.timestamp = request.data['timestamp']
+            #instance.gametime = request.data['gametime']
+            #instance.game = request.data['game']
+            #instance.player = request.data['player']
+            #instance.team = request.data['team']
+            instance.action = request.data['action']
+            instance.action_result = request.data['action_result']
+            instance.score_team_a = request.data['score_team_a']
+            instance.score_team_b = request.data['score_team_b']
+            instance.time_min = request.data['time_min']
+            instance.time_sec = request.data['time_sec']
+            #instance.guid = request.data['guid']
+            instance.active_defending_gk_id = request.data['active_defending_gk_id']
+            instance.save(update_fields=['action', 'action_result', 'score_team_a', 'score_team_b', 'time_min', 'time_sec'])
+        except Exception as ex:
+            print(ex)
+        
+        #serializer = GameRunningSerializer2(instance, data=request.data, partial=True)
+        #serializer.is_valid(raise_exception=True)
+        #serializer.save()
         return Response(request.data)
 
     @action(detail=True, renderer_classes=[renderers.StaticHTMLRenderer])
@@ -574,3 +610,4 @@ def StartGameScouting(request, game_id):
         data2['team_st_a'] = game2.team_a.name
         data2['team_st_b'] = game2.team_b.name
         return Response([data, data2])
+    
