@@ -13,7 +13,7 @@ from beachhandball_app import helper
 from beachhandball_app.models.Tournaments import Referee
 from beachhandball_app.models.Player import PlayerStats
 from datetime import datetime
-from beachhandball_app.models.Game import Game
+from beachhandball_app.models.Game import Game, GameAction
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, UpdateView
 from django.views.generic import TemplateView
@@ -647,6 +647,10 @@ class GameResultGameView(BSModalUpdateView):
         
         context['pstats_a'] = PlayerStats.objects.filter(tournament_event=game.tournament_event, game=game, player__team=game.team_a, is_ranked=False)
         context['pstats_b'] = PlayerStats.objects.filter(tournament_event=game.tournament_event, game=game, player__team=game.team_b, is_ranked=False)
+
+        context['gameactions_ht1'] = GameAction.objects.filter(game=game, period='HT1')
+        context['gameactions_ht2'] = GameAction.objects.filter(game=game, period='HT2')
+        context['gameactions_p'] = GameAction.objects.filter(game=game, period='P')
         return context
 
     def form_valid(self, form):

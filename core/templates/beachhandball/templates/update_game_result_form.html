@@ -166,81 +166,212 @@
           <h3 id="ResultUpload_text"></h3>
         </div>
       </div>
-      {% if pstats_a %}
-      <div id='player-list-a'>
-      {% else %}
-      <div id='player-list-a' hidden>
-      {% endif %}
-        <div class="row">
-          <h4>Team A</h4>
-        </div>
-        <div class="row">
-          <div class="col">
-            <table id="player-list-team-a" class="table table-striped">
-              <thead>
-              <tr>
-                  <th>#</th>
-                  <th>Player</th>
-                  <th>Points</th>
-                  <th>Susp.</th>
-                  <th>Red</th>
-                  <th>Info</th>
-              </tr>
-              </thead>
-              <tbody>
-              {% for pstat in pstats_a %}
-                <tr>
-                  <td>{{ pstat.player.number }}</td>
-                  <td>{{ pstat.player.name }}, {{ pstat.player.first_name }}</td>
-                  <td>{{ pstat.score }}</td>
-                  <td{% if pstat.suspension > 0 %} class="yellow-background"{% endif %}>{{ pstat.suspension }}</td>
-                  <td{% if pstat.redcard > 0 %} class="red-background"{% endif %}>{{ pstat.redcard }}</td>
-                  <td></td>
-                </tr>
-              {% endfor %}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-      {% if pstats_b %}
-      <div id='player-list-b'>
-      {% else %}
-      <div id='player-list-b' hidden>
-      {% endif %}
-        <div class="row">
-          <h4>Team B</h4>
-        </div>
-        <div class="row">
-          <div class="col">
-            <table id="player-list-team-b" class="table table-striped">
-              <thead>
-              <tr>
-                  <th>#</th>
-                  <th>Player</th>
-                  <th>Points</th>
-                  <th>Susp.</th>
-                  <th>Red</th>
-                  <th>Info</th>
-              </tr>
-              </thead>
-              <tbody>
-                {% for pstat in pstats_b %}
+
+      <ul class="nav nav-pills nav-pills-icons" role="tablist">
+        <li class="nav-item">
+          <a class="nav-link active" data-toggle="tab" href="#team_stats" role="tablist">
+              <i class="material-icons">groups</i> Team Stats
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" data-toggle="tab" href="#game_actions" role="tablist">
+              <i class="material-icons">query_stats</i> Actions
+          </a>
+        </li>
+      </ul>
+
+      <div class="tab-content tab-space">
+        <div class="tab-pane active" id="team_stats">
+
+          {% if pstats_a %}
+          <div id='player-list-a'>
+          {% else %}
+          <div id='player-list-a' hidden>
+          {% endif %}
+            <div class="row">
+              <h4>Team A</h4>
+            </div>
+            <div class="row">
+              <div class="col">
+                <table id="player-list-team-a" class="table table-striped">
+                  <thead>
                   <tr>
-                    <td>{{ pstat.player.number }}</td>
-                    <td>{{ pstat.player.name }}, {{ pstat.player.first_name }}</td>
-                    <td>{{ pstat.score }}</td>
-                    <td{% if pstat.suspension > 0 %} class="yellow-background"{% endif %}>{{ pstat.suspension }}</td>
-                    <td{% if pstat.redcard > 0 %} class="red-background"{% endif %}>{{ pstat.redcard }}</td>
-                    <td></td>
+                      <th>#</th>
+                      <th>Player</th>
+                      <th>Points</th>
+                      <th>Susp.</th>
+                      <th>Red</th>
+                      <th>Info</th>
                   </tr>
-                {% endfor %}
-                </tbody>
-              
-            </table>
+                  </thead>
+                  <tbody>
+                  {% for pstat in pstats_a %}
+                    <tr>
+                      <td>{{ pstat.player.number }}</td>
+                      <td>{{ pstat.player.name }}, {{ pstat.player.first_name }}</td>
+                      <td>{{ pstat.score }}</td>
+                      <td{% if pstat.suspension > 0 %} class="yellow-background"{% endif %}>{{ pstat.suspension }}</td>
+                      <td{% if pstat.redcard > 0 %} class="red-background"{% endif %}>{{ pstat.redcard }}</td>
+                      <td></td>
+                    </tr>
+                  {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+          {% if pstats_b %}
+          <div id='player-list-b'>
+          {% else %}
+          <div id='player-list-b' hidden>
+          {% endif %}
+            <div class="row">
+              <h4>Team B</h4>
+            </div>
+            <div class="row">
+              <div class="col">
+                <table id="player-list-team-b" class="table table-striped">
+                  <thead>
+                  <tr>
+                      <th>#</th>
+                      <th>Player</th>
+                      <th>Points</th>
+                      <th>Susp.</th>
+                      <th>Red</th>
+                      <th>Info</th>
+                  </tr>
+                  </thead>
+                  <tbody>
+                    {% for pstat in pstats_b %}
+                      <tr>
+                        <td>{{ pstat.player.number }}</td>
+                        <td>{{ pstat.player.name }}, {{ pstat.player.first_name }}</td>
+                        <td>{{ pstat.score }}</td>
+                        <td{% if pstat.suspension > 0 %} class="yellow-background"{% endif %}>{{ pstat.suspension }}</td>
+                        <td{% if pstat.redcard > 0 %} class="red-background"{% endif %}>{{ pstat.redcard }}</td>
+                        <td></td>
+                      </tr>
+                    {% endfor %}
+                    </tbody>
+                  
+                </table>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      
+
+
+        <div class="tab-pane" id="game_actions">
+          <div id='gameactions-list-ht1'>
+            <div class="row">
+              <h4>Halftime 1</h4>
+            </div>
+
+            <div class="row">
+              <div class="col">
+                <table id="gameactions-table-ht1" class="table table-striped">
+                  <thead>
+                  <tr>
+                      <th>id</th>
+                      <th>GameTime</th>
+                      <th>Team</th>
+                      <th>Player</th>
+                      <th>Action</th>
+                      <th>Result</th>
+                  </tr>
+                  </thead>
+                  <tbody>
+                  {% for ga in gameactions_ht1 %}
+                    <tr>
+                      <td>{{ ga.id }}</td>
+                      <td>{{ ga.time_min }}:{{ ga.time_sec }}</td>
+                      <td>{{ ga.team.abbreviation }}</td>
+                      <td>{{ ga.player.number }}</td>
+                      <td>{{ ga.action }}</td>
+                      <td>{{ ga.action_result }}</td>
+                    </tr>
+                  {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+
+            <div class="row">
+              <h4>Halftime 2</h4>
+            </div>
+
+            <div class="row">
+              <div class="col">
+                <table id="gameactions-table-ht1" class="table table-striped">
+                  <thead>
+                  <tr>
+                      <th>id</th>
+                      <th>GameTime</th>
+                      <th>Team</th>
+                      <th>Player</th>
+                      <th>Action</th>
+                      <th>Result</th>
+                  </tr>
+                  </thead>
+                  <tbody>
+                  {% for ga in gameactions_ht2 %}
+                    <tr>
+                      <td>{{ ga.id }}</td>
+                      <td>{{ ga.time_min }}:{{ ga.time_sec }}</td>
+                      <td>{{ ga.team.abbreviation }}</td>
+                      <td>{{ ga.player.number }}</td>
+                      <td>{{ ga.action }}</td>
+                      <td>{{ ga.action_result }}</td>
+                    </tr>
+                  {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+
+            <div class="row">
+              <h4>Shootout</h4>
+            </div>
+
+            <div class="row">
+              <div class="col">
+                <table id="gameactions-table-ht1" class="table table-striped">
+                  <thead>
+                  <tr>
+                      <th>id</th>
+                      <th>GameTime</th>
+                      <th>Team</th>
+                      <th>Player</th>
+                      <th>Action</th>
+                      <th>Result</th>
+                  </tr>
+                  </thead>
+                  <tbody>
+                  {% for ga in gameactions_p %}
+                    <tr>
+                      <td>{{ ga.id }}</td>
+                      <td>{{ ga.time_min }}:{{ ga.time_sec }}</td>
+                      <td>{{ ga.team.abbreviation }}</td>
+                      <td>{{ ga.player.number }}</td>
+                      <td>{{ ga.action }}</td>
+                      <td>{{ ga.action_result }}</td>
+                    </tr>
+                  {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
           </div>
         </div>
       </div>
+
+
+      
 
       <div class="row">
         <div class="col">
