@@ -73,7 +73,7 @@ class Game(models.Model):
     scouting_state = models.CharField(max_length=9, blank=True, null=True, choices=GAMESTATE_SCOUTING_CHOICES)
     id_counter = models.IntegerField(default=0, blank=True, null=True)
 
-    last_real_time_data = jsonfield.JSONField(null=True)
+    last_real_time_data = jsonfield.JSONField(null=True, blank=True)
     ref_a_subject_id = models.SmallIntegerField(default=0, blank=True, null=True)
     ref_b_subject_id = models.SmallIntegerField(default=0, blank=True, null=True)
 
