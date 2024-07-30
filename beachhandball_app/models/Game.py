@@ -3,6 +3,7 @@ from django.utils import timezone
 from datetime import datetime
 
 from django_unixdatetimefield import UnixDateTimeField
+import jsonfield
 
 from .choices import COURT_CHOICES, GAMESTATE_CHOICES, GAMESTATE_SCOUTING_CHOICES
 
@@ -71,6 +72,10 @@ class Game(models.Model):
     )
     scouting_state = models.CharField(max_length=9, blank=True, null=True, choices=GAMESTATE_SCOUTING_CHOICES)
     id_counter = models.IntegerField(default=0, blank=True, null=True)
+
+    last_real_time_data = jsonfield.JSONField(null=True)
+    ref_a_subject_id = models.SmallIntegerField(default=0, blank=True, null=True)
+    ref_b_subject_id = models.SmallIntegerField(default=0, blank=True, null=True)
 
     def __unicode__(self):
         return '{}: {} - {} um {}'.format(self.tournament_state, self.team_st_a, self.team_st_b, self.starttime)
