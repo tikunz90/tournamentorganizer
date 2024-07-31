@@ -101,7 +101,7 @@ def update_user_tournament(gbouser, season_id):
                 tourns.append(new_t)
             else:
                 print("Tournament exists but is assigned to other user")
-
+        
     end = time.time()
     execution_time = end - begin
     # return tourns, execution_time
@@ -133,6 +133,7 @@ def update_user_tournament(gbouser, season_id):
                     t.save()
                     ts, cr = TournamentSettings.objects.get_or_create(tournament=t)
                     ts.save()
+                    sync_referees_of_tournament(gbo_data, t)
             if not tourn_found and tourns_by_season_cup_id.count() == 0:
                 #create tournament
                 new_t = Tournament(organizer=gbouser.subject_id,
@@ -146,6 +147,7 @@ def update_user_tournament(gbouser, season_id):
                 ts.save()
                 to_tourn = new_t
                 tourns_dm.append(new_t)
+                sync_referees_of_tournament(gbo_data, new_t)
             else:
                 print("Tournament exists but is assigned to other user")
     print("sub-season")
@@ -388,6 +390,8 @@ def sync_teams_of_tevent(gbouser, tevent):
             result = sync_single_team_by_ranking(ranking, tevent, my_team_data, cup_type, gbouser, True)
             if result['isError'] == True:
                 break
+
+        sync_referees_of_tournament(gbo_data, tevent.tournament)
 
     except Exception as ex:
         print(traceback.format_exc())
@@ -714,7 +718,54 @@ def sync_single_team_by_ranking(ranking, tevent, team_data_django, cup_type, gbo
         pl.delete()
     
     return result
+
+def sync_referees_of_tournament(gbodata, tournament):
+    print('ENTER sync_referees_of_tournament')
+    if gbodata is None:
+        print('gbo data none sync_referees_of_tournament')
+        return
     
+    if 'seasonTournament' not in gbodata:
+        print('seasonTournament not in data sync_referees_of_tournament')
+        return
+
+    if 'seasonTournamentCriteriaSubjects' not in gbodata['seasonTournament']:
+        print('seasonTournamentCriteriaSubjects not in data sync_referees_of_tournament')
+        return
+    
+    try:
+        to_referees = [ref for ref in  Referee.objects.filter(tournament=tournament).all()]
+        for entry in gbodata['seasonTournament']['seasonTournamentCriteriaSubjects']:
+            if 'seasonSubject' in entry:
+                seasonSub = entry['seasonSubject']
+                if 'subject' in seasonSub and seasonSub['subject']['authGroup']['name_code'] == 'referee':
+                    print('Found referee')
+                    subject = seasonSub['subject']
+                    to_ref = find_referee_by_gbo_subject_id(to_referees, subject['id'])
+
+                    if to_ref is None:
+                        #create new
+                        abbr = ''
+                        if len(subject['user']['name']) > 0 and len(subject['user']['family_name']) > 0:
+                            abbr = subject['user']['name'][0].upper() + subject['user']['family_name'][0].upper()
+                        new_ref = Referee.objects.create(tournament=tournament, abbreviation=abbr, gbo_subject_id=subject['id'], name=subject['user']['family_name'], first_name=subject['user']['name'])
+                    else:
+                        #update
+                        to_ref.first_name = subject['user']['name']
+                        to_ref.name = subject['user']['family_name']
+                        if len(to_ref.first_name) > 0 and len(to_ref.name) > 0:
+                            to_ref.abbreviation = to_ref.first_name[0].upper() + to_ref.name[0].upper()
+                        to_ref.save()
+
+    except Exception as ex:
+        print(traceback.format_exc())
+
+def find_referee_by_gbo_subject_id(referees, gbo_subject_id):
+    for referee in referees:
+        if referee.gbo_subject_id == gbo_subject_id:
+            return referee
+    return None
+
 def strip_accents(text):
 
     try:

@@ -74,8 +74,8 @@ class Game(models.Model):
     id_counter = models.IntegerField(default=0, blank=True, null=True)
 
     last_real_time_data = jsonfield.JSONField(null=True, blank=True)
-    ref_a_subject_id = models.SmallIntegerField(default=0, blank=True, null=True)
-    ref_b_subject_id = models.SmallIntegerField(default=0, blank=True, null=True)
+    gbo_ref_a_subject_id = models.SmallIntegerField(default=0, blank=True, null=True)
+    gbo_ref_b_subject_id = models.SmallIntegerField(default=0, blank=True, null=True)
 
     def __unicode__(self):
         return '{}: {} - {} um {}'.format(self.tournament_state, self.team_st_a, self.team_st_b, self.starttime)

@@ -542,6 +542,11 @@ class GameUpGameView(BSModalUpdateView):
             form.instance.team_a = form.instance.team_st_a.team
         if (form.instance.team_b is None or form.instance.team_b != form.instance.team_st_b.team)  and form.instance.team_st_b is not None and form.instance.team_st_b.team.is_dummy == False:
             form.instance.team_b = form.instance.team_st_b.team
+
+        if form.instance.ref_a is not None:
+            form.instance.gbo_ref_a_subject_id = form.instance.ref_a.gbo_subject_id
+        if form.instance.ref_b is not None:
+            form.instance.gbo_ref_b_subject_id = form.instance.ref_b.gbo_subject_id
         return super().form_valid(form)
 
     def get_success_url(self):

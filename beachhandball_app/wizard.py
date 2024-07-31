@@ -563,8 +563,8 @@ def wizard_create_gameplan(tourn, gameplan_data, num_courts):
             scouting_state='APPENDING',
             gamingstate='Ready',
             id_counter=game_counter,
-            ref_a_subject_id=0,
-            ref_b_subject_id=0)
+            gbo_ref_a_subject_id=0,
+            gbo_ref_b_subject_id=0)
         game_counter += 1
         games.append(game_obj)
     Game.objects.bulk_create(games)
