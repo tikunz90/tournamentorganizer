@@ -349,6 +349,8 @@ def basic_setup(request):
 
     context['tourn_settings_form'] = form
     context['court_form'] = formCourt
+    context['courts'] = context['tourn'].court_set.all()
+    context['scoreboard_users'] = ScoreBoardUser.objects.filter(court__tournament=context['tourn']).all()
 
     html_template = loader.get_template( 'beachhandball/basic_setup.html' )
     return HttpResponse(html_template.render(context, request))
