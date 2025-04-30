@@ -123,8 +123,8 @@ DATABASES = {
         'NAME': 'beachhandball_2022',
         'USER': 'tim',
         'PASSWORD': 'qs12fhw5',
-        'HOST': '127.0.0.1',  # Connect to the local end of the SSH tunnel
-        'PORT': '3307',  # Local port specified in the SSH tunnel setup
+        #'HOST': '127.0.0.1',  # Connect to the local end of the SSH tunnel
+        #'PORT': '3307',  # Local port specified in the SSH tunnel setup
         'OPTIONS': {
             'read_default_file': os.path.join(BASE_DIR, 'database_config.cnf'),
             "init_command": "SET foreign_key_checks = 0;",
