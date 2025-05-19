@@ -12,8 +12,8 @@
         </tr>
     </thead>
     <tbody>
-        {% for tstat in tstate.stats|sort(attribute='rank', reverse = False)  %}
-            <tr>
+        {% for tstat in tstate.stats %}
+        <tr>
             <td class="text-center">{{loop.index}}</td>
             <td>{{ tstat.team.name }} ({{ tstat.team.abbreviation}})</td>
             <td class="text-center">{{ tstat.number_of_played_games }}</td>
@@ -22,7 +22,7 @@
             <td class="text-center">{{ tstat.points_made }}:{{ tstat.points_received }}</td>
             <td class="text-center">{{ tstat.points_made - tstat.points_received }}</td>
             <td class="text-center"><b>{{ tstat.game_points }} ({{tstat.ranking_points}})</b></td>
-            </tr>
+        </tr>
         {% endfor %}
     </tbody>
     </table>

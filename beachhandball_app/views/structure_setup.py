@@ -78,95 +78,53 @@ class StructureSetupDetail(LoginRequiredMixin, UserPassesTestMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         print('Enter StructureSetupDetail: ', datetime.now())
-
-        #tourn = context['tourn']
-
         tevent = kwargs["object"]
-        #t = Tournament.objects.get(id=1)
-        
-        context = self.kwargs['context_data']#getContext(self.request)
+        context = self.kwargs['context_data']
 
-        #tevent = TournamentEvent.objects.filter(tournament=context['tourn']).select_related('TournamentStages')
-        #stages = TournamentStage.objects.filter(tournament_event=tevent).all().prefetch_related('tournament_state_set')
-        #prefTeamStats = Prefetch("teamstats_set", queryset=TeamStats.objects.all(), to_attr="tstats")
-        #pref=Prefetch("tournamentstate_set", queryset=TournamentState.objects.filter(is_final=False).prefetch_related(prefTeamStats), to_attr="sstates")
-        #print(len(connection.queries))
-        #stages = TournamentStage.objects.select_related("tournament_event").prefetch_related(
-        #    Prefetch("tournamentstate_set", queryset=TournamentState.objects.select_related("tournament_event__category").prefetch_related(
-        #        Prefetch("teamstats_set", queryset=TeamStats.objects.select_related("team").all(), to_attr="stats"),
-        #        Prefetch("game_set", queryset=Game.objects.all(), to_attr="games"),
-        #        Prefetch("ttt_origin", queryset=TournamentTeamTransition.objects.select_related("origin_ts_id", "target_ts_id").all(), to_attr="ttt_origin_pre")
-        #        )
-        #        , to_attr="tstates")
-        #        )
-        print('Before stage loop: ', datetime.now())
+        # Prefetch only non-final states and their teamstats/games/ttt_origin
         stages = TournamentStage.objects.select_related("tournament_event").prefetch_related(
-            Prefetch("tournamentstate_set", queryset=TournamentState.objects.select_related("tournament_event__category").prefetch_related(
-                Prefetch("teamstats_set", queryset=TeamStats.objects.select_related("team").all(), to_attr="stats"),
-                Prefetch("game_set", queryset=Game.objects.all(), to_attr="games"),
-                Prefetch("ttt_origin", queryset=TournamentTeamTransition.objects.select_related("origin_ts_id", "target_ts_id").all(), to_attr="ttt_origin_pre")
-                )
-                , to_attr="tstates")
-        ).filter(tournament_event__id=tevent.id)
+            Prefetch(
+                "tournamentstate_set",
+                queryset=TournamentState.objects.filter(is_final=False).select_related("tournament_event__category").prefetch_related(
+                    Prefetch("teamstats_set", queryset=TeamStats.objects.select_related("team"), to_attr="stats"),
+                    Prefetch("game_set", queryset=Game.objects.select_related("team_st_a", "team_st_a__team", "team_st_b", "team_st_b__team", "court"), to_attr="games"),
+                    Prefetch("ttt_origin", queryset=TournamentTeamTransition.objects.select_related("origin_ts_id", "target_ts_id"), to_attr="ttt_origin_pre")
+                ),
+                to_attr="tstates_wo_final"
+            )
+        ).filter(tournament_event=tevent)
 
-        
-        #for stage in stages:
-        #    print(stage)
-        #    print("################")
-        #    for state in stage.tstates:
-        #        print(state)
-        #        print("-----STATS-----")
-        #        for ts in state.stats:
-        #            print(ts)
-        #        print("-----GAMES-----")
-        #        for g in state.games:
-        #            print(g)
-        print(len(connection.queries))
-        #print(stages.query)
-        tstages_pre = []
-        tstates_pre = []
-        for stage in stages:
-            if stage.tournament_event.id==tevent.id:
-                tstates = []
-                for state in stage.tstates:
-                    if not state.is_final:
-                        tstates.append(state)
-                        tstates_pre.append(state)
-                stage.tstates_wo_final = tstates
-                tstages_pre.append(stage)
-
-        print('After stage loop: ', datetime.now())
-
-        kwargs['tstages_pre'] = tstages_pre#[stage for stage in stages if stage.tournament_event.id==tevent.id]
-        
-        TeamStatFormSet = modelformset_factory(TeamStats, TeamStatsUpdateInitialTeamForm, extra=0)
-        tstat_forms = {}
+        tstages_pre = list(stages)
         for stage in tstages_pre:
-            for state in stage.tstates:
-                tstat_forms[state.id] = TeamStatFormSet(form_kwargs={'tevent': tevent}, queryset=TeamStats.objects.filter(tournamentstate=state))
+            for tstate in getattr(stage, 'tstates_wo_final', []):
+                # Sort stats by rank (ascending)
+                if hasattr(tstate, 'stats'):
+                    tstate.stats = sorted(tstate.stats, key=lambda s: s.rank if s.rank is not None else 9999)
+        tstates_pre = [state for stage in tstages_pre for state in getattr(stage, 'tstates_wo_final', [])]
+
+        # Only create formsets for non-final states
+        TeamStatFormSet = modelformset_factory(TeamStats, TeamStatsUpdateInitialTeamForm, extra=0)
+        tstat_forms = {
+            state.id: TeamStatFormSet(form_kwargs={'tevent': tevent}, queryset=TeamStats.objects.filter(tournamentstate=state))
+            for state in tstates_pre
+        }
+
+        kwargs['tstages_pre'] = tstages_pre
         kwargs['tstat_forms'] = tstat_forms
-        
         kwargs['tourn'] = context['tourn']
-        #kwargs['tst_view'] = tevent.tournamentstage_set.all()
-
         kwargs['tevent'] = tevent
-
-        #kwargs = static_views.getContext(self.request)
         kwargs['tournaments_active'] = 'active_detail'
         kwargs['segment'] = 'structure_setup'
-        kwargs['segment_title'] = 'Structure Setup \ ' + tevent.name_short + ' ' + tevent.category.name + ' ' + tevent.category.classification
+        kwargs['segment_title'] = f'Structure Setup \\ {tevent.name_short} {tevent.category.name} {tevent.category.classification}'
+        kwargs['teams_appending'] = []
 
-        #kwargs['ts_types'] = TournamentStage.objects.filter(tournament_event=tevent)
-        kwargs['teams_appending'] = []#Team.objects.filter(tournament=tevent)
-        
-        print('Before check: ', datetime.now())
-        helper.check_all_tournamentstate_finshed(tevent, tstates_pre)
-        
-        #tstate = TournamentState.objects.get(id=6)
-       # kwargs['form_tstate'] = TournamentStateUpdateForm(instance=tstate)
+        # Only check finished states if really needed (consider moving this to POST or a background job)
+        # helper.check_all_tournamentstate_finshed(tevent, tstates_pre)
+
         print('Leave StructureSetupDetail: ', datetime.now())
         return super(StructureSetupDetail, self).get_context_data(**kwargs)
-    
+
+
     def test_func(self):
         return self.request.user.groups.filter(name='tournament_organizer').exists()
 
