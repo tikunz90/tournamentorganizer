@@ -65,45 +65,45 @@
     
     </p>
     <ul class="nav nav-pills nav-pills-warning nav-pills-icons justify-content-center" role="tablist">
-      {% for stage in tstages_pre %}
+        {% for stage in tstages_pre %}
         {% with link_name=stage.id %}
         <li class="nav-item">
-          {% if request.GET.tab %}
+            {% if request.GET.tab %}
             {% if request.GET.tab == stage.id|string %}
-              <a class="nav-link active" data-toggle="tab" href="{{ ['#', link_name]|join('')  }}" role="tablist">
-            {% else %}
-              <a class="nav-link" data-toggle="tab" href="{{ ['#', link_name]|join('')  }}" role="tablist">
-            {% endif %}
-          {% else %}
-            {% if loop.first %}
-              <a class="nav-link active" data-toggle="tab" href="{{ ['#', link_name]|join('') }}" role="tablist">
-            {% else %}
-              <a class="nav-link" data-toggle="tab" href="{{ ['#', link_name]|join('')  }}" role="tablist">
-            {% endif %}
-          {% endif %}
-          
-            {% if stage.tournament_stage == "GROUP_STAGE" %}
-              <i class="material-icons">groups</i> {{stage.name}}
-            {% elif stage.tournament_stage == "MAIN_ROUND" %}
-              <i class="material-icons">shuffle</i> {{stage.name}}
-            {% elif stage.tournament_stage == "KNOCKOUT_STAGE" %}
-              <i class="material-icons">sports_mma</i> {{stage.name}}
-            {% elif stage.tournament_stage == "PLAYOFF_STAGE" %}
-              <i class="material-icons">thumb_down</i> {{stage.name}}
-            {% elif stage.tournament_stage == "FINAL" %}
-              <i class="material-icons">emoji_events</i> {{stage.name}}
-            {% else %}
-              <i class="material-icons">groups</i> {{stage.name}}
-            {% endif %}
-          </a>
+            <a class="nav-link active" data-toggle="tab" href="{{ ['#', link_name]|join('')  }}" role="tablist">
+                {% else %}
+                <a class="nav-link" data-toggle="tab" href="{{ ['#', link_name]|join('')  }}" role="tablist">
+                    {% endif %}
+                    {% else %}
+                    {% if loop.first %}
+                    <a class="nav-link active" data-toggle="tab" href="{{ ['#', link_name]|join('') }}" role="tablist">
+                        {% else %}
+                        <a class="nav-link" data-toggle="tab" href="{{ ['#', link_name]|join('')  }}" role="tablist">
+                            {% endif %}
+                            {% endif %}
+
+                            {% if stage.tournament_stage == "GROUP_STAGE" %}
+                            <i class="material-icons">groups</i> {{stage.name}}
+                            {% elif stage.tournament_stage == "MAIN_ROUND" %}
+                            <i class="material-icons">shuffle</i> {{stage.name}}
+                            {% elif stage.tournament_stage == "KNOCKOUT_STAGE" %}
+                            <i class="material-icons">sports_mma</i> {{stage.name}}
+                            {% elif stage.tournament_stage == "PLAYOFF_STAGE" %}
+                            <i class="material-icons">thumb_down</i> {{stage.name}}
+                            {% elif stage.tournament_stage == "FINAL" %}
+                            <i class="material-icons">emoji_events</i> {{stage.name}}
+                            {% else %}
+                            <i class="material-icons">groups</i> {{stage.name}}
+                            {% endif %}
+                        </a>
         </li>
         {% endwith %}
-      {% else %}
+        {% else %}
         <li>No Stages defined. Please add or run wizard</li>
-        {% if tevent.tournamentstage_set.count() == 0 %}
-          <a class="btn btn-primary w-100" href="{{ url('setup_wizard', kwargs={'pk_tevent': tevent.id }) }}">Structure Wizard</a>
+        {% if tstages_pre|length == 0 %}
+        <a class="btn btn-primary w-100" href="{{ url('setup_wizard', kwargs={'pk_tevent': tevent.id }) }}">Structure Wizard</a>
         {% endif %}
-      {% endfor %}
+        {% endfor %}
     </ul>
     <div class="tab-content tab-space tab-subcategories">
 

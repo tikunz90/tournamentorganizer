@@ -36,20 +36,20 @@
               </div>
             </a>
             <div class="collapse" id="collapseTeamsSetup">
-            {% if tourn.tournamentevent_set.count() > 0 %}
-              <ul class="nav">
-              {% for tevent in tourn.tournamentevent_set.all() %}
-                <li class="nav-item">
-                  <a class="nav-link" href="{{ url('teams_setup.detail', kwargs={'pk': tevent.id}) }}" onclick="modalShowSpinner();">
-                    <!--span class="sidebar-mini"> 1234 </!--span-->
-                    <span class="sidebar-normal"> {{ tevent.category.name}} {{ tevent.category.classification}}</span>
-                  </a>
-                </li>
-              {% endfor %}
-              </ul>
-            {% else %}
-              <p>No Events!</p>
-            {% endif %}
+                {% if events %}
+                <ul class="nav">
+                    {% for tevent in events %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url('teams_setup.detail', kwargs={'pk': tevent.id}) }}" onclick="modalShowSpinner();">
+                            <!--span class="sidebar-mini"> 1234 </!--span-->
+                            <span class="sidebar-normal"> {{ tevent.category.name}} {{ tevent.category.classification}}</span>
+                        </a>
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <p>No Events!</p>
+                {% endif %}
             </div>
           </li>
 
@@ -65,20 +65,21 @@
               </div>
             </a>
             <div class="collapse" id="collapseStructureSetup">
-            {% if tourn.tournamentevent_set.count() > 0 %}
-              <ul class="nav">
-              {% for tevent in tourn.tournamentevent_set.all() %}
-                <li class="nav-item">"
-                  <a class="nav-link" href="{{ url('structure_setup.detail', kwargs={'pk': tevent.id}) }}" onclick="modalShowSpinner();">
-                    <!--span class="sidebar-mini"> 1234 </!--span-->
-                    <span class="sidebar-normal">  {{ tevent.category.name}} {{ tevent.category.classification}}</span>
-                  </a>
-                </li>
-              {% endfor %}
-              </ul>
-            {% else %}
-              <p>No Events!</p>
-            {% endif %}
+                {% if events %}
+                <ul class="nav">
+                    {% for tevent in events %}
+                    <li class="nav-item">
+                        "
+                        <a class="nav-link" href="{{ url('structure_setup.detail', kwargs={'pk': tevent.id}) }}" onclick="modalShowSpinner();">
+                            <!--span class="sidebar-mini"> 1234 </!--span-->
+                            <span class="sidebar-normal">  {{ tevent.category.name}} {{ tevent.category.classification}}</span>
+                        </a>
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <p>No Events!</p>
+                {% endif %}
             </div>
           </li>
 
@@ -99,20 +100,20 @@
               </div>
             </a>
             <div class="collapse" id="collapseResults">
-            {% if tourn.tournamentevent_set.count() > 0 %}
-              <ul class="nav">
-              {% for tevent in tourn.tournamentevent_set.all() %}
-                <li class="nav-item">
-                  <a class="nav-link" href="{{ url('results.detail', kwargs={'pk': tevent.id}) }}" onclick="modalShowSpinner();">
-                    <!--span class="sidebar-mini"> 1234 </!--span-->
-                    <span class="sidebar-normal">  {{ tevent.category.name}} {{ tevent.category.classification}}</span>
-                  </a>
-                </li>
-              {% endfor %}
-              </ul>
-            {% else %}
-              <p>No Events!</p>
-            {% endif %}
+                {% if events %}
+                <ul class="nav">
+                    {% for tevent in events %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url('results.detail', kwargs={'pk': tevent.id}) }}" onclick="modalShowSpinner();">
+                            <!--span class="sidebar-mini"> 1234 </!--span-->
+                            <span class="sidebar-normal">  {{ tevent.category.name}} {{ tevent.category.classification}}</span>
+                        </a>
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <p>No Events!</p>
+                {% endif %}
             </div>
           </li>
 

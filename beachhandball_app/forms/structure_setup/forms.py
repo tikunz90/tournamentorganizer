@@ -164,13 +164,17 @@ class TeamStatsUpdateInitialTeamForm(forms.ModelForm):
             'team': forms.widgets.Select(attrs={'class': "form-control selectpicker", 'data-style':"btn btn-info btn-round"}),
         }
 
-    def __init__(self, *args, **kwargs):
-        tevent = kwargs.pop('tevent')
-        super(TeamStatsUpdateInitialTeamForm, self).__init__(*args, **kwargs)
-        
-        self.fields['team'].queryset = Team.objects.filter(tournament_event=tevent, is_dummy=False)
+    def __init__(self, *args, tevent=None, teams=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        if teams is not None:
+            self.fields['team'].queryset = teams
+        elif tevent is not None:
+            self.fields['team'].queryset = Team.objects.filter(tournament_event=tevent, is_dummy=False)
+        else:
+            raise ValueError("TeamStatsUpdateInitialTeamForm requires either 'tevent' or 'teams' argument.")
         for field in self.disabled_fields:
-            self.fields[field].disabled = True
+            if field in self.fields:
+                self.fields[field].disabled = True
 
 """
 

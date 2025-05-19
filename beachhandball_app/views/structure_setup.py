@@ -102,10 +102,11 @@ class StructureSetupDetail(LoginRequiredMixin, UserPassesTestMixin, DetailView):
                     tstate.stats = sorted(tstate.stats, key=lambda s: s.rank if s.rank is not None else 9999)
         tstates_pre = [state for stage in tstages_pre for state in getattr(stage, 'tstates_wo_final', [])]
 
-        # Only create formsets for non-final states
+
+        teams = Team.objects.filter(tournament_event=tevent, is_dummy=False)
         TeamStatFormSet = modelformset_factory(TeamStats, TeamStatsUpdateInitialTeamForm, extra=0)
         tstat_forms = {
-            state.id: TeamStatFormSet(form_kwargs={'tevent': tevent}, queryset=TeamStats.objects.filter(tournamentstate=state))
+            state.id: TeamStatFormSet(form_kwargs={'teams': teams}, queryset=TeamStats.objects.filter(tournamentstate=state).select_related('team'))
             for state in tstates_pre
         }
 
