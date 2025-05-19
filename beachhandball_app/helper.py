@@ -209,6 +209,219 @@ def update_user_tournament(gbouser, season_id):
 
 def update_user_tournament_events(gbouser, to_tourn):
     begin = time.time()
+    print("ENTER update_user_tournament_events", datetime.now())
+    try:
+        if type(gbouser) is GBOUser:
+            gbouser = gbouser.__dict__
+        if type(to_tourn) is Tournament:
+            to_tourn = to_tourn.__dict__
+        cup_type = 'is_cup'
+        if to_tourn['season_cup_tournament_id'] != 0:
+            gbo_data = gbouser['gbo_data_all']
+            cup_type = 'is_cup'
+        elif to_tourn['season_cup_german_championship_id'] != 0:
+            gbo_data = gbouser['gbo_gc_data']
+            cup_type = 'is_gc'
+        elif to_tourn['sub_season_cup_tournament_id'] != 0:
+            gbo_data = gbouser['gbo_sub_data']
+            cup_type = 'is_sub'
+        else:
+            print("No ID to any gbo tournament")
+            return
+        if not gbo_data['isError']:
+            gbo_data = gbo_data['message']
+
+            # Prefetch all categories for this tournament
+            category_ids = [cat['category']['id'] for gbot in gbo_data for cat in gbot['seasonTournament']['seasonTournamentCategories']]
+            existing_cats = TournamentCategory.objects.filter(gbo_category_id__in=category_ids)
+            cat_map = {(cat.gbo_category_id, cat.classification, cat.name, cat.category): cat for cat in existing_cats}
+            new_cats = []
+            new_cat_keys = set()
+
+            # Prefetch all events for this tournament
+            event_filter = Q()
+            for gbot in gbo_data:
+                season_tourn = gbot['seasonTournament']
+                for cat in season_tourn['seasonTournamentCategories']:
+                    if cup_type == 'is_cup':
+                        event_filter |= Q(
+                            tournament_id=to_tourn['id'],
+                            category__gbo_category_id=cat['category']['id'],
+                            season_cup_tournament_id=gbot['id']
+                        )
+                    elif cup_type == 'is_gc':
+                        event_filter |= Q(
+                            tournament_id=to_tourn['id'],
+                            category__gbo_category_id=cat['category']['id'],
+                            season_cup_german_championship_id=gbot['id']
+                        )
+                    elif cup_type == 'is_sub':
+                        event_filter |= Q(
+                            tournament_id=to_tourn['id'],
+                            category__gbo_category_id=cat['category']['id'],
+                            sub_season_cup_tournament_id=gbot['id']
+                        )
+            existing_events = TournamentEvent.objects.filter(event_filter)
+            event_map = {}
+            for ev in existing_events:
+                key = (ev.category.gbo_category_id, getattr(ev, 'season_cup_tournament_id', 0), getattr(ev, 'season_cup_german_championship_id', 0), getattr(ev, 'sub_season_cup_tournament_id', 0))
+                event_map[key] = ev
+            new_events = []
+
+            for gbot in gbo_data:
+                season_tourn = gbot['seasonTournament']
+                if cup_type == 'is_cup' and season_tourn['id'] != to_tourn['season_tournament_id']:
+                    continue
+                elif cup_type == 'is_gc' and season_tourn['id'] != to_tourn['season_german_championship_id']:
+                    continue
+                elif cup_type == 'is_sub':
+                    continue
+
+                # read dates
+                if not season_tourn['seasonTournamentWeeks']:
+                    print("Not weeks defined")
+                start_ts = int(season_tourn['seasonTournamentWeeks'][0]['seasonWeek']['start_at_ts'])/1000
+                end_ts = int(season_tourn['seasonTournamentWeeks'][0]['seasonWeek']['end_at_ts'])/1000
+
+                for cat in season_tourn['seasonTournamentCategories']:
+                    abbrv = 'M' if cat['category']['gender']['name'] == 'man' else 'W'
+                    cat_key = (cat['category']['id'], cat['category']['name'], cat['category']['gender']['name'], cat['category']['gender']['name'])
+                    tcat = cat_map.get(cat_key)
+                    if not tcat and cat_key not in new_cat_keys:
+                        tcat = TournamentCategory(
+                            gbo_category_id=cat['category']['id'],
+                            classification=cat['category']['name'],
+                            name=cat['category']['gender']['name'],
+                            category=cat['category']['gender']['name'],
+                            abbreviation=abbrv,
+                            season_tournament_category_id=cat['id']
+                        )
+                        new_cats.append(tcat)
+                        new_cat_keys.add(cat_key)
+                        cat_map[cat_key] = tcat  # Add to map for later use
+
+            # Bulk create new categories
+            if new_cats:
+                TournamentCategory.objects.bulk_create(new_cats)
+                # Refresh cat_map with DB objects
+                created_cats = TournamentCategory.objects.filter(gbo_category_id__in=[c.gbo_category_id for c in new_cats])
+                for c in created_cats:
+                    cat_key = (c.gbo_category_id, c.classification, c.name, c.category)
+                    cat_map[cat_key] = c
+
+            # Now process events
+            for gbot in gbo_data:
+                season_tourn = gbot['seasonTournament']
+                if cup_type == 'is_cup' and season_tourn['id'] != to_tourn['season_tournament_id']:
+                    continue
+                elif cup_type == 'is_gc' and season_tourn['id'] != to_tourn['season_german_championship_id']:
+                    continue
+                elif cup_type == 'is_sub':
+                    continue
+
+                start_ts = int(season_tourn['seasonTournamentWeeks'][0]['seasonWeek']['start_at_ts'])/1000
+                end_ts = int(season_tourn['seasonTournamentWeeks'][0]['seasonWeek']['end_at_ts'])/1000
+
+                for cat in season_tourn['seasonTournamentCategories']:
+                    cat_key = (cat['category']['id'], cat['category']['name'], cat['category']['gender']['name'], cat['category']['gender']['name'])
+                    tcat = cat_map[cat_key]
+                    if cup_type == 'is_cup':
+                        event_key = (tcat.gbo_category_id, gbot['id'], 0, 0)
+                        tevents = [event_map.get(event_key)]
+                    elif cup_type == 'is_gc':
+                        event_key = (tcat.gbo_category_id, 0, gbot['id'], 0)
+                        tevents = [event_map.get(event_key)]
+                    elif cup_type == 'is_sub':
+                        event_key = (tcat.gbo_category_id, 0, 0, gbot['id'])
+                        tevents = [event_map.get(event_key)]
+                    else:
+                        tevents = [None]
+                    te = None
+                    if not tevents[0]:
+                        if cup_type == 'is_cup':
+                            te = TournamentEvent(
+                                tournament_id=to_tourn['id'],
+                                season_tournament_category_id=cat['id'],
+                                season_cup_tournament_id=gbot['id'],
+                                season_tournament_id=season_tourn['id'],
+                                name=to_tourn['name'],
+                                category=tcat,
+                                start_ts=datetime.fromtimestamp(start_ts),
+                                end_ts=datetime.fromtimestamp(end_ts),
+                                max_number_teams=16,
+                                last_sync_at=datetime.now()
+                            )
+                        elif cup_type == 'is_gc':
+                            te = TournamentEvent(
+                                tournament_id=to_tourn['id'],
+                                season_tournament_category_id=cat['id'],
+                                season_cup_german_championship_id=gbot['id'],
+                                season_tournament_id=season_tourn['id'],
+                                name=to_tourn['name'],
+                                category=tcat,
+                                start_ts=datetime.fromtimestamp(start_ts),
+                                end_ts=datetime.fromtimestamp(end_ts),
+                                max_number_teams=16,
+                                last_sync_at=datetime.now()
+                            )
+                        elif cup_type == 'is_sub':
+                            te = TournamentEvent(
+                                tournament_id=to_tourn['id'],
+                                season_tournament_category_id=cat['id'],
+                                sub_season_cup_tournament_id=gbot['id'],
+                                season_tournament_id=season_tourn['id'],
+                                name=to_tourn['name'],
+                                category=tcat,
+                                start_ts=datetime.fromtimestamp(start_ts),
+                                end_ts=datetime.fromtimestamp(end_ts),
+                                max_number_teams=16,
+                                last_sync_at=datetime.now()
+                            )
+                        if te:
+                            new_events.append(te)
+                    else:
+                        te = tevents[0]
+                        te.tournament_id = to_tourn['id']
+                        te.name = to_tourn['name']
+                        te.category = tcat
+                        te.start_ts = datetime.fromtimestamp(start_ts)
+                        te.end_ts = datetime.fromtimestamp(end_ts)
+                        te.max_number_teams = 16
+                        te.last_sync_at = datetime.now()
+                        te.save()
+
+                    # team sync
+                    data = gbot['seasonTeamCupTournamentRankings']
+                    if te:
+                        sync_only_teams(gbouser, te, data, cup_type)
+
+            # Bulk create new events
+            if new_events:
+                TournamentEvent.objects.bulk_create(new_events)
+                # Optionally, sync teams for new events (if needed)
+                for te in new_events:
+                    data = None
+                    for gbot in gbo_data:
+                        if cup_type == 'is_cup' and te.season_cup_tournament_id == gbot['id']:
+                            data = gbot['seasonTeamCupTournamentRankings']
+                        elif cup_type == 'is_gc' and te.season_cup_german_championship_id == gbot['id']:
+                            data = gbot['seasonTeamCupTournamentRankings']
+                        elif cup_type == 'is_sub' and te.sub_season_cup_tournament_id == gbot['id']:
+                            data = gbot['seasonTeamCupTournamentRankings']
+                        if data is not None:
+                            break
+                    if data is not None:
+                        sync_only_teams(gbouser, te, data, cup_type)
+
+    except Exception as ex:
+        print(ex)
+    print("EXIT update_user_tournament_events", datetime.now())
+    end = time.time()
+    execution_time = end - begin
+    print("EXIT update_user_tournament_events", execution_time)
+    return execution_time
+def update_user_tournament_events_OLD(gbouser, to_tourn):
+    begin = time.time()
     print("ENTER update_user_tournament_events" , datetime.now())
     try:
         if type(gbouser) is GBOUser:
@@ -231,6 +444,11 @@ def update_user_tournament_events(gbouser, to_tourn):
         if not gbo_data['isError']:
             gbo_data = gbo_data['message']
 
+            # Prefetch all categories for this tournament
+            category_ids = [cat['category']['id'] for gbot in gbo_data for cat in gbot['seasonTournament']['seasonTournamentCategories']]
+            existing_cats = TournamentCategory.objects.filter(gbo_category_id__in=category_ids)
+            cat_map = {(cat.gbo_category_id, cat.classification, cat.name, cat.category): cat for cat in existing_cats}
+
             for gbot in gbo_data:
                 print('gbo_data' , datetime.now())
                 season_tourn = gbot['seasonTournament']
@@ -250,25 +468,23 @@ def update_user_tournament_events(gbouser, to_tourn):
                 # scan categories and update/create events
                 for cat in season_tourn['seasonTournamentCategories']:
                     print('category ' + str(cat['category']) , datetime.now())
-                    tcat = None
-                    te = None
-                    abbrv = 'W'
-                    if cat['category']['gender']['name'] == 'man':
-                        abbrv = 'M'
-                    
-                    tcats = TournamentCategory.objects.filter(gbo_category_id=cat['category']['id'], classification=cat['category']['name'], name=cat['category']['gender']['name'], category=cat['category']['gender']['name'])
-                    if tcats.count() == 0:
-                        tcat, cr = TournamentCategory.objects.get_or_create(
-                            gbo_category_id=cat['category']['id'],
-                            classification=cat['category']['name'],
-                            name=cat['category']['gender']['name'],
-                            category=cat['category']['gender']['name'],
-                            abbreviation=abbrv)
-                        if tcat.season_tournament_category_id == 0:
-                            tcat.season_tournament_category_id=cat['id']
-                        tcat.save()
-                    else:
-                        tcat = tcats.first()
+                    for cat in season_tourn['seasonTournamentCategories']:
+                        abbrv = 'M' if cat['category']['gender']['name'] == 'man' else 'W'
+                        cat_key = (cat['category']['id'], cat['category']['name'], cat['category']['gender']['name'], cat['category']['gender']['name'])
+                        tcat = cat_map.get(cat_key)
+                        if not tcat:
+                            tcat = TournamentCategory(
+                                gbo_category_id=cat['category']['id'],
+                                classification=cat['category']['name'],
+                                name=cat['category']['gender']['name'],
+                                category=cat['category']['gender']['name'],
+                                abbreviation=abbrv,
+                                season_tournament_category_id=cat['id']
+                            )
+                            tcat.save()
+                            cat_map[cat_key] = tcat
+
+
                     if cup_type == 'is_cup':
                         tevents = TournamentEvent.objects.filter(tournament_id=to_tourn['id'], category=tcat, season_cup_tournament_id=gbot['id'])
                     elif cup_type == 'is_gc':
@@ -344,6 +560,7 @@ def update_user_tournament_events(gbouser, to_tourn):
     print("EXIT update_user_tournament_events" , datetime.now())
     end = time.time()
     execution_time = end - begin
+    print("EXIT update_user_tournament_events" , execution_time)
     return execution_time
 
 def sync_teams_of_tevent(gbouser, tevent):
@@ -491,6 +708,117 @@ def sync_teams_of_game(gbouser, game):
     return result
 
 def sync_only_teams(gbouser, tevent, data, cup_type):
+    print('ENTER sync_only_teams', datetime.now())
+    try:
+        # Prefetch all teams for this event
+        team_qs = Team.objects.select_related("tournament_event").filter(tournament_event=tevent)
+        team_qs = team_qs.prefetch_related(
+            Prefetch("player_set", queryset=Player.objects.select_related("tournament_event").all(), to_attr="players"),
+            Prefetch("coach_set", queryset=Coach.objects.select_related("tournament_event").all(), to_attr="coaches")
+        )
+        all_teams = list(team_qs)
+        team_map = {}
+        for team in all_teams:
+            if cup_type == 'is_cup':
+                team_map[team.season_team_cup_tournament_ranking_id] = team
+            elif cup_type == 'is_gc':
+                team_map[team.season_team_cup_championship_ranking_id] = team
+            elif cup_type == 'is_sub':
+                team_map[team.season_team_sub_cup_tournament_ranking_id] = team
+
+        # Prepare sets for fast lookup
+        ranking_ids = set()
+        for ranking in data:
+            ranking_ids.add(ranking['id'])
+
+        # Track teams to keep, update, create, and delete
+        teams_to_update = []
+        teams_to_create = []
+        teams_to_delete = []
+        seen_team_ids = set()
+
+        for ranking in data:
+            team = team_map.get(ranking['id'])
+            if not team:
+                # Create new team
+                team = Team(
+                    tournament_event=tevent,
+                    name=ranking['seasonTeam']['team']['name'],
+                    abbreviation=ranking['seasonTeam']['team']['name_abbreviated'],
+                    gbo_team=ranking['seasonTeam']['team']['id'],
+                    category=tevent.category,
+                    is_dummy=False
+                )
+                if cup_type == 'is_cup':
+                    team.season_team_cup_tournament_ranking_id = ranking['id']
+                    team.season_cup_tournament_id = tevent.season_cup_tournament_id
+                elif cup_type == 'is_gc':
+                    team.season_team_cup_championship_ranking_id = ranking['id']
+                    team.season_cup_german_championship_id = tevent.season_cup_german_championship_id
+                elif cup_type == 'is_sub':
+                    team.season_team_sub_cup_tournament_ranking_id = ranking['id']
+                    team.sub_season_cup_tournament_id = tevent.sub_season_cup_tournament_id
+                teams_to_create.append(team)
+            else:
+                # Update existing team
+                team.name = ranking['seasonTeam']['team']['name']
+                team.abbreviation = ranking['seasonTeam']['team']['name_abbreviated']
+                team.gbo_team = ranking['seasonTeam']['team']['id']
+                team.category = tevent.category
+                team.is_dummy = False
+                if cup_type == 'is_cup':
+                    team.season_team_cup_tournament_ranking_id = ranking['id']
+                    team.season_cup_tournament_id = tevent.season_cup_tournament_id
+                elif cup_type == 'is_gc':
+                    team.season_team_cup_championship_ranking_id = ranking['id']
+                    team.season_cup_german_championship_id = tevent.season_cup_german_championship_id
+                elif cup_type == 'is_sub':
+                    team.season_team_sub_cup_tournament_ranking_id = ranking['id']
+                    team.sub_season_cup_tournament_id = tevent.sub_season_cup_tournament_id
+                teams_to_update.append(team)
+                seen_team_ids.add(team.id)
+
+        # Teams to delete: those not in the incoming data
+        for team in all_teams:
+            if team.id not in seen_team_ids and not team.is_dummy:
+                teams_to_delete.append(team.id)
+
+        # Bulk operations
+        if teams_to_create:
+            Team.objects.bulk_create(teams_to_create)
+        if teams_to_update:
+            Team.objects.bulk_update(
+                teams_to_update,
+                fields=[
+                    "name", "abbreviation", "gbo_team", "category", "is_dummy",
+                    "season_team_cup_tournament_ranking_id", "season_cup_tournament_id",
+                    "season_team_cup_championship_ranking_id", "season_cup_german_championship_id",
+                    "season_team_sub_cup_tournament_ranking_id"
+                ]
+            )
+        if teams_to_delete:
+            Team.objects.filter(id__in=teams_to_delete).delete()
+
+        # Dummy teams update (if needed)
+        dummy_teams = [team for team in all_teams if team.is_dummy and team.tournament_event.id == tevent.id]
+        sct_id = None
+        if cup_type == 'is_cup':
+            sct_id = tevent.season_cup_tournament_id
+            for dummy in dummy_teams:
+                dummy.season_cup_tournament_id = sct_id
+            Team.objects.bulk_update(dummy_teams, ("season_cup_tournament_id",))
+        elif cup_type == 'is_gc':
+            sct_id = tevent.season_cup_german_championship_id
+            for dummy in dummy_teams:
+                dummy.season_cup_german_championship_id = sct_id
+            Team.objects.bulk_update(dummy_teams, ("season_cup_german_championship_id",))
+
+        print('SUCCESS')
+    except Exception as ex:
+        print(traceback.format_exc())
+    return
+
+def sync_only_teams_OLD(gbouser, tevent, data, cup_type):
     print('ENTER sync_only_teams' , datetime.now())
     try:        
         team_data_q = Team.objects.select_related("tournament_event").filter(tournament_event=tevent).prefetch_related(
