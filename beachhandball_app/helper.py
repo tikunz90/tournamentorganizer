@@ -563,7 +563,147 @@ def update_user_tournament_events_OLD(gbouser, to_tourn):
     print("EXIT update_user_tournament_events" , execution_time)
     return execution_time
 
+
+
 def sync_teams_of_tevent(gbouser, tevent):
+    begin = time.time()
+    print("ENTER sync_teams_of_tevent", datetime.now())
+    result = {'isError': False, 'msg': ''}
+    try:
+        # Prefetch all teams, players, and coaches for this event
+        team_qs = Team.objects.select_related("tournament_event").filter(tournament_event=tevent)
+        team_qs = team_qs.prefetch_related(
+            Prefetch("player_set", queryset=Player.objects.select_related("tournament_event").all(), to_attr="players"),
+            Prefetch("coach_set", queryset=Coach.objects.select_related("tournament_event").all(), to_attr="coaches")
+        )
+        all_teams = list(team_qs)
+        team_map = {}
+        for team in all_teams:
+            if tevent.season_cup_tournament_id:
+                team_map[team.season_team_cup_tournament_ranking_id] = team
+            elif tevent.season_cup_german_championship_id:
+                team_map[team.season_team_cup_championship_ranking_id] = team
+            elif getattr(tevent, 'sub_season_cup_tournament_id', None):
+                team_map[getattr(team, 'season_team_sub_cup_tournament_ranking_id', None)] = team
+
+        # Determine cup_type and get SWS data
+        to_tourn = tevent.tournament.__dict__
+        if to_tourn['season_cup_tournament_id'] != 0:
+            cup_type = 'is_cup'
+            data, execution_time = SWS.syncTournamentData(gbouser, tevent.tournament.season.gbo_season_id)
+            ranking_field = 'season_team_cup_tournament_ranking_id'
+        elif to_tourn['season_cup_german_championship_id'] != 0:
+            cup_type = 'is_gc'
+            data, execution_time = SWS.syncTournamentGCData(gbouser, tevent.tournament.season.gbo_season_id)
+            ranking_field = 'season_team_cup_championship_ranking_id'
+        elif to_tourn.get('sub_season_cup_tournament_id', 0) != 0:
+            cup_type = 'is_sub'
+            data, execution_time = SWS.syncTournamentSubData(gbouser, tevent.tournament.season.gbo_season_id)
+            ranking_field = 'season_team_sub_cup_tournament_ranking_id'
+        else:
+            result['isError'] = True
+            result['msg'] = 'Unknown cup type'
+            return result
+
+        if type(gbouser) is GBOUser:
+            gbouser = gbouser.__dict__
+        if data['isError']:
+            result['isError'] = True
+            result['msg'] = 'Could not get data from SWS endpoint /season/cup-tournaments/to/'
+            return result
+
+        gbo_data = data['message'][0]
+        ranking_ids = set(r['id'] for r in gbo_data['seasonTeamCupTournamentRankings'])
+
+        # Prepare for bulk operations
+        teams_to_update = []
+        teams_to_create = []
+        teams_to_delete = []
+        seen_team_ids = set()
+
+        for ranking in gbo_data['seasonTeamCupTournamentRankings']:
+            team = team_map.get(ranking['id'])
+            if not team:
+                # Create new team
+                team = Team(
+                    tournament_event=tevent,
+                    name=ranking['seasonTeam']['team']['name'],
+                    abbreviation=ranking['seasonTeam']['team']['name_abbreviated'],
+                    gbo_team=ranking['seasonTeam']['team']['id'],
+                    category=tevent.category,
+                    is_dummy=False
+                )
+                setattr(team, ranking_field, ranking['id'])
+                if cup_type == 'is_cup':
+                    team.season_cup_tournament_id = tevent.season_cup_tournament_id
+                elif cup_type == 'is_gc':
+                    team.season_cup_german_championship_id = tevent.season_cup_german_championship_id
+                teams_to_create.append(team)
+            else:
+                # Update existing team
+                team.name = ranking['seasonTeam']['team']['name']
+                team.abbreviation = ranking['seasonTeam']['team']['name_abbreviated']
+                team.gbo_team = ranking['seasonTeam']['team']['id']
+                team.category = tevent.category
+                team.is_dummy = False
+                setattr(team, ranking_field, ranking['id'])
+                if cup_type == 'is_cup':
+                    team.season_cup_tournament_id = tevent.season_cup_tournament_id
+                elif cup_type == 'is_gc':
+                    team.season_cup_german_championship_id = tevent.season_cup_german_championship_id
+                teams_to_update.append(team)
+                seen_team_ids.add(team.id)
+
+        # Teams to delete: those not in the incoming data
+        for team in all_teams:
+            if team.id not in seen_team_ids and not team.is_dummy:
+                teams_to_delete.append(team.id)
+
+        # Bulk operations
+        if teams_to_create:
+            Team.objects.bulk_create(teams_to_create)
+        if teams_to_update:
+            Team.objects.bulk_update(
+                teams_to_update,
+                fields=[
+                    "name", "abbreviation", "gbo_team", "category", "is_dummy",
+                    "season_team_cup_tournament_ranking_id", "season_cup_tournament_id",
+                    "season_team_cup_championship_ranking_id", "season_cup_german_championship_id",
+                    "season_team_sub_cup_tournament_ranking_id"
+                ]
+            )
+        if teams_to_delete:
+            Team.objects.filter(id__in=teams_to_delete).delete()
+
+        # Dummy teams update (if needed)
+        dummy_teams = [team for team in all_teams if team.is_dummy and team.tournament_event.id == tevent.id]
+        sct_id = None
+        if cup_type == 'is_cup':
+            sct_id = tevent.season_cup_tournament_id
+            for dummy in dummy_teams:
+                dummy.season_cup_tournament_id = sct_id
+            Team.objects.bulk_update(dummy_teams, ("season_cup_tournament_id",))
+        elif cup_type == 'is_gc':
+            sct_id = tevent.season_cup_german_championship_id
+            for dummy in dummy_teams:
+                dummy.season_cup_german_championship_id = sct_id
+            Team.objects.bulk_update(dummy_teams, ("season_cup_german_championship_id",))
+
+        sync_referees_of_tournament(gbo_data, tevent.tournament)
+
+    except Exception as ex:
+        print(traceback.format_exc())
+        result['isError'] = True
+        result['msg'] = str(ex)
+
+    print("EXIT sync_teams_of_tevent", datetime.now())
+    end = time.time()
+    execution_time = end - begin
+    print("EXIT sync_teams_of_tevent", execution_time)
+    return result
+
+
+def sync_teams_of_tevent_OLD(gbouser, tevent):
     result = {'isError': False, 'msg': ''}
     team_data_q = Team.objects.select_related("tournament_event").filter(tournament_event=tevent).prefetch_related(
             Prefetch("player_set", queryset=Player.objects.select_related("tournament_event").all(), to_attr="players"),
@@ -1075,22 +1215,28 @@ def sync_referees_of_tournament(gbodata, tournament):
         for entry in gbodata['seasonTournament']['seasonTournamentCriteriaSubjects']:
             if 'seasonSubject' in entry:
                 seasonSub = entry['seasonSubject']
-                if 'subject' in seasonSub and seasonSub['subject']['authGroup']['name_code'] == 'referee':
+                if seasonSub and 'subject' in seasonSub and seasonSub['subject'] and \
+                   'authGroup' in seasonSub['subject'] and seasonSub['subject']['authGroup'] and \
+                   seasonSub['subject']['authGroup'].get('name_code') == 'referee':
                     print('Found referee')
                     subject = seasonSub['subject']
                     to_ref = find_referee_by_gbo_subject_id(to_referees, subject['id'])
 
                     if to_ref is None:
-                        #create new
                         abbr = ''
-                        if len(subject['user']['name']) > 0 and len(subject['user']['family_name']) > 0:
+                        if subject['user']['name'] and subject['user']['family_name']:
                             abbr = subject['user']['name'][0].upper() + subject['user']['family_name'][0].upper()
-                        new_ref = Referee.objects.create(tournament=tournament, abbreviation=abbr, gbo_subject_id=subject['id'], name=subject['user']['family_name'], first_name=subject['user']['name'])
+                        Referee.objects.create(
+                            tournament=tournament,
+                            abbreviation=abbr,
+                            gbo_subject_id=subject['id'],
+                            name=subject['user']['family_name'],
+                            first_name=subject['user']['name']
+                        )
                     else:
-                        #update
                         to_ref.first_name = subject['user']['name']
                         to_ref.name = subject['user']['family_name']
-                        if len(to_ref.first_name) > 0 and len(to_ref.name) > 0:
+                        if to_ref.first_name and to_ref.name:
                             to_ref.abbreviation = to_ref.first_name[0].upper() + to_ref.name[0].upper()
                         to_ref.save()
 
