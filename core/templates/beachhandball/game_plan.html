@@ -3,325 +3,381 @@
 {% block title %} Game Plan {% endblock title %}
 
 <!-- Specific Page CSS goes HERE  -->
-{% block stylesheets %}{% endblock stylesheets %}
+{% block stylesheets %}
+<style>
+    #court-view th, #court-view td {
+        border-right: 2px solid #ddd; /* Add a border between columns */
+    }
+
+        #court-view th:last-child, #court-view td:last-child {
+            border-right: none; /* Remove the border from the last column */
+        }
+
+    #court-view td {
+        padding: 15px; /* Add padding for better spacing */
+    }
+</style>
+{% endblock stylesheets %}
 
 {% block content %}
 
 {% include "beachhandball/templates/_modal.html" %}
 
 <div class="row">
-  <div class="col-6">
-    <h2>Game Plan</h2>
-  </div>
-  <div class="col-6 text-right">
-    <button id="export-button" class="btn btn-primary export-button">Export CSV</button>
-  </div>
+    <div class="col-6">
+        <h2>Game Plan</h2>
+    </div>
+    <div class="col-6 text-right">
+        <button id="export-button" class="btn btn-primary export-button">Export CSV</button>
+    </div>
 </div>
 <hr>
 <div class="row">
-  <div class="col-lg-8 col-md-8 col-sm-8">
-    <div>
-      {% if games|length == 0 %}
-        <h3>No Games defined. Please add or run wizard</h3>
-        <a class="btn btn-primary w-100" href="{{ url('setup_wizard_gameplan') }}">GamePlan Wizard</a>
-      {% endif %}
+    <div class="col-lg-8 col-md-8 col-sm-8">
+        <div>
+            {% if games|length == 0 %}
+            <h3>No Games defined. Please add or run wizard</h3>
+            <a class="btn btn-primary w-100" href="{{ url('setup_wizard_gameplan') }}">GamePlan Wizard</a>
+            {% endif %}
+        </div>
+        <div class="card card-stats">
+            <div class="card-header container">
+                <div class="row">
+                    <div class="form-check col-3">
+
+                        <label class="form-check-label" for="checkFilterHideFinished">
+                            <input class="input_group form-check-input" type="checkbox" id="checkFilterHideFinished">
+                            <b>Hide finished Games</b>
+                            <span class="form-check-sign">
+                                <span class="check"></span>
+                            </span>
+                        </label>
+                    </div>
+
+                    <div class="form-check col-3">
+
+                        <label class="form-check-label" for="checkFilterHideFinishedXX" hidden>
+                            <input class="input_group form-check-input" type="checkbox" id="checkFilterHideFinishedXX">
+                            <b>Hide finished Games</b>
+                            <span class="form-check-sign">
+                                <span class="check"></span>
+                            </span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <a class="btn btn-primary col-3" data-toggle="collapse" href="#panel-filter" role="button" aria-expanded="false" aria-controls="collapseExample">
+                        More Filter
+                        <i class="material-icons">keyboard_arrow_down</i>
+                    </a>
+                </div>
+            </div>
+            <div id="panel-filter" class="collapse">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-lg-3 col-md-6 col-sm-6">
+                            <div class="card card-stats">
+                                <div class="card-header">
+                                    <div class="col d-flex justify-content-left">
+                                        <h4 class="card-title">by Event:</h4>
+                                    </div>
+                                </div>
+                                <div class="card-body">
+                                    <div class="col d-flex justify-content-center">
+                                        <select id="filter-tevent" class="selectpicker" onchange="add_filter_tevent();" data-size="7" data-style="btn btn-primary btn-round" title="Select Event">
+                                            <option value="-1">All</option>
+                                            {% for event in events %}
+                                            <option value="{{ event.id }}">{{ event.name }} ({{ event.category}})</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-3 col-md-6 col-sm-6">
+                            <div class="card card-stats">
+                                <div class="card-header">
+                                    <div class="col d-flex justify-content-left">
+                                        <h4 class="card-title">by State:</h4>
+                                    </div>
+                                </div>
+                                <div class="card-body">
+                                    <div class="col d-flex justify-content-center">
+                                        <select id="filter-tstate" class="selectpicker" onchange="add_filter_tstate();" data-size="7" data-style="btn btn-primary btn-round" title="Select State">
+                                            <option value="-1">All</option>
+                                            {% for tstate in tstates %}
+                                            <option value="{{ tstate.id }}">{{ tstate.name }} ({{ tstate.tournament_event.category }})</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-3 col-md-6 col-sm-6">
+                            <div class="card card-stats">
+                                <div class="card-header">
+                                    <div class="col d-flex justify-content-left">
+                                        <h4 class="card-title">by Court:</h4>
+                                    </div>
+                                </div>
+                                <div class="card-body">
+                                    <div class="col d-flex justify-content-center">
+                                        <select id="filter-court" class="selectpicker" onchange="add_filter_court();" data-size="7" data-style="btn btn-primary btn-round" title="Select Court">
+                                            <option value="-1">All</option>
+                                            {% for court in courts %}
+                                            <option value="{{ court.id }}">{{ court.name }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+
+                        <div class="col-lg-3 col-md-6 col-sm-6">
+                            <div class="card card-stats">
+                                <div class="card-header">
+                                    <div class="col d-flex justify-content-left">
+                                        <h4 class="card-title">by Gamestate:</h4>
+                                    </div>
+                                </div>
+                                <div class="card-body">
+                                    <div class="col d-flex justify-content-center">
+                                        <select id="filter-gamestate" class="selectpicker" onchange="add_filter_gamestate();" data-size="7" data-style="btn btn-primary btn-round" title="Select GameState">
+                                            <option value="-1">All</option>
+                                            <option value="FINISHED">FINISHED</option>
+                                            <option value="RUNNING">RUNNING</option>
+                                            <option value="APPENDING">APPENDING</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-3 col-md-6 col-sm-6">
+                            <div class="card card-stats">
+                                <div class="card-header">
+                                    <div class="col d-flex justify-content-left">
+                                        <h4 class="card-title">by keyword:</h4>
+                                    </div>
+                                </div>
+                                <div class="card-body">
+                                    <div class="col d-flex justify-content-center">
+                                        <input type="text" placeholder="Filter by keyword" id="filter-keyword" onkeyup="add_filter_keyword();" class="form-control">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div calss="col">
+                            <input type="text" placeholder="Search Table" id="games-filter" class="form-control" hidden>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
     </div>
-    <div class="card card-stats">
-      <div class="card-header container">
-        <div class="row">
-          <div class="form-check col-3">
-                      
-            <label class="form-check-label" for="checkFilterHideFinished">
-              <input class="input_group form-check-input" type="checkbox" id="checkFilterHideFinished">
-                <b>Hide finished Games</b>
-                <span class="form-check-sign">
-                  <span class="check"></span>
-                </span>
-            </label>
-          </div>
 
-          <div class="form-check col-3">
-                      
-            <label class="form-check-label" for="checkFilterHideFinishedXX" hidden>
-              <input class="input_group form-check-input" type="checkbox" id="checkFilterHideFinishedXX">
-                <b>Hide finished Games</b>
-                <span class="form-check-sign">
-                  <span class="check"></span>
-                </span>
-            </label>
-          </div>
+    <div class="col-lg-4 col-md-4 col-sm-4">
+        <div class="card card-stats">
+            <div class="card-header">
+                <a class="btn btn-primary" data-toggle="collapse" href="#panel-editing" role="button" aria-expanded="false" aria-controls="collapseExample">
+                    Editing
+                    <i class="material-icons">keyboard_arrow_down</i>
+                </a>
+            </div>
+            <div id="panel-editing" class="collapse">
+                <div class="card-body container">
+                    <!--div class="form-check row">
+                      <input type="checkbox" class="" id="checkBoxEnableDragging" onclick="enable_dragging()">
+                      <label class="form-check-label" for="updown-checkbox">Enable Game Dragging</label>
+                    </div-->
+                    <div class="form-check">
+                        <label class="form-check-label">
+                            <input class="form-check-input" type="checkbox" value="" id="checkBoxEnableDragging" onclick="enable_dragging()"> Enable Game Dragging
+                            <span class="form-check-sign">
+                                <span class="check"></span>
+                            </span>
+                        </label>
+                    </div>
+
+                    <div class="row">
+                        <div class="col">
+                            <h4>Selected Game</h4>
+                        </div>
+                        <div class="col">
+                            <button id="add-minutes-button" class="btn btn-primary add-minutes-button" title="Click to add minutes to selected game and all following at the same day">Add minutes</button>
+                        </div>
+                        <div class="col">
+                            <input type="number" id="minutes-input" min="0" value="30">
+                        </div>
+                    </div>
+
+                </div>
+            </div>
         </div>
-
-        <div class="row">
-          <a class="btn btn-primary col-3" data-toggle="collapse" href="#panel-filter" role="button" aria-expanded="false" aria-controls="collapseExample">
-            More Filter
-            <i class="material-icons">keyboard_arrow_down</i>
-          </a>
-        </div>
-      </div>
-      <div id="panel-filter" class="collapse">
-        <div class="card-body">
-          <div class="row">
-            <div class="col-lg-3 col-md-6 col-sm-6">
-              <div class="card card-stats">
-                <div class="card-header">
-                  <div class="col d-flex justify-content-left">
-                    <h4 class="card-title">by Event:</h4>
-                  </div>
-                </div>
-                <div class="card-body">
-                  <div class="col d-flex justify-content-center">
-                    <select id="filter-tevent" class="selectpicker" onchange="add_filter_tevent();" data-size="7" data-style="btn btn-primary btn-round" title="Select Event">
-                      <option value="-1">All</option>
-                      {% for event in events %}
-                      <option value="{{ event.id }}">{{ event.name }} ({{ event.category}})</option>
-                      {% endfor %}
-                    </select>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div class="col-lg-3 col-md-6 col-sm-6">
-              <div class="card card-stats">
-                <div class="card-header">
-                  <div class="col d-flex justify-content-left">
-                    <h4 class="card-title">by State:</h4>
-                  </div>
-                </div>
-                <div class="card-body">
-                  <div class="col d-flex justify-content-center">
-                    <select id="filter-tstate" class="selectpicker" onchange="add_filter_tstate();" data-size="7" data-style="btn btn-primary btn-round" title="Select State">
-                          <option value="-1">All</option>
-                          {% for tstate in tstates %}
-                          <option value="{{ tstate.id }}">{{ tstate.name }} ({{ tstate.tournament_event.category }})</option>
-                          {% endfor %}
-                    </select>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div class="col-lg-3 col-md-6 col-sm-6">
-              <div class="card card-stats">
-                <div class="card-header">
-                  <div class="col d-flex justify-content-left">
-                    <h4 class="card-title">by Court:</h4>
-                  </div>
-                </div>
-                <div class="card-body">
-                  <div class="col d-flex justify-content-center">
-                    <select id="filter-court" class="selectpicker" onchange="add_filter_court();" data-size="7" data-style="btn btn-primary btn-round" title="Select Court">
-                          <option value="-1">All</option>
-                          {% for court in courts %}
-                          <option value="{{ court.id }}">{{ court.name }}</option>
-                          {% endfor %}
-                    </select>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-
-            <div class="col-lg-3 col-md-6 col-sm-6">
-              <div class="card card-stats">
-                <div class="card-header">
-                  <div class="col d-flex justify-content-left">
-                    <h4 class="card-title">by Gamestate:</h4>
-                  </div>
-                </div>
-                <div class="card-body">
-                  <div class="col d-flex justify-content-center">
-                    <select id="filter-gamestate" class="selectpicker" onchange="add_filter_gamestate();" data-size="7" data-style="btn btn-primary btn-round" title="Select GameState">
-                          <option value="-1">All</option>
-                          <option value="FINISHED">FINISHED</option>
-                          <option value="RUNNING">RUNNING</option>
-                          <option value="APPENDING">APPENDING</option>
-                    </select>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div class="col-lg-3 col-md-6 col-sm-6">
-              <div class="card card-stats">
-                <div class="card-header">
-                  <div class="col d-flex justify-content-left">
-                    <h4 class="card-title">by keyword:</h4>
-                  </div>
-                </div>
-                <div class="card-body">
-                  <div class="col d-flex justify-content-center">
-                    <input type="text" placeholder="Filter by keyword" id="filter-keyword" onkeyup="add_filter_keyword();" class="form-control">
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="row">
-            <div calss="col">
-            <input type="text" placeholder="Search Table" id="games-filter" class="form-control" hidden>
-            </div>
-          </div>
-          
-        </div>
-      </div>
     </div>
-  </div>
-
-  <div class="col-lg-4 col-md-4 col-sm-4">
-    <div class="card card-stats">
-      <div class="card-header">
-        <a class="btn btn-primary" data-toggle="collapse" href="#panel-editing" role="button" aria-expanded="false" aria-controls="collapseExample">
-          Editing
-          <i class="material-icons">keyboard_arrow_down</i>
-        </a>
-      </div>
-      <div id="panel-editing" class="collapse">
-        <div class="card-body container">
-          <!--div class="form-check row">
-            <input type="checkbox" class="" id="checkBoxEnableDragging" onclick="enable_dragging()">
-            <label class="form-check-label" for="updown-checkbox">Enable Game Dragging</label>
-          </div-->
-          <div class="form-check">
-            <label class="form-check-label">
-              <input class="form-check-input" type="checkbox" value="" id="checkBoxEnableDragging" onclick="enable_dragging()"> Enable Game Dragging
-              <span class="form-check-sign">
-                <span class="check"></span>
-              </span>
-            </label>
-          </div>
-
-          <div class="row">
-            <div class="col">
-              <h4>Selected Game</h4>
-            </div>
-            <div class="col">
-              <button id="add-minutes-button" class="btn btn-primary add-minutes-button" title="Click to add minutes to selected game and all following at the same day">Add minutes</button>
-            </div>
-            <div class="col">
-              <input type="number" id="minutes-input" min="0" value="30">
-            </div>
-          </div>
-        
-        </div>
-      </div>
-    </div>
-  </div>
 </div>
 
 <div class="row">
-  <div class="col-lg-12 col-md-12 col-sm-12">
-    <div class="card card-stats">
-      <div class="card-body" id="table-card-body">
-        <div class="table-responsive">
-              <table id="table-games" class="table body">
-                <thead class=" text-primary">
-                  <th hidden data-col="tournament_event">tournament_event</th>
-                  <th class="text-left" data-col="date">Date</th>
-                  <th class="text-center" data-col="time">Time</th>
-                  <th class="text-center" data-col="id">ID</th>
-                  <th class="text-center" data-col="category">Cat.</th>
-                  <th class="text-center" data-col="tournament_state">State</th>
-                  <th class="text-center" data-col="team_a">Team A</th>
-                  <th class="text-center" data-col="team_b">Team B</th>
-                  <th class="text-center" data-col="court">Court</th>
-                  <th class="text-center" data-col="result_ht1">1. HT</th>
-                  <th class="text-center" data-col="result_ht2">2. HT</th>
-                  <th class="text-center" data-col="result_p">Shootout</th>
-                  <th class="text-center" data-col="sets">Sets</th>
-                  <th class="text-center" data-col="refs">Referee's</th>
-                  <th class="text-center" data-col="gamestate">Gamestate</th>
-                  <th data-col="actions">Actions</th>
-                </thead>
-                <tbody>
-                  {% for game in games %}
-                  <tr class="game-row" data-content="{{ game.id }}">
-                    <td hidden data-content="{{ game.tournament_event.id }}">{{ game.tournament_event.id }}</td>
-                    <td id="game-list-td-id-{{ game.id }}" data-content="datetime" class="game-list-datetime-td">
-                    <div id="id_starttime_label" class="game-list-datetime-label">{{ game.starttime.strftime('%d.%m.') }}</div>
-                    <div class="game-list-datetime-input" hidden>
-                      <input id="id_starttime" data-game_id="{{ game.id }}" class="game-list-datetime form-control datetimepicker" type="text" name="starttime" value="{{ game.starttime }}">
-                      <input id="initial-id_starttime" type="hidden" class="game-list-datetime-init" name="initial-starttime" value="{{ game.starttime }}">
-                    </div>
-                    </td>
-                    <td id="{{ game.id }}_gametime" class="text-center" data-content="{{ game.id }}">{{ game.starttime.strftime('%H:%M') }}</td>
-                    <td id="game_id_counter" class="text-center" data-content="{{ game.id }}">{{ game.id_counter }}</td>
-                    <td class="text-center" data-content="{{ game.tournament_event.category }}">{{ game.tournament_event.category }}</td>
-                    <td class="text-center" data-content="{{ game.tournament_state.id }}">
-                    <div class="btn btn-small" style="background: {{ game.tournament_state.color }}">
-                      <a href="{{ url('structure_setup.detail', kwargs={'pk': game.tournament_event.id }) }}" style="color:white;"><b>{{ game.tournament_event.category.abbreviation }} {{ game.tournament_state.abbreviation }}</b>
-                    </div>
-                    
-                    </td>
-                    <td class="text-center" data-content="{{ game.team_st_a.team }}">{% if game.team_st_a.id == game.winner %}<button class="btn btn-outline-info"><i class="material-icons">emoji_events</i><b>{{ game.team_st_a.team }}</b></button>{% else %}{{ game.team_st_a.team }}{% endif %}</td>
-                    <td class="text-center" data-content="{{ game.team_st_b.team }}">{% if game.team_st_b.id == game.winner %}<button class="btn btn-outline-info"><i class="material-icons">emoji_events</i><b>{{ game.team_st_b.team }}</b></button></b>{% else %}{{ game.team_st_b.team }}{% endif %}</td>
-                    <td id="game-list-td-court-{{ game.id }}" class="game-list-court-td text-center" data-content="{{ game.court.id }}">
-                      <div class="game-list-court-label">{{ game.court.name }}</div>
-                      <div class="game-list-court-select" data-game_id="{{ game.id }}" hidden>
-                        <select class="selectpicker" title="Select Court..." data-game_id="{{ game.id }}">
-                          {% for court in courts %}
-                            <option value="{{ court.id }}">#{{court.number}} {{court.name}}</option>
-                          {% endfor%}
-                        </select>
-                      </div>
-                    </td>
-                    <td id="{{ game.id }}_result_ht1" class="text-center" data-content="result_ht1">{{ game.score_team_a_halftime_1 }}:{{ game.score_team_b_halftime_1 }}</td>
-                    <td id="{{ game.id }}_result_ht2" class="text-center" data-content="result_ht2">{{ game.score_team_a_halftime_2 }}:{{ game.score_team_b_halftime_2 }}</td>
-                    <td id="{{ game.id }}_result_p" class="text-center" data-content="result_p">{{ game.score_team_a_penalty }}:{{ game.score_team_b_penalty }}</td>
-                    <td class="text-center" data-content="sets">{{ game.setpoints_team_a }}:{{ game.setpoints_team_b }}</td>
-                    <td id="{{ game.id }}_refs" class="text-center" data-content="refs">
-                      {{ game.ref_a.abbreviation|default('-') }} / {{ game.ref_b.abbreviation|default('-') }}
-                    </td>
-                    <td id="{{ game.id }}_gamestate" class="text-center" data-content="{{ game.gamestate }}">{{ game.gamestate }}</td>
-                    <td class="td-actions text-right" data-content="">
-                      <button type="button" class="update_game btn btn-success btn-link" rel="tooltip" title="Edit Game" data-form-url='{{ url("update_game", kwargs={"pk_tevent":game.tournament_event.id, "pk_tstage": game.tournament_state.tournament_stage.id, "pk":  game.id, "from_gameplan": 1}) }}' data-list-url="{{ url('game_plan') }}" onclick="modalShowSpinner();">
-                          <i class="material-icons">edit</i>
-                      </button>
-                      <button type="button" rel="tooltip" class="download-pregame-report btn btn-info btn-link" rel="tooltip" title="Download Pre-Game Report" data-form-url="{{ url('download_pre_game', kwargs={'pk_tevent':game.tournament_event.id, 'pk_tstage': game.tournament_state.tournament_stage.id, 'pk':  game.id}) }}" data-list-url="{{ url('game_plan') }}">
-                          <a class="" href="{{ url('download_pre_game', kwargs={'pk_tevent':game.tournament_event.id, 'pk_tstage': 1, 'pk':  game.id}) }}">
-                              <i class="material-icons">file_download</i>
-                          </a>
-                      </button>
-                      <button type="button" rel="tooltip" class="update-game-result btn btn-info btn-link" rel="tooltip" title="Enter Result" data-form-url='{{ url("update_game_result", kwargs={"pk_tevent":game.tournament_event.id, "pk_tstage": game.tournament_state.tournament_stage.id, "pk":  game.id, "from_gameplan": 1}) }}' data-list-url="{{ url('game_plan') }}" onclick="modalShowSpinner();" >
-                          <i class="material-icons">assignment</i>
-                      </button>
-                      <!--button type="button" rel="tooltip" class="delete-game btn btn-danger btn-link" rel="tooltip" title="Delete Game"  data-form-url='{{ url("structure_setup.delete_game", kwargs={"pk_tevent":game.tournament_event.id, "pk_tstage": game.tournament_state.tournament_stage.id, "pk":  game.id}) }}' onclick="modalShowSpinner();" >
-                          <i class="material-icons">close</i>
-                      </button-->
-                  </td>
-                  </tr>
-                  {% endfor %}
-                </tbody>
-              </table>
-            </div>
-      
-      </div>
-      <div class="card-footer">
-      </div>
+    <div class="col-12 text-right">
+        <button id="toggle-view-button" class="btn btn-secondary">Switch to Court View</button>
     </div>
-  </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-12 col-md-12 col-sm-12">
+        <div class="card card-stats">
+            <div class="card-body" id="table-card-body">
+                <div id="default-view">
+                    <div class="table-responsive">
+                        <table id="table-games" class="table body">
+                            <thead class=" text-primary">
+                            <th hidden data-col="tournament_event">tournament_event</th>
+                            <th class="text-left" data-col="date">Date</th>
+                            <th class="text-center" data-col="time">Time</th>
+                            <th class="text-center" data-col="id">ID</th>
+                            <th class="text-center" data-col="category">Cat.</th>
+                            <th class="text-center" data-col="tournament_state">State</th>
+                            <th class="text-center" data-col="team_a">Team A</th>
+                            <th class="text-center" data-col="team_b">Team B</th>
+                            <th class="text-center" data-col="court">Court</th>
+                            <th class="text-center" data-col="result_ht1">1. HT</th>
+                            <th class="text-center" data-col="result_ht2">2. HT</th>
+                            <th class="text-center" data-col="result_p">Shootout</th>
+                            <th class="text-center" data-col="sets">Sets</th>
+                            <th class="text-center" data-col="refs">Referee's</th>
+                            <th class="text-center" data-col="gamestate">Gamestate</th>
+                            <th data-col="actions">Actions</th>
+                            </thead>
+                            <tbody>
+                                {% for game in games %}
+                                <tr class="game-row" data-content="{{ game.id }}">
+                                    <td hidden data-content="{{ game.tournament_event.id }}">{{ game.tournament_event.id }}</td>
+                                    <td id="game-list-td-id-{{ game.id }}" data-content="datetime" class="game-list-datetime-td">
+                                        <div id="id_starttime_label" class="game-list-datetime-label">{{ game.starttime.strftime('%d.%m.') }}</div>
+                                        <div class="game-list-datetime-input" hidden>
+                                            <input id="id_starttime" data-game_id="{{ game.id }}" class="game-list-datetime form-control datetimepicker" type="text" name="starttime" value="{{ game.starttime }}">
+                                            <input id="initial-id_starttime" type="hidden" class="game-list-datetime-init" name="initial-starttime" value="{{ game.starttime }}">
+                                        </div>
+                                    </td>
+                                    <td id="{{ game.id }}_gametime" class="text-center" data-content="{{ game.id }}">{{ game.starttime.strftime('%H:%M') }}</td>
+                                    <td id="game_id_counter" class="text-center" data-content="{{ game.id }}">{{ game.id_counter }}</td>
+                                    <td class="text-center" data-content="{{ game.tournament_event.category }}">{{ game.tournament_event.category }}</td>
+                                    <td class="text-center" data-content="{{ game.tournament_state.id }}">
+                                        <div class="btn btn-small" style="background: {{ game.tournament_state.color }}">
+                                            <a href="{{ url('structure_setup.detail', kwargs={'pk': game.tournament_event.id }) }}" style="color:white;"><b>{{ game.tournament_event.category.abbreviation }} {{ game.tournament_state.abbreviation }}</b>
+                                        </div>
+
+                                    </td>
+                                    <td class="text-center" data-content="{{ game.team_st_a.team }}">{% if game.team_st_a.id == game.winner %}<button class="btn btn-outline-info"><i class="material-icons">emoji_events</i><b>{{ game.team_st_a.team }}</b></button>{% else %}{{ game.team_st_a.team }}{% endif %}</td>
+                                    <td class="text-center" data-content="{{ game.team_st_b.team }}">{% if game.team_st_b.id == game.winner %}<button class="btn btn-outline-info"><i class="material-icons">emoji_events</i><b>{{ game.team_st_b.team }}</b></button></b>{% else %}{{ game.team_st_b.team }}{% endif %}</td>
+                                    <td id="game-list-td-court-{{ game.id }}" class="game-list-court-td text-center" data-content="{{ game.court.id }}">
+                                        <div class="game-list-court-label">{{ game.court.name }}</div>
+                                        <div class="game-list-court-select" data-game_id="{{ game.id }}" hidden>
+                                            <select class="selectpicker" title="Select Court..." data-game_id="{{ game.id }}">
+                                                {% for court in courts %}
+                                                <option value="{{ court.id }}">#{{court.number}} {{court.name}}</option>
+                                                {% endfor%}
+                                            </select>
+                                        </div>
+                                    </td>
+                                    <td id="{{ game.id }}_result_ht1" class="text-center" data-content="result_ht1">{{ game.score_team_a_halftime_1 }}:{{ game.score_team_b_halftime_1 }}</td>
+                                    <td id="{{ game.id }}_result_ht2" class="text-center" data-content="result_ht2">{{ game.score_team_a_halftime_2 }}:{{ game.score_team_b_halftime_2 }}</td>
+                                    <td id="{{ game.id }}_result_p" class="text-center" data-content="result_p">{{ game.score_team_a_penalty }}:{{ game.score_team_b_penalty }}</td>
+                                    <td class="text-center" data-content="sets">{{ game.setpoints_team_a }}:{{ game.setpoints_team_b }}</td>
+                                    <td id="{{ game.id }}_refs" class="text-center" data-content="refs">
+                                        {{ game.ref_a.abbreviation|default('-') }} / {{ game.ref_b.abbreviation|default('-') }}
+                                    </td>
+                                    <td id="{{ game.id }}_gamestate" class="text-center" data-content="{{ game.gamestate }}">{{ game.gamestate }}</td>
+                                    <td class="td-actions text-right" data-content="">
+                                        <button type="button" class="update_game btn btn-success btn-link" rel="tooltip" title="Edit Game" data-form-url='{{ url("update_game", kwargs={"pk_tevent":game.tournament_event.id, "pk_tstage": game.tournament_state.tournament_stage.id, "pk":  game.id, "from_gameplan": 1}) }}' data-list-url="{{ url('game_plan') }}" onclick="modalShowSpinner();">
+                                            <i class="material-icons">edit</i>
+                                        </button>
+                                        <button type="button" rel="tooltip" class="download-pregame-report btn btn-info btn-link" rel="tooltip" title="Download Pre-Game Report" data-form-url="{{ url('download_pre_game', kwargs={'pk_tevent':game.tournament_event.id, 'pk_tstage': game.tournament_state.tournament_stage.id, 'pk':  game.id}) }}" data-list-url="{{ url('game_plan') }}">
+                                            <a class="" href="{{ url('download_pre_game', kwargs={'pk_tevent':game.tournament_event.id, 'pk_tstage': 1, 'pk':  game.id}) }}">
+                                                <i class="material-icons">file_download</i>
+                                            </a>
+                                        </button>
+                                        <button type="button" rel="tooltip" class="update-game-result btn btn-info btn-link" rel="tooltip" title="Enter Result" data-form-url='{{ url("update_game_result", kwargs={"pk_tevent":game.tournament_event.id, "pk_tstage": game.tournament_state.tournament_stage.id, "pk":  game.id, "from_gameplan": 1}) }}' data-list-url="{{ url('game_plan') }}" onclick="modalShowSpinner();">
+                                            <i class="material-icons">assignment</i>
+                                        </button>
+                                        <!--button type="button" rel="tooltip" class="delete-game btn btn-danger btn-link" rel="tooltip" title="Delete Game"  data-form-url='{{ url("structure_setup.delete_game", kwargs={"pk_tevent":game.tournament_event.id, "pk_tstage": game.tournament_state.tournament_stage.id, "pk":  game.id}) }}' onclick="modalShowSpinner();" >
+                                            <i class="material-icons">close</i>
+                                        </button-->
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                </div>
+
+                <div id="court-view" style="display: none;">
+                    <table class="table body">
+                        <thead class="text-primary">
+                            <tr>
+                                {% for court in courts %}
+                                <th class="text-center">{{ court.name }}</th>
+                                {% endfor %}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for time in games|groupby('starttime') %}
+                            <tr>
+                                {% for court in courts %}
+                                <td>
+                                    {% for game in games %}
+                                    {% if game.court.id == court.id and game.starttime == time.grouper %}
+                                    <div class="btn btn-small" style="background: {{ game.tournament_state.color }}">
+                                        <a href="{{ url('structure_setup.detail', kwargs={'pk': game.tournament_event.id }) }}" style="color:white;"></a>{{ game.tournament_event.category.abbreviation }} {{ game.tournament_state.abbreviation }}
+                                    </div>
+                                    <div style="color:black;">
+                                        {{ game.team_st_a.team }} vs {{ game.team_st_b.team }}
+                                    </div>
+                                    
+                                    {% endif %}
+                                    {% endfor %}
+                                </td>
+                                {% endfor %}
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+            <div class="card-footer">
+            </div>
+        </div>
+    </div>
 </div>
 
 
 <div id="contextMenu" class="context-menu">
-  <ul>
-    <li id="insertBeforeBtn" hidden><span class="icon">↑</span> Insert Before</li>
-    <li id="swapBtn"><span class="icon">↔</span> Swap</li>   
-    <li id="insertBehindBtn" hidden><span class="icon">↓</span> Insert Behind</li>
-  </ul>
+    <ul>
+        <li id="insertBeforeBtn" hidden><span class="icon">↑</span> Insert Before</li>
+        <li id="swapBtn"><span class="icon">↔</span> Swap</li>
+        <li id="insertBehindBtn" hidden><span class="icon">↓</span> Insert Behind</li>
+    </ul>
 </div>
 
 <div id="contextMenuDateTime" class="context-menu">
-  <ul>
-    <li id="editDateTimeBtn"><span class="icon"><i class="material-icons">edit</i></span> Edit Datetime</li>
-  </ul>
+    <ul>
+        <li id="editDateTimeBtn"><span class="icon"><i class="material-icons">edit</i></span> Edit Datetime</li>
+    </ul>
 </div>
 
 {% endblock content %}
 
 {% block javascripts %}
-  <script>
+<script>
     $(document).ready(function() {
       {% if messages %}
         console.log("Has messages...");
@@ -329,11 +385,25 @@
         md.showNotification('top','center', '{{ message }}', 'info');
         {% endfor %}
       {% endif %}
-    
+
     });
-  </script>
-  <script src="/static/assets/js/beachhandball/game_plan.js"></script>
-  <script src="/static/assets/js/beachhandball/game_plan_selecting.js"></script>
-  <script src="/static/assets/js/beachhandball/game_plan_dragging.js"></script>
-  <script src="/static/assets/js/beachhandball/game_plan_filter.js"></script>
+
+      document.getElementById('toggle-view-button').addEventListener('click', function () {
+          const defaultView = document.getElementById('default-view');
+          const courtView = document.getElementById('court-view');
+          if (defaultView.style.display === 'none') {
+              defaultView.style.display = '';
+              courtView.style.display = 'none';
+              this.textContent = 'Switch to Court View';
+          } else {
+              defaultView.style.display = 'none';
+              courtView.style.display = '';
+              this.textContent = 'Switch to Default View';
+          }
+      });
+</script>
+<script src="/static/assets/js/beachhandball/game_plan.js"></script>
+<script src="/static/assets/js/beachhandball/game_plan_selecting.js"></script>
+<script src="/static/assets/js/beachhandball/game_plan_dragging.js"></script>
+<script src="/static/assets/js/beachhandball/game_plan_filter.js"></script>
 {% endblock javascripts %}

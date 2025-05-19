@@ -1,0 +1,128 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}Game Scheduler{% endblock title %}
+
+{% block stylesheets %}
+<style>
+    .schedule-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+        .schedule-table th, .schedule-table td {
+            border: 1px solid #ddd;
+            text-align: center;
+            vertical-align: middle;
+            padding: 10px;
+        }
+
+        .schedule-table th {
+            background-color: #f4f4f4;
+        }
+
+    .time-slot {
+        height: 60px;
+        background-color: #f9f9f9;
+    }
+
+    .game-entry {
+        background-color: #e3f2fd;
+        border: 1px solid #90caf9;
+        padding: 5px;
+        cursor: grab;
+    }
+
+        .game-entry.dragging {
+            opacity: 0.5;
+        }
+</style>
+{% endblock stylesheets %}
+
+{% block content %}
+<div class="container">
+    <h2>Game Scheduler</h2>
+    <div class="form-check mb-3">
+        <input type="checkbox" class="form-check-input" id="enable-dragging">
+        <label class="form-check-label" for="enable-dragging">Enable Drag and Drop</label>
+    </div>
+
+    <table class="schedule-table">
+        <thead>
+            <tr>
+                <th>Time Slots</th>
+                {% for court in courts %}
+                <th>{{ court.name }}</th>
+                {% endfor %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for slot in time_slots %}
+            <tr data-slot="{{ slot }}">
+                <td>{{ slot }}</td>
+                {% for court in courts %}
+                <td data-court="{{ court.id }}" data-slot="{{ slot }}" class="time-slot">
+                    {% for game in games %}
+                    {% if game.court.id == court.id and game.starttime == slot %}
+                    <div class="game-entry" data-game-id="{{ game.id }}">
+                        <strong>Game {{ game.id }}</strong><br>
+                        {{ game.team_a }} vs {{ game.team_b }}
+                    </div>
+                    {% endif %}
+                    {% endfor %}
+                </td>
+                {% endfor %}
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock content %}
+
+{% block javascripts %}
+<script>document.addEventListener('DOMContentLoaded', function () {
+    const enableDraggingCheckbox = document.getElementById('enable-dragging');
+    let isDraggingEnabled = false;
+
+    enableDraggingCheckbox.addEventListener('change', function () {
+      isDraggingEnabled = this.checked;
+      document.querySelectorAll('.game-entry').forEach(entry => {
+        entry.setAttribute('draggable', isDraggingEnabled);
+      });
+    });
+
+    document.addEventListener('dragstart', function (e) {
+      if (e.target.classList.contains('game-entry')) {
+        e.target.classList.add('dragging');
+        e.dataTransfer.setData('text/plain', e.target.dataset.gameId);
+      }
+    });
+
+    document.addEventListener('dragend', function (e) {
+      if (e.target.classList.contains('game-entry')) {
+        e.target.classList.remove('dragging');
+      }
+    });
+
+    document.querySelectorAll('.time-slot').forEach(slot => {
+      slot.addEventListener('dragover', function (e) {
+        if (isDraggingEnabled) {
+          e.preventDefault();
+        }
+      });
+
+      slot.addEventListener('drop', function (e) {
+        if (isDraggingEnabled) {
+          e.preventDefault();
+          const gameId = e.dataTransfer.getData('text/plain');
+          const draggedGame = document.querySelector(`.game-entry[data-game-id="${gameId}"]`);
+          this.appendChild(draggedGame);
+
+          // Optionally, send an AJAX request to update the backend
+          const newSlot = this.dataset.slot;
+          const newCourt = this.dataset.court;
+          console.log(`Game ${gameId} moved to slot ${newSlot}, court ${newCourt}`);
+        }
+      });
+    });
+  });</script>
+{% endblock javascripts %}

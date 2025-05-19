@@ -73,6 +73,7 @@ urlpatterns = [
     
 
     path('game_plan/', static_views.game_plan, name='game_plan'),
+    path('game_plan_v3/', static_views.game_plan_v3, name='game_plan_v3'),
     path('game_plan/delete_all/', static_views.delete_gameplan, name='game_plan.delete_all'),
     path('game_plan/<int:pk_tevent>/<int:pk_tstage>/update_game_result/<int:pk>', GameResultGameView.as_view(), name='update_game_result_from_gameplan'),
     path('results/', static_views.results, name='results'),

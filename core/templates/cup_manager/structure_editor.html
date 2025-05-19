@@ -1,0 +1,60 @@
+﻿{% extends "layouts/base_tw.html" %}
+
+<!--body class="bg-gray-50 text-gray-800 font-sans p-6">
+    <h1 class="text-3xl font-bold text-center mb-8">🏆 Structure Editor: <span id="event-name" class="text-blue-600"></span></h1-->
+    {% block content %}
+<h1 class="text-3xl font-bold text-center mb-8">
+    🏆 Structure Editor: <span id="event-name" class="text-blue-600"></span>
+</h1>
+
+<!-- Main content area with two-column layout -->
+<div class="flex gap-6 max-w-7xl mx-auto">
+    <!-- Left Column: Categories -->
+    <div class="w-1/3">
+        <section class="bg-white rounded-2xl shadow p-6 sticky top-6">
+            <h2 class="text-xl font-semibold mb-4">Categories</h2>
+            <ul id="categories" class="flex flex-col gap-3">
+                <!-- Populated by JS -->
+            </ul>
+        </section>
+    </div>
+
+    <!-- Right Column: Structure Editor or Teams Manager -->
+    <div class="w-2/3">
+        <!-- Courts Section -->
+        <section class="bg-white rounded-2xl shadow p-6 hidden mb-6">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl font-semibold">Courts</h2>
+            </div>
+            <ul id="courts" class="flex flex-wrap gap-2"></ul>
+        </section>
+
+        <!-- Structure Editor -->
+        <section id="structure-editor" class="bg-white rounded-2xl shadow p-6 hidden mb-6">
+            <!-- Populated by JS -->
+        </section>
+
+        <!-- Teams Manager -->
+        <section id="teams-manager" class="bg-white rounded-2xl shadow p-6 hidden">
+            <!-- Populated by JS -->
+        </section>
+    </div>
+</div>
+
+    {% block javascripts %}
+
+
+<script>
+    const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+        document.addEventListener('DOMContentLoaded', function() {
+    console.log("DOM loaded, checking for event ID");
+    loadEventData({{ event_id }});
+});
+</script>
+    {% endblock javascripts %}
+
+
+    {% endblock content %}
+
+

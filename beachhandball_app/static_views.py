@@ -6,7 +6,7 @@ import re
 
 from django.urls import reverse
 # from beachhandball_app.tasks import update_user_tournament_events_async
-from datetime import datetime
+from datetime import datetime, timedelta
 import time
 import json
 from django.contrib.auth.models import User, Group
@@ -451,6 +451,39 @@ def game_plan(request):
 
     html_template = loader.get_template( 'beachhandball/game_plan.html' )
     return HttpResponse(html_template.render(context, request))
+
+@login_required(login_url="/login/")
+@user_passes_test(lambda u: u.groups.filter(name='tournament_organizer').exists(),
+login_url="/login/", redirect_field_name='next')
+def game_plan_v3(request):
+    context = getContext(request)
+    if not checkLoginIsValid(context['gbo_user']):
+        return redirect('login')
+
+    tourn = context['tourn']
+    tevents = context['events']
+
+    # Example data
+    courts = [{"id": 1, "name": "Court 1"}, {"id": 2, "name": "Court 2"}]
+    games = [
+        {"id": 1, "team_a": "Team A1", "team_b": "Team B1", "court": {"id": 1}, "starttime": "09:00"},
+        {"id": 2, "team_a": "Team A2", "team_b": "Team B2", "court": {"id": 2}, "starttime": "09:45"},
+    ]
+
+    # Generate time slots (e.g., 09:00 to 18:00 in 45-minute intervals)
+    start_time = datetime.strptime("09:00", "%H:%M")
+    end_time = datetime.strptime("18:00", "%H:%M")
+    time_slots = []
+    while start_time <= end_time:
+        time_slots.append(start_time.strftime("%H:%M"))
+        start_time += timedelta(minutes=45)
+
+    return render(request, "beachhandball/game_plan_v3.html", {
+        "courts": courts,
+        "games": games,
+        "time_slots": time_slots,
+        "tourn": context['tourn'],
+    })
 
 @login_required(login_url="/login/")
 @user_passes_test(lambda u: u.groups.filter(name='tournament_organizer').exists(),

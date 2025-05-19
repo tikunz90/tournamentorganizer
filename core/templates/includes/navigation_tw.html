@@ -1,0 +1,64 @@
+<!-- Navbar -->
+<nav class="w-full bg-white shadow py-4">
+    <div class="max-w-7xl mx-auto flex items-center justify-between px-4">
+        <!-- Left: Sidebar Minimize & Brand -->
+        <div class="flex items-center space-x-4">
+            <button id="minimizeSidebar" @click="$dispatch('toggle-sidebar')" class="p-2 rounded-full bg-gray-100 hover:bg-gray-200 focus:outline-none" title="Toggle Sidebar">
+                <svg class="h-6 w-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+            </button>
+            {% if segment %}
+            <a class="text-lg font-semibold text-gray-800 hover:text-blue-600" href="{{ url(segment) }}">{{ segment_title }}</a>
+            {% endif %}
+        </div>
+        <!-- Center: Tournament/Season Info -->
+        <div class="flex-1 flex items-center justify-center space-x-6">
+            <div id='TournamentActive' class="text-sm text-gray-700">
+                {% if tourn %}
+                {{ tourn }} ({{ tourn.id }})
+                {% endif %}
+            </div>
+            <div id='SeasonActive' class="text-sm text-gray-700">
+                {% if request.user.is_superuser %}
+                <span class="inline-flex items-center gap-1 text-red-600 font-bold">
+                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3" />
+                        <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" fill="none" />
+                    </svg>
+                    ADMIN USER
+                </span>
+                {% endif %}
+            </div>
+            <div id='SeasonActive' class="text-sm text-gray-700">
+                {% if season_active %}
+                {{ season_active }}
+                {% endif %}
+            </div>
+        </div>
+        <!-- Right: Navigation -->
+        <div class="flex items-center space-x-4">
+            <a href="{{ url('index') }}" class="p-2 rounded hover:bg-blue-100 text-blue-600" title="Dashboard">
+                <i class="fa fa-dashboard"></i>
+            </a>
+            <!-- Profile Dropdown -->
+            <div x-data="{ open: false }" class="relative">
+                <button @click="open = !open" class="flex items-center space-x-2 p-2 rounded hover:bg-gray-100 focus:outline-none">
+                    <i class="fa fa-user text-gray-600"></i>
+                    <span class="text-gray-800">{{ request.user.username }}</span>
+                    <svg class="h-4 w-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                    </svg>
+                </button>
+                <div x-show="open" @click.away="open = false"
+                     class="absolute right-0 mt-2 w-40 bg-white border border-gray-200 rounded shadow-lg z-50"
+                     x-cloak>
+                    <a href="{{ url('profile') }}" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Profile</a>
+                    <a href="#" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Settings</a>
+                    <div class="border-t my-1"></div>
+                    <a href="{{ url('logout') }}" class="block px-4 py-2 text-red-600 hover:bg-red-100">Log out</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</nav>

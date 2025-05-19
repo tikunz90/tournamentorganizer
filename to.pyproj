@@ -4,6 +4,9 @@
     <Name>to</Name>
     <RootNamespace>to</RootNamespace>
     <InterpreterId>MSBuild|env2|$(MSBuildProjectFullPath)</InterpreterId>
+    <SuppressConfigureTestFrameworkPrompt>true</SuppressConfigureTestFrameworkPrompt>
+    <SuppressPackageInstallationPrompt>True</SuppressPackageInstallationPrompt>
+    <WebBrowserPort>8000</WebBrowserPort>
   </PropertyGroup>
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -198,9 +201,23 @@
     <Compile Include="core\diagnostic_views.py" />
     <Compile Include="core\jinja2.py" />
     <Compile Include="core\settings.py" />
+    <Compile Include="cup_manager\management\commands\generate_dummy_teams.py" />
+    <Compile Include="cup_manager\services.py" />
+    <Compile Include="cup_manager\management\commands\generate_dummy_tournament.py" />
+    <Compile Include="cup_manager\management\commands\__init__.py" />
     <Compile Include="core\urls.py" />
     <Compile Include="core\wsgi.py" />
     <Compile Include="core\__init__.py" />
+    <Compile Include="cup_manager\admin.py" />
+    <Compile Include="cup_manager\apps.py" />
+    <Compile Include="cup_manager\management\__init__.py" />
+    <Compile Include="cup_manager\migrations\__init__.py" />
+    <Compile Include="cup_manager\models.py" />
+    <Compile Include="cup_manager\serializers.py" />
+    <Compile Include="cup_manager\tests.py" />
+    <Compile Include="cup_manager\urls.py" />
+    <Compile Include="cup_manager\views.py" />
+    <Compile Include="cup_manager\__init__.py" />
     <Compile Include="gunicorn-cfg.py" />
     <Compile Include="manage.py" />
     <Compile Include="modelsFromDB.py" />
@@ -501,6 +518,12 @@
     <Content Include="core\static\assets\js\core\bootstrap-material-design.min.js" />
     <Content Include="core\static\assets\js\core\jquery.min.js" />
     <Content Include="core\static\assets\js\core\popper.min.js" />
+    <Content Include="core\static\assets\js\cup_manager\basic_setup.js" />
+    <Content Include="core\static\assets\js\cup_manager\event.js" />
+    <Content Include="core\static\assets\js\cup_manager\general.js" />
+    <Content Include="core\static\assets\js\cup_manager\phases.js" />
+    <Content Include="core\static\assets\js\cup_manager\structure.js" />
+    <Content Include="core\static\assets\js\cup_manager\teams_manager.js" />
     <Content Include="core\static\assets\js\material-dashboard.js" />
     <Content Include="core\static\assets\js\material-dashboard.min.js" />
     <Content Include="core\static\assets\js\plugins\arrive.min.js" />
@@ -867,6 +890,7 @@
     <Content Include="core\templates\beachhandball\delete_gameplan_confirmation.html" />
     <Content Include="core\templates\beachhandball\game_plan.html" />
     <Content Include="core\templates\beachhandball\game_plan_.html" />
+    <Content Include="core\templates\beachhandball\game_plan_v3.html" />
     <Content Include="core\templates\beachhandball\running_game.html" />
     <Content Include="core\templates\beachhandball\templates\court.html" />
     <Content Include="core\templates\beachhandball\templates\create_form.html" />
@@ -908,6 +932,10 @@
     <Content Include="core\templates\components-panels.html" />
     <Content Include="core\templates\components-sweet-alert.html" />
     <Content Include="core\templates\components-typography.html" />
+    <Content Include="core\templates\cup_manager\cup_manager.html" />
+    <Content Include="core\templates\cup_manager\basic_setup.html" />
+    <Content Include="core\templates\cup_manager\general.html" />
+    <Content Include="core\templates\cup_manager\structure_editor.html" />
     <Content Include="core\templates\forms-extended.html" />
     <Content Include="core\templates\forms-regular.html" />
     <Content Include="core\templates\forms-setup-wizard-gameplan.html" />
@@ -915,16 +943,20 @@
     <Content Include="core\templates\forms-validation.html" />
     <Content Include="core\templates\forms-wizard.html" />
     <Content Include="core\templates\includes\fixed-plugin.html" />
+    <Content Include="core\templates\includes\footer_tw.html" />
     <Content Include="core\templates\includes\footer-auth.html" />
     <Content Include="core\templates\includes\footer.html" />
+    <Content Include="core\templates\includes\navigation_tw.html" />
     <Content Include="core\templates\includes\navigation-auth.html" />
     <Content Include="core\templates\includes\navigation.html" />
     <Content Include="core\templates\includes\scripts-auth.html" />
     <Content Include="core\templates\includes\scripts-sidebar.html" />
     <Content Include="core\templates\includes\scripts.html" />
+    <Content Include="core\templates\includes\sidebar_tw.html" />
     <Content Include="core\templates\includes\sidebar.html" />
     <Content Include="core\templates\index.html" />
     <Content Include="core\templates\index_csiderender.html" />
+    <Content Include="core\templates\layouts\base_tw.html" />
     <Content Include="core\templates\layouts\base-auth.html" />
     <Content Include="core\templates\layouts\base-fullscreen.html" />
     <Content Include="core\templates\layouts\base-livescore.html" />
@@ -961,6 +993,7 @@
     <Content Include="core\__pycache__\urls.cpython-38.pyc" />
     <Content Include="core\__pycache__\wsgi.cpython-38.pyc" />
     <Content Include="core\__pycache__\__init__.cpython-38.pyc" />
+    <Content Include="core\static\assets\js\cup_manager\courts.js" />
     <Content Include="docker-compose copy.yml" />
     <Content Include="docker-compose.yml" />
     <Content Include="Dockerfile" />
@@ -1136,6 +1169,7 @@
     <Folder Include="core\static\assets\js\beachhandball\" />
     <Folder Include="core\static\assets\js\beachhandball\services\" />
     <Folder Include="core\static\assets\js\core\" />
+    <Folder Include="core\static\assets\js\cup_manager\" />
     <Folder Include="core\static\assets\js\plugins\" />
     <Folder Include="core\static\assets\js\plugins\colorfield\" />
     <Folder Include="core\static\assets\js\plugins\colorfield\jscolor\" />
@@ -1161,10 +1195,15 @@
     <Folder Include="core\templates\beachhandball\basic_setup\" />
     <Folder Include="core\templates\beachhandball\templates\" />
     <Folder Include="core\templates\beachhandball\tournamentevent\" />
+    <Folder Include="core\templates\cup_manager\" />
+    <Folder Include="cup_manager\management\" />
+    <Folder Include="cup_manager\management\commands\" />
     <Folder Include="core\templates\includes\" />
     <Folder Include="core\templates\layouts\" />
     <Folder Include="core\templates\livescore\" />
     <Folder Include="core\__pycache__\" />
+    <Folder Include="cup_manager\" />
+    <Folder Include="cup_manager\migrations\" />
     <Folder Include="ext_installer\" />
     <Folder Include="media\" />
     <Folder Include="nginx\" />

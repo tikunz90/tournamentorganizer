@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <link rel="icon" type="image/png" href="/static/assets/img/favicon.png">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <title>
+        {% block title %}{% endblock title %} - GBO Tournament Organizer
+    </title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Alpine.js for interactive components -->
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <!-- Fonts and icons -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700|Roboto+Slab:400,700" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+
+    <!-- Add transition custom classes for sidebar -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    transitionProperty: {
+                        'width': 'width',
+                    },
+                }
+            }
+        }
+    </script>
+
+    {% block stylesheets %}{% endblock stylesheets %}
+</head>
+<body x-data="{ sidebarCollapsed: true }" @toggle-sidebar.window="sidebarCollapsed = !sidebarCollapsed" class="{% block body_class %}{% endblock body_class %} bg-gray-50 text-gray-800 font-sans">
+    <div class="flex min-h-screen">
+        <!-- Sidebar -->
+        <div x-data="{ collapsed: true }" x-init="$watch('sidebarCollapsed', value => collapsed = value)">
+            {% include 'includes/sidebar_tw.html' %}
+        </div>
+
+        <!-- Main Panel -->
+        <div class="flex-1 flex flex-col transition-all duration-300" :class="{ 'ml-16': sidebarCollapsed, 'ml-64': !sidebarCollapsed }">
+            <!-- Navigation -->
+            <div class="sticky top-0 z-40">
+                {% include 'includes/navigation_tw.html' %}
+            </div>
+
+            <!-- Loading Indicator -->
+            <div id="loading-indicator" class="hidden fixed inset-0 bg-white bg-opacity-75 flex items-center justify-center z-50">
+                <div class="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-blue-500"></div>
+            </div>
+
+            <!-- Main Content with top padding to account for navigation height -->
+            <main id="main-content" class="flex-1 p-4 pt-6 overflow-x-auto">
+                <div id="dynamic-content" class="max-w-7xl mx-auto w-full">
+                    <!-- Content will be dynamically populated by JavaScript -->
+                    <div id="initial-content">
+                        {% block content %}{% endblock content %}
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+
+    {% include 'cup_manager/general.html' %}
+
+    <!-- Store the current event ID in a data attribute -->
+    <div id="app-data"
+         data-current-event="{{ event_id }}"
+         data-current-view="{{ current_view }}"
+         class="hidden">
+    </div>
+
+    <script type="text/javascript" src="/static/assets/js/cup_manager/general.js"></script>
+    <script type="text/javascript" src="/static/assets/js/cup_manager/basic_setup.js"></script>
+    <script type="text/javascript" src="/static/assets/js/cup_manager/teams_manager.js"></script>
+    <script type="text/javascript" src="/static/assets/js/cup_manager/courts.js"></script>
+    <script type="text/javascript" src="/static/assets/js/cup_manager/event.js"></script>
+    <script type="text/javascript" src="/static/assets/js/cup_manager/phases.js"></script>
+    <script type="text/javascript" src="/static/assets/js/cup_manager/structure.js"></script>
+</body>
+<!-- Footer -->
