@@ -22,6 +22,8 @@ class Tournament(models.Model):
     season = models.ForeignKey('Season', null=True, on_delete=models.DO_NOTHING)
     
     organizer = models.SmallIntegerField(default=0)
+    organizer_orm = models.ForeignKey('authentication.GBOUser', on_delete=models.SET_NULL, null=True, related_name='tournaments')
+   
     name = models.CharField(db_column='name', max_length=50)
     is_active = models.BooleanField(default=False)
     #address = AddressField(related_name='+', blank=True, null=True, on_delete=models.CASCADE)

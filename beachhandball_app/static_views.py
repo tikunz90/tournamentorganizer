@@ -53,7 +53,7 @@ def getContext(request):
     
     t = Tournament.objects.prefetch_related(
         Prefetch("tournamentsettings_set", queryset=TournamentSettings.objects.all(), to_attr="settings"), 
-        Prefetch("tournamentevent_set", queryset=TournamentEvent.objects.all(), to_attr="events")).get(organizer=guser.subject_id, is_active=True, season__gbo_season_id=guser.season_active['id'])
+        Prefetch("tournamentevent_set", queryset=TournamentEvent.objects.all(), to_attr="events")).get(organizer_orm=guser, is_active=True, season__gbo_season_id=guser.season_active['id'])
     context['tourn'] = t
     context['tourn_settings'] = t.settings[0] #TournamentSettings.objects.get(tournament=t)
     context['events'] = t.events #TournamentEvent.objects.filter(tournament=t)

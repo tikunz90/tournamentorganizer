@@ -77,7 +77,7 @@ def login_view(request):
                 if not gbouser.is_online:
                     user = authenticate(username=username, password=password)
                     if user is not None:
-                        t = Tournament.objects.filter(organizer=gbouser.subject_id, season__gbo_season_id=season_id)
+                        t = Tournament.objects.filter(organizer_orm=gbouser, season__gbo_season_id=season_id)
                         if t.count() <= 0:
                             msg ='No Tournament Data available! SubjectID: ' + str(gbouser.subject_id)
                             return render(request, "accounts/login.html", {"form": form, "msg" : msg})

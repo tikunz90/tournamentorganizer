@@ -47,8 +47,10 @@ def update_user_tournament(gbouser, season_id):
     season = Season.objects.filter(gbo_season_id=season_id).first()
 
     print("season_cup_tournament...")
+    # tourns_q = Tournament.objects.prefetch_related(
+    #     Prefetch("tournamentsettings_set", queryset=TournamentSettings.objects.all(), to_attr="settings")).filter(organizer=gbouser.subject_id, season__gbo_season_id=season_id)
     tourns_q = Tournament.objects.prefetch_related(
-        Prefetch("tournamentsettings_set", queryset=TournamentSettings.objects.all(), to_attr="settings")).filter(organizer=gbouser.subject_id, season__gbo_season_id=season_id)
+        Prefetch("tournamentsettings_set", queryset=TournamentSettings.objects.all(), to_attr="settings")).filter(organizer_orm=gbouser, season__gbo_season_id=season_id)
     tourns = [t for t in tourns_q]
     tourns_cup = [t for t in tourns if t.season_cup_tournament_id != 0]
     tourns_subcup = [t for t in tourns if t.sub_season_cup_tournament_id != 0]
@@ -78,6 +80,7 @@ def update_user_tournament(gbouser, season_id):
                     to_tourn = t
                     tourn_found = True
                     t.organizer=gbouser.subject_id
+                    t.organizer_orm = gbouser
                     t.name=gbo_tourn['name']
                     t.last_sync_at=datetime.now()
                     t.season_tournament_id=season_tourn['id']
@@ -89,6 +92,7 @@ def update_user_tournament(gbouser, season_id):
             if not tourn_found and len(tourns_by_season_cup_id) == 0:
                 #create tournament
                 new_t = Tournament(organizer=gbouser.subject_id,
+                organizer_orm=gbouser,
                 name=gbo_tourn['name'],
                 last_sync_at=datetime.now(),
                 season_tournament_id=season_tourn['id'],
@@ -125,6 +129,7 @@ def update_user_tournament(gbouser, season_id):
                     to_tourn = t
                     tourn_found = True
                     t.organizer=gbouser.subject_id
+                    t.organizer_orm = gbouser
                     t.name=gbo_tourn['name']
                     t.last_sync_at=datetime.now()
                     t.season_german_championship_id=season_tourn['id']
@@ -137,6 +142,7 @@ def update_user_tournament(gbouser, season_id):
             if not tourn_found and tourns_by_season_cup_id.count() == 0:
                 #create tournament
                 new_t = Tournament(organizer=gbouser.subject_id,
+                organizer_orm = gbouser,
                 name=gbo_tourn['name'],
                 last_sync_at=datetime.now(),
                 season_german_championship_id=season_tourn['id'],
@@ -167,7 +173,8 @@ def update_user_tournament(gbouser, season_id):
             gbo_tourn = season_tourn['tournament']
 
             to_tourn = None
-            tourns = Tournament.objects.filter(organizer=gbouser.subject_id)
+            #tourns = Tournament.objects.filter(organizer=gbouser.subject_id)
+            tourns = Tournament.objects.filter(organizer_orm=gbouser)
             tourns_by_season_cup_id = Tournament.objects.filter(sub_season_cup_tournament_id=gbot['id'])
             for t in tourns:
                 if t.season_tournament_id == gbot['id']:
@@ -175,6 +182,7 @@ def update_user_tournament(gbouser, season_id):
                     to_tourn = t
                     tourn_found = True
                     t.organizer=gbouser.subject_id
+                    t.organizer_orm = gbouser
                     t.name=gbo_tourn['name']
                     t.last_sync_at=datetime.now()
                     t.season_tournament_id=season_tourn['id']
@@ -186,6 +194,7 @@ def update_user_tournament(gbouser, season_id):
             if not tourn_found and tourns_by_season_cup_id.count() == 0:
                 #create tournament
                 new_t = Tournament(organizer=gbouser.subject_id,
+                organizer_orm = gbouser,
                 name=gbo_tourn['name'],
                 last_sync_at=datetime.now(),
                 season_tournament_id=season_tourn['id'],
@@ -200,7 +209,7 @@ def update_user_tournament(gbouser, season_id):
 
 def update_user_tournament_events(gbouser, to_tourn):
     begin = time.time()
-    print("ENTER update_user_tournament_events")
+    print("ENTER update_user_tournament_events" , datetime.now())
     try:
         if type(gbouser) is GBOUser:
             gbouser = gbouser.__dict__
@@ -223,7 +232,7 @@ def update_user_tournament_events(gbouser, to_tourn):
             gbo_data = gbo_data['message']
 
             for gbot in gbo_data:
-                print('gbo_data')
+                print('gbo_data' , datetime.now())
                 season_tourn = gbot['seasonTournament']
                 if cup_type == 'is_cup' and season_tourn['id'] != to_tourn['season_tournament_id']:
                     continue
@@ -240,7 +249,7 @@ def update_user_tournament_events(gbouser, to_tourn):
 
                 # scan categories and update/create events
                 for cat in season_tourn['seasonTournamentCategories']:
-                    print('category ' + str(cat['category']))
+                    print('category ' + str(cat['category']) , datetime.now())
                     tcat = None
                     te = None
                     abbrv = 'W'
@@ -332,7 +341,7 @@ def update_user_tournament_events(gbouser, to_tourn):
                     sync_only_teams(gbouser, te, data, cup_type)              
     except Exception as ex:
         print(ex)               
-    print("EXIT update_user_tournament_events")
+    print("EXIT update_user_tournament_events" , datetime.now())
     end = time.time()
     execution_time = end - begin
     return execution_time
@@ -482,7 +491,7 @@ def sync_teams_of_game(gbouser, game):
     return result
 
 def sync_only_teams(gbouser, tevent, data, cup_type):
-    print('ENTER sync_only_teams')
+    print('ENTER sync_only_teams' , datetime.now())
     try:        
         team_data_q = Team.objects.select_related("tournament_event").filter(tournament_event=tevent).prefetch_related(
             Prefetch("player_set", queryset=Player.objects.select_related("tournament_event").all(), to_attr="players"),
@@ -527,7 +536,7 @@ def sync_only_teams(gbouser, tevent, data, cup_type):
     return
 
 def sync_teams(gbouser, tevent, data, cup_type):
-    print('ENTER sync_teams')
+    print('ENTER sync_teams' , datetime.now())
     try:        
         team_data_q = Team.objects.select_related("tournament_event").filter(tournament_event=tevent).prefetch_related(
             Prefetch("player_set", queryset=Player.objects.select_related("tournament_event").all(), to_attr="players"),
