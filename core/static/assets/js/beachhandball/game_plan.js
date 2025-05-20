@@ -335,7 +335,7 @@ function updateGameModalForm() {
     });
   });
 }
-updateGameModalForm();
+//updateGameModalForm();
 
 function updateGameResultModalForm() {
   $(".update-game-result").each(function () {
@@ -358,7 +358,7 @@ function updateGameResultModalForm() {
 updateGameResultModalForm();
 function reinstantiateModalForms() {
   updateGameResultModalForm();
-  updateGameModalForm();
+  //updateGameModalForm();
 }
 function getUpdateGameDateTime(game_id) {
   return $.ajax({

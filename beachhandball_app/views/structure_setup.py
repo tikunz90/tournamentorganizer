@@ -461,6 +461,115 @@ class GameUpGameView(BSModalUpdateView):
     template_name = 'beachhandball/templates/update_game_form.html'
     form_class = GameUpdateForm
     success_message = 'Success: Game was updated.'
+    
+    def get_object(self, queryset=None):
+        """Override to use a pre-optimized queryset for fetching the Game object"""
+        if queryset is None:
+            queryset = self.get_queryset()
+            
+        # Optimize the query with select_related to avoid N+1 issues
+        queryset = queryset.select_related(
+            'tournament',
+            'tournament_event', 
+            'tournament_event__category',
+            'tournament_state',
+            'team_st_a', 'team_st_a__team',
+            'team_st_b', 'team_st_b__team',
+            'team_a', 'team_b',
+            'court', 'ref_a', 'ref_b'
+        )
+        
+        pk = self.kwargs.get(self.pk_url_kwarg)
+        if pk is not None:
+            return get_object_or_404(queryset, pk=pk)
+        return super().get_object(queryset)
+
+    def get_context_data(self, **kwargs):
+        game = self.object
+        context = super(GameUpGameView, self).get_context_data(**kwargs)
+        
+        # Explicitly add related objects to context to avoid template lookups
+        context['tournament'] = game.tournament
+        context['tournament_event'] = game.tournament_event
+        context['category'] = game.tournament_event.category
+        context['tournament_state'] = game.tournament_state
+        context['team_st_a'] = game.team_st_a
+        context['team_st_b'] = game.team_st_b
+        
+        # Get tournament for efficient querying
+        tournament = game.tournament
+        
+        # Cache all needed objects with a single query per model
+        # 1. Get all team stats for this state in one query
+        team_stats = list(TeamStats.objects.filter(
+            tournamentstate=game.tournament_state
+        ).select_related('team'))
+        
+        # 2. Get all courts for this tournament in one query
+        courts = list(Court.objects.filter(tournament=tournament))
+        
+        # 3. Get all referees for this tournament in one query
+        referees = list(Referee.objects.filter(tournament=tournament))
+        
+        # Store in context for direct template access
+        context['all_team_stats'] = team_stats
+        context['all_courts'] = courts
+        context['all_referees'] = referees
+        
+        # Assign to form fields (no additional DB queries)
+        context['form'].fields['court'].queryset = Court.objects.filter(
+            id__in=[c.id for c in courts]
+        )
+        context['form'].fields['team_st_a'].queryset = TeamStats.objects.filter(
+            id__in=[ts.id for ts in team_stats]
+        )
+        context['form'].fields['team_st_b'].queryset = TeamStats.objects.filter(
+            id__in=[ts.id for ts in team_stats]
+        )
+        context['form'].fields['ref_a'].queryset = Referee.objects.filter(
+            id__in=[r.id for r in referees]
+        )
+        context['form'].fields['ref_b'].queryset = Referee.objects.filter(
+            id__in=[r.id for r in referees]
+        )
+        
+        return context
+    
+    def form_valid(self, form):
+        # This method is called when valid form data has been POSTed.
+        tevent = get_object_or_404(TournamentEvent, id=self.kwargs.get('pk_tevent'))
+        tstage = get_object_or_404(TournamentStage, id=self.kwargs.get('pk_tstage'))
+        form.instance.tournament_event = tevent
+        form.instance.tournament_stage = tstage
+
+        # Auto assign teams if needed
+        if (form.instance.team_a is None or form.instance.team_a != form.instance.team_st_a.team) and form.instance.team_st_a is not None and form.instance.team_st_a.team.is_dummy == False:
+            form.instance.team_a = form.instance.team_st_a.team
+        if (form.instance.team_b is None or form.instance.team_b != form.instance.team_st_b.team) and form.instance.team_st_b is not None and form.instance.team_st_b.team.is_dummy == False:
+            form.instance.team_b = form.instance.team_st_b.team
+
+        # Assign referee subject IDs
+        if form.instance.ref_a is not None:
+            form.instance.gbo_ref_a_subject_id = form.instance.ref_a.gbo_subject_id
+        if form.instance.ref_b is not None:
+            form.instance.gbo_ref_b_subject_id = form.instance.ref_b.gbo_subject_id
+            
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        pk = self.kwargs["pk_tevent"]
+        from_gameplan = self.kwargs["from_gameplan"]
+        if from_gameplan == 1:
+            return reverse_lazy('game_plan')
+        return reverse_querystring("structure_setup.detail", kwargs={"pk": pk}, 
+                                 query_kwargs={'tab': self.kwargs["pk_tstage"], 'tab_tstate': 0})
+
+
+class GameUpGameViewOld(BSModalUpdateView):
+    model = Game
+    template_name = 'beachhandball/templates/update_game_form.html'
+    form_class = GameUpdateForm
+    success_message = 'Success: Game was updated.'
 
     def get(self, request, *args, **kwargs):
         self.object = self.get_object()

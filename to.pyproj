@@ -512,6 +512,7 @@
     <Content Include="core\static\assets\js\beachhandball\game_plan_dragging.js" />
     <Content Include="core\static\assets\js\beachhandball\game_plan_filter.js" />
     <Content Include="core\static\assets\js\beachhandball\game_plan_selecting.js" />
+    <Content Include="core\static\assets\js\beachhandball\game_update_modal.js" />
     <Content Include="core\static\assets\js\beachhandball\ledwall.js" />
     <Content Include="core\static\assets\js\beachhandball\ledwall_control.js" />
     <Content Include="core\static\assets\js\beachhandball\scoreboard_livescore_view.js" />

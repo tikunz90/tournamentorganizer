@@ -14,14 +14,16 @@ from django.db.models import Q
 from authentication.models import ScoreBoardUser
 from beachhandball_app import helper
 from beachhandball_app.api.serializers.tournament.serializer import serialize_court
+from beachhandball_app.models.choices import GAMESTATE_CHOICES
 
 from beachhandball_app.models.Team import Team
 from beachhandball_app.api.serializers.game.serializer import GameRunningSerializer, GameRunningSerializer2, PlayerStatsSerializer, TeamSerializer
 from beachhandball_app.models.Player import Player, PlayerStats
+from beachhandball_app.models.Team import Team, TeamStats
 from beachhandball_app.models.Game import Game, GameAction
 from beachhandball_app.api.serializers.game import GameSerializer, GameActionSerializer
 from beachhandball_app.api.drf_optimize import OptimizeRelatedModelViewSetMetaclass
-from beachhandball_app.models.Tournaments import TournamentEvent
+from beachhandball_app.models.Tournaments import TournamentEvent, Court, Referee
 from beachhandball_app.api.serializers.player.serializer import PlayerSerializer
 
 from rest_framework import status
@@ -184,6 +186,167 @@ def RunningGamesDM(request):
         data['team_st_b'] = game1.team_b.name
         data['gamingstate'] = game1.gamingstate
         return Response([data])
+
+@api_view(['GET', 'PUT'])
+@authentication_classes([SessionAuthentication, BasicAuthentication])
+@permission_classes([IsAuthenticated])
+def game_update_api(request, pk):
+    """
+    API endpoint for fetching and updating Game objects
+    """
+    try:
+        # Get the game with all needed related objects in a single query
+        game = Game.objects.select_related(
+            'tournament',
+            'tournament_event', 
+            'tournament_event__category',
+            'tournament_state',
+            'team_st_a', 'team_st_a__team',
+            'team_st_b', 'team_st_b__team',
+            'team_a', 'team_b',
+            'court', 'ref_a', 'ref_b'
+        ).get(pk=pk)
+    except Game.DoesNotExist:
+        return Response({"error": "Game not found"}, status=status.HTTP_404_NOT_FOUND)
+    
+    if request.method == 'GET':
+        # For GET requests, return the game data and related options
+        serializer = GameSerializer(game)
+        
+        # Get related data for dropdowns
+        courts = Court.objects.filter(tournament=game.tournament)
+        team_stats = TeamStats.objects.filter(tournamentstate=game.tournament_state)
+        referees = Referee.objects.filter(tournament=game.tournament)
+        
+        # Serialize the related data
+        return Response({
+            "game": serializer.data,
+            "courts": [{"id": c.id, "number": c.number, "name": c.name} for c in courts],
+            "team_stats": [{"id": ts.id, "team_id": ts.team_id, "team_name": ts.team.name} for ts in team_stats],
+            "referees": [{"id": r.id, "name": f"{r.first_name} {r.name}", "abbreviation": r.abbreviation} for r in referees]
+        })
+    
+    elif request.method == 'PUT':
+        # For PUT requests, update the game
+        serializer = GameSerializer(game, data=request.data, partial=True)
+        if serializer.is_valid():
+            # Handle team assignments
+            if 'team_st_a' in request.data and game.team_st_a and game.team_st_a.team and not game.team_st_a.team.is_dummy:
+                serializer.validated_data['team_a'] = game.team_st_a.team
+                
+            if 'team_st_b' in request.data and game.team_st_b and game.team_st_b.team and not game.team_st_b.team.is_dummy:
+                serializer.validated_data['team_b'] = game.team_st_b.team
+            
+            # Handle referee subject IDs
+            if 'ref_a' in request.data and game.ref_a:
+                serializer.validated_data['gbo_ref_a_subject_id'] = game.ref_a.gbo_subject_id
+                
+            if 'ref_b' in request.data and game.ref_b:
+                serializer.validated_data['gbo_ref_b_subject_id'] = game.ref_b.gbo_subject_id
+            
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['GET', 'PATCH'])
+@authentication_classes([SessionAuthentication, BasicAuthentication])
+@permission_classes([IsAuthenticated])
+def game_modal_api(request, pk):
+    """
+    API endpoint for handling Game updates in a modal
+    """
+    try:
+        # Get game with all related objects in a single optimized query
+        game = Game.objects.select_related(
+            'tournament',
+            'tournament_event', 'tournament_event__category',
+            'tournament_state', 'tournament_state__tournament_stage',
+            'team_st_a', 'team_st_a__team',
+            'team_st_b', 'team_st_b__team',
+            'team_a', 'team_b',
+            'court', 'ref_a', 'ref_b'
+        ).get(pk=pk)
+    except Game.DoesNotExist:
+        return Response({"error": "Game not found"}, status=status.HTTP_404_NOT_FOUND)
+    
+    if request.method == 'GET':
+        # Get additional data needed for the form
+        tournament = game.tournament
+        tournament_state = game.tournament_state
+        
+        # Fetch all necessary related data in bulk queries
+        courts = list(Court.objects.filter(tournament=tournament))
+        team_stats = list(TeamStats.objects.filter(tournamentstate=tournament_state).select_related('team'))
+        referees = list(Referee.objects.filter(tournament=tournament))
+        
+        # Format response data
+        serializer = GameSerializer(game)
+        game_data = serializer.data
+        
+        # Add tournament_stage info for routing purposes
+        if game.tournament_state and game.tournament_state.tournament_stage:
+            game_data['tournament_stage_id'] = game.tournament_state.tournament_stage.id
+        
+        response_data = {
+            'game': game_data,
+            'courts': [{'id': c.id, 'name': c.name, 'number': c.number} for c in courts],
+            'team_stats': [{'id': ts.id, 'name': ts.team.name} for ts in team_stats],
+            'referees': [{'id': r.id, 'name': f"{r.first_name} {r.name}"} for r in referees],
+            'gamestate_choices': [{'value': c[0], 'text': c[1]} for c in GAMESTATE_CHOICES],
+            'gamingstate_choices': [{'value': c[0], 'text': c[1]} for c in Game.GAMINGSTATE_CHOICES]
+        }
+        
+        return Response(response_data)
+    
+    elif request.method == 'PATCH':
+
+        starttime = request.data.get('starttime')
+        if starttime is not None:
+            try:
+                # Convert Unix timestamp to datetime
+                game.starttime = datetime.fromtimestamp(int(starttime))
+            except Exception as ex:
+                return Response({'error': f'Invalid starttime: {ex}'}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Handle court update
+        court_id = request.data.get('court')
+        if court_id is not None:
+            try:
+                game.court = Court.objects.get(id=court_id)
+            except Court.DoesNotExist:
+                return Response({'error': 'Court not found'}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Update the game with the provided data
+        serializer = GameSerializer(game, data=request.data, partial=True)
+        
+        if serializer.is_valid():
+            # Auto-assign teams from team_stats if needed
+            if ('team_st_a' in request.data and 
+                game.team_st_a and 
+                game.team_st_a.team and
+                not game.team_st_a.team.is_dummy):
+                serializer.validated_data['team_a'] = game.team_st_a.team
+                
+            if ('team_st_b' in request.data and 
+                game.team_st_b and 
+                game.team_st_b.team and
+                not game.team_st_b.team.is_dummy):
+                serializer.validated_data['team_b'] = game.team_st_b.team
+            
+            # Store referee subject IDs
+            if 'ref_a' in request.data and game.ref_a:
+                serializer.validated_data['gbo_ref_a_subject_id'] = game.ref_a.gbo_subject_id
+                
+            if 'ref_b' in request.data and game.ref_b:
+                serializer.validated_data['gbo_ref_b_subject_id'] = game.ref_b.gbo_subject_id
+            
+            game.save(update_fields=['starttime', 'court'])
+            # Save and return the updated game
+            serializer.save()
+            return Response(serializer.data)
+            
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @six.add_metaclass(OptimizeRelatedModelViewSetMetaclass)
 class GameViewSet(viewsets.ModelViewSet):

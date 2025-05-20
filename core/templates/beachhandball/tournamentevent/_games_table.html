@@ -23,7 +23,11 @@
         <td class="text-center">{{ game.score_team_a_halftime_2 }}:{{ game.score_team_b_halftime_2 }}</td>
         <td class="text-center">{{ game.score_team_a_penalty }}:{{ game.score_team_b_penalty }}</td>
         <td class="td-actions text-right">
-            <button type="button" class="update_game btn btn-success btn-link" rel="tooltip" title="Edit Game" data-form-url='{{ url("update_game", kwargs={"pk_tevent":tevent.id, "pk_tstage": stage.id, "pk":  game.id, "from_gameplan" : 0}) }}' data-list-url="{{ url('games_list', kwargs={'pk_tstate': tstate.id}) }}" onclick="modalShowSpinner();" {% if tstate.is_finished and tstate.transitions_done %}disabled{% endif %}>
+            <button type="button" class="update_game btn btn-primary btn-sm"
+                    data-id="{{ game.id }}"
+                    data-from-gameplan="0"
+                    data-pk-tevent="{{ game.tournament_event.id }}"
+                    data-pk-tstage="{{ game.tournament_state.tournament_stage.id }}">
                 <i class="material-icons">edit</i>
             </button>
             <button type="button" rel="tooltip" class="download-pregame-report btn btn-info btn-link" rel="tooltip" title="Download Pre-Game Report" data-form-url="{{ url('download_pre_game', kwargs={'pk_tevent':tevent.id, 'pk_tstage': stage.id, 'pk':  game.id}) }}" data-list-url="{{ url('games_list', kwargs={'pk_tstate': tstate.id}) }}">
@@ -34,7 +38,7 @@
             <button type="button" rel="tooltip" class="update-game-result btn btn-info btn-link" rel="tooltip" title="Enter Result" data-form-url='{{ url("update_game_result", kwargs={"pk_tevent":tevent.id, "pk_tstage": stage.id, "pk":  game.id , "from_gameplan": 0}) }}' data-list-url="{{ url('games_list', kwargs={'pk_tstate': tstate.id}) }}" onclick="modalShowSpinner();" {% if tstate.is_finished and tstate.transitions_done %}disabled{% endif %}>
                 <i class="material-icons">assignment</i>
             </button>
-            <button type="button" rel="tooltip" class="delete-game btn btn-danger btn-link" rel="tooltip" title="Delete Game"  data-form-url='{{ url("structure_setup.delete_game", kwargs={"pk_tevent":tevent.id, "pk_tstage": stage.id, "pk":  game.id}) }}' onclick="modalShowSpinner();" {% if tstate.is_finished and tstate.transitions_done %}disabled{% endif %}>
+            <button type="button" rel="tooltip" class="delete-game btn btn-danger btn-link" rel="tooltip" title="Delete Game" data-form-url='{{ url("structure_setup.delete_game", kwargs={"pk_tevent":tevent.id, "pk_tstage": stage.id, "pk":  game.id}) }}' onclick="modalShowSpinner();" {% if tstate.is_finished and tstate.transitions_done %}disabled{% endif %}>
                 <i class="material-icons">close</i>
             </button>
         </td>

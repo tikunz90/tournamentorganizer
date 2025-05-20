@@ -1,5 +1,6 @@
 from beachhandball_app.api.views.game_report.views import FileUploadView, UploadGameReportViewSet
 from beachhandball_app.models.Team import TeamTournamentResult
+from beachhandball_app.api.views.game.views import game_update_api, game_modal_api
 from django.conf.urls import url
 from django.urls import path, include
 from django.contrib import admin
@@ -27,6 +28,8 @@ urlpatterns = [
     path('games/running/', RunningGames, name='get_running_games'),
     path('games/running/dm/', RunningGamesDM, name='get_running_games_dm'),
     path('games/<int:game_id>/info/', get_game_info, name='get_game_info'),
+    path('games/<int:pk>/modal/', game_modal_api, name='game_modal_api'),
+    path('games/<int:pk>/update/', game_update_api, name='game_update_api'),
 
     path('hello_world/<int:tevent_id>/<int:amount>/', hello_world, name='hello_world'),
 

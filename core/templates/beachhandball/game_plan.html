@@ -296,9 +296,14 @@
                                     </td>
                                     <td id="{{ game.id }}_gamestate" class="text-center" data-content="{{ game.gamestate }}">{{ game.gamestate }}</td>
                                     <td class="td-actions text-right" data-content="">
-                                        <button type="button" class="update_game btn btn-success btn-link" rel="tooltip" title="Edit Game" data-form-url='{{ url("update_game", kwargs={"pk_tevent":game.tournament_event.id, "pk_tstage": game.tournament_state.tournament_stage.id, "pk":  game.id, "from_gameplan": 1}) }}' data-list-url="{{ url('game_plan') }}" onclick="modalShowSpinner();">
+                                        <button type="button" class="update_game btn btn-primary btn-sm"
+                                                data-id="{{ game.id }}"
+                                                data-from-gameplan="1"
+                                                data-pk-tevent="{{ game.tournament_event.id }}"
+                                                data-pk-tstage="{{ game.tournament_state.tournament_stage.id }}">
                                             <i class="material-icons">edit</i>
                                         </button>
+    
                                         <button type="button" rel="tooltip" class="download-pregame-report btn btn-info btn-link" rel="tooltip" title="Download Pre-Game Report" data-form-url="{{ url('download_pre_game', kwargs={'pk_tevent':game.tournament_event.id, 'pk_tstage': game.tournament_state.tournament_stage.id, 'pk':  game.id}) }}" data-list-url="{{ url('game_plan') }}">
                                             <a class="" href="{{ url('download_pre_game', kwargs={'pk_tevent':game.tournament_event.id, 'pk_tstage': 1, 'pk':  game.id}) }}">
                                                 <i class="material-icons">file_download</i>
@@ -341,7 +346,7 @@
                                     <div style="color:black;">
                                         {{ game.team_st_a.team }} vs {{ game.team_st_b.team }}
                                     </div>
-                                    
+
                                     {% endif %}
                                     {% endfor %}
                                 </td>
@@ -377,6 +382,11 @@
 {% endblock content %}
 
 {% block javascripts %}
+<script src="/static/assets/js/beachhandball/game_plan.js"></script>
+<script src="/static/assets/js/beachhandball/game_plan_selecting.js"></script>
+<script src="/static/assets/js/beachhandball/game_plan_dragging.js"></script>
+<script src="/static/assets/js/beachhandball/game_plan_filter.js"></script>
+
 <script>
     $(document).ready(function() {
       {% if messages %}
@@ -384,8 +394,7 @@
         {% for message in messages %}
         md.showNotification('top','center', '{{ message }}', 'info');
         {% endfor %}
-      {% endif %}
-
+        {% endif %}
     });
 
       document.getElementById('toggle-view-button').addEventListener('click', function () {
@@ -402,8 +411,5 @@
           }
       });
 </script>
-<script src="/static/assets/js/beachhandball/game_plan.js"></script>
-<script src="/static/assets/js/beachhandball/game_plan_selecting.js"></script>
-<script src="/static/assets/js/beachhandball/game_plan_dragging.js"></script>
-<script src="/static/assets/js/beachhandball/game_plan_filter.js"></script>
+
 {% endblock javascripts %}
