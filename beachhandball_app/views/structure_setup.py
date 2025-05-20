@@ -114,6 +114,7 @@ class StructureSetupDetail(LoginRequiredMixin, UserPassesTestMixin, DetailView):
         kwargs['tstat_forms'] = tstat_forms
         kwargs['tourn'] = context['tourn']
         kwargs['tevent'] = tevent
+        kwargs['events'] = context['events']
         kwargs['tournaments_active'] = 'active_detail'
         kwargs['segment'] = 'structure_setup'
         kwargs['segment_title'] = f'Structure Setup \\ {tevent.name_short} {tevent.category.name} {tevent.category.classification}'
@@ -191,7 +192,7 @@ class TournamentEventDetail(LoginRequiredMixin, UserPassesTestMixin, DetailView)
         kwargs['tournaments_active'] = 'active_detail'
         kwargs['segment'] = 'structure_setup'
         kwargs['segment_title'] = 'Structure Setup \ '
-
+        kwargs['events'] = context['events']
         #kwargs['ts_types'] = TournamentStage.objects.filter(tournament_event=tevent)
         kwargs['teams_appending'] = []#Team.objects.filter(tournament=tevent)
 
@@ -242,7 +243,7 @@ class TournamentStageDetail(LoginRequiredMixin, UserPassesTestMixin, DetailView)
         kwargs['tournaments_active'] = 'active_detail'
         kwargs['segment'] = 'structure_setup'
         kwargs['segment_title'] = 'Structure Setup \ '
-
+        kwargs['events'] = context['events']
         #kwargs['ts_types'] = TournamentStage.objects.filter(tournament_event=tevent)
         kwargs['teams_appending'] = []#Team.objects.filter(tournament=tevent)
 

@@ -3,7 +3,9 @@ import traceback
 import unicodedata
 import time
 from datetime import datetime
+from collections import defaultdict
 
+from django.db import transaction
 from django.db.models.query import Prefetch
 from django.db.models.signals import post_save
 from authentication.models import GBOUser, GBOUserSerializer
@@ -420,6 +422,7 @@ def update_user_tournament_events(gbouser, to_tourn):
     execution_time = end - begin
     print("EXIT update_user_tournament_events", execution_time)
     return execution_time
+
 def update_user_tournament_events_OLD(gbouser, to_tourn):
     begin = time.time()
     print("ENTER update_user_tournament_events" , datetime.now())
@@ -572,10 +575,6 @@ def sync_teams_of_tevent(gbouser, tevent):
     try:
         # Prefetch all teams, players, and coaches for this event
         team_qs = Team.objects.select_related("tournament_event").filter(tournament_event=tevent)
-        team_qs = team_qs.prefetch_related(
-            Prefetch("player_set", queryset=Player.objects.select_related("tournament_event").all(), to_attr="players"),
-            Prefetch("coach_set", queryset=Coach.objects.select_related("tournament_event").all(), to_attr="coaches")
-        )
         all_teams = list(team_qs)
         team_map = {}
         for team in all_teams:
@@ -622,6 +621,8 @@ def sync_teams_of_tevent(gbouser, tevent):
         seen_team_ids = set()
 
         for ranking in gbo_data['seasonTeamCupTournamentRankings']:
+            if  ranking['seasonTeam']['team']['category']['gender']['id'] != tevent.category.gbo_category_id:
+                continue
             team = team_map.get(ranking['id'])
             if not team:
                 # Create new team
@@ -674,6 +675,25 @@ def sync_teams_of_tevent(gbouser, tevent):
             )
         if teams_to_delete:
             Team.objects.filter(id__in=teams_to_delete).delete()
+
+        all_players = list(Player.objects.filter(tournament_event=tevent))
+        all_coaches = list(Coach.objects.filter(tournament_event=tevent))
+        players_by_team = defaultdict(list)
+        for player in all_players:
+            players_by_team[player.team_id].append(player)
+
+        coaches_by_team = defaultdict(list)
+        for coach in all_coaches:
+            coaches_by_team[coach.team_id].append(coach)
+
+
+        team_qs = Team.objects.select_related("tournament_event", "category").filter(tournament_event=tevent)
+        all_teams = list(team_qs)
+        cat = tevent.category
+        for ranking in gbo_data['seasonTeamCupTournamentRankings']:
+            if ranking['seasonTeam']['team']['category']['gender']['id'] != tevent.category.gbo_category_id:
+                continue
+            sync_single_team_by_ranking(ranking, tevent, all_teams, cup_type, gbouser, True, all_players, all_coaches, cat)
 
         # Dummy teams update (if needed)
         dummy_teams = [team for team in all_teams if team.is_dummy and team.tournament_event.id == tevent.id]
@@ -749,11 +769,14 @@ def sync_teams_of_tevent_OLD(gbouser, tevent):
         elif cup_type == 'is_sub':
             sct_id = tevent.sub_season_cup_tournament_id
 
+        all_players = list(Player.objects.filter(tournament_event=tevent))
+        all_coaches = list(Coach.objects.filter(tournament_event=tevent))
+
         season_cup_tourn_id_for_dummy = 0;
         for ranking in gbo_data['seasonTeamCupTournamentRankings']:
             if not ranking['id'] in ranking_ids:
                 continue
-            result = sync_single_team_by_ranking(ranking, tevent, my_team_data, cup_type, gbouser, True)
+            result = sync_single_team_by_ranking(ranking, tevent, my_team_data, cup_type, gbouser, True, all_players, all_coaches, tevent.category)
             if result['isError'] == True:
                 break
 
@@ -834,11 +857,14 @@ def sync_teams_of_game(gbouser, game):
         elif cup_type == 'is_sub':
             sct_id = game.tournament_event.sub_season_cup_tournament_id
 
+        all_players = list(Player.objects.filter(tournament_event=tevent))
+        all_coaches = list(Coach.objects.filter(tournament_event=tevent))
+
         season_cup_tourn_id_for_dummy = 0;
         for ranking in gbo_data['seasonTeamCupTournamentRankings']:
             if not ranking['id'] in ranking_ids:
                 continue
-            result = sync_single_team_by_ranking(ranking, game.tournament_event, my_team_data, cup_type, gbouser, True)
+            result = sync_single_team_by_ranking(ranking, game.tournament_event, my_team_data, cup_type, gbouser, True, all_players, all_coaches, tevent.category)
             if result['isError'] == True:
                 break
     except Exception as ex:
@@ -976,9 +1002,12 @@ def sync_only_teams_OLD(gbouser, tevent, data, cup_type):
         elif cup_type == 'is_sub':
             sct_id = tevent.sub_season_cup_tournament_id
 
+        all_players = list(Player.objects.filter(tournament_event=tevent))
+        all_coaches = list(Coach.objects.filter(tournament_event=tevent))
+
         season_cup_tourn_id_for_dummy = 0;
         for ranking in data: #team_info['seasonTeamCupTournamentRankings']:
-            result = sync_single_team_by_ranking(ranking, tevent, my_team_data, cup_type, gbouser, False)
+            result = sync_single_team_by_ranking(ranking, tevent, my_team_data, cup_type, gbouser, False, all_players, all_coaches, tevent.category)
             if not result['isError']:
                 my_team_data = [ x for x in my_team_data if x is not result['act_team'] ]
 
@@ -1021,9 +1050,12 @@ def sync_teams(gbouser, tevent, data, cup_type):
         elif cup_type == 'is_sub':
             sct_id = tevent.sub_season_cup_tournament_id
 
+        all_players = list(Player.objects.filter(tournament_event=tevent))
+        all_coaches = list(Coach.objects.filter(tournament_event=tevent))
+
         season_cup_tourn_id_for_dummy = 0;
         for ranking in data: #team_info['seasonTeamCupTournamentRankings']:
-            result = sync_single_team_by_ranking(ranking, tevent, my_team_data, cup_type, gbouser, True)
+            result = sync_single_team_by_ranking(ranking, tevent, my_team_data, cup_type, gbouser, True, all_players, all_coaches, tevent.category)
 
         for team in my_team_data:
             team.delete()
@@ -1046,7 +1078,466 @@ def sync_teams(gbouser, tevent, data, cup_type):
         print(traceback.format_exc())
     return
 
-def sync_single_team_by_ranking(ranking, tevent, team_data_django, cup_type, gbouser, doPlayersSync):
+def sync_single_team_by_ranking(ranking, tevent, team_data_django, cup_type, gbouser, doPlayersSync, all_players=None, all_coaches=None, category=None):
+    """
+    Sync a single team (and optionally its players/coaches) by ranking.
+    Optimized for performance with batch operations and reduced DB queries.
+    """
+    result = {'isError': False, 'msg': ''}
+    
+    # Early validation to avoid unnecessary processing
+    if not category or category.gbo_category_id != ranking['seasonTeam']['team']['category']['id']:
+        result['isError'] = True
+        result['msg'] = 'tevent.category.gbo_category_id id is not equal season_team.team.category.id'
+        return result
+
+    # Define ranking field name based on cup_type
+    ranking_field = {
+        'is_cup': 'season_team_cup_tournament_ranking_id',
+        'is_gc': 'season_team_cup_championship_ranking_id',
+        'is_sub': 'season_team_sub_cup_tournament_ranking_id'
+    }.get(cup_type)
+    
+    if not ranking_field:
+        result['isError'] = True
+        result['msg'] = f'Unknown cup_type: {cup_type}'
+        return result
+
+    # Fast dictionary lookup for team instead of linear search
+    team_mapping = {
+        getattr(t, ranking_field): t for t in team_data_django 
+        if hasattr(t, ranking_field) and getattr(t, ranking_field) is not None
+    }
+    act_team = team_mapping.get(ranking['id'])
+
+    # Prepare common team data
+    team_data = {
+        'tournament_event': tevent,
+        'name': ranking['seasonTeam']['team']['name'],
+        'abbreviation': ranking['seasonTeam']['team']['name_abbreviated'],
+        'gbo_team': ranking['seasonTeam']['team']['id'],
+        'category': category,
+        'is_dummy': False,
+        ranking_field: ranking['id']
+    }
+    
+    # Add cup type specific fields
+    if cup_type == 'is_cup':
+        team_data['season_cup_tournament_id'] = tevent.tournament.season_cup_tournament_id
+    elif cup_type == 'is_gc':
+        team_data['season_cup_german_championship_id'] = tevent.tournament.season_cup_german_championship_id
+
+    # Create team if not found
+    if act_team is None:
+        act_team = Team.objects.create(**team_data)
+    else:
+        # Only update if changed (track changes)
+        changed_fields = []
+        for field, value in team_data.items():
+            if field != 'tournament_event' and getattr(act_team, field) != value:
+                setattr(act_team, field, value)
+                changed_fields.append(field)
+                
+        if changed_fields:
+            act_team.save(update_fields=changed_fields)
+
+    result['act_team'] = act_team
+
+    # If we don't need player sync, return early
+    if not doPlayersSync:
+        return result
+
+    # --- Prepare player & coach sync ---
+    season_team_id = act_team.season_team_id or ranking['seasonTeam']['id']
+    act_team.season_team_id = season_team_id  # Make sure it's set
+    
+    # --- COACH SYNC ---
+    # Use provided coaches or fetch them
+    if all_coaches is not None:
+        coaches = [c for c in all_coaches if c.team_id == act_team.id]
+    else:
+        coaches = list(Coach.objects.filter(team=act_team))
+    
+    # Create lookup dictionaries by (season_coach_id, season_team_id)
+    coach_dict = {(c.season_coach_id, c.season_team_id): c for c in coaches}
+    coach_updates = []
+    coach_creates = []
+    coach_ids_seen = set()
+    
+    # Process coaches in batch
+    for row in ranking.get('seasonCoachesInTournament', []):
+        if 'seasonCoach' not in row:
+            continue
+            
+        season_coach = row['seasonCoach']
+        key = (season_coach['id'], season_team_id)
+        coach_ids_seen.add(key)
+        coach = coach_dict.get(key)
+        
+        user_data = season_coach['seasonSubject']['subject']['user']
+        name = strip_accents(user_data['family_name'])
+        first_name = strip_accents(user_data['name'])
+        gbo_position = season_coach['seasonSubject']['subject']['subjectLevel']['name']
+        
+        if coach is None:
+            # Create new coach
+            coach_creates.append(Coach(
+                tournament_event=tevent,
+                team=act_team,
+                name=name,
+                first_name=first_name,
+                gbo_position=gbo_position,
+                season_team_id=season_team_id,
+                season_coach_id=season_coach['id']
+            ))
+        else:
+            # Only update if there are changes
+            updated = False
+            if coach.name != name:
+                coach.name = name
+                updated = True
+            if coach.first_name != first_name:
+                coach.first_name = first_name
+                updated = True
+            if coach.gbo_position != gbo_position:
+                coach.gbo_position = gbo_position
+                updated = True
+                
+            if updated:
+                coach_updates.append(coach)
+    
+    # --- PLAYER SYNC ---
+    # Get team data from API (only if needed)
+    if doPlayersSync:
+        response = SWS.getSeasonTeam(gbouser, ranking['seasonTeam']['id'])
+        season_team_data = {'seasonPlayers': []} 
+        if response and not response[0]['isError']:
+            season_team_data = response[0]['message']
+        
+        # Use provided players or fetch them
+        if all_players is not None:
+            players = [p for p in all_players if p.team_id == act_team.id]
+        else:
+            players = list(Player.objects.filter(team=act_team))
+            
+        # Create lookup dictionary
+        player_dict = {(p.season_player_id, p.season_team_id): p for p in players}
+        player_updates = []
+        player_creates = []
+        player_ids_seen = set()
+        
+        # Build a set of active player IDs for faster lookups
+        active_player_ids = {
+            ap.get('seasonPlayer', {}).get('id') 
+            for ap in ranking.get('seasonPlayersInTournament', [])
+            if ap.get('seasonPlayer')
+        }
+        
+        # Process players in batch
+        for season_player in season_team_data['seasonPlayers']:
+            key = (season_player['id'], season_team_id)
+            player_ids_seen.add(key)
+            player = player_dict.get(key)
+            
+            # Extract common data
+            user_data = season_player['seasonSubject']['subject']['user']
+            name = strip_accents(user_data['family_name'])
+            first_name = strip_accents(user_data['name'])
+            gbo_position = season_player['seasonSubject']['subject']['subjectLevel']['name']
+            number = season_player['number']
+            is_active = season_player['id'] in active_player_ids
+            
+            # Parse birthday safely
+            birthday = None
+            try:
+                birthday = datetime.strptime(user_data['birthday'], "%Y-%m-%dT%H:%M:%S.%fZ").date()
+            except Exception:
+                pass
+                
+            if player is None:
+                # Create new player
+                new_player = Player(
+                    tournament_event=tevent,
+                    team=act_team,
+                    first_name=first_name,
+                    name=name,
+                    gbo_position=gbo_position,
+                    number=number,
+                    season_team_id=season_team_id,
+                    season_player_id=season_player['id'],
+                    subject_data=season_player['seasonSubject'],
+                    is_active=is_active,
+                )
+                if birthday:
+                    new_player.birthday = birthday
+                player_creates.append(new_player)
+            else:
+                # Only update if there are changes
+                updated = False
+                if player.name != name:
+                    player.name = name
+                    updated = True
+                if player.first_name != first_name:
+                    player.first_name = first_name
+                    updated = True
+                if player.gbo_position != gbo_position:
+                    player.gbo_position = gbo_position
+                    updated = True
+                if player.number != number:
+                    player.number = number
+                    updated = True
+                if player.is_active != is_active:
+                    player.is_active = is_active
+                    updated = True
+                if birthday and player.birthday != birthday:
+                    player.birthday = birthday
+                    updated = True
+                    
+                if updated:
+                    player_updates.append(player)
+
+    # --- Perform all DB operations in a single transaction ---
+    with transaction.atomic():
+        # Coaches operations
+        if coach_creates:
+            Coach.objects.bulk_create(coach_creates)
+        if coach_updates:
+            Coach.objects.bulk_update(coach_updates, ["name", "first_name", "gbo_position"])
+        
+        # Delete coaches that no longer exist
+        coach_ids_to_delete = [c.id for c_key, c in coach_dict.items() if c_key not in coach_ids_seen]
+        if coach_ids_to_delete:
+            Coach.objects.filter(id__in=coach_ids_to_delete).delete()
+
+        # Players operations (only if we're syncing players)
+        if doPlayersSync:
+            if player_creates:
+                Player.objects.bulk_create(player_creates)
+            if player_updates:
+                Player.objects.bulk_update(player_updates, ["name", "first_name", "gbo_position", "number", "is_active", "birthday"])
+            
+            # Delete players that no longer exist
+            player_ids_to_delete = [p.id for p_key, p in player_dict.items() if p_key not in player_ids_seen]
+            if player_ids_to_delete:
+                Player.objects.filter(id__in=player_ids_to_delete).delete()
+
+    return result
+
+
+def sync_single_team_by_ranking_NEWR(ranking, tevent, team_data_django, cup_type, gbouser, doPlayersSync, all_players=None, all_coaches=None, category=None):
+    """
+    Sync a single team (and optionally its players/coaches) by ranking.
+    """
+    result = {'isError': False, 'msg': ''}
+    if category.gbo_category_id != ranking['seasonTeam']['team']['category']['id']:
+        result['isError'] = True
+        result['msg'] = 'tevent.category.gbo_category_id id is not equal season_team.team.category.id'
+        return result
+
+    # Fast lookup for team
+    if cup_type == 'is_cup':
+        act_team = next((x for x in team_data_django if x.season_team_cup_tournament_ranking_id == ranking['id']), None)
+    elif cup_type == 'is_gc':
+        act_team = next((x for x in team_data_django if x.season_team_cup_championship_ranking_id == ranking['id']), None)
+    elif cup_type == 'is_sub':
+        act_team = next((x for x in team_data_django if x.season_team_sub_cup_tournament_ranking_id == ranking['id']), None)
+    else:
+        act_team = None
+
+    # Create team if not found
+    if act_team is None:
+        team_kwargs = {
+            'tournament_event': tevent,
+            'name': ranking['seasonTeam']['team']['name'],
+            'abbreviation': ranking['seasonTeam']['team']['name_abbreviated'],
+            'gbo_team': ranking['seasonTeam']['team']['id'],
+            'category': category,
+            'is_dummy': False,
+        }
+        if cup_type == 'is_cup':
+            team_kwargs['season_team_cup_tournament_ranking_id'] = ranking['id']
+            team_kwargs['season_cup_tournament_id'] = tevent.tournament.season_cup_tournament_id
+        elif cup_type == 'is_gc':
+            team_kwargs['season_team_cup_championship_ranking_id'] = ranking['id']
+            team_kwargs['season_cup_german_championship_id'] = tevent.tournament.season_cup_german_championship_id
+        elif cup_type == 'is_sub':
+            team_kwargs['season_team_sub_cup_tournament_ranking_id'] = ranking['id']
+        act_team = Team.objects.create(**team_kwargs)
+    else:
+        # Only update if changed
+        changed = False
+        if act_team.name != ranking['seasonTeam']['team']['name']:
+            act_team.name = ranking['seasonTeam']['team']['name']
+            changed = True
+        if act_team.abbreviation != ranking['seasonTeam']['team']['name_abbreviated']:
+            act_team.abbreviation = ranking['seasonTeam']['team']['name_abbreviated']
+            changed = True
+        if act_team.gbo_team != ranking['seasonTeam']['team']['id']:
+            act_team.gbo_team = ranking['seasonTeam']['team']['id']
+            changed = True
+        if act_team.category != category:
+            act_team.category = category
+            changed = True
+        if act_team.is_dummy:
+            act_team.is_dummy = False
+            changed = True
+        if changed:
+            act_team.save(update_fields=['name', 'abbreviation', 'gbo_team', 'category', 'is_dummy'])
+
+    result['act_team'] = act_team
+
+    if not doPlayersSync:
+        return result
+
+    # Use the provided lists if available, else fallback to ORM
+    if all_players is not None:
+        players = [p for p in all_players if p.team_id == act_team.id]
+    else:
+        players = list(act_team.player_set.all())
+
+    if all_coaches is not None:
+        coaches = [c for c in all_coaches if c.team_id == act_team.id]
+    else:
+        coaches = list(act_team.coach_set.all())
+
+    # --- Sync Coaches ---
+    # Build a dict for fast lookup
+    existing_coaches = { (c.season_coach_id, c.season_team_id): c for c in coaches }
+    incoming_coach_ids = set()
+    coach_bulk_create = []
+    coach_bulk_update = []
+
+    for row in ranking.get('seasonCoachesInTournament', []):
+        if 'seasonCoach' not in row:
+            continue
+        season_coach = row['seasonCoach']
+        key = (season_coach['id'], act_team.season_team_id)
+        incoming_coach_ids.add(key)
+        coach = existing_coaches.get(key)
+        if coach is None:
+            coach = Coach(
+                tournament_event=tevent,
+                team=act_team,
+                name=strip_accents(season_coach['seasonSubject']['subject']['user']['family_name']),
+                first_name=strip_accents(season_coach['seasonSubject']['subject']['user']['name']),
+                gbo_position=season_coach['seasonSubject']['subject']['subjectLevel']['name'],
+                season_team_id=act_team.season_team_id,
+                season_coach_id=season_coach['id']
+            )
+            coach_bulk_create.append(coach)
+        else:
+            updated = False
+            if coach.name != strip_accents(season_coach['seasonSubject']['subject']['user']['family_name']):
+                coach.name = strip_accents(season_coach['seasonSubject']['subject']['user']['family_name'])
+                updated = True
+            if coach.first_name != strip_accents(season_coach['seasonSubject']['subject']['user']['name']):
+                coach.first_name = strip_accents(season_coach['seasonSubject']['subject']['user']['name'])
+                updated = True
+            if coach.gbo_position != season_coach['seasonSubject']['subject']['subjectLevel']['name']:
+                coach.gbo_position = season_coach['seasonSubject']['subject']['subjectLevel']['name']
+                updated = True
+            if updated:
+                coach_bulk_update.append(coach)
+
+    # Delete coaches not in incoming data
+    to_delete_coaches = [c for k, c in existing_coaches.items() if k not in incoming_coach_ids]
+
+    # --- Sync Players ---
+    if doPlayersSync:
+        response = SWS.getSeasonTeam(gbouser, ranking['seasonTeam']['id'])
+        if response and not response[0]['isError']:
+            season_team_data = response[0]['message']
+        else:
+            season_team_data = {'seasonPlayers': []}
+
+        existing_players = { (p.season_player_id, p.season_team_id): p for p in players }
+        incoming_player_ids = set()
+        player_bulk_create = []
+        player_bulk_update = []
+
+        for season_player in season_team_data['seasonPlayers']:
+            key = (season_player['id'], act_team.season_team_id)
+            incoming_player_ids.add(key)
+            player = existing_players.get(key)
+            if player is None:
+                player = Player(
+                    tournament_event=tevent,
+                    team=act_team,
+                    first_name=strip_accents(season_player['seasonSubject']['subject']['user']['name']),
+                    name=strip_accents(season_player['seasonSubject']['subject']['user']['family_name']),
+                    gbo_position=season_player['seasonSubject']['subject']['subjectLevel']['name'],
+                    number=season_player['number'],
+                    season_team_id=act_team.season_team_id,
+                    season_player_id=season_player['id'],
+                    subject_data=season_player['seasonSubject'],
+                )
+                # Parse birthday
+                try:
+                    player.birthday = datetime.strptime(season_player['seasonSubject']['subject']['user']['birthday'], "%Y-%m-%dT%H:%M:%S.%fZ").date()
+                except Exception:
+                    pass
+                # Set is_active
+                player.is_active = any(
+                    ap.get('seasonPlayer', {}).get('id') == season_player['id']
+                    for ap in ranking.get('seasonPlayersInTournament', [])
+                )
+                player_bulk_create.append(player)
+            else:
+                updated = False
+                if player.name != strip_accents(season_player['seasonSubject']['subject']['user']['family_name']):
+                    player.name = strip_accents(season_player['seasonSubject']['subject']['user']['family_name'])
+                    updated = True
+                if player.first_name != strip_accents(season_player['seasonSubject']['subject']['user']['name']):
+                    player.first_name = strip_accents(season_player['seasonSubject']['subject']['user']['name'])
+                    updated = True
+                if player.gbo_position != season_player['seasonSubject']['subject']['subjectLevel']['name']:
+                    player.gbo_position = season_player['seasonSubject']['subject']['subjectLevel']['name']
+                    updated = True
+                if player.number != season_player['number']:
+                    player.number = season_player['number']
+                    updated = True
+                # Parse birthday
+                try:
+                    birthday = datetime.strptime(season_player['seasonSubject']['subject']['user']['birthday'], "%Y-%m-%dT%H:%M:%S.%fZ").date()
+                    if player.birthday != birthday:
+                        player.birthday = birthday
+                        updated = True
+                except Exception:
+                    pass
+                # Set is_active
+                is_active = any(
+                    ap.get('seasonPlayer', {}).get('id') == season_player['id']
+                    for ap in ranking.get('seasonPlayersInTournament', [])
+                )
+                if player.is_active != is_active:
+                    player.is_active = is_active
+                    updated = True
+                if updated:
+                    player_bulk_update.append(player)
+
+        # Delete players not in incoming data
+        to_delete_players = [p for k, p in existing_players.items() if k not in incoming_player_ids]
+
+    # --- Bulk DB Operations ---
+    with transaction.atomic():
+        if coach_bulk_create:
+            Coach.objects.bulk_create(coach_bulk_create)
+        if coach_bulk_update:
+            Coach.objects.bulk_update(coach_bulk_update, ["name", "first_name", "gbo_position"])
+        if to_delete_coaches:
+            Coach.objects.filter(id__in=[c.id for c in to_delete_coaches]).delete()
+
+        if doPlayersSync:
+            if player_bulk_create:
+                Player.objects.bulk_create(player_bulk_create)
+            if player_bulk_update:
+                Player.objects.bulk_update(player_bulk_update, ["name", "first_name", "gbo_position", "number", "is_active", "birthday"])
+            if to_delete_players:
+                Player.objects.filter(id__in=[p.id for p in to_delete_players]).delete()
+
+    return result
+
+def sync_single_team_by_ranking_OLD(ranking, tevent, team_data_django, cup_type, gbouser, doPlayersSync):
     print('team ranking: ' + ranking['seasonTeam']['team']['name'])
     result = {'isError': False, 'msg':''}
     if tevent.category.gbo_category_id != ranking['seasonTeam']['team']['category']['id']:
@@ -1197,6 +1688,92 @@ def sync_single_team_by_ranking(ranking, tevent, team_data_django, cup_type, gbo
     return result
 
 def sync_referees_of_tournament(gbodata, tournament):
+    print('ENTER sync_referees_of_tournament')
+    if (gbodata is None or 
+        'seasonTournament' not in gbodata or
+        'seasonTournamentCriteriaSubjects' not in gbodata['seasonTournament']):
+        print('Insufficient data in sync_referees_of_tournament')
+        return
+    
+    try:
+        # Get all referees in a single query
+        existing_referees = {
+            ref.gbo_subject_id: ref 
+            for ref in Referee.objects.filter(tournament=tournament)
+        }
+        
+        referees_to_create = []
+        referees_to_update = []
+        
+        # Process all entries in a single pass
+        for entry in gbodata['seasonTournament']['seasonTournamentCriteriaSubjects']:
+            if ('seasonSubject' not in entry or
+                not entry['seasonSubject'] or
+                'subject' not in entry['seasonSubject'] or
+                not entry['seasonSubject']['subject'] or
+                'authGroup' not in entry['seasonSubject']['subject'] or
+                not entry['seasonSubject']['subject']['authGroup'] or
+                entry['seasonSubject']['subject']['authGroup'].get('name_code') != 'referee'):
+                continue
+                
+            subject = entry['seasonSubject']['subject']
+            subject_id = subject['id']
+            first_name = subject['user']['name']
+            family_name = subject['user']['family_name']
+            
+            # Create abbreviation once
+            abbr = ''
+            if first_name and family_name:
+                abbr = first_name[0].upper() + family_name[0].upper()
+                
+            if subject_id not in existing_referees:
+                # Create new referee
+                referees_to_create.append(Referee(
+                    tournament=tournament,
+                    abbreviation=abbr,
+                    gbo_subject_id=subject_id,
+                    name=family_name,
+                    first_name=first_name
+                ))
+            else:
+                # Update existing referee
+                referee = existing_referees[subject_id]
+                updated = False
+                
+                if referee.first_name != first_name:
+                    referee.first_name = first_name
+                    updated = True
+                    
+                if referee.name != family_name:
+                    referee.name = family_name
+                    updated = True
+                    
+                if first_name and family_name and referee.abbreviation != abbr:
+                    referee.abbreviation = abbr
+                    updated = True
+                    
+                if updated:
+                    referees_to_update.append(referee)
+        
+        # Perform bulk operations
+        if referees_to_create:
+            Referee.objects.bulk_create(referees_to_create)
+            print(f'Created {len(referees_to_create)} new referees')
+            
+        if referees_to_update:
+            Referee.objects.bulk_update(
+                referees_to_update, 
+                fields=['first_name', 'name', 'abbreviation']
+            )
+            print(f'Updated {len(referees_to_update)} referees')
+
+    except Exception as ex:
+        print(traceback.format_exc())
+
+
+
+
+def sync_referees_of_tournament_OLD(gbodata, tournament):
     print('ENTER sync_referees_of_tournament')
     if gbodata is None:
         print('gbo data none sync_referees_of_tournament')
