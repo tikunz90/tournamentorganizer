@@ -63,7 +63,7 @@ class GameActionSerializer(serializers.ModelSerializer):
 class TeamSerializer(serializers.ModelSerializer):
     class Meta:
         model = Team
-        fields = ('id', 'name')
+        fields = ('id', 'name', 'abbreviation')
 
 
 class PlayerStatsSerializer(serializers.ModelSerializer):

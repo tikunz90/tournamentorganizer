@@ -1,4 +1,5 @@
 from beachhandball_app.api.views.game_report.views import FileUploadView, UploadGameReportViewSet
+from beachhandball_app.api.views.team.views import Team2ViewSet
 from beachhandball_app.models.Team import TeamTournamentResult
 from beachhandball_app.api.views.game.views import game_update_api, game_modal_api
 from django.conf.urls import url
@@ -15,6 +16,7 @@ from rest_framework import routers
 
 router = routers.DefaultRouter()
 router.register(r'games/upload_report/(?P<pk>\d+)', UploadGameReportViewSet, basename="api_games_upload_report")
+router.register(r'teams2', Team2ViewSet)
 
 urlpatterns = [
     path('login_by_token/', login_by_token.LoginByToken.as_view()),

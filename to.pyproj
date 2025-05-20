@@ -520,6 +520,7 @@
     <Content Include="core\static\assets\js\beachhandball\scoreboard_view.js" />
     <Content Include="core\static\assets\js\beachhandball\services\gbo_service.js" />
     <Content Include="core\static\assets\js\beachhandball\services\tournament_service.js" />
+    <Content Include="core\static\assets\js\beachhandball\team_editing.js" />
     <Content Include="core\static\assets\js\core\bootstrap-material-design.min.js" />
     <Content Include="core\static\assets\js\core\jquery.min.js" />
     <Content Include="core\static\assets\js\core\popper.min.js" />

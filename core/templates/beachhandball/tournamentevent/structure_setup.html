@@ -107,65 +107,95 @@
     </ul>
     <div class="tab-content tab-space tab-subcategories">
 
-      {% for stage in tstages_pre %}
+        {% for stage in tstages_pre %}
         {% with link_name = stage.id %}
-          {% if request.GET.tab %}
-              {% if request.GET.tab == stage.id|string %}
-                  <div class="tab-pane active" id={{link_name}}>
-              {% else %}
-                  <div class="tab-pane" id={{link_name}}>
-              {% endif %}
-              {% else %}
-              {% if loop.first %}
-                  <div class="tab-pane active" id={{link_name}}>
-              {% else %}
-                  <div class="tab-pane" id={{link_name}}>
-              {% endif %}
-          {% endif %} 
-              <div class="card">
-              <div class="card-body">
-                  <div class="row">
+        {% if request.GET.tab %}
+        {% if request.GET.tab == stage.id|string %}
+        <div class="tab-pane active" id={{link_name}}>
+            {% else %}
+            <div class="tab-pane" id={{link_name}}>
+                {% endif %}
+                {% else %}
+                {% if loop.first %}
+                <div class="tab-pane active" id={{link_name}}>
+                    {% else %}
+                    <div class="tab-pane" id={{link_name}}>
+                        {% endif %}
+                        {% endif %}
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="row">
 
-                  {% for tstate in stage.tstates_wo_final %}
-                    {% include "beachhandball/tournamentevent/_tournament_state_item.html" %}
-                  {% else %}
-                  <h3>{{ stage.name }}No states exists!</h3>
-                  {% endfor %}
+                                    {% for tstate in stage.tstates_wo_final %}
+                                    {% include "beachhandball/tournamentevent/_tournament_state_item.html" %}
+                                    {% else %}
+                                    <h3>{{ stage.name }}No states exists!</h3>
+                                    {% endfor %}
 
-                  </div>
-              </div>
-              <div class="card-footer">
-                  <button type="button" class="create-tstate btn btn-sm btn-primary" rel="tooltip" title="Create new TournamentState" data-form-url="{{ url('structure_setup.create_tstate', kwargs={'pk_tevent': tevent.id, 'pk_tstage': stage.id}) }}">
-                      <span class="fa fa-plus mr-2"></span> Create State
-                  </button>
-                  <form action="{{ url('structure_setup.tstage_printview', kwargs={'pk_tevent': tevent.id, 'pk': stage.id}) }}" method='GET'>
-                    <button type='submit' class="btn btn-sm btn-primary"><span class="fa fa-print"></span> Open Print View</button>
-                  </form>
-                  <button type="button" class="delete-tstage btn btn-sm btn-danger" rel="tooltip" title="Delete Stage" data-form-url="{{ url('structure_setup.delete_tstage', kwargs={'pk_tevent': tevent.id, 'pk': stage.id}) }}">
-                      <span class="fa fa-trash"></span>
-                  </button>   
-              </div>
-              </div>
-          </div>
-          {% endwith %}
-      {% else %}
-      {% endfor %}
+                                </div>
+                            </div>
+                            <div class="card-footer">
+                                <button type="button" class="create-tstate btn btn-sm btn-primary" rel="tooltip" title="Create new TournamentState" data-form-url="{{ url('structure_setup.create_tstate', kwargs={'pk_tevent': tevent.id, 'pk_tstage': stage.id}) }}">
+                                    <span class="fa fa-plus mr-2"></span> Create State
+                                </button>
+                                <form action="{{ url('structure_setup.tstage_printview', kwargs={'pk_tevent': tevent.id, 'pk': stage.id}) }}" method='GET'>
+                                    <button type='submit' class="btn btn-sm btn-primary"><span class="fa fa-print"></span> Open Print View</button>
+                                </form>
+                                <button type="button" class="delete-tstage btn btn-sm btn-danger" rel="tooltip" title="Delete Stage" data-form-url="{{ url('structure_setup.delete_tstage', kwargs={'pk_tevent': tevent.id, 'pk': stage.id}) }}">
+                                    <span class="fa fa-trash"></span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    {% endwith %}
+                    {% else %}
+                    {% endfor %}
 
-    </div>
-  </div>
-</div>
-<hr>
+                </div>
+            </div>
+        </div>
+        <hr>
 
-<form action="{{ url('team_testdata', kwargs={'pk_tevent': tevent.id}) }}" method='GET'>
-<button type='submit' hidden>Create TestData</button>
-</form>
+        <form action="{{ url('team_testdata', kwargs={'pk_tevent': tevent.id}) }}" method='GET'>
+            <button type='submit' hidden>Create TestData</button>
+        </form>
 
-{% endblock content %}
+        <div class="modal fade" id="editTeamModal" tabindex="-1" role="dialog" aria-labelledby="editTeamModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <form id="editTeamForm">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="editTeamModalLabel">Edit Team</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <input type="hidden" id="editTeamId" name="team_id">
+                            <div class="form-group">
+                                <label for="editTeamName">Name</label>
+                                <input type="text" class="form-control" id="editTeamName" name="name" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="editTeamAbbr">Abbreviation</label>
+                                <input type="text" class="form-control" id="editTeamAbbr" name="abbreviation" required>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                            <button type="submit" class="btn btn-primary">Save</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        {% endblock content %}
 
 
-{% block javascripts %}
+        {% block javascripts %}
 
-<script>
+        <script>
   $(document).ready(function() {
     $("#main-content").LoadingOverlay("hide");
     //var tdata = tournament_service.getData();
@@ -187,7 +217,7 @@
       md.showNotification('top','center', 'Hello', 'info');
     });
     });
-  
+
       $(function () {
 
           // Create tstage synchronous
@@ -205,7 +235,7 @@
             });
           }
           deleteStageModalForm();
-          
+
           // Create tstate synchronous
           function createStateSyncModalForm() {
             $(".create-tstate").each(function () {
@@ -330,21 +360,21 @@
             updateGameResultModalForm();
           }
 
-            
+
           // Hide message
           $(".alert").fadeTo(2000, 500).slideUp(500, function () {
               $(".alert").slideUp(500);
           });
       });
-      
+
       //function modalShowSpinner(){$("#main-content").LoadingOverlay("show");}
 
       const urlParams = new URLSearchParams(window.location.search);
       const tabState = urlParams.get('tab_tstate');
-  
+
       console.log("URL Parameters:", urlParams.toString());
       console.log("Tab State:", tabState);
-  
+
       $('.tstate_item').each(function() {
           // Determine the suffix for the tab ID based on tabState
         let tabSuffix = '_ov'; // default to 'Overview'
@@ -356,20 +386,20 @@
 
         // Generate the correct tab ID
         const tabId = $(this).find('.nav-link:first').attr('href').substring(1).split('_')[0] + tabSuffix;
-  
+
           console.log("Tab ID:", tabId);
-  
+
           const tabLink = $(this).find(`a[href="#${tabId}"]`);
           const tabPane = $(this).find(`#${tabId}`);
-  
+
           console.log("Tab Link:", tabLink);
           console.log("Tab Pane:", tabPane);
-  
+
           if (tabLink.length && tabPane.length) {
               // Remove active classes from other tabs and panes
               $(this).find('.nav-link').removeClass('active');
               $(this).find('.tab-pane').removeClass('active show');
-  
+
               // Add active classes to the selected tab and pane
               tabLink.addClass('active');
               tabPane.addClass('active show');
@@ -400,9 +430,9 @@
             });
         }
     });
-    
 
-  
-</script>
 
-{% endblock javascripts %}
+
+        </script>
+
+        {% endblock javascripts %}
