@@ -857,14 +857,14 @@ def sync_teams_of_game(gbouser, game):
         elif cup_type == 'is_sub':
             sct_id = game.tournament_event.sub_season_cup_tournament_id
 
-        all_players = list(Player.objects.filter(tournament_event=tevent))
-        all_coaches = list(Coach.objects.filter(tournament_event=tevent))
+        all_players = list(Player.objects.filter(tournament_event=game.tournament_event))
+        all_coaches = list(Coach.objects.filter(tournament_event=game.tournament_event))
 
         season_cup_tourn_id_for_dummy = 0;
         for ranking in gbo_data['seasonTeamCupTournamentRankings']:
             if not ranking['id'] in ranking_ids:
                 continue
-            result = sync_single_team_by_ranking(ranking, game.tournament_event, my_team_data, cup_type, gbouser, True, all_players, all_coaches, tevent.category)
+            result = sync_single_team_by_ranking(ranking, game.tournament_event, my_team_data, cup_type, gbouser, True, all_players, all_coaches, game.tournament_event.category)
             if result['isError'] == True:
                 break
     except Exception as ex:
