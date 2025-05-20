@@ -41,7 +41,7 @@ INSTALLED_APPS = [
 
     'authentication',
     'beachhandball_app',  # Enable the inner app 
-    'cup_manager',
+    #'cup_manager',
     #'debug_toolbar'
 ]
 
