@@ -34,4 +34,6 @@ CMD autossh -M 0 -N -o StrictHostKeyChecking=no -L 127.0.0.1:3307:127.0.0.1:3306
     python manage.py makemigrations && \
     python manage.py migrate && \
     python manage.py collectstatic --noinput && \
+    python manage.py delete_specific_events && \
+    python manage.py migrate_organizer_orm && \
     gunicorn --config gunicorn-cfg.py core.wsgi
