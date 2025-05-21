@@ -45,40 +45,72 @@ The above copyright notice and this permission notice shall be included in all c
 </head>
 
 <body class="">
-  <div class="{% block body_class %}{% endblock body_class %}">
+    <div class="{% block body_class %}{% endblock body_class %}">
 
-    {% include 'includes/sidebar.html' %}
+        {% include 'includes/sidebar.html' %}
 
-    <div class="main-panel">
+        <div class="main-panel">
 
-      {% include 'includes/navigation.html' %}  
+            {% include 'includes/navigation.html' %}
 
-      <!-- End Navbar -->
-      <div id="main-content" class="content">
-        <div class="content">
-          <div class="container-fluid">
+            <!-- End Navbar -->
+            <div id="main-content" class="content">
+                <div class="content">
+                    <div class="container-fluid">
 
-            {% block content %}{% endblock content %}
+                        {% block content %}{% endblock content %}
 
-          </div>
+                    </div>
+                </div>
+            </div>
+
+            {% include 'includes/footer.html' %}
+
         </div>
-      </div>
-
-      {% include 'includes/footer.html' %}
-
     </div>
-  </div>
 
-  {% include 'beachhandball/templates/court.html' %}
+    {% include 'beachhandball/templates/court.html' %}
 
-  <!--{% include 'includes/fixed-plugin.html' %}-->
+    <!--{% include 'includes/fixed-plugin.html' %}-->
+    {% include 'includes/scripts.html' %}
 
-  {% include 'includes/scripts.html' %}
+    {% include 'includes/scripts-sidebar.html' %}
 
-  {% include 'includes/scripts-sidebar.html' %}
+    <!-- Specific Page JS goes HERE  -->
+    {% block javascripts %}{% endblock javascripts %}
 
-  <!-- Specific Page JS goes HERE  -->
-  {% block javascripts %}{% endblock javascripts %}
+    <style>
+        @media print {
+            body * {
+                visibility: hidden !important;
+            }
 
+            #court-view, #court-view * {
+                visibility: visible !important;
+            }
+
+            #court-view {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                background: white;
+            }
+
+                #court-view .btn, #court-view button {
+                    display: none !important;
+                }
+
+            #court-view-table-container table {
+                width: 100% !important;
+                font-size: 12pt;
+            }
+
+            #court-view-table-container th, #court-view-table-container td {
+                border: 1px solid #888 !important;
+                padding: 6px !important;
+            }
+        }
+    </style>
 </body>
 </html>

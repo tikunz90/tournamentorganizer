@@ -27,8 +27,212 @@ $(document).ready(function () {
 
   setupRows();
     setupRowClick();
+    renderCourtView();
+
+    $('#print-court-view').on('click', function () {
+        // Check which view is visible
+        const courtView = document.getElementById('court-view');
+        const defaultView = document.getElementById('default-view');
+        if (courtView.style.display !== 'none') {
+            printCourtView();
+        } else if (defaultView.style.display !== 'none') {
+            printTableGames();
+        }
+    });
 
 }); // Closing doc ready
+
+function renderCourtView() {
+    // 1. Gather all games from #table-games
+    let games = [];
+    let courts = [];
+    let courtMap = {};
+    // Get court headers from #table-games
+    $("#table-games thead th").each(function (idx, th) {
+        let col = $(th).data("col");
+        if (col === "court") {
+            // Find all unique courts from the table body
+            $("#table-games tbody tr").each(function () {
+                let courtName = $(this).find(".game-list-court-label").text().trim();
+                let courtId = $(this).find(".game-list-court-td").data("content");
+                if (courtId && !courtMap[courtId]) {
+                    courts.push({ id: courtId, name: courtName });
+                    courtMap[courtId] = true;
+                }
+            });
+        }
+    });
+
+    // Gather game data
+    $("#table-games tbody tr").each(function () {
+        let $row = $(this);
+        let starttime = $row.find("#initial-id_starttime").val();
+        let courtId = $row.find(".game-list-court-td").data("content");
+        let teamA = $row.find("td[data-tag='team_a']").text().trim();
+        let teamB = $row.find("td[data-tag='team_b']").text().trim();
+        let stateColor = $row.find(".btn-small").css("background-color");
+        let stateAbbr = $row.find(".btn-small").text().trim();
+        let category = $row.find("td[data-tag='cat']").text().trim();
+        let gameId = $row.data("content");
+        let res_halftime1 = $row.find("td[data-tag='res_ht1']").text().trim();
+        let res_halftime2 = $row.find("td[data-tag='res_ht2']").text().trim();
+        let res_halftimepenalty = $row.find("td[data-tag='res_p']").text().trim();
+        let sets = $row.find("td[data-tag='sets']").text().trim();
+        let gamestate = $row.find("td[data-tag='gamestate']").text().trim();
+
+        games.push({
+            id: gameId,
+            starttime: starttime,
+            courtId: courtId,
+            teamA: teamA,
+            teamB: teamB,
+            stateColor: stateColor,
+            stateAbbr: stateAbbr,
+            category: category,
+            res_halftime1: res_halftime1,
+            res_halftime2: res_halftime2,
+            res_halftimepenalty: res_halftimepenalty,
+            sets: sets,
+            gamestate: gamestate
+        });
+    });
+
+    // 2. Group games by starttime
+    let grouped = {};
+    games.forEach(game => {
+        if (!grouped[game.starttime]) grouped[game.starttime] = {};
+        grouped[game.starttime][game.courtId] = game;
+    });
+
+    // 3. Sort times and courts
+    let times = Object.keys(grouped).sort();
+    courts.sort((a, b) => a.name.localeCompare(b.name));
+
+    // 4. Build HTML
+    let html = '<table class="table body"><thead class="text-primary"><tr><th class="text-center" style="font-weight: bold;">Time</th>';
+    courts.forEach(court => {
+        html += `<th class="text-center" style="font-weight: bold;">${court.name}</th>`;
+    });
+    html += '</tr></thead><tbody>';
+
+    // Day separator logic
+    let prevDay = null;
+    times.forEach(timeStr => {
+        let dateObj = moment(timeStr, "YYYY-MM-DD HH:mm:ss");
+        let dayStr = dateObj.format("dddd DD.MM.");
+        if (prevDay !== dayStr) {
+            html += `<tr><td class="text-left" colspan="${courts.length + 1}" style="background: #f5f5f5; font-weight: bold;">${dayStr}</td></tr>`;
+            prevDay = dayStr;
+        }
+        html += `<tr><td class="text-center">${dateObj.format("HH:mm")}</td>`;
+        courts.forEach(court => {
+            let game = grouped[timeStr][court.id];
+            if (game) {
+                html += `<td>
+        <table style="width:100%; border: none;">
+            <tr>
+                <td style="vertical-align:top; border:none; padding:0 4px 0 0; text-align:left;">
+                    <div class="btn btn-small" style="background: ${game.stateColor}; margin-bottom:2px;">
+                        ${game.stateAbbr}
+                    </div>
+                    <div style="color:black;">
+                        <b>${game.teamA}</b> vs. <b>${game.teamB}</b>
+                    </div>
+                    <div style="color:black;">
+                        ${game.gamestate}
+                    </div>
+                </td>
+                <td style="vertical-align:top; border:none; padding:0;">
+                    <div style="font-size:90%; color:#333;">
+                        <div>1. ${game.res_halftime1 || ""}</div>
+                        <div>2. ${game.res_halftime2 || ""}</div>
+                        <div>P. ${game.res_halftimepenalty || ""}</div>
+                        <div>Sets ${game.sets || ""}</div>
+                    </div>
+                </td>
+            </tr>
+        </table>
+    </td>`;
+            } else {
+                html += "<td></td>";
+            }
+        });
+        html += "</tr>";
+    });
+    html += "</tbody></table>";
+
+    // 5. Render
+    $("#court-view-table-container").html(html);
+}
+
+function printCourtView() {
+    renderCourtView();
+    var courtView = document.getElementById('court-view').cloneNode(true);
+    var printBtn = courtView.querySelector('#print-court-view');
+    if (printBtn) printBtn.parentNode.removeChild(printBtn);
+
+    var printWindow = window.open('', '', 'width=900,height=700');
+    printWindow.document.write('<html><head><title>Print Court View</title>');
+    printWindow.document.write('<style>');
+    printWindow.document.write('body { font-family: Arial, sans-serif; margin: 20px; }');
+    printWindow.document.write('@media print {');
+    printWindow.document.write('  body { background: white !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }');
+    printWindow.document.write('  table { width: 100%; border-collapse: collapse; }');
+    printWindow.document.write('  th, td { border: 1px solid #888; padding: 6px; }');
+    printWindow.document.write('  .btn, .btn-small { color: #fff !important; font-weight: bold; border-radius: 4px; padding: 2px 6px; display: inline-block; }');
+    printWindow.document.write('  .btn-small { font-size: 90%; }');
+    printWindow.document.write('}');
+    printWindow.document.write('</style>');
+    printWindow.document.write('</head><body>');
+    printWindow.document.write('<h2 style="text-align:center;">Game Plan</h2>');
+    printWindow.document.write(courtView.innerHTML);
+    printWindow.document.write('</body></html>');
+    printWindow.document.close();
+
+    printWindow.onload = function () {
+        printWindow.focus();
+        printWindow.print();
+        printWindow.close();
+    };
+}
+function printTableGames() {
+    // Clone the table-games node
+    var tableGames = document.getElementById('table-games').cloneNode(true);
+
+    // Remove action buttons from the clone (optional)
+    var actionCells = tableGames.querySelectorAll('td.td-actions, th[data-col="actions"]');
+    actionCells.forEach(function (cell) {
+        cell.parentNode.removeChild(cell);
+    });
+
+    // Create a new window for printing
+    var printWindow = window.open('', '', 'width=900,height=700');
+    printWindow.document.write('<html><head><title>Print Game Plan</title>');
+    printWindow.document.write('<style>');
+    printWindow.document.write('body { font-family: Arial, sans-serif; margin: 20px; }');
+    printWindow.document.write('@media print {');
+    printWindow.document.write('  body { background: white !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }');
+    printWindow.document.write('  table { width: 100%; border-collapse: collapse; }');
+    printWindow.document.write('  th, td { border: 1px solid #888; padding: 6px; }');
+    printWindow.document.write('  .btn, .btn-small { color: #fff !important; font-weight: bold; border-radius: 4px; padding: 2px 6px; display: inline-block; }');
+    printWindow.document.write('  .btn-small { font-size: 90%; }');
+    printWindow.document.write('}');
+    printWindow.document.write('</style>');
+    printWindow.document.write('</head><body>');
+    printWindow.document.write('<h2 style="text-align:center;">Game Plan</h2>');
+    printWindow.document.write('<div style="width:100%;">');
+    printWindow.document.write(tableGames.outerHTML);
+    printWindow.document.write('</div>');
+    printWindow.document.write('</body></html>');
+    printWindow.document.close();
+
+    // Wait for content to load, then print and close
+    printWindow.onload = function () {
+        printWindow.focus();
+        printWindow.print();
+        printWindow.close();
+    };
+}
 
 function setupRows() {
   $("#table-games")
@@ -439,7 +643,52 @@ function postUpdateGameDateTime(game_id, new_datetime) {
       var order = table.order([1, "asc"]);
       $("#table-games").filterTable("#games-filter");
       clearCssSelectedRow();
-      doRowColoring();
+        doRowColoring();
+
+
+        // --- Update court-view table ---
+        // Format new time and day
+        var newDate = moment(response.new_datetime, "YYYY-MM-DD HH:mm:ss");
+        var newTime = newDate.format("HH:mm");
+        var newDay = newDate.format("dddd DD.MM.");
+
+        // Find the court-view table
+        var $courtTable = $("#court-view table.body");
+        if ($courtTable.length) {
+            // Find the row for the new time (by first column text)
+            var $rows = $courtTable.find("tbody tr");
+            var foundRow = null;
+            $rows.each(function () {
+                var $firstTd = $(this).find("td").first();
+                if ($firstTd.text().trim() === newTime) {
+                    foundRow = $(this);
+                    return false; // break
+                }
+            });
+
+            // If not found, optionally create a new row (not shown here)
+            if (foundRow) {
+                // Find the correct court column
+                var courtIdx = $courtTable.find("thead th").filter(function () {
+                    return $(this).text().includes(response.court_name || response.court_id);
+                }).index();
+
+                // If you know the court index (e.g. court_id is 2nd court), you can use it directly:
+                // courtIdx = ... (calculate based on your courts order)
+
+                // Update the cell content
+                var $td = foundRow.find("td").eq(courtIdx);
+                // You may want to update with new info, e.g. teams, state, etc.
+                $td.html(
+                    '<div class="btn btn-small" style="background: ' + (response.state_color || "#ccc") + '">' +
+                    (response.state_abbr ? response.state_abbr : "") +
+                    '</div>' +
+                    '<div style="color:black;">' +
+                    (response.team_a || "") + ' vs ' + (response.team_b || "") +
+                    '</div>'
+                );
+            }
+        }
     },
     complete: function () {
       console.debug("complete");

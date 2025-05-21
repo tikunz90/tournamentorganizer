@@ -224,9 +224,18 @@
     </div>
 </div>
 
-<div class="row">
-    <div class="col-12 text-right">
-        <button id="toggle-view-button" class="btn btn-secondary">Switch to Court View</button>
+<div class="row mb-2">
+    <div class="d-flex justify-content-between align-items-center w-100">
+        <div>
+            <button id="toggle-view-button" class="btn btn-secondary">
+                Switch to Court View
+            </button>
+        </div>
+        <div>
+            <button id="print-court-view" class="btn btn-secondary" title="Print a clean version of the court view for paper or PDF">
+                <i class="material-icons">print</i>
+            </button>
+        </div>
     </div>
 </div>
 
@@ -259,25 +268,25 @@
                                 {% for game in games %}
                                 <tr class="game-row" data-content="{{ game.id }}">
                                     <td hidden data-content="{{ game.tournament_event.id }}">{{ game.tournament_event.id }}</td>
-                                    <td id="game-list-td-id-{{ game.id }}" data-content="datetime" class="game-list-datetime-td">
+                                    <td id="game-list-td-id-{{ game.id }}" data-tag="gamedate" data-content="datetime" class="game-list-datetime-td">
                                         <div id="id_starttime_label" class="game-list-datetime-label">{{ game.starttime.strftime('%d.%m.') }}</div>
                                         <div class="game-list-datetime-input" hidden>
                                             <input id="id_starttime" data-game_id="{{ game.id }}" class="game-list-datetime form-control datetimepicker" type="text" name="starttime" value="{{ game.starttime }}">
                                             <input id="initial-id_starttime" type="hidden" class="game-list-datetime-init" name="initial-starttime" value="{{ game.starttime }}">
                                         </div>
                                     </td>
-                                    <td id="{{ game.id }}_gametime" class="text-center" data-content="{{ game.id }}">{{ game.starttime.strftime('%H:%M') }}</td>
-                                    <td id="game_id_counter" class="text-center" data-content="{{ game.id }}">{{ game.id_counter }}</td>
-                                    <td class="text-center" data-content="{{ game.tournament_event.category }}">{{ game.tournament_event.category }}</td>
-                                    <td class="text-center" data-content="{{ game.tournament_state.id }}">
+                                    <td id="{{ game.id }}_gametime" class="text-center" data-tag="gametime" data-content="{{ game.id }}">{{ game.starttime.strftime('%H:%M') }}</td>
+                                    <td id="game_id_counter" class="text-center" data-tag="game_counter" data-content="{{ game.id }}">{{ game.id_counter }}</td>
+                                    <td class="text-center" data-tag="cat" data-content="{{ game.tournament_event.category }}">{{ game.tournament_event.category }}</td>
+                                    <td class="text-center" data-tag="tstate_id" data-content="{{ game.tournament_state.id }}">
                                         <div class="btn btn-small" style="background: {{ game.tournament_state.color }}">
                                             <a href="{{ url('structure_setup.detail', kwargs={'pk': game.tournament_event.id }) }}" style="color:white;"><b>{{ game.tournament_event.category.abbreviation }} {{ game.tournament_state.abbreviation }}</b>
                                         </div>
 
                                     </td>
-                                    <td class="text-center" data-content="{{ game.team_st_a.team }}">{% if game.team_st_a.id == game.winner %}<button class="btn btn-outline-info"><i class="material-icons">emoji_events</i><b>{{ game.team_st_a.team }}</b></button>{% else %}{{ game.team_st_a.team }}{% endif %}</td>
-                                    <td class="text-center" data-content="{{ game.team_st_b.team }}">{% if game.team_st_b.id == game.winner %}<button class="btn btn-outline-info"><i class="material-icons">emoji_events</i><b>{{ game.team_st_b.team }}</b></button></b>{% else %}{{ game.team_st_b.team }}{% endif %}</td>
-                                    <td id="game-list-td-court-{{ game.id }}" class="game-list-court-td text-center" data-content="{{ game.court.id }}">
+                                    <td class="text-center" data-tag="team_a" data-content="{{ game.team_st_a.team.name }}">{% if game.team_st_a.id == game.winner %}<button class="btn btn-outline-info"><i class="material-icons">emoji_events</i><b>{{ game.team_st_a.team.name }}</b></button>{% else %}{{ game.team_st_a.team.name }}{% endif %}</td>
+                                    <td class="text-center" data-tag="team_b" data-content="{{ game.team_st_b.team.name }}">{% if game.team_st_b.id == game.winner %}<button class="btn btn-outline-info"><i class="material-icons">emoji_events</i><b>{{ game.team_st_b.team.name }}</b></button>{% else %}{{ game.team_st_b.team.name }}{% endif %}</td>
+                                    <td id="game-list-td-court-{{ game.id }}" class="game-list-court-td text-center" data-tag="court" data-content="{{ game.court.id }}">
                                         <div class="game-list-court-label">{{ game.court.name }} ({{ game.court.number}})</div>
                                         <div class="game-list-court-select" data-game_id="{{ game.id }}" hidden>
                                             <select class="selectpicker" title="Select Court..." data-game_id="{{ game.id }}">
@@ -287,14 +296,14 @@
                                             </select>
                                         </div>
                                     </td>
-                                    <td id="{{ game.id }}_result_ht1" class="text-center" data-content="result_ht1">{{ game.score_team_a_halftime_1 }}:{{ game.score_team_b_halftime_1 }}</td>
-                                    <td id="{{ game.id }}_result_ht2" class="text-center" data-content="result_ht2">{{ game.score_team_a_halftime_2 }}:{{ game.score_team_b_halftime_2 }}</td>
-                                    <td id="{{ game.id }}_result_p" class="text-center" data-content="result_p">{{ game.score_team_a_penalty }}:{{ game.score_team_b_penalty }}</td>
-                                    <td class="text-center" data-content="sets">{{ game.setpoints_team_a }}:{{ game.setpoints_team_b }}</td>
-                                    <td id="{{ game.id }}_refs" class="text-center" data-content="refs">
+                                    <td id="{{ game.id }}_result_ht1" class="text-center" data-tag="res_ht1" data-content="result_ht1">{{ game.score_team_a_halftime_1 }}:{{ game.score_team_b_halftime_1 }}</td>
+                                    <td id="{{ game.id }}_result_ht2" class="text-center" data-tag="res_ht2" data-content="result_ht2">{{ game.score_team_a_halftime_2 }}:{{ game.score_team_b_halftime_2 }}</td>
+                                    <td id="{{ game.id }}_result_p" class="text-center" data-tag="res_p" data-content="result_p">{{ game.score_team_a_penalty }}:{{ game.score_team_b_penalty }}</td>
+                                    <td class="text-center" data-tag="sets" data-content="sets">{{ game.setpoints_team_a }}:{{ game.setpoints_team_b }}</td>
+                                    <td id="{{ game.id }}_refs" class="text-center" data-tag="refs" data-content="refs">
                                         {{ game.ref_a.abbreviation|default('-') }} / {{ game.ref_b.abbreviation|default('-') }}
                                     </td>
-                                    <td id="{{ game.id }}_gamestate" class="text-center" data-content="{{ game.gamestate }}">{{ game.gamestate }}</td>
+                                    <td id="{{ game.id }}_gamestate" class="text-center" data-tag="gamestate" data-content="{{ game.gamestate }}">{{ game.gamestate }}</td>
                                     <td class="td-actions text-right" data-content="">
                                         <button type="button" class="update_game btn btn-primary btn-sm"
                                                 data-id="{{ game.id }}"
@@ -303,7 +312,7 @@
                                                 data-pk-tstage="{{ game.tournament_state.tournament_stage.id }}">
                                             <i class="material-icons">edit</i>
                                         </button>
-    
+
                                         <button type="button" rel="tooltip" class="download-pregame-report btn btn-info btn-link" rel="tooltip" title="Download Pre-Game Report" data-form-url="{{ url('download_pre_game', kwargs={'pk_tevent':game.tournament_event.id, 'pk_tstage': game.tournament_state.tournament_stage.id, 'pk':  game.id}) }}" data-list-url="{{ url('game_plan') }}">
                                             <a class="" href="{{ url('download_pre_game', kwargs={'pk_tevent':game.tournament_event.id, 'pk_tstage': 1, 'pk':  game.id}) }}">
                                                 <i class="material-icons">file_download</i>
@@ -313,8 +322,8 @@
                                             <i class="material-icons">assignment</i>
                                         </button>
                                         <!--button type="button" rel="tooltip" class="delete-game btn btn-danger btn-link" rel="tooltip" title="Delete Game"  data-form-url='{{ url("structure_setup.delete_game", kwargs={"pk_tevent":game.tournament_event.id, "pk_tstage": game.tournament_state.tournament_stage.id, "pk":  game.id}) }}' onclick="modalShowSpinner();" >
-                                            <i class="material-icons">close</i>
-                                        </button-->
+                                <i class="material-icons">close</i>
+                            </button-->
                                     </td>
                                 </tr>
                                 {% endfor %}
@@ -325,38 +334,10 @@
                 </div>
 
                 <div id="court-view" style="display: none;">
-                    <table class="table body">
-                        <thead class="text-primary">
-                            <tr>
-                                {% for court in courts %}
-                                <th class="text-center">{{ court.name }}</th>
-                                {% endfor %}
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for time in games|groupby('starttime') %}
-                            <tr>
-                                {% for court in courts %}
-                                <td>
-                                    {% for game in games %}
-                                    {% if game.court.id == court.id and game.starttime == time.grouper %}
-                                    <div class="btn btn-small" style="background: {{ game.tournament_state.color }}">
-                                        <a href="{{ url('structure_setup.detail', kwargs={'pk': game.tournament_event.id }) }}" style="color:white;"></a>{{ game.tournament_event.category.abbreviation }} {{ game.tournament_state.abbreviation }}
-                                    </div>
-                                    <div style="color:black;">
-                                        {{ game.team_st_a.team }} vs {{ game.team_st_b.team }}
-                                    </div>
+                    
 
-                                    {% endif %}
-                                    {% endfor %}
-                                </td>
-                                {% endfor %}
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
+                    <div id="court-view-table-container"></div>
                 </div>
-
             </div>
             <div class="card-footer">
             </div>
@@ -395,21 +376,26 @@
         md.showNotification('top','center', '{{ message }}', 'info');
         {% endfor %}
         {% endif %}
+
+
+        document.getElementById('toggle-view-button').addEventListener('click', function () {
+            const defaultView = document.getElementById('default-view');
+            const courtView = document.getElementById('court-view');
+            if (defaultView.style.display === 'none') {
+                defaultView.style.display = '';
+                courtView.style.display = 'none';
+                this.textContent = 'Switch to Court View';
+            } else {
+                
+                defaultView.style.display = 'none';
+                courtView.style.display = '';
+                this.textContent = 'Switch to Edit View';
+            }
+            renderCourtView();
+        });
     });
 
-      document.getElementById('toggle-view-button').addEventListener('click', function () {
-          const defaultView = document.getElementById('default-view');
-          const courtView = document.getElementById('court-view');
-          if (defaultView.style.display === 'none') {
-              defaultView.style.display = '';
-              courtView.style.display = 'none';
-              this.textContent = 'Switch to Court View';
-          } else {
-              defaultView.style.display = 'none';
-              courtView.style.display = '';
-              this.textContent = 'Switch to Default View';
-          }
-      });
+      
 </script>
 
 {% endblock javascripts %}
