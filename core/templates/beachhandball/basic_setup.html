@@ -267,7 +267,14 @@
     //courts.data.forEach(function(item, index){
     //  bh.addCourtHTML(item);
     //});
-    md.initFormExtendedDatetimepickers();
+      //md.initFormExtendedDatetimepickers();
+      flatpickr('.datetimepicker', {
+          enableTime: true,
+          dateFormat: "Y-m-d H:i:S",
+          time_24hr: true,
+          allowInput: true,
+          locale: "de" // Remove or change if you want a different locale
+      });
     var userDate = $("#id_first_game_slot" )[0].attributes.value.value
     if(moment(userDate, "MM/DD/YYYY HH:mm").format("MM/DD/YYYY HH:mm") !== userDate)
     {

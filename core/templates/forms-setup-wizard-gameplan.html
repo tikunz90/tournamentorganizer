@@ -261,7 +261,14 @@
 <script>
   $(document).ready(function() {
     console.log("Wizard GamePlan Loaded");
-    md.initFormExtendedDatetimepickers();
+      //md.initFormExtendedDatetimepickers();
+      flatpickr('.datetimepicker', {
+          enableTime: true,
+          dateFormat: "Y-m-d H:i:S",
+          time_24hr: true,
+          allowInput: true,
+          locale: "de" // Remove or change if you want a different locale
+      });
     bh.tournamentData = JSON.parse(document.getElementById('tournament-data').getAttribute('data-json'));
     console.log("bh.tournamentData=" + bh.tournamentData);
     bh.wzUpdateGamePlan();

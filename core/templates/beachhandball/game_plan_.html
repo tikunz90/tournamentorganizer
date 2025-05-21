@@ -177,7 +177,14 @@ function loadJson(selector) {
           });
       //});
 
-      md.initFormExtendedDatetimepickers();
+        //md.initFormExtendedDatetimepickers();
+        flatpickr('.datetimepicker', {
+            enableTime: true,
+            dateFormat: "Y-m-d H:i:S",
+            time_24hr: true,
+            allowInput: true,
+            locale: "de" // Remove or change if you want a different locale
+        });
       $.fn.dataTable.moment( 'HH:mm (DD.MM.YYYY)' );
 
       var table = $('#table-games').DataTable({

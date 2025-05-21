@@ -12,14 +12,22 @@ $(document).ready(function () {
   setupExportButtons();
   setupAddMinutesButton();
 
-  md.initFormExtendedDatetimepickers();
+    //md.initFormExtendedDatetimepickers();
+    flatpickr('.datetimepicker', {
+        enableTime: true,
+        dateFormat: "Y-m-d H:i:S",
+        time_24hr: true,
+        allowInput: true,
+        locale: "de" // Remove or change if you want a different locale
+    });
   $.fn.dataTable.moment("HH:mm (DD.MM.YYYY)");
 
   setupDatetime();
   setupTable();
 
   setupRows();
-  setupRowClick();
+    setupRowClick();
+
 }); // Closing doc ready
 
 function setupRows() {
@@ -286,9 +294,10 @@ $(".game-list-datetime").on("keyup", function (e) {
   if (code === "Enter") e.preventDefault();
   if (code === " " || code === "Enter" || code === "," || code === ";") {
     var game_id = $(this).data("game_id");
-    var date_string = moment($(this).val(), "MM/DD/YYYY HH:mm").format(
-      "YYYY-MM-DD HH:mm:ss"
-    );
+    var date_string = moment(
+        $(this).val(),
+        ["YYYY-MM-DD HH:mm:ss", "YYYY-MM-DD HH:mm", "MM/DD/YYYY HH:mm"]
+    ).format("YYYY-MM-DD HH:mm:ss");
     var data = postUpdateGameDateTime(game_id, date_string);
     $(this).closest(".game-list-datetime-input").first().attr("hidden", true);
     var close = $(this)

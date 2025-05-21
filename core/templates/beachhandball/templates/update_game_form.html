@@ -51,7 +51,14 @@
   $(document).ready(function() {
     $("#main-content").LoadingOverlay("hide");
     // initialise Datetimepicker and Sliders
-    md.initFormExtendedDatetimepickers();
+      //md.initFormExtendedDatetimepickers();
+      flatpickr('.datetimepicker', {
+          enableTime: true,
+          dateFormat: "Y-m-d H:i:S",
+          time_24hr: true,
+          allowInput: true,
+          locale: "de" // Remove or change if you want a different locale
+      });
 
     // Repair DateTime Form because datetimepicker.min.js deletes input value on load
     var userDate = $("#id_starttime" )[0].attributes.value.value
