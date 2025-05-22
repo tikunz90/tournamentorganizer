@@ -432,6 +432,34 @@
     });
 
 
+            function setTabPaneSize() {
+                var maxWidth = 0;
+                var maxHeight = 0;
+                // Temporarily show all tab-panes to measure their size
+                $('.page-categories .tab-pane').each(function () {
+                    var wasActive = $(this).hasClass('active') || $(this).hasClass('show');
+                    $(this).addClass('show active');
+                    var w = $(this).outerWidth();
+                    var h = $(this).outerHeight();
+                    if (!wasActive) $(this).removeClass('show active');
+                    if (w > maxWidth) maxWidth = w;
+                    if (h > maxHeight) maxHeight = h;
+                });
+                // Set all tab-panes and their .card-body to the max width/height
+                $('.page-categories .tab-pane').css({
+                    'min-width': maxWidth + 'px',
+                    'min-height': maxHeight + 'px'
+                });
+                $('.page-categories .tab-pane .card-body .card').css({
+                    'min-width': maxWidth + 'px',
+                    'min-height': maxHeight + 'px'
+                });
+            }
+
+            // Run on page load, when a tab is shown, and on window resize
+            setTabPaneSize();
+            $('.page-categories .nav-link').on('shown.bs.tab', setTabPaneSize);
+            $(window).on('resize', setTabPaneSize);
 
         </script>
 

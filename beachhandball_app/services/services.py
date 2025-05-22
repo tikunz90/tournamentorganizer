@@ -66,13 +66,21 @@ class SWS():
     def getSeasonActiveAll():
         endpoint = '/gbo/seasons/active'
         headers = SWS.headers
-        #headers['Authorization'] = 'Bearer {}'.format(gbo_user.token)
-        response = requests.get(SWS.base_url + endpoint, headers=headers, verify=conf_settings.SWS_VERIFY_SSL)
-        act_season = ''
-        if response.json()['isError'] is not True:
-            act_season = response.json()['message']
-        else:
-            act_season = {'isError': True}
+        try:
+            response = requests.get(
+                SWS.base_url + endpoint,
+                headers=headers,
+                verify=conf_settings.SWS_VERIFY_SSL,
+                timeout=10
+            )
+            if response.status_code in (200, 201) and response.json().get('isError') is not True:
+                act_season = response.json().get('message')
+            else:
+                act_season = {'isError': True, 'status_code': response.status_code}
+        except requests.exceptions.Timeout:
+            act_season = {'isError': True, 'error': 'Request timed out'}
+        except requests.exceptions.RequestException as e:
+            act_season = {'isError': True, 'error': str(e)}
         return act_season
 
     @staticmethod

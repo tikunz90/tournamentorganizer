@@ -31,6 +31,17 @@ def login_view(request):
     begin_func = time.time()
 
     seasons = SWS.getSeasonActiveAll()
+    # Check for error in seasons response
+    if isinstance(seasons, dict) and seasons.get('isError'):
+        msg = "Error fetching active seasons from server."
+        # Optionally, include status code in the message for debugging
+        if 'status_code' in seasons:
+            msg += f" (Status code: {seasons['status_code']})"
+        form = LoginForm(request.POST or None, seasons=[])
+        execution_time_func = time.time() - begin_func
+        print('Login execution_time = ' + str(execution_time_func))
+        return render(request, "accounts/login.html", {"form": form, "msg": msg, "season": ''})
+
     update_active_seasons(seasons)
     form = LoginForm(request.POST or None, seasons=seasons)
 

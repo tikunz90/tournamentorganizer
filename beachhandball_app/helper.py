@@ -621,7 +621,7 @@ def sync_teams_of_tevent(gbouser, tevent):
         seen_team_ids = set()
 
         for ranking in gbo_data['seasonTeamCupTournamentRankings']:
-            if  ranking['seasonTeam']['team']['category']['gender']['id'] != tevent.category.gbo_category_id:
+            if  ranking['seasonTeam']['team']['category']['id'] != tevent.category.gbo_category_id:
                 continue
             team = team_map.get(ranking['id'])
             if not team:
