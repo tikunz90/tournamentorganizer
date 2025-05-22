@@ -431,7 +431,10 @@ def create_state_from_group(stage, tevent, tstate_choice, gr, color, name, abbr,
 def handle_transitions_ko(state, trans, team_stats, tttLastState):
                    
     for tstat in team_stats:
-        actTrans = [tr for tr in trans if tr["target_rank"] == tstat.rank][0]
+        filtered_trans = [tr for tr in trans if tr["target_rank"] == tstat.rank]
+        if not filtered_trans:
+            continue
+        actTrans = filtered_trans[0]
         actTTT = [tr for tr in tttLastState[actTrans["origin_group_id"]] if tr.origin_rank == actTrans["origin_rank"]][0]
         actTTT.target_ts_id = state
         tstat.name_table = '{}. {}'.format(actTTT.origin_rank, actTTT.origin_ts_id)
