@@ -38,7 +38,6 @@ function swapGameRows(row_src, row_tgt) {
 
   var date_string_src = moment(
     $(row_src).find("#id_starttime")[0].value,
-    "MM/DD/YYYY HH:mm"
   ).format("YYYY-MM-DD HH:mm:ss");
   var date_string_tgt = moment(
     $(row_tgt).find("#id_starttime")[0].value,
