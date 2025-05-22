@@ -7,251 +7,271 @@
 
 {% block content %}
 
-  <div class="col-md-12 col-12 mr-auto ml-auto">
+<div class="col-md-12 col-12 mr-auto ml-auto">
     <!--      Wizard container        -->
     <div class="wizard-container">
-      <div class="card card-wizard" data-color="rose" id="wizardProfile">
-        <form action={{ url('setup_wizard_gameplan') }} method="post">
-          <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
-          <input type="hidden" name="gameplan-data-all-games" id="wz-gameplan-data-all-games" value="">
-          <input type="hidden" name="gameplan-data-gamedays" id="wz-gameplan-data-gamedays" value="">
-          <input type="hidden" name="gameplan-data-num-courts" id="wz-gameplan-data-num-courts" value="">
-          <!--        You can switch " data-color="primary" "  with one of the next bright colors: "green", "orange", "red", "blue"       -->
-          <div class="card-header text-center">
-            <h3 class="card-title">
-              GamePlan Wizard for {{ tourn }}
-            </h3>
-            <h5 class="card-description">This information will create basic game schedule.</h5>
-          </div>
-          <div class="wizard-navigation">
-            <ul class="nav nav-pills">
-              <li class="nav-item">
-                <a class="nav-link active" href="#tabStart" data-toggle="tab" role="tab">
-                  Start
-                </a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="#tabResult" data-toggle="tab" role="tab">
-                  Result
-                </a>
-              </li>
-            </ul>
-          </div>
-          <div class="card-body">
-            <div class="tab-content">
-
-              <div class="tab-pane active" id="tabStart">
-                <h3 class="info-text"> Let's start with setting up your tournament</h3>
-                
-                <div class="row">
-                  <div class="col-md">
-                    <h4 class="info-text">Select time of your first game round.</h4>
-                    <div class="input-group form-control-lg">
-                      <div class="input-group-prepend">
-                        <span class="input-group-text">
-                          <i class="material-icons">schedule</i>
-                        </span>
-                      </div>
-                      <div class="form-group">
-                        <label class="form-label">datetime of first game</label>
-                        <input type="text" name="gameplan-data-datetime-firstgame" id="wzgp-GameDays_DateTimeFirstGame" class="input_group form-control datetimepicker" value="{{tournament_settings.first_game_slot}}" data-content="{{tournament_settings.first_game_slot}}">
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <div class="col-md">
-                    <h4 class="info-text">How many courts you want to use on your tournament?</h4>
-                    <div class="input-group form-control-lg">
-                      <div class="input-group-prepend">
-                        <span class="input-group-text">
-                          <i class="material-icons">dashboard</i>
-                        </span>
-                      </div>
-                      <div class="form-group">
-                        <label class="form-label">number of courts</label>
-                        <input type="number" name="num_courts" id="wzgp-num_courts" class="input_group form-control" value="{{num_courts}}" min="1" max="64" required>
-                      </div>
-                      <h5 class="info-text">Choose minimum 1 and maximum 64 courts</h5>
-                    </div>
-                  </div>
-
-                  <div class="col-md">
-                    <h4 class="info-text">Define timeslot per round in minutes</h4>
-                    <div class="input-group form-control-lg">
-                      <div class="input-group-prepend">
-                        <span class="input-group-text">
-                          <i class="material-icons">watch</i>
-                        </span>
-                      </div>
-                      <div class="form-group">
-                        <label class="form-label">minutes per game</label>
-                        <input type="number" name="gameplan-data-minutes-per-game" id="wzgp-time-slot" class="input_group form-control" value="{{tournament_settings.game_slot_mins}}" min="20" max="60" required>
-                      </div>
-                      <h5 class="info-text">Choose minimum 20 and maximum 60 minutes</h5>
-                    </div>
-                  </div>
+        <div class="card card-wizard" data-color="rose" id="wizardProfile">
+            <form action={{ url('setup_wizard_gameplan') }} method="post">
+                <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+                <input type="hidden" name="gameplan-data-all-games" id="wz-gameplan-data-all-games" value="">
+                <input type="hidden" name="gameplan-data-gamedays" id="wz-gameplan-data-gamedays" value="">
+                <input type="hidden" name="gameplan-data-num-courts" id="wz-gameplan-data-num-courts" value="">
+                <!--        You can switch " data-color="primary" "  with one of the next bright colors: "green", "orange", "red", "blue"       -->
+                <div class="card-header text-center">
+                    <h3 class="card-title">
+                        GamePlan Wizard for {{ tourn }}
+                    </h3>
+                    <h5 class="card-description">This information will create basic game schedule.</h5>
                 </div>
-                
-                
-                <div class="row justify-content-center" id="wzgp-events-total">
-                </div>
-
-              </div>
-              
-              <div class="tab-pane" id="tabResult">
-                <h5 class="info-text">Here are the game days. You can change the individual start and end times of each day.</h5>
-                <p>If you are happy with it, push CREATE button in the low right corner.</p>
-                
-                <div class="row">
-                </div>
-                <div class="row justify-content-center" id="wzgp-gamedays">
-                </div>
-
-              </div>
-            </div>
-          </div>
-          <div class="card-footer">
-            <div class="mr-auto">
-              <input type="button" class="btn btn-previous btn-fill btn-default btn-wd disabled" name="previous" value="Previous">
-            </div>
-            <div class="ml-auto">
-              <input type="button" class="btn btn-next btn-fill btn-rose btn-wd" name="next" value="Next">
-              <input type="submit" class="btn btn-finish btn-fill btn-rose btn-wd" name="finish" value="Create" style="display: none;">
-            </div>
-            <div class="clearfix"></div>
-          </div>
-
-          <div id="templateGroup" class="col-md-3 mb-2" hidden>
-            <div class="card shadow-lg">
-              <span id="templateGroup_name" class="badge rounded-pill bg-secondary text-light w-30 mt-n2 mx-auto">Group C</span>
-              <div id="templateGroup_body" class="card-body pt-0">              
-                <div class="row justify-content-center mx-auto">
-                  <span class="badge rounded-pill bg-info text-light m-1">1. Team</span>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div id="templateTeamItem" class="row justify-content-center mx-auto" hidden>
-            <span id="templateTeamItem_icon" class="material-icons">arrow_upward</span>
-            <span id="templateTeamItem_rank" class="badge rounded-pill bg-dark text-light text-bold m-1" hidden></span>
-            <span id="templateTeamItem_name" class="badge rounded-pill bg-light text-dark m-1">1. Team</span>
-          </div>
-
-
-          <div id="templateEvent_total_games" class="row justify-content-center" hidden>
-            <div class="col">
-              <div class="input-group form-control-lg">
-                <div class="input-group-prepend">
-                  <span class="input-group-text">
-                    <i class="material-icons">numbers</i>
-                  </span>
-                </div>
-
-                <div class="form-group">
-                  <label id="template_name" class="form-label font-weight-bold">Resulting number of games</label>
-                  <div class="table-responsive">
-                    <table id="wzgp-table-gamecounts" class="table align-items-center mb-0">
-                      <thead>
-                        <tr>
-                          <th class="text-primary" scope="col">Total</th>
-                          <th class="text-primary" scope="col">Group-Stage</th>
-                          <th class="text-primary" scope="col">Knockout-Stage</th>
-                          <th class="text-primary" scope="col">Placement</th>
-                          <th class="text-primary" scope="col">Final</th>
-                          <th class="text-primary" scope="col">Exp. time</th>
-                          <th class="text-primary" scope="col">Estimated #GameDays</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        <tr>
-                          <td>
-                            <input type="number" id="wz-res_num_of_games_total" class="input_group form-control input-lg text-primary text-xxs font-weight-bold opacity-3 ps-2" value="0" disabled>
-                          </td>
-                          <td>
-                            <input type="number" id="wz-res_num_of_games_group" class="input_group form-control" value="0" disabled>
-                          </td>
-                          <td>
-                            <input type="number" id="wz-res_num_of_games_ko" class="input_group form-control" value="0" disabled>
-                          </td>
-                          <td>
-                            <input type="number" id="wz-res_num_of_games_placement" class="input_group form-control" value="0" disabled>
-                          </td>
-                          <td>
-                            <input type="number" id="wz-res_num_of_games_final" class="input_group form-control" value="0" disabled>
-                          </td>
-                          <td>
-                            <span id="wz-res_time"></span>
-                          </td>
-                          <td>
-                            <span id="wz-res_est_gamedays"></span>
-                          </td>
-                          
-                        </tr>
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-              </div>
-
-            </div>
-          </div>
-
-          <div id="templateGameDay" class="col-md-3" hidden>
-            <div class="card">
-                <div class="card-header card-header-icon">
-                    <div class="card-icon">
-                        <i class="material-icons">event</i>
-                    </div>
-                    <h4 id="templateGameDay_title" class="card-title">Day 2</h4>
+                <div class="wizard-navigation">
+                    <ul class="nav nav-pills">
+                        <li class="nav-item">
+                            <a class="nav-link active" href="#tabStart" data-toggle="tab" role="tab">
+                                Start
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#tabResult" data-toggle="tab" role="tab">
+                                Result
+                            </a>
+                        </li>
+                    </ul>
                 </div>
                 <div class="card-body">
-                  <div class="row">
-                    <h5 id="template_info" class="card-title">Day 2</h5>
-                  </div>
-                  <div class="row">
-                    <div class="col-md">
-                      <h4>First Game:</h4>
-                      <input type="number" name="timeFirst_h" id="timeFirst_h" class="" value="8" min="0" max="23">
-                      <input type="number" name="timeFirst_m" id="timeFirst_m" class="" value="0" min="0" max="59">
+                    <div class="tab-content">
+
+                        <div class="tab-pane active" id="tabStart">
+                            <h3 class="info-text"> Let's start with setting up your tournament</h3>
+
+                            <div class="row">
+                                <div class="col-md">
+                                    <h4 class="info-text">Select time of your first game round.</h4>
+                                    <div class="input-group form-control-lg">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text">
+                                                <i class="material-icons">schedule</i>
+                                            </span>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="form-label">datetime of first game</label>
+                                            <input type="text" name="gameplan-data-datetime-firstgame" id="wzgp-GameDays_DateTimeFirstGame" class="input_group form-control datetimepicker" value="{{tournament_settings.first_game_slot}}" data-content="{{tournament_settings.first_game_slot}}">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-md">
+                                    <h4 class="info-text">How many courts you want to use on your tournament?</h4>
+                                    <div class="input-group form-control-lg">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text">
+                                                <i class="material-icons">dashboard</i>
+                                            </span>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="form-label">number of courts</label>
+                                            <input type="number" name="num_courts" id="wzgp-num_courts" class="input_group form-control" value="{{num_courts}}" min="1" max="64" required>
+                                        </div>
+                                        <h5 class="info-text">Choose minimum 1 and maximum 64 courts</h5>
+                                    </div>
+                                </div>
+
+                                <div class="col-md">
+                                    <h4 class="info-text">Define timeslot per round in minutes</h4>
+                                    <div class="input-group form-control-lg">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text">
+                                                <i class="material-icons">watch</i>
+                                            </span>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="form-label">minutes per game</label>
+                                            <input type="number" name="gameplan-data-minutes-per-game" id="wzgp-time-slot" class="input_group form-control" value="{{tournament_settings.game_slot_mins}}" min="20" max="60" required>
+                                        </div>
+                                        <h5 class="info-text">Choose minimum 20 and maximum 60 minutes</h5>
+                                    </div>
+                                </div>
+                            </div>
+
+
+                            <div class="row justify-content-center" id="wzgp-events-total">
+                            </div>
+
+                        </div>
+
+                        <div class="tab-pane" id="tabResult">
+                            <h5 class="info-text">Here are the game days. You can change the individual start and end times of each day.</h5>
+                            <p>If you are happy with it, push CREATE button in the low right corner.</p>
+
+                            <div class="row">
+                            </div>
+                            <div class="row justify-content-center" id="wzgp-gamedays">
+                            </div>
+
+                        </div>
                     </div>
-                    <div class="col-md">
-                      <h4>Last Game:</h4>
-                      <input type="number" name="timeLast_h" id="timeLast_h" class="" value="18" min="0" max="23">
-                      <input type="number" name="timeLast_m" id="timeLast_m" class="" value="0" min="0" max="59">
-                    </div>
-                  </div>
-
-                  <hr>
-
-                  <div id="wz-game-slots"></div>
-
                 </div>
                 <div class="card-footer">
+                    <div class="mr-auto">
+                        <input type="button" class="btn btn-previous btn-fill btn-default btn-wd disabled" name="previous" value="Previous">
+                    </div>
+                    <div class="ml-auto">
+                        <input type="button" class="btn btn-next btn-fill btn-rose btn-wd" name="next" value="Next">
+                        <input type="submit" class="btn btn-finish btn-fill btn-rose btn-wd" name="finish" value="Create" style="display: none;">
+                    </div>
+                    <div class="clearfix"></div>
                 </div>
-            </div>
-          </div>
+
+                <div id="templateGroup" class="col-md-3 mb-2" hidden>
+                    <div class="card shadow-lg">
+                        <span id="templateGroup_name" class="badge rounded-pill bg-secondary text-light w-30 mt-n2 mx-auto">Group C</span>
+                        <div id="templateGroup_body" class="card-body pt-0">
+                            <div class="row justify-content-center mx-auto">
+                                <span class="badge rounded-pill bg-info text-light m-1">1. Team</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div id="templateTeamItem" class="row justify-content-center mx-auto" hidden>
+                    <span id="templateTeamItem_icon" class="material-icons">arrow_upward</span>
+                    <span id="templateTeamItem_rank" class="badge rounded-pill bg-dark text-light text-bold m-1" hidden></span>
+                    <span id="templateTeamItem_name" class="badge rounded-pill bg-light text-dark m-1">1. Team</span>
+                </div>
 
 
-          <div id="template_gameslot" hidden>
-            <div class="row">
-              <div class="col-3">
-                <h5 id="template_time">10:00</h5>
-              </div>
-              <div class="col-9">
-                <ul id="template_list" class="list-group list-group-flush">       
-                </ul>
-              </div>
-            </div>
-            <hr>
-          </div>
-          <div hidden>
-            <li id="template_slot" class="list-group-item d-flex justify-content-between align-items-center" hidden>M-Group A<span id="template_court"  class="badge badge-primary badge-pill">C1</span></li>
-          </div>
-        </form>
-      </div>
+                <div id="templateEvent_total_games" class="row justify-content-center" hidden>
+                    <div class="col">
+                        <div class="input-group form-control-lg">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">
+                                    <i class="material-icons">numbers</i>
+                                </span>
+                            </div>
+
+                            <div class="form-group">
+                                <label id="template_name" class="form-label font-weight-bold">Resulting number of games</label>
+                                <div class="table-responsive">
+                                    <table id="wzgp-table-gamecounts" class="table align-items-center mb-0">
+                                        <thead>
+                                            <tr>
+                                                <th class="text-primary" scope="col">Total</th>
+                                                <th class="text-primary" scope="col">Group-Stage</th>
+                                                <th class="text-primary" scope="col">Knockout-Stage</th>
+                                                <th class="text-primary" scope="col">Placement</th>
+                                                <th class="text-primary" scope="col">Final</th>
+                                                <th class="text-primary" scope="col">Exp. time</th>
+                                                <th class="text-primary" scope="col">Estimated #GameDays</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>
+                                                    <input type="number" id="wz-res_num_of_games_total" class="input_group form-control input-lg text-primary text-xxs font-weight-bold opacity-3 ps-2" value="0" disabled>
+                                                </td>
+                                                <td>
+                                                    <input type="number" id="wz-res_num_of_games_group" class="input_group form-control" value="0" disabled>
+                                                </td>
+                                                <td>
+                                                    <input type="number" id="wz-res_num_of_games_ko" class="input_group form-control" value="0" disabled>
+                                                </td>
+                                                <td>
+                                                    <input type="number" id="wz-res_num_of_games_placement" class="input_group form-control" value="0" disabled>
+                                                </td>
+                                                <td>
+                                                    <input type="number" id="wz-res_num_of_games_final" class="input_group form-control" value="0" disabled>
+                                                </td>
+                                                <td>
+                                                    <span id="wz-res_time"></span>
+                                                </td>
+                                                <td>
+                                                    <span id="wz-res_est_gamedays"></span>
+                                                </td>
+
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div id="templateGameDay" class="col-md-3" hidden>
+                    <div class="card">
+                        <div class="card-header card-header-icon">
+                            <div class="card-icon">
+                                <i class="material-icons">event</i>
+                            </div>
+                            <h4 id="templateGameDay_title" class="card-title">Day 2</h4>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <h5 id="template_info" class="card-title">Day 2</h5>
+                            </div>
+                            <div class="row">
+                                <div class="col-md">
+                                    <h4>First Game:</h4>
+                                    <input type="number" name="timeFirst_h" id="timeFirst_h" class="" value="8" min="0" max="23">
+                                    <input type="number" name="timeFirst_m" id="timeFirst_m" class="" value="0" min="0" max="59">
+                                </div>
+                                <div class="col-md">
+                                    <h4>Last Game:</h4>
+                                    <input type="number" name="timeLast_h" id="timeLast_h" class="" value="18" min="0" max="23">
+                                    <input type="number" name="timeLast_m" id="timeLast_m" class="" value="0" min="0" max="59">
+                                </div>
+                            </div>
+
+                            <hr>
+
+                            <div id="wz-game-slots"></div>
+
+                        </div>
+                        <div class="card-footer">
+                        </div>
+                    </div>
+                </div>
+
+
+                <div id="template_gameslot" hidden>
+                    <div class="row">
+                        <div class="col-3">
+                            <h5 id="template_time">10:00</h5>
+                        </div>
+                        <div class="col-9">
+                            <ul id="template_list" class="list-group list-group-flush">
+                            </ul>
+                        </div>
+                    </div>
+                    <hr>
+                </div>
+                <div hidden>
+                    <li id="template_slot" class="list-group-item d-flex justify-content-between align-items-center" hidden>M-Group A<span id="template_court" class="badge badge-primary badge-pill">C1</span></li>
+                </div>
+            </form>
+        </div>
     </div>
     <!-- wizard container -->
-  </div>
+</div>
+
+<!-- Error Modal -->
+<div class="modal fade" id="errorModal" tabindex="-1" role="dialog" aria-labelledby="errorModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="errorModalLabel">Configuration Error</h5>
+                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" id="errorModalBody">
+                Structure not complete! Go to Structure and create for each category.
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 {% endblock content %}
 
@@ -259,235 +279,254 @@
 
 <div style="display: none" id="tournament-data" data-json="{{ tournament_data }}"></div>
 <script>
-  $(document).ready(function() {
-    console.log("Wizard GamePlan Loaded");
-      //md.initFormExtendedDatetimepickers();
-      flatpickr('.datetimepicker', {
-          enableTime: true,
-          dateFormat: "Y-m-d H:i:S",
-          time_24hr: true,
-          allowInput: true,
-          locale: "de" // Remove or change if you want a different locale
-      });
-    bh.tournamentData = JSON.parse(document.getElementById('tournament-data').getAttribute('data-json'));
-    console.log("bh.tournamentData=" + bh.tournamentData);
-    bh.wzUpdateGamePlan();
-
-    $('.input_group').on('change keyup', function() {
-      bh.wzUpdateGamePlan();
-    });
-
-    var userDate = $("#wzgp-GameDays_DateTimeFirstGame").data("content");
-    var date_string = moment(userDate, "YYYY-MM-DD HH:mm:ss").format(
-      "MM/DD/YYYY HH:mm"
-    );
-    $("#wzgp-GameDays_DateTimeFirstGame").val(date_string);
-
-    $("#wzgp-GameDays_DateTimeFirstGame").on("change.datetimepicker", ({date, oldDate}) => {              
-      console.log("date:" + date);
-    });
-    // Initialise the wizard
-    //demo.initMaterialWizard();
-    // Code for the Validator
-    var $validator = $('.card-wizard form').validate({
-      rules: {
-        max_num_teams: {
-          required: true,
-          min: 2
-        }
-      },
-
-      highlight: function(element) {
-        $(element).closest('.form-group').removeClass('has-success').addClass('has-danger');
-      },
-      success: function(element) {
-        $(element).closest('.form-group').removeClass('has-danger').addClass('has-success');
-      },
-      errorPlacement: function(error, element) {
-        $(element).append(error);
-      }
-    });
-
-
-
-    // Wizard Initialization
-    $('.card-wizard').bootstrapWizard({
-      'tabClass': 'nav nav-pills',
-      'nextSelector': '.btn-next',
-      'previousSelector': '.btn-previous',
-
-      onNext: function(tab, navigation, index) {
-        var $valid = $('.card-wizard form').valid();
-        if (!$valid) {
-          $validator.focusInvalid();
-          return false;
-        }
-      },
-
-      onInit: function(tab, navigation, index) {
-        //check number of tabs and fill the entire row
-        var $total = navigation.find('li').length;
-        var $wizard = navigation.closest('.card-wizard');
-
-        $first_li = navigation.find('li:first-child a').html();
-        $moving_div = $('<div class="moving-tab">' + $first_li + '</div>');
-        $('.card-wizard .wizard-navigation').append($moving_div);
-
-        refreshAnimation($wizard, index);
-
-        $('.moving-tab').css('transition', 'transform 0s');
-      },
-
-      onTabClick: function(tab, navigation, index) {
-        var $valid = $('.card-wizard form').valid();
-
-        if (!$valid) {
-          return false;
-        } else {
-          return true;
-        }
-      },
-
-      onTabShow: function(tab, navigation, index) {
-        var $total = navigation.find('li').length;
-        var $current = index + 1;
-
-        var $wizard = navigation.closest('.card-wizard');
-
-        // If it's the last tab then hide the last button and show the finish instead
-        if ($current >= $total) {
-          $($wizard).find('.btn-next').hide();
-          $($wizard).find('.btn-finish').show();
-        } else {
-          $($wizard).find('.btn-next').show();
-          $($wizard).find('.btn-finish').hide();
-        }
-
-        button_text = navigation.find('li:nth-child(' + $current + ') a').html();
-
-        setTimeout(function() {
-          $('.moving-tab').text(button_text);
-        }, 150);
-
-        var checkbox = $('.footer-checkbox');
-
-        if (!index == 0) {
-          $(checkbox).css({
-            'opacity': '0',
-            'visibility': 'hidden',
-            'position': 'absolute'
-          });
-        } else {
-          $(checkbox).css({
-            'opacity': '1',
-            'visibility': 'visible'
-          });
-        }
-
-        refreshAnimation($wizard, index);
-      }
-    });
-
-
-    // Prepare the preview for profile picture
-    $("#wizard-picture").change(function() {
-      readURL(this);
-    });
-
-    $('[data-toggle="wizard-radio"]').click(function() {
-      wizard = $(this).closest('.card-wizard');
-      wizard.find('[data-toggle="wizard-radio"]').removeClass('active');
-      $(this).addClass('active');
-      $(wizard).find('[type="radio"]').removeAttr('checked');
-      $(this).find('[type="radio"]').attr('checked', 'true');
-    });
-
-    $('[data-toggle="wizard-checkbox"]').click(function() {
-      if ($(this).hasClass('active')) {
-        $(this).removeClass('active');
-        $(this).find('[type="checkbox"]').removeAttr('checked');
-      } else {
-        $(this).addClass('active');
-        $(this).find('[type="checkbox"]').attr('checked', 'true');
-      }
-    });
-
-    $('.set-full-height').css('height', 'auto');
-
-    //Function to show image before upload
-
-    function readURL(input) {
-      if (input.files && input.files[0]) {
-        var reader = new FileReader();
-
-        reader.onload = function(e) {
-          $('#wizardPicturePreview').attr('src', e.target.result).fadeIn('slow');
-        }
-        reader.readAsDataURL(input.files[0]);
-      }
-    }
-
-    $(window).resize(function() {
-      $('.card-wizard').each(function() {
-        $wizard = $(this);
-
-        index = $wizard.bootstrapWizard('currentIndex');
-        refreshAnimation($wizard, index);
-
-        $('.moving-tab').css({
-          'transition': 'transform 0s'
+    $(document).ready(function () {
+        console.log("Wizard GamePlan Loaded");
+        //md.initFormExtendedDatetimepickers();
+        flatpickr('.datetimepicker', {
+            enableTime: true,
+            dateFormat: "Y-m-d H:i:S",
+            time_24hr: true,
+            allowInput: true,
+            locale: "de" // Remove or change if you want a different locale
         });
-      });
+        bh.tournamentData = JSON.parse(document.getElementById('tournament-data').getAttribute('data-json'));
+        console.log("bh.tournamentData=" + bh.tournamentData);
+        let hasEventWithoutStage = false;
+        if (bh.tournamentData && Array.isArray(bh.tournamentData.events)) {
+            bh.tournamentData.events.forEach((event, idx) => {
+                if (!event.stages || event.stages.length === 0) {
+                    hasEventWithoutStage = true;
+                    console.error(`Event at index ${idx} has no stages.`);
+                }
+            });
+        }
+
+        if (hasEventWithoutStage) {
+            $('#errorModal').on('hidden.bs.modal', function () {
+                window.location.href = "{{ game_plan_url }}";
+            });
+            $('#errorModalBody').text("Structure not complete! Go to Structure and create for each category.");
+            $('#errorModal').modal('show');
+            return;
+        }
+
+        bh.wzUpdateGamePlan();
+
+        $('.input_group').on('change keyup', function () {
+            bh.wzUpdateGamePlan();
+        });
+
+        var userDate = $("#wzgp-GameDays_DateTimeFirstGame").data("content");
+        var date_string = moment(userDate, "YYYY-MM-DD HH:mm:ss").format(
+            "MM/DD/YYYY HH:mm"
+        );
+        $("#wzgp-GameDays_DateTimeFirstGame").val(date_string);
+
+        $("#wzgp-GameDays_DateTimeFirstGame").on("change.datetimepicker", ({ date, oldDate }) => {
+            console.log("date:" + date);
+        });
+        // Initialise the wizard
+        //demo.initMaterialWizard();
+        // Code for the Validator
+        var $validator = $('.card-wizard form').validate({
+            rules: {
+                max_num_teams: {
+                    required: true,
+                    min: 2
+                }
+            },
+
+            highlight: function (element) {
+                $(element).closest('.form-group').removeClass('has-success').addClass('has-danger');
+            },
+            success: function (element) {
+                $(element).closest('.form-group').removeClass('has-danger').addClass('has-success');
+            },
+            errorPlacement: function (error, element) {
+                $(element).append(error);
+            }
+        });
+
+
+
+        // Wizard Initialization
+        $('.card-wizard').bootstrapWizard({
+            'tabClass': 'nav nav-pills',
+            'nextSelector': '.btn-next',
+            'previousSelector': '.btn-previous',
+
+            onNext: function (tab, navigation, index) {
+                var $valid = $('.card-wizard form').valid();
+                if (!$valid) {
+                    $validator.focusInvalid();
+                    return false;
+                }
+            },
+
+            onInit: function (tab, navigation, index) {
+                //check number of tabs and fill the entire row
+                var $total = navigation.find('li').length;
+                var $wizard = navigation.closest('.card-wizard');
+
+                $first_li = navigation.find('li:first-child a').html();
+                $moving_div = $('<div class="moving-tab">' + $first_li + '</div>');
+                $('.card-wizard .wizard-navigation').append($moving_div);
+
+                refreshAnimation($wizard, index);
+
+                $('.moving-tab').css('transition', 'transform 0s');
+            },
+
+            onTabClick: function (tab, navigation, index) {
+                var $valid = $('.card-wizard form').valid();
+
+                if (!$valid) {
+                    return false;
+                } else {
+                    return true;
+                }
+            },
+
+            onTabShow: function (tab, navigation, index) {
+                var $total = navigation.find('li').length;
+                var $current = index + 1;
+
+                var $wizard = navigation.closest('.card-wizard');
+
+                // If it's the last tab then hide the last button and show the finish instead
+                if ($current >= $total) {
+                    $($wizard).find('.btn-next').hide();
+                    $($wizard).find('.btn-finish').show();
+                } else {
+                    $($wizard).find('.btn-next').show();
+                    $($wizard).find('.btn-finish').hide();
+                }
+
+                button_text = navigation.find('li:nth-child(' + $current + ') a').html();
+
+                setTimeout(function () {
+                    $('.moving-tab').text(button_text);
+                }, 150);
+
+                var checkbox = $('.footer-checkbox');
+
+                if (!index == 0) {
+                    $(checkbox).css({
+                        'opacity': '0',
+                        'visibility': 'hidden',
+                        'position': 'absolute'
+                    });
+                } else {
+                    $(checkbox).css({
+                        'opacity': '1',
+                        'visibility': 'visible'
+                    });
+                }
+
+                refreshAnimation($wizard, index);
+            }
+        });
+
+
+        // Prepare the preview for profile picture
+        $("#wizard-picture").change(function () {
+            readURL(this);
+        });
+
+        $('[data-toggle="wizard-radio"]').click(function () {
+            wizard = $(this).closest('.card-wizard');
+            wizard.find('[data-toggle="wizard-radio"]').removeClass('active');
+            $(this).addClass('active');
+            $(wizard).find('[type="radio"]').removeAttr('checked');
+            $(this).find('[type="radio"]').attr('checked', 'true');
+        });
+
+        $('[data-toggle="wizard-checkbox"]').click(function () {
+            if ($(this).hasClass('active')) {
+                $(this).removeClass('active');
+                $(this).find('[type="checkbox"]').removeAttr('checked');
+            } else {
+                $(this).addClass('active');
+                $(this).find('[type="checkbox"]').attr('checked', 'true');
+            }
+        });
+
+        $('.set-full-height').css('height', 'auto');
+
+        //Function to show image before upload
+
+        function readURL(input) {
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+
+                reader.onload = function (e) {
+                    $('#wizardPicturePreview').attr('src', e.target.result).fadeIn('slow');
+                }
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        $(window).resize(function () {
+            $('.card-wizard').each(function () {
+                $wizard = $(this);
+
+                index = $wizard.bootstrapWizard('currentIndex');
+                refreshAnimation($wizard, index);
+
+                $('.moving-tab').css({
+                    'transition': 'transform 0s'
+                });
+            });
+        });
+
+        function refreshAnimation($wizard, index) {
+            $total = $wizard.find('.nav li').length;
+            $li_width = 100 / $total;
+
+            total_steps = $wizard.find('.nav li').length;
+            move_distance = $wizard.width() / total_steps;
+            index_temp = index;
+            vertical_level = 0;
+
+            mobile_device = $(document).width() < 600 && $total > 3;
+
+            if (mobile_device) {
+                move_distance = $wizard.width() / 2;
+                index_temp = index % 2;
+                $li_width = 50;
+            }
+
+            $wizard.find('.nav li').css('width', $li_width + '%');
+
+            step_width = move_distance;
+            move_distance = move_distance * index_temp;
+
+            $current = index + 1;
+
+            if ($current == 1 || (mobile_device == true && (index % 2 == 0))) {
+                move_distance -= 8;
+            } else if ($current == total_steps || (mobile_device == true && (index % 2 == 1))) {
+                move_distance += 8;
+            }
+
+            if (mobile_device) {
+                vertical_level = parseInt(index / 2);
+                vertical_level = vertical_level * 38;
+            }
+
+            $wizard.find('.moving-tab').css('width', step_width);
+            $('.moving-tab').css({
+                'transform': 'translate3d(' + move_distance + 'px, ' + vertical_level + 'px, 0)',
+                'transition': 'all 0.5s cubic-bezier(0.29, 1.42, 0.79, 1)'
+
+            });
+        }
+        setTimeout(function () {
+            $('.card.card-wizard').addClass('active');
+        }, 600);
+
+
     });
-
-    function refreshAnimation($wizard, index) {
-      $total = $wizard.find('.nav li').length;
-      $li_width = 100 / $total;
-
-      total_steps = $wizard.find('.nav li').length;
-      move_distance = $wizard.width() / total_steps;
-      index_temp = index;
-      vertical_level = 0;
-
-      mobile_device = $(document).width() < 600 && $total > 3;
-
-      if (mobile_device) {
-        move_distance = $wizard.width() / 2;
-        index_temp = index % 2;
-        $li_width = 50;
-      }
-
-      $wizard.find('.nav li').css('width', $li_width + '%');
-
-      step_width = move_distance;
-      move_distance = move_distance * index_temp;
-
-      $current = index + 1;
-
-      if ($current == 1 || (mobile_device == true && (index % 2 == 0))) {
-        move_distance -= 8;
-      } else if ($current == total_steps || (mobile_device == true && (index % 2 == 1))) {
-        move_distance += 8;
-      }
-
-      if (mobile_device) {
-        vertical_level = parseInt(index / 2);
-        vertical_level = vertical_level * 38;
-      }
-
-      $wizard.find('.moving-tab').css('width', step_width);
-      $('.moving-tab').css({
-        'transform': 'translate3d(' + move_distance + 'px, ' + vertical_level + 'px, 0)',
-        'transition': 'all 0.5s cubic-bezier(0.29, 1.42, 0.79, 1)'
-
-      });
-    }
-    setTimeout(function() {
-      $('.card.card-wizard').addClass('active');
-    }, 600);
-
-    
-  });
 
 </script>
 

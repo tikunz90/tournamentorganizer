@@ -205,9 +205,16 @@ def setup_wizard(request, pk_tevent):
     context['segment'] = 'index'
     context['segment_title'] = 'Overview'
 
+    # if request.method == 'POST':
+    #     structure_data = json.loads(request.POST['structure-data'])
+    #     result = wizard.wizard_create_structure(te, structure_data)
+    #     return HttpResponseRedirect(reverse("structure_setup.detail", kwargs={"pk": pk_tevent}))
+
     if request.method == 'POST':
         structure_data = json.loads(request.POST['structure-data'])
         result = wizard.wizard_create_structure(te, structure_data)
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            return JsonResponse({'redirect_url': reverse("structure_setup.detail", kwargs={"pk": pk_tevent})})
         return HttpResponseRedirect(reverse("structure_setup.detail", kwargs={"pk": pk_tevent}))
 
     html_template = loader.get_template( 'forms-setup-wizard.html' )
@@ -246,9 +253,12 @@ def setup_wizard_gameplan(request):
 
     context['segment'] = 'game_plan'
     context['segment_title'] = 'Game Plan'
+    context['game_plan_url'] = reverse("game_plan")
     context['tournament_data'] = ''
     context['tournament_settings'] = TournamentSettings.objects.get(tournament=context['tourn'])
     context['num_courts'] = Court.objects.filter(tournament=context['tourn'] ).count()
+    if context['num_courts'] == 0:
+        context['num_courts'] = 1
 
     if request.method == 'POST':
         context['tournament_settings'].game_slot_mins = int(request.POST['gameplan-data-minutes-per-game'])

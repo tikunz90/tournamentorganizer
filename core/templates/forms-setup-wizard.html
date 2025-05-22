@@ -11,15 +11,15 @@
     <!--      Wizard container        -->
     <div class="wizard-container">
       <div class="card card-wizard" data-color="rose" id="wizardProfile">
-        <form action={{ url('setup_wizard', args=[tevent.id]) }} method="post">
+        <form id="setup-wizard-form" action={{ url('setup_wizard', args=[tevent.id]) }} method="post">
           <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
           <input type="hidden" name="structure-data" id="wz-structure-data" value="">
           <input type="hidden" name="tevent_category" id="wz-tevent-category" value="{{ tevent.category.category }}">
           <!--        You can switch " data-color="primary" "  with one of the next bright colors: "green", "orange", "red", "blue"       -->
           <div class="card-header text-center">
-            <h3 class="card-title">
-              Setup Wizard for {{ tevent.name_short }}
-            </h3>
+              <h3 class="card-title">
+                  Setup Wizard for {{ tevent.name_short }} ({{ tevent.category.classification }})
+              </h3>
             <h5 class="card-description">This information will create basic tournament framework.</h5>
           </div>
           <div class="wizard-navigation">
@@ -682,6 +682,11 @@
     <!-- wizard container -->
   </div>
 
+  <div id="setup-spinner" style="display:none; position:fixed; top:50%; left:50%; z-index:9999;">
+      <div class="spinner-border text-primary" role="status">
+          <span class="sr-only">Loading...</span>
+      </div>
+  </div>
 {% endblock content %}
 
 {% block javascripts %}
@@ -895,7 +900,48 @@
       $('.card.card-wizard').addClass('active');
     }, 600);
 
-    
+
+      const form = document.getElementById('setup-wizard-form');
+      if (!form) return;
+
+      form.addEventListener('submit', function (e) {
+          e.preventDefault(); // Prevent default form submission
+
+          //document.getElementById('setup-spinner').style.display = 'block';
+
+          // Show loading overlay
+          $.LoadingOverlay("show", {
+              background: "rgba(0, 0, 0, 0.5)",
+              text: "Create structure data...",
+              textColor: "#fff"
+          });
+
+          const formData = new FormData(form);
+
+          fetch(form.action, {
+              method: 'POST',
+              body: formData,
+              headers: {
+                  'X-Requested-With': 'XMLHttpRequest',
+                  'X-CSRFToken': form.querySelector('[name=csrfmiddlewaretoken]').value
+              }
+          })
+              .then(response => response.json())
+              .then(data => {
+                  $.LoadingOverlay("hide");
+                  document.getElementById('setup-spinner').style.display = 'none';
+                  if (data.redirect_url) {
+                      window.location.href = data.redirect_url;
+                  } else {
+                      alert('An error occurred.');
+                  }
+              })
+              .catch(error => {
+                  $.LoadingOverlay("hide");
+                  document.getElementById('setup-spinner').style.display = 'none';
+                  alert('An error occurred: ' + error);
+              });
+      });
   });
 
 </script>

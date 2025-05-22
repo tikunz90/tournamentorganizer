@@ -192,9 +192,16 @@ bh = {
     var recreateGameDays = false;
     var newNumCourts = $("#wzgp-num_courts").val();
 
-    if (newNumCourts == "") newNumCourts = 1;
+      if (newNumCourts == "" || newNumCourts == "0") newNumCourts = 1;
     if (newNumCourts != bh.numCourts) recreateGameDays = true;
     bh.numCourts = newNumCourts;
+    // --- Prevent infinite loop if numCourts is 0 or not a number ---
+    if (!bh.numCourts || isNaN(bh.numCourts) || parseInt(bh.numCourts) <= 0) {
+        // Optionally show a warning to the user
+        console.warn("Number of courts must be greater than zero.");
+        return;
+    }
+    bh.numCourts = parseInt(bh.numCourts);
 
     var newMinutesPerGame = $("#wzgp-time-slot").val();
     if (newMinutesPerGame == "") newMinutesPerGame = 30;
