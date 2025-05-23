@@ -563,7 +563,7 @@ class GameActionViewSet(viewsets.ModelViewSet):
 
     def create(self, request):
         try:
-            datetime_obj = datetime.strptime(request.data['gametime'], '%Y-%m-%dT%H:%M:%S')
+            datetime_obj = helper.parse_time_from_picker(request.data['gametime'])
             periodString = 'HT1'
             if request.data['period'] == '1.HT':
                 periodString = 'HT1'

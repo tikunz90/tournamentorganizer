@@ -21,6 +21,7 @@ from beachhandball_app.models.General import TournamentCategory
 from beachhandball_app.models.Series import Season
 from django.utils.http import urlencode
 from django.urls import reverse
+from django.utils.dateparse import parse_datetime
 
 from beachhandball_app.services.services import SWS
 
@@ -2353,3 +2354,21 @@ def set_seasoncupid_to_all_global_pstats(tevent, seasoncupid):
     for ps in global_pstats:
         ps.season_cup_german_championship_id=seasoncupid
         ps.save()
+
+def parse_time_from_picker(dt_str):
+    # Try ISO format first
+    try:
+        return datetime.strptime(dt_str, '%Y-%m-%d %H:%M:%S')
+    except ValueError:
+        pass
+    # Try US format
+    try:
+        return datetime.strptime(dt_str, '%m/%d/%Y %H:%M')
+    except ValueError:
+        pass
+    # Try Django's parse_datetime (handles some ISO and RFC formats)
+    dt = parse_datetime(dt_str)
+    if dt:
+        return dt
+    # If all fail, raise an error
+    raise ValueError(f"Unknown date format: {dt_str}")

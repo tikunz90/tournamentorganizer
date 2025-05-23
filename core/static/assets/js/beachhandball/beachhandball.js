@@ -187,7 +187,7 @@ bh = {
     if (startTime == "") {
       startTime = moment($("#wzgp-GameDays_DateTimeFirstGame").data("content"), "YYYY-MM-DD HH:mm:ssZ");
     }
-    var dateFirstGame = moment(startTime, "MM/DD/YYYY HH:mm");
+    var dateFirstGame = moment(startTime);
     bh.DateTimeFirstGame = dateFirstGame.format("MM/DD/YYYY HH:mm");
     var recreateGameDays = false;
     var newNumCourts = $("#wzgp-num_courts").val();
@@ -315,7 +315,7 @@ bh = {
     bh.numGameDays = Math.ceil(total_time_min / 60 / 10);
 
     var defaultHoursGameDay = 10;
-    var dateFirstGame = moment(bh.DateTimeFirstGame, "MM/DD/YYYY HH:mm");
+      var dateFirstGame = moment(bh.DateTimeFirstGame);//, "MM/DD/YYYY HH:mm");
     if (bh.gameDays.length == 0 || recreateGameDays) {
       bh.gameDays = [];
       for (var i = 0; i < bh.numGameDays; i++) {
@@ -371,10 +371,7 @@ bh = {
   },
 
   wzgpUpdateGameDays: function (idRow) {
-    var dateLastGame = moment(
-      $("#wzgp-GameDays_DateTimeLastGame").val(),
-      "MM/DD/YYYY HH:mm"
-    );
+      var dateLastGame = moment($("#wzgp-GameDays_DateTimeLastGame").val());//,"MM/DD/YYYY HH:mm");
     bh.DateTimeLastGame = dateLastGame.format("MM/DD/YYYY HH:mm");
   },
 
@@ -391,24 +388,11 @@ bh = {
     var eventCounter = 0;
 
     var gameday_counter = 0;
-    var firstDay = moment(bh.DateTimeFirstGame, "MM/DD/YYYY HH:mm");
-    bh.gameDays[gameday_counter].endtime = moment(
-      firstDay.format("MM/DD/YYYY") +
-        " " +
-        moment(bh.gameDays[gameday_counter].endtime, "MM/DD/YYYY HH:mm").format(
-          "HH:mm"
-        ),
-      "MM/DD/YYYY HH:mm"
-    );
+      var firstDay = moment(bh.DateTimeFirstGame); //, "MM/DD/YYYY HH:mm");
+    bh.gameDays[gameday_counter].endtime = moment(firstDay.format("MM/DD/YYYY") + " " +  moment(bh.gameDays[gameday_counter].endtime).format("HH:mm"));
     bh.gameDays[gameday_counter].starttime = moment(firstDay);
-    var end_time = moment(
-      bh.gameDays[gameday_counter].endtime,
-      "MM/DD/YYYY HH:mm"
-    );
-    var act_time = moment(
-      bh.gameDays[gameday_counter].starttime,
-      "MM/DD/YYYY HH:mm"
-    );
+    var end_time = moment(bh.gameDays[gameday_counter].endtime);
+    var act_time = moment(bh.gameDays[gameday_counter].starttime);
     var act_game_slot = { starttime: act_time.format("HH:mm"), games: [] };
     var slotCounter = 1;
 
@@ -470,29 +454,17 @@ bh = {
                 firstDay.format("MM/DD/YYYY") +
                   " " +
                   moment(
-                    bh.gameDays[gameday_counter].endtime,
-                    "MM/DD/YYYY HH:mm"
-                  ).format("HH:mm"),
-                "MM/DD/YYYY HH:mm"
-              );
+                    bh.gameDays[gameday_counter].endtime).format("HH:mm"));
               bh.gameDays[gameday_counter].starttime = moment(
                 firstDay.format("MM/DD/YYYY") +
                   " " +
                   moment(
-                    bh.gameDays[gameday_counter].starttime,
-                    "MM/DD/YYYY HH:mm"
-                  ).format("HH:mm"),
-                "MM/DD/YYYY HH:mm"
-              );
+                    bh.gameDays[gameday_counter].starttime).format("HH:mm"));
               bh.gameDays[gameday_counter].game_slots = [];
               end_time = moment(
-                bh.gameDays[gameday_counter].endtime,
-                "MM/DD/YYYY HH:mm"
-              );
+                bh.gameDays[gameday_counter].endtime);
               act_time = moment(
-                bh.gameDays[gameday_counter].starttime,
-                "MM/DD/YYYY HH:mm"
-              );
+                bh.gameDays[gameday_counter].starttime);
               act_game_slot = {
                 starttime: act_time.format("HH:mm"),
                 games: [],
@@ -554,29 +526,21 @@ bh = {
                     firstDay.format("MM/DD/YYYY") +
                       " " +
                       moment(
-                        bh.gameDays[gameday_counter].endtime,
-                        "MM/DD/YYYY HH:mm"
-                      ).format("HH:mm"),
-                    "MM/DD/YYYY HH:mm"
-                  );
+                        bh.gameDays[gameday_counter].endtime
+                      ).format("HH:mm"));
                   bh.gameDays[gameday_counter].starttime = moment(
                     firstDay.format("MM/DD/YYYY") +
                       " " +
                       moment(
-                        bh.gameDays[gameday_counter].starttime,
-                        "MM/DD/YYYY HH:mm"
-                      ).format("HH:mm"),
-                    "MM/DD/YYYY HH:mm"
-                  );
+                        bh.gameDays[gameday_counter].starttime
+                      ).format("HH:mm"));
 
                   bh.gameDays[gameday_counter].game_slots = [];
                   end_time = moment(
-                    bh.gameDays[gameday_counter].endtime,
-                    "MM/DD/YYYY HH:mm"
+                    bh.gameDays[gameday_counter].endtime
                   );
                   act_time = moment(
-                    bh.gameDays[gameday_counter].starttime,
-                    "MM/DD/YYYY HH:mm"
+                    bh.gameDays[gameday_counter].starttime
                   );
                   act_game_slot = {
                     starttime: act_time.format("HH:mm"),
@@ -637,29 +601,20 @@ bh = {
                     firstDay.format("MM/DD/YYYY") +
                       " " +
                       moment(
-                        bh.gameDays[gameday_counter].endtime,
-                        "MM/DD/YYYY HH:mm"
-                      ).format("HH:mm"),
-                    "MM/DD/YYYY HH:mm"
-                  );
+                        bh.gameDays[gameday_counter].endtime).format("HH:mm"));
                   bh.gameDays[gameday_counter].starttime = moment(
                     firstDay.format("MM/DD/YYYY") +
                       " " +
                       moment(
-                        bh.gameDays[gameday_counter].starttime,
-                        "MM/DD/YYYY HH:mm"
-                      ).format("HH:mm"),
-                    "MM/DD/YYYY HH:mm"
-                  );
+                        bh.gameDays[gameday_counter].starttime
+                      ).format("HH:mm"));
 
                   bh.gameDays[gameday_counter].game_slots = [];
                   end_time = moment(
-                    bh.gameDays[gameday_counter].endtime,
-                    "MM/DD/YYYY HH:mm"
+                    bh.gameDays[gameday_counter].endtime
                   );
                   act_time = moment(
-                    bh.gameDays[gameday_counter].starttime,
-                    "MM/DD/YYYY HH:mm"
+                    bh.gameDays[gameday_counter].starttime
                   );
                   act_game_slot = {
                     starttime: act_time.format("HH:mm"),
@@ -725,30 +680,21 @@ bh = {
                 firstDay.format("MM/DD/YYYY") +
                   " " +
                   moment(
-                    bh.gameDays[gameday_counter].endtime,
-                    "MM/DD/YYYY HH:mm"
-                  ).format("HH:mm"),
-                "MM/DD/YYYY HH:mm"
-              );
+                    bh.gameDays[gameday_counter].endtime
+                  ).format("HH:mm"));
               bh.gameDays[gameday_counter].starttime = moment(
                 firstDay.format("MM/DD/YYYY") +
                   " " +
                   moment(
-                    bh.gameDays[gameday_counter].starttime,
-                    "MM/DD/YYYY HH:mm"
-                  ).format("HH:mm"),
-                "MM/DD/YYYY HH:mm"
+                    bh.gameDays[gameday_counter].starttime
+                  ).format("HH:mm")
               );
 
               bh.gameDays[gameday_counter].game_slots = [];
               end_time = moment(
-                bh.gameDays[gameday_counter].endtime,
-                "MM/DD/YYYY HH:mm"
-              );
+                bh.gameDays[gameday_counter].endtime);
               act_time = moment(
-                bh.gameDays[gameday_counter].starttime,
-                "MM/DD/YYYY HH:mm"
-              );
+                bh.gameDays[gameday_counter].starttime);
               act_game_slot = {
                 starttime: act_time.format("HH:mm"),
                 games: [],
@@ -775,22 +721,22 @@ bh = {
   calculateGameDayMinutes: function (gameDays) {
     var minutes = 0;
     gameDays.forEach(function (day) {
-      var starttime = moment(day.starttime, "MM/DD/YYYY HH:mm");
-      var endtime = moment(day.endtime, "MM/DD/YYYY HH:mm");
+      var starttime = moment(day.starttime);
+      var endtime = moment(day.endtime);
       minutes += endtime.diff(starttime, "minutes");
     });
     return minutes;
   },
 
   addGameDay: function () {
-    var new_start = moment(bh.gameDays.at(-1).starttime, "MM/DD/YYYY HH:mm")
+    var new_start = moment(bh.gameDays.at(-1).starttime)
       .add(1, "days")
       .set("hour", 8);
     var new_end = moment(new_start).set("hour", 18);
     var gameDay = {
       id: bh.gameDays.length,
       starttime: new_start.format("MM/DD/YYYY HH:mm"),
-      endtime: moment(bh.gameDays.at(-1).endtime, "MM/DD/YYYY HH:mm")
+      endtime: moment(bh.gameDays.at(-1).endtime)
         .add(1, "days")
         .format("MM/DD/YYYY HH:mm"),
       game_slots: [],
@@ -806,8 +752,8 @@ bh = {
     for (var i = 0; i < bh.gameDays.length; i++) {
       var gameDayData = bh.gameDays[i];
 
-      var actMoment = moment(gameDayData.starttime, "MM/DD/YYYY HH:mm");
-      var endMoment = moment(gameDayData.endtime, "MM/DD/YYYY HH:mm");
+      var actMoment = moment(gameDayData.starttime);
+      var endMoment = moment(gameDayData.endtime);
 
       var templateGD = $("#templateGameDay").clone();
       $(templateGD).attr("id", "gameday_" + i);
@@ -885,7 +831,7 @@ bh = {
       timeKey = "endtime";
     }
 
-    var actMoment = moment(gameday[timeKey], "MM/DD/YYYY HH:mm");
+    var actMoment = moment(gameday[timeKey]);
 
     if (split[1] === "h") actMoment.set("hour", this.value);
     else if (split[1] === "m") actMoment.set("minute", this.value);

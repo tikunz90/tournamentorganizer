@@ -262,7 +262,7 @@ def setup_wizard_gameplan(request):
 
     if request.method == 'POST':
         context['tournament_settings'].game_slot_mins = int(request.POST['gameplan-data-minutes-per-game'])
-        context['tournament_settings'].first_game_slot = datetime.strptime(request.POST['gameplan-data-datetime-firstgame'], '%m/%d/%Y %H:%M')
+        context['tournament_settings'].first_game_slot = helper.parse_time_from_picker(request.POST['gameplan-data-datetime-firstgame'])
         gameplan_data_all_games = json.loads(request.POST['gameplan-data-all-games'])
         context['tournament_settings'].game_counter = wizard.wizard_create_gameplan(context['tourn'], gameplan_data_all_games, request.POST['gameplan-data-num-courts'])
         context['tournament_settings'].game_slot_counter = context['tournament_settings'].game_counter
@@ -273,6 +273,8 @@ def setup_wizard_gameplan(request):
 
     html_template = loader.get_template( 'forms-setup-wizard-gameplan.html' )
     return HttpResponse(html_template.render(context, request))
+
+
 
 @login_required(login_url="/login/")
 @user_passes_test(lambda u: u.groups.filter(name='tournament_organizer').exists(),
