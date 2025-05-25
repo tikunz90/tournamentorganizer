@@ -883,6 +883,7 @@
     <Content Include="core\static\debug_toolbar\js\utils.js.gz" />
     <Content Include="core\static\favicon.ico" />
     <Content Include="core\static\sitemap.xml" />
+    <Content Include="core\templates\accounts\login_no_season.html" />
     <Content Include="core\templates\accounts\login.html" />
     <Content Include="core\templates\accounts\login_select_season_tourn.html" />
     <Content Include="core\templates\accounts\login_select_tourn.html" />
@@ -929,6 +930,7 @@
     <Content Include="core\templates\beachhandball\tournamentevent\_tournament_state_item_printview.html" />
     <Content Include="core\templates\beachhandball\tournamentevent\_tournament_state_overview.html" />
     <Content Include="core\templates\beachhandball\tournamentevent\_tournament_state_overview_printview.html" />
+    <Content Include="core\templates\beachhandball\tournament_setup.html" />
     <Content Include="core\templates\calendar.html" />
     <Content Include="core\templates\charts.html" />
     <Content Include="core\templates\components-buttons.html" />

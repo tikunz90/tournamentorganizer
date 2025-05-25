@@ -17,7 +17,7 @@ from django.contrib.auth.models import User, Group, Permission
 from authentication.models import GBOUser, GBOUserSerializer, LiveScoreUser
 from django.forms.utils import ErrorList
 from django.http import HttpResponse
-from .forms import LoginForm, SignUpForm, SelectTournamentForm
+from .forms import LoginForm,LoginNoSeasonForm, SignUpForm, SelectTournamentForm
 from django.views.generic import TemplateView
 
 #from .tasks import auth_debug_task
@@ -37,18 +37,16 @@ def login_view(request):
         # Optionally, include status code in the message for debugging
         if 'status_code' in seasons:
             msg += f" (Status code: {seasons['status_code']})"
-        form = LoginForm(request.POST or None, seasons=[])
+        form = LoginNoSeasonForm(request.POST or None, seasons=[])
         execution_time_func = time.time() - begin_func
         print('Login execution_time = ' + str(execution_time_func))
-        return render(request, "accounts/login.html", {"form": form, "msg": msg, "season": ''})
+        return render(request, "accounts/login_no_season.html", {"form": form, "msg": msg })
 
     update_active_seasons(seasons)
-    form = LoginForm(request.POST or None, seasons=seasons)
+    #form = LoginForm(request.POST or None, seasons=seasons)
+    form = LoginNoSeasonForm(request.POST or None)
 
     msg = None
-    #season = SWS.getSeasonActive()
-    #cache.set('foo', 'bar')
-    #auth_debug_task.delay('HELLO')
     
     group_tournament_organizer = 'tournament_organizer'
     group_livescore = 'livescore'
@@ -58,11 +56,11 @@ def login_view(request):
 
         if form.is_valid():
             # get token from gbo
-            season_id = int(form.cleaned_data.get("season"))
+            #season_id = int(form.cleaned_data.get("season"))
             username = form.cleaned_data.get("username")
             password = form.cleaned_data.get("password")
 
-            season_active = [s for s in seasons if s['id'] == season_id][0]
+            #season_active = [s for s in seasons if s['id'] == season_id][0]
 
             # check if gbo user is online
             users = User.objects.filter(username=username)
@@ -87,26 +85,26 @@ def login_view(request):
             if gbouser:
                 if not gbouser.is_online:
                     user = authenticate(username=username, password=password)
-                    if user is not None:
-                        t = Tournament.objects.filter(organizer_orm=gbouser, season__gbo_season_id=season_id)
-                        if t.count() <= 0:
-                            msg ='No Tournament Data available! SubjectID: ' + str(gbouser.subject_id)
-                            return render(request, "accounts/login.html", {"form": form, "msg" : msg})
-                        elif t.count() == 1:
-                            tourn = t.first()
-                            tourn.is_active = True
-                            tourn.save()
-                        elif t.count() > 1:
-                            for tourn in t:
-                                tourn.is_active = False
-                                tourn.save()
-                            login(request, user)
-                            return redirect("login_select_season_tourn", season_id=season_id)
-                    else:
+                    #if user is not None:
+                        # t = Tournament.objects.filter(organizer_orm=gbouser, season__gbo_season_id=season_id)
+                        # if t.count() <= 0:
+                        #     msg ='No Tournament Data available! SubjectID: ' + str(gbouser.subject_id)
+                        #     return render(request, "accounts/login.html", {"form": form, "msg" : msg})
+                        # elif t.count() == 1:
+                        #     tourn = t.first()
+                        #     tourn.is_active = True
+                        #     tourn.save()
+                        # elif t.count() > 1:
+                        #     for tourn in t:
+                        #         tourn.is_active = False
+                        #         tourn.save()
+                        #     login(request, user)
+                        #     return redirect("login_select_season_tourn", season_id=season_id)
+                    if user is None:
                         msg ='Username or password wrong!'
-                        return render(request, "accounts/login.html", {"form": form, "msg" : msg})
+                        return render(request, "accounts/login_no_season.html", {"form": form, "msg" : msg})
                     login(request, user)
-                    return redirect("/")
+                    return redirect("tournament_setup")
 
 
             result = SWS.create_session(username, password)
@@ -122,11 +120,11 @@ def login_view(request):
                     token = result['message']['token'].split(' ')[1],
                     validUntil = datetime.utcfromtimestamp(result['message']['expiresIn'] / 1000))
                     guser.subject_id = SWS.getGBOUserId(guser)
-                    guser.season_active = season_active
+                    ##guser.season_active = season_active
                     #guser.gbo_data_all, execution_time = SWS.syncAllTournamentData(guser)
-                    guser.gbo_data_all, execution_time = SWS.syncTournamentData(guser, season_id)
+                    ##guser.gbo_data_all, execution_time = SWS.syncTournamentData(guser, season_id)
                     #guser.gbo_data = s.SWS.getTournamentByUser(guser)
-                    guser.gbo_gc_data, execution_time2 = SWS.syncTournamentGCData(guser, season_id)
+                    ##guser.gbo_gc_data, execution_time2 = SWS.syncTournamentGCData(guser, season_id)
                     #guser.gbo_sub_data = s.SWS.getTournamentSubByUser(guser)
                     guser.save()
                     
@@ -157,63 +155,60 @@ def login_view(request):
                         if gbouser.is_online:
                             gbouser.token = result['message']['token'].split(' ')[1]
                             gbouser.validUntil = datetime.utcfromtimestamp(result['message']['expiresIn'] / 1000)
-                            gbouser.season_active = season_active
+                            ##gbouser.season_active = season_active
                             #gbouser.subject_id =45
                             #gbouser.gbo_data_all, execution_time = s.SWS.syncAllTournamentData(gbouser)
-                            gbouser.gbo_data_all, execution_time = SWS.syncTournamentData(gbouser, season_id)
+                            ##gbouser.gbo_data_all, execution_time = SWS.syncTournamentData(gbouser, season_id)
                             #gbouser.gbo_data, execution_time1 = s.SWS.syncTournamentData(gbouser)
-                            gbouser.gbo_gc_data, execution_time2 = SWS.syncTournamentGCData(gbouser, season_id)
+                            ##gbouser.gbo_gc_data, execution_time2 = SWS.syncTournamentGCData(gbouser, season_id)
                             #gbouser.gbo_sub_data, execution_time3 = s.SWS.syncTournamentSubData(gbouser)
-                            print('Executiontime syncAllTournamentData: ' + str(execution_time))
+                            #print('Executiontime syncAllTournamentData: ' + str(execution_time))
                             #print('Executiontime syncTournamentData: ' + str(execution_time1))
                             #print('Executiontime syncTournamentGCData: ' + str(execution_time2))
                             #print('Executiontime syncTournamentSubData: ' + str(execution_time3))
                             gbouser.save() 
                         
-                        tourns, execution_time = update_user_tournament(gbouser, season_id)
-                        print('Executiontime update_user_tournament: ' + str(execution_time))
-                        # TODO prefetch
-                        #t = Tournament.objects.filter(organizer=gbouser.subject_id)
+                        #tourns, execution_time = update_user_tournament(gbouser, season_id)
                         
-                        if len(tourns) <= 0:
-                            msg ='No Tournament Data available! SubjectID: ' + str(gbouser.subject_id)
-                            return render(request, "accounts/login.html", {"form": form, "msg" : msg})
-                        elif len(tourns) == 1:
-                            tourn = tourns[0]
-                            tourn.is_active = True
-                            tourn.save()
+                        # if len(tourns) <= 0:
+                        #     msg ='No Tournament Data available! SubjectID: ' + str(gbouser.subject_id)
+                        #     return render(request, "accounts/login.html", {"form": form, "msg" : msg})
+                        # elif len(tourns) == 1:
+                        #     tourn = tourns[0]
+                        #     tourn.is_active = True
+                        #     tourn.save()
                             
-                            # Create livescore user
+                        #     # Create livescore user
                             
-                            update_user_tournament_events(gbouser, tourn)
-                            #update_user_tournament_events_async.delay(model_to_dict(gbouser), model_to_dict(tourn))
-                        elif len(tourns) > 1:
-                            for tourn in tourns:
-                                tourn.is_active = False
-                                tourn.save()
-                            login(request, user)
-                            execution_time_func = time.time() - begin_func
-                            print('Login execution_time = ' + str(execution_time_func))
-                            return redirect("login_select_season_tourn", season_id=season_id)
+                        #     update_user_tournament_events(gbouser, tourn)
+                        #     #update_user_tournament_events_async.delay(model_to_dict(gbouser), model_to_dict(tourn))
+                        # elif len(tourns) > 1:
+                        #     for tourn in tourns:
+                        #         tourn.is_active = False
+                        #         tourn.save()
+                        #     login(request, user)
+                        #     execution_time_func = time.time() - begin_func
+                        #     print('Login execution_time = ' + str(execution_time_func))
+                        #     return redirect("login_select_season_tourn", season_id=season_id)
 
                     else:
                         msg ='GBO user not found! Username: '+ user.username
-                        return render(request, "accounts/login.html", {"form": form, "msg" : msg}) 
+                        return render(request, "accounts/login_no_season.html", {"form": form, "msg" : msg}) 
                     
                     login(request, user)
-                    return redirect("/")
+                    return redirect("tournament_setup")
                 else:    
                     msg = 'Invalid credentials'
             else:
                 msg ='GBO session failed!'
-                return render(request, "accounts/login.html", {"form": form, "msg" : msg})
+                return render(request, "accounts/login_no_season.html", {"form": form, "msg" : msg})
         else:
             msg = 'Error validating the form'    
 
     execution_time_func = time.time() - begin_func
     print('Login execution_time = ' + str(execution_time_func))
     #return redirect("login", {"form": form, "msg" : msg})
-    return render(request, "accounts/login.html", {"form": form, "msg" : msg, "season": ''})
+    return render(request, "accounts/login_no_season.html", {"form": form, "msg" : msg, "season": ''})
 
 
 def select_tourn_view(request):
@@ -305,6 +300,7 @@ class ProfileView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super(ProfileView, self).get_context_data(**kwargs)
         context['segment'] = 'profile'
-        context['gbo_user'] = GBOUser.objects.filter(user=self.request.user)
+        context['segment_title'] = 'Profile'
+        context['gbo_user'] = GBOUser.objects.filter(user=self.request.user).first()
         return context
 

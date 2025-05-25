@@ -47,27 +47,35 @@ The above copyright notice and this permission notice shall be included in all c
 <body class="">
     <div class="{% block body_class %}{% endblock body_class %}">
 
+        {% if not setup_mode %}
         {% include 'includes/sidebar.html' %}
+        {% endif %}
 
+        {% if not setup_mode %}
         <div class="main-panel">
+            {% else %}
+        <div class="">
+            {% endif %}
 
-            {% include 'includes/navigation.html' %}
+                {% if not setup_mode %}
+                {% include 'includes/navigation.html' %}
+                {% endif %}
 
-            <!-- End Navbar -->
-            <div id="main-content" class="content">
-                <div class="content">
-                    <div class="container-fluid">
+                <!-- End Navbar -->
+                <div id="main-content" class="content">
+                    <div class="content">
+                        <div class="container-fluid">
 
-                        {% block content %}{% endblock content %}
+                            {% block content %}{% endblock content %}
 
+                        </div>
                     </div>
                 </div>
+
+                {% include 'includes/footer.html' %}
+
             </div>
-
-            {% include 'includes/footer.html' %}
-
         </div>
-    </div>
 
     {% include 'beachhandball/templates/court.html' %}
 

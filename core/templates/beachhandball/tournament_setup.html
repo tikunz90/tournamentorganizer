@@ -1,0 +1,124 @@
+{% extends "layouts/base.html" %}
+
+{% block title %} Tournament Setup {% endblock title %}
+
+{% block stylesheets %}
+<style>
+    .fullscreen-bg {
+        min-height: 100vh;
+        width: 100vw;
+        background-image: url('/static/assets/img/bg_login.jpg');
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .centered-content {
+        background: rgba(255,255,255,0.85);
+        padding: 2rem 3rem;
+        border-radius: 1rem;
+        box-shadow: 0 2px 16px rgba(0,0,0,0.1);
+        min-width: 320px;
+        max-width: 500px;
+        width: 100%;
+        text-align: center;
+    }
+    .season-card {
+        margin-bottom: 2rem;
+        border-radius: 1rem;
+        box-shadow: 0 2px 8px rgba(44,62,80,0.08);
+        background: #fff;
+        padding: 1.5rem 1rem 1rem 1rem;
+    }
+
+    .season-title {
+        font-size: 1.3rem;
+        font-weight: 600;
+        color: #e91e63;
+        margin-bottom: 1rem;
+        letter-spacing: 0.5px;
+    }
+
+    .tournament-list {
+        padding-left: 0;
+        margin-bottom: 0;
+    }
+
+        .tournament-list .list-group-item {
+            border: none;
+            border-radius: 0.5rem;
+            margin-bottom: 0.5rem;
+            background: #f8f9fa;
+            color: #333;
+            font-size: 1.05rem;
+            transition: background 0.2s;
+        }
+
+            .tournament-list .list-group-item:hover {
+                background: #ffe4ec;
+                color: #e91e63;
+            }
+
+    .logout-btn {
+        margin-top: 2rem;
+        width: 100%;
+        font-size: 1.1rem;
+        font-weight: 500;
+    }
+</style>
+{% endblock stylesheets %}
+
+{% block content %}
+
+<div class="fullscreen-bg">
+    <div class="centered-content">
+        {% for st in season_tournaments %}
+        <div class="season-card">
+            <div class="season-title">
+                <i class="material-icons" style="vertical-align: middle; color:#e91e63;">event</i>
+                {{ st.season.name }}
+            </div>
+            <ul class="list-group tournament-list">
+                {% for t in st.tournaments %}
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <span>
+                        <i class="material-icons" style="font-size:1.1em;vertical-align:middle;color:#00bcd4;">sports_handball</i>
+                        <span style="margin-left:0.5em;">{{ t.name }}</span>
+                    </span>
+                    <form method="post" role="form" style="display:inline;">
+                        <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+                        <input type="hidden" name="tournament_id" value="{{ t.id }}">
+                        <button type="submit" class="btn btn-sm btn-primary">Load</button>
+                    </form>
+                </li>
+                {% else %}
+                <li class="list-group-item text-muted">No tournaments for this season.</li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endfor %}
+
+        <a href="{{ url('logout') }}" class="btn btn-danger float-right" style="margin-bottom: 20px;">
+            Logout
+        </a>
+
+        {% endblock content %}
+    </div>
+</div>
+
+{% block javascripts %}
+<script>
+    $(document).ready(function () {
+        $("form").on("submit", function () {
+            $.LoadingOverlay("show", {
+                background: "rgba(0, 0, 0, 0.5)",
+                text: "Load tournament data...",
+                textColor: "#fff"
+            });
+        });
+    });
+</script>
+{% endblock javascripts %}

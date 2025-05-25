@@ -21,6 +21,8 @@ urlpatterns = [
     #re_path(r'^.*\.*', static_views.pages, name='pages'),
     path('ajax/data/', static_views.getData, name='get_data'),
 
+    path('tournament_setup/', static_views.tournament_setup, name='tournament_setup'),
+
     path('setup-wizard/<int:pk_tevent>/', static_views.setup_wizard, name='setup_wizard'),
     path('setup-wizard/game-plan/', static_views.setup_wizard_gameplan, name='setup_wizard_gameplan'),
 

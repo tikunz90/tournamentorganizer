@@ -116,6 +116,15 @@
         // after 1000 ms we add the class animated to the login/register card
         $('.card').removeClass('card-hidden');
       }, 700);
+
+        // Show loading overlay on login form submit
+        $("form[role='form']").on("submit", function () {
+            $.LoadingOverlay("show", {
+                background: "rgba(0, 0, 0, 0.5)",
+                text: "Loading tournament data...",
+                textColor: "#fff"
+            });
+        });
     });
   </script>
 

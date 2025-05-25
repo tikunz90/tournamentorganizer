@@ -27,6 +27,7 @@ from django.template import loader
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django import template
 from django.db.models import Q
+from django.middleware.csrf import get_token
 
 from authentication.models import GBOUser, ScoreBoardUser
 from .models.Tournaments import Court, Referee, Tournament, TournamentEvent, TournamentSettings, TournamentStage, TournamentState
@@ -99,6 +100,74 @@ def getData(request):
     
 
     return JsonResponse(data)
+
+@login_required(login_url="/login/")
+@user_passes_test(lambda u: u.groups.filter(name='tournament_organizer').exists(),
+login_url="/login/", redirect_field_name='next')
+def tournament_setup(request):
+    context = {}
+
+    guser = GBOUser.objects.filter(user=request.user).first()
+    
+    if guser is None:
+        return redirect('login')
+    else:
+        context['gbo_user'] = guser
+        context['season_active'] = guser.season_active['name'] #SWS.getSeasonActive(guser)
+        context['token'] = guser.token
+
+    if not checkLoginIsValid(context['gbo_user']):
+        return redirect('login')
+
+    # Handle POST: set selected tournament and redirect
+    if request.method == 'POST':
+        tournament_id = request.POST.get('tournament_id')
+        if tournament_id:
+            # Get all tournaments for this user in the current season
+            all_tourns = Tournament.objects.filter(
+                organizer_orm=guser
+            )
+            # Set all to inactive
+            all_tourns.update(is_active=False)
+            # Set selected to active
+            tourn = all_tourns.filter(id=tournament_id).first()
+            if tourn:
+                tourn.is_active = True
+                tourn.save()
+                season_id = tourn.season.gbo_season_id
+                guser.gbo_data_all, execution_time = SWS.syncTournamentData(guser, season_id)
+                guser.gbo_gc_data, execution_time2 = SWS.syncTournamentGCData(guser, season_id)
+                helper.update_user_tournament_events(guser, tourn)
+            return redirect('/')
+        else:
+            return redirect('tournament_setup')
+
+    # Get all actual seasons
+    seasons = Season.objects.filter(is_actual=True).order_by('-start_ts')
+    season_tournaments = []
+    for season in seasons:
+        tournaments = Tournament.objects.filter(
+            organizer_orm=guser,
+            season=season,
+            season__gbo_season_id=guser.season_active['id']
+        )
+        season_tournaments.append({
+            'season': season,
+            'tournaments': tournaments
+        })
+
+    context['season_tournaments'] = season_tournaments
+
+    
+    context['segment'] = 'tournament_setup'
+    context['segment_title'] = 'Tournament Setup'
+
+    context['setup_mode'] = 'true'
+    context['csrf_token'] = get_token(request)
+
+    html_template = loader.get_template( 'beachhandball/tournament_setup.html' )
+    return HttpResponse(html_template.render(context, request))
+
 
 @login_required(login_url="/login/")
 def UpdateGameFromListFunc(request):

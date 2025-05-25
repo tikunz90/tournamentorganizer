@@ -36,7 +36,7 @@
               <div class="col-md-4">
                 <div class="form-group">
                   <label class="bmd-label-floating">Email address</label>
-                  <input type="email" class="form-control" value="{{ gbo_user.email }}" disabled>
+                  <input type="email" class="form-control" value="{{ gbo_user.user.email }}" disabled>
                 </div>
               </div>
             </div>
@@ -44,25 +44,25 @@
               <div class="col-md-6">
                 <div class="form-group">
                   <label class="bmd-label-floating">Fist Name</label>
-                  <input type="text" class="form-control" value="{{ gbo_user.name }}" disabled>
+                  <input type="text" class="form-control" value="{{ gbo_user.user.first_name }}" disabled>
                 </div>
               </div>
               <div class="col-md-6">
                 <div class="form-group">
                   <label class="bmd-label-floating">Last Name</label>
-                  <input type="text" class="form-control" value="{{ gbo_user.family_name }}" disabled>
+                  <input type="text" class="form-control" value="{{ gbo_user.user.last_name }}" disabled>
                 </div>
               </div>
             </div>
             <div class="row">
               <div class="col-md-12">
                 <div class="form-group">
-                  <label class="bmd-label-floating">Adress</label>
-                  <input type="text" class="form-control" disabled>
+                  <label class="bmd-label-floating">SubjectId</label>
+                  <input type="text" class="form-control" value="{{ gbo_user.subject_id }}" disabled>
                 </div>
               </div>
             </div>
-            <div class="row">
+            <div class="row" hidden>
               <div class="col-md-4">
                 <div class="form-group">
                   <label class="bmd-label-floating">City</label>
@@ -82,7 +82,7 @@
                 </div>
               </div>
             </div>
-            <div class="row">
+            <div class="row" hidden>
               <div class="col-md-12">
                 <div class="form-group">
                   <label>About Me</label>

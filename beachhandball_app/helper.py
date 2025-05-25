@@ -30,18 +30,31 @@ def update_active_seasons(active_seasons):
     seasons = Season.objects.all()
     season_list = [s for s in seasons]
 
+    # Build a set of GBO season IDs from the incoming JSON
+    json_season_ids = set()
+    now_ts = int(time.time())  # current time in seconds
+
     for gbo_season in active_seasons:
+        json_season_ids.add(gbo_season['id'])
         django_season = next((x for x in season_list if x.gbo_season_id==gbo_season['id']), None)
+        end_at_ts = int(gbo_season.get('end_at_ts', '0')) // 1000  # convert ms to s
+
         if django_season is None:
             django_season, cr = Season.objects.get_or_create(name=gbo_season['name'], gbo_season_id=gbo_season['id'], is_actual=True)
         else:
             season_list = [ x for x in season_list if x is not django_season ]
-        django_season.is_active = True
+        # Set is_active based on end_at_ts
+        if end_at_ts and end_at_ts < now_ts:
+            django_season.is_actual = False
+        else:
+            django_season.is_actual = True
         django_season.save()
 
+    # Any remaining Django seasons not in the JSON should be set to inactive
     for s in season_list:
-        s.is_active = False
-        s.save()
+        if s.gbo_season_id not in json_season_ids:
+            s.is_actual = False
+            s.save()
 
 def update_user_tournament(gbouser, season_id):
     begin = time.time()
