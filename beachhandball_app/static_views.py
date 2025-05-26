@@ -66,7 +66,7 @@ def getContext(request):
     ).get(
         organizer_orm=guser,
         is_active=True,
-        season__gbo_season_id=guser.season_active['id']
+        season__is_actual=True
     )
     context['tourn'] = t
     context['tourn_settings'] = t.settings[0] #TournamentSettings.objects.get(tournament=t)
@@ -135,8 +135,7 @@ def tournament_setup(request):
                 tourn.is_active = True
                 tourn.save()
                 season_id = tourn.season.gbo_season_id
-                guser.gbo_data_all, execution_time = SWS.syncTournamentData(guser, season_id)
-                guser.gbo_gc_data, execution_time2 = SWS.syncTournamentGCData(guser, season_id)
+                guser.season_active['id']
                 helper.update_user_tournament_events(guser, tourn)
             return redirect('/')
         else:
@@ -148,8 +147,7 @@ def tournament_setup(request):
     for season in seasons:
         tournaments = Tournament.objects.filter(
             organizer_orm=guser,
-            season=season,
-            season__gbo_season_id=guser.season_active['id']
+            season=season
         )
         season_tournaments.append({
             'season': season,

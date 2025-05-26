@@ -56,71 +56,76 @@ def update_active_seasons(active_seasons):
             s.is_actual = False
             s.save()
 
-def update_user_tournament(gbouser, season_id):
+def update_user_tournament(gbouser, seasons):
     begin = time.time()
     print("ENTER update_user_tournament")
 
-    season = Season.objects.filter(gbo_season_id=season_id).first()
+    #season = Season.objects.filter(gbo_season_id=season_id).first()
 
     print("season_cup_tournament...")
     # tourns_q = Tournament.objects.prefetch_related(
     #     Prefetch("tournamentsettings_set", queryset=TournamentSettings.objects.all(), to_attr="settings")).filter(organizer=gbouser.subject_id, season__gbo_season_id=season_id)
     tourns_q = Tournament.objects.prefetch_related(
-        Prefetch("tournamentsettings_set", queryset=TournamentSettings.objects.all(), to_attr="settings")).filter(organizer_orm=gbouser, season__gbo_season_id=season_id)
+        Prefetch("tournamentsettings_set", queryset=TournamentSettings.objects.all(), to_attr="settings")).filter(organizer_orm=gbouser)
     tourns = [t for t in tourns_q]
     tourns_cup = [t for t in tourns if t.season_cup_tournament_id != 0]
     tourns_subcup = [t for t in tourns if t.sub_season_cup_tournament_id != 0]
     tourns_dm = [t for t in tourns if t.season_cup_german_championship_id != 0]
 
-    gbo_data = gbouser.gbo_data
+    #gbo_data = gbouser.gbo_data
     gbo_data = gbouser.gbo_data_all
-    if not gbo_data['isError']:
-        gbo_data = gbo_data['message']
-        for gbot in gbo_data:
-            tourn_found = False
-            
-            season_tourn = gbot['seasonTournament']
-            season_tourn_subject_id = season_tourn['seasonSubject']['subject']['id']
-            if season_tourn_subject_id != gbouser.subject_id:
-                continue
-            gbo_tourn = season_tourn['tournament']
 
-            to_tourn = None
+    for season_id ,gbot in gbo_data.items():
+        tourn_found = False
+        if isinstance(gbot, list) and len(gbot) > 0:
+            gbot = gbot[0]
+        else:
+            continue  # or handle the empty case as needed
+        season = Season.objects.filter(gbo_season_id=season_id).first()
+        if not season:
+            continue
+        season_tourn = gbot['seasonTournament']
+        season_tourn_subject_id = season_tourn['seasonSubject']['subject']['id']
+        if season_tourn_subject_id != gbouser.subject_id:
+            continue
+        gbo_tourn = season_tourn['tournament']
 
-            tourns_by_season_cup_id = [t for t in tourns if t.season_cup_tournament_id == gbot['id']]
+        to_tourn = None
 
-            # Find existing Tournament object and update
-            for t in tourns_cup:
-                if t.season_tournament_id == season_tourn['id']:
-                    print("Found season_tourn")
-                    to_tourn = t
-                    tourn_found = True
-                    t.organizer=gbouser.subject_id
-                    t.organizer_orm = gbouser
-                    t.name=gbo_tourn['name']
-                    t.last_sync_at=datetime.now()
-                    t.season_tournament_id=season_tourn['id']
-                    t.season_cup_tournament_id=gbot['id']
-                    t.season = season
-                    t.save()
-                    ts, cr = TournamentSettings.objects.get_or_create(tournament=t)
-                    ts.save()
-            if not tourn_found and len(tourns_by_season_cup_id) == 0:
-                #create tournament
-                new_t = Tournament(organizer=gbouser.subject_id,
-                organizer_orm=gbouser,
-                name=gbo_tourn['name'],
-                last_sync_at=datetime.now(),
-                season_tournament_id=season_tourn['id'],
-                season_cup_tournament_id=gbot['id'],
-                season=season)
-                new_t.save()
-                ts, cr = TournamentSettings.objects.get_or_create(tournament=new_t)
+        tourns_by_season_cup_id = [t for t in tourns if t.season_cup_tournament_id == gbot['id']]
+
+        # Find existing Tournament object and update
+        for t in tourns_cup:
+            if t.season_tournament_id == season_tourn['id']:
+                print("Found season_tourn")
+                to_tourn = t
+                tourn_found = True
+                t.organizer=gbouser.subject_id
+                t.organizer_orm = gbouser
+                t.name=gbo_tourn['name']
+                t.last_sync_at=datetime.now()
+                t.season_tournament_id=season_tourn['id']
+                t.season_cup_tournament_id=gbot['id']
+                t.season = season
+                t.save()
+                ts, cr = TournamentSettings.objects.get_or_create(tournament=t)
                 ts.save()
-                to_tourn = new_t
-                tourns.append(new_t)
-            else:
-                print("Tournament exists but is assigned to other user")
+        if not tourn_found and len(tourns_by_season_cup_id) == 0:
+            #create tournament
+            new_t = Tournament(organizer=gbouser.subject_id,
+            organizer_orm=gbouser,
+            name=gbo_tourn['name'],
+            last_sync_at=datetime.now(),
+            season_tournament_id=season_tourn['id'],
+            season_cup_tournament_id=gbot['id'],
+            season=season)
+            new_t.save()
+            ts, cr = TournamentSettings.objects.get_or_create(tournament=new_t)
+            ts.save()
+            to_tourn = new_t
+            tourns.append(new_t)
+        else:
+            print("Tournament exists but is assigned to other user")
         
     end = time.time()
     execution_time = end - begin
@@ -128,50 +133,56 @@ def update_user_tournament(gbouser, season_id):
 
     print("season_cup_german_championship")
     gbo_data = gbouser.gbo_gc_data
-    if not gbo_data['isError']:
-        gbo_data = gbo_data['message']
-
-        for gbot in gbo_data:
-            tourn_found = False
+    for season_id, gbot in gbo_data.items():
+        tourn_found = False
+        
+        if isinstance(gbot, list) and len(gbot) > 0:
+            gbot = gbot[0]
+        else:
+            continue  # or handle the empty case as needed
+        season = Season.objects.filter(gbo_season_id=season_id).first()
+        if not season:
+            print(f"Season with gbo_season_id {season_id} not found.")
+            continue
             
-            season_tourn = gbot['seasonTournament']
-            gbo_tourn = season_tourn['tournament']
+        season_tourn = gbot['seasonTournament']
+        gbo_tourn = season_tourn['tournament']
 
-            to_tourn = None
-            tourns_by_season_cup_id = Tournament.objects.filter(season_cup_german_championship_id=gbot['id'])
-            for t in tourns_dm:
-                if t.season_german_championship_id == season_tourn['id']:
-                    print("Found season_tourn")
-                    to_tourn = t
-                    tourn_found = True
-                    t.organizer=gbouser.subject_id
-                    t.organizer_orm = gbouser
-                    t.name=gbo_tourn['name']
-                    t.last_sync_at=datetime.now()
-                    t.season_german_championship_id=season_tourn['id']
-                    t.season_cup_german_championship_id=gbot['id']
-                    t.season = season
-                    t.save()
-                    ts, cr = TournamentSettings.objects.get_or_create(tournament=t)
-                    ts.save()
-                    sync_referees_of_tournament(gbo_data, t)
-            if not tourn_found and tourns_by_season_cup_id.count() == 0:
-                #create tournament
-                new_t = Tournament(organizer=gbouser.subject_id,
-                organizer_orm = gbouser,
-                name=gbo_tourn['name'],
-                last_sync_at=datetime.now(),
-                season_german_championship_id=season_tourn['id'],
-                season_cup_german_championship_id=gbot['id'],
-                season=season)
-                new_t.save()
-                ts, cr = TournamentSettings.objects.get_or_create(tournament=new_t)
+        to_tourn = None
+        tourns_by_season_cup_id = Tournament.objects.filter(season_cup_german_championship_id=gbot['id'])
+        for t in tourns_dm:
+            if t.season_german_championship_id == season_tourn['id']:
+                print("Found season_tourn")
+                to_tourn = t
+                tourn_found = True
+                t.organizer=gbouser.subject_id
+                t.organizer_orm = gbouser
+                t.name=gbo_tourn['name']
+                t.last_sync_at=datetime.now()
+                t.season_german_championship_id=season_tourn['id']
+                t.season_cup_german_championship_id=gbot['id']
+                t.season = season
+                t.save()
+                ts, cr = TournamentSettings.objects.get_or_create(tournament=t)
                 ts.save()
-                to_tourn = new_t
-                tourns_dm.append(new_t)
-                sync_referees_of_tournament(gbo_data, new_t)
-            else:
-                print("Tournament exists but is assigned to other user")
+                sync_referees_of_tournament(gbo_data, t)
+        if not tourn_found and tourns_by_season_cup_id.count() == 0:
+            #create tournament
+            new_t = Tournament(organizer=gbouser.subject_id,
+            organizer_orm = gbouser,
+            name=gbo_tourn['name'],
+            last_sync_at=datetime.now(),
+            season_german_championship_id=season_tourn['id'],
+            season_cup_german_championship_id=gbot['id'],
+            season=season)
+            new_t.save()
+            ts, cr = TournamentSettings.objects.get_or_create(tournament=new_t)
+            ts.save()
+            to_tourn = new_t
+            tourns_dm.append(new_t)
+            sync_referees_of_tournament(gbo_data, new_t)
+        else:
+            print("Tournament exists but is assigned to other user")
     print("sub-season")
     end = time.time()
     execution_time = end - begin

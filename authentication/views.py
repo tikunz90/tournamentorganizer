@@ -6,6 +6,7 @@ from django.forms.models import model_to_dict
 
 #from beachhandball_app.tasks import update_user_tournament_events_async
 from beachhandball_app.models.Tournaments import Tournament
+from beachhandball_app.models.Series import Season
 from django.shortcuts import render
 from datetime import datetime
 import time
@@ -37,12 +38,13 @@ def login_view(request):
         # Optionally, include status code in the message for debugging
         if 'status_code' in seasons:
             msg += f" (Status code: {seasons['status_code']})"
-        form = LoginNoSeasonForm(request.POST or None, seasons=[])
+        form = LoginNoSeasonForm(request.POST or None)
         execution_time_func = time.time() - begin_func
         print('Login execution_time = ' + str(execution_time_func))
         return render(request, "accounts/login_no_season.html", {"form": form, "msg": msg })
 
     update_active_seasons(seasons)
+    seasons = Season.objects.filter(is_actual=True)
     #form = LoginForm(request.POST or None, seasons=seasons)
     form = LoginNoSeasonForm(request.POST or None)
 
@@ -166,9 +168,18 @@ def login_view(request):
                             #print('Executiontime syncTournamentData: ' + str(execution_time1))
                             #print('Executiontime syncTournamentGCData: ' + str(execution_time2))
                             #print('Executiontime syncTournamentSubData: ' + str(execution_time3))
+                            
+                            gbo_data = {}
+                            gbo_gc_data = {}
+                            for season in seasons:
+                                data, execution_time = SWS.syncTournamentData(gbouser, season.gbo_season_id)
+                                datagc, execution_time = SWS.syncTournamentGCData(gbouser, season.gbo_season_id)
+                                gbo_data[season.gbo_season_id] = data.get('message', [])
+                                gbo_gc_data[season.gbo_season_id] = datagc.get('message', [])
+                            gbouser.gbo_data_all = gbo_data
+                            gbouser.gbo_gc_data = gbo_gc_data
                             gbouser.save() 
-                        
-                        #tourns, execution_time = update_user_tournament(gbouser, season_id)
+                            tourns, execution_time = update_user_tournament(gbouser, seasons)
                         
                         # if len(tourns) <= 0:
                         #     msg ='No Tournament Data available! SubjectID: ' + str(gbouser.subject_id)
