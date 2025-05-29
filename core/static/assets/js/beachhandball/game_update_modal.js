@@ -205,8 +205,8 @@ function populateGameForm(data) {
     populateDropdown('court', data.courts, game.court);
     populateDropdown('team_st_a', data.team_stats, game.team_st_a);
     populateDropdown('team_st_b', data.team_stats, game.team_st_b);
-    populateDropdown('ref_a', data.referees, game.ref_a);
-    populateDropdown('ref_b', data.referees, game.ref_b);
+    populateDropdownRefs('ref_a', data.referees, game.ref_a);
+    populateDropdownRefs('ref_b', data.referees, game.ref_b);
     populateDropdown('gamestate', data.gamestate_choices, game.gamestate);
     populateDropdown('gamingstate', data.gamingstate_choices, game.gamingstate);
 }
@@ -240,6 +240,40 @@ function populateDropdown(id, options, selectedValue) {
 
     console.log(`Dropdown #${id} set to:`, $(select).val());
 }
+
+function populateDropdownRefs(id, options, selectedValue) {
+    const select = document.getElementById(id);
+    // Add a user-friendly empty option
+    let placeholder = "No selection";
+    if (id === "ref_a" || id === "ref_b") {
+        placeholder = "No Referee";
+    }
+    select.innerHTML = `<option value="">${placeholder}</option>`;
+
+    if (!options || !Array.isArray(options)) return;
+
+    options.forEach(option => {
+        const optionElement = document.createElement('option');
+        const optionValue = String(option.id || option.value || '');
+        const optionText = option.name || option.text || option.number || '';
+
+        optionElement.value = optionValue;
+        optionElement.textContent = optionText;
+
+        select.appendChild(optionElement);
+    });
+
+    let selectedOptionValue = '';
+    if (selectedValue != null) {
+        const selectedId = typeof selectedValue === 'object' ? selectedValue.id : selectedValue;
+        selectedOptionValue = String(selectedId);
+    }
+
+    $(select).val(selectedOptionValue).trigger('change');
+
+    console.log(`Dropdown #${id} set to:`, $(select).val());
+}
+
 function saveGameChanges(gameId, fromGameplan, pkTevent, pkTstage) {
     // Show loading overlay
     $.LoadingOverlay("show", {
