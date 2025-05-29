@@ -271,11 +271,18 @@
                                     <td id="game-list-td-id-{{ game.id }}" data-tag="gamedate" data-content="datetime" class="game-list-datetime-td">
                                         <div id="id_starttime_label" class="game-list-datetime-label">{{ game.starttime.strftime('%d.%m.') }}</div>
                                         <div class="game-list-datetime-input" hidden>
-                                            <input id="id_starttime" data-game_id="{{ game.id }}" class="game-list-datetime form-control datetimepicker" type="text" name="starttime" value="{{ game.starttime }}">
+                                            <input id="id_starttime" data-game_id="{{ game.id }}" class="game-list-datetime form-control datetimepicker" type="text" name="starttime" value="{{ game.starttime.strftime('%Y-%m-%d %H:%M:%S') }}">
                                             <input id="initial-id_starttime" type="hidden" class="game-list-datetime-init" name="initial-starttime" value="{{ game.starttime }}">
                                         </div>
                                     </td>
-                                    <td id="{{ game.id }}_gametime" class="text-center" data-tag="gametime" data-content="{{ game.id }}">{{ game.starttime.strftime('%H:%M') }}</td>
+                                    <td id="{{ game.id }}_gametime" class="text-center gametime-td" data-tag="gametime" data-content="{{ game.id }}">
+                                        {{ game.starttime.strftime('%H:%M') }}
+                                        <input type="text"
+                                               class="gametime-picker"
+                                               data-game_id="{{ game.id }}"
+                                               value="{{ game.starttime.strftime('%H:%M') }}"
+                                               style="display:none; width:80px;" />
+                                    </td>
                                     <td id="game_id_counter" class="text-center" data-tag="game_counter" data-content="{{ game.id }}">{{ game.id_counter }}</td>
                                     <td class="text-center" data-tag="cat" data-content="{{ game.tournament_event.category }}">{{ game.tournament_event.category }}</td>
                                     <td class="text-center" data-tag="tstate_id" data-content="{{ game.tournament_state.id }}">

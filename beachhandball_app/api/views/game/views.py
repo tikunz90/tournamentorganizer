@@ -249,6 +249,32 @@ def game_update_api(request, pk):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+@api_view(['PUT'])
+@authentication_classes([SessionAuthentication, BasicAuthentication])
+@permission_classes([IsAuthenticated])
+def game_update_gametime(request, pk):
+    try:
+        game = Game.objects.get(pk=pk)
+    except Game.DoesNotExist:
+        return Response({"error": "Game not found"}, status=status.HTTP_404_NOT_FOUND)
+
+    # Only update time if 'starttime' is in "HH:mm" format
+    new_time = request.data.get('starttime')
+    if new_time and len(new_time) == 5 and ':' in new_time:
+        try:
+            hour, minute = map(int, new_time.split(':'))
+            # Keep the original date, update only time
+            new_starttime = game.starttime.replace(hour=hour, minute=minute, second=0, microsecond=0)
+            game.starttime = new_starttime
+            game.save(update_fields=['starttime'])
+            return Response({'starttime': game.starttime})
+        except Exception as ex:
+            return Response({'error': f'Invalid time format: {ex}'}, status=400)
+
+    # ... handle other fields as needed ...
+    return Response({'error': 'No valid time provided'}, status=400)
+
+
 @api_view(['GET', 'PATCH'])
 @authentication_classes([SessionAuthentication, BasicAuthentication])
 @permission_classes([IsAuthenticated])
