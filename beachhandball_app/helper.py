@@ -110,6 +110,7 @@ def update_user_tournament(gbouser, seasons):
                 t.save()
                 ts, cr = TournamentSettings.objects.get_or_create(tournament=t)
                 ts.save()
+                update_user_tournament_events(gbouser, t, gbot)
         if not tourn_found and len(tourns_by_season_cup_id) == 0:
             #create tournament
             new_t = Tournament(organizer=gbouser.subject_id,
@@ -122,6 +123,7 @@ def update_user_tournament(gbouser, seasons):
             new_t.save()
             ts, cr = TournamentSettings.objects.get_or_create(tournament=new_t)
             ts.save()
+            update_user_tournament_events(gbouser, new_t)
             to_tourn = new_t
             tourns.append(new_t)
         else:
@@ -165,6 +167,7 @@ def update_user_tournament(gbouser, seasons):
                 t.save()
                 ts, cr = TournamentSettings.objects.get_or_create(tournament=t)
                 ts.save()
+                update_user_tournament_events(gbouser, t, gbot)
                 sync_referees_of_tournament(gbo_data, t)
         if not tourn_found and tourns_by_season_cup_id.count() == 0:
             #create tournament
@@ -180,6 +183,7 @@ def update_user_tournament(gbouser, seasons):
             ts.save()
             to_tourn = new_t
             tourns_dm.append(new_t)
+            update_user_tournament_events(gbouser, new_t, gbot)
             sync_referees_of_tournament(gbo_data, new_t)
         else:
             print("Tournament exists but is assigned to other user")
@@ -218,6 +222,7 @@ def update_user_tournament(gbouser, seasons):
                     t.save()
                     ts, cr = TournamentSettings.objects.get_or_create(tournament=t)
                     ts.save()
+                    update_user_tournament_events(gbouser, t)
             if not tourn_found and tourns_by_season_cup_id.count() == 0:
                 #create tournament
                 new_t = Tournament(organizer=gbouser.subject_id,
@@ -231,35 +236,34 @@ def update_user_tournament(gbouser, seasons):
                 ts, cr = TournamentSettings.objects.get_or_create(tournament=new_t)
                 ts.save()
                 to_tourn = new_t
+                update_user_tournament_events(gbouser, new_t)
             else:
                 print("Tournament exists but is assigned to other user")
 
-def update_user_tournament_events(gbouser, to_tourn):
+def update_user_tournament_events(gbouser, tournament_obj, gbo_data):
     begin = time.time()
     print("ENTER update_user_tournament_events", datetime.now())
     try:
         if type(gbouser) is GBOUser:
             gbouser = gbouser.__dict__
-        if type(to_tourn) is Tournament:
-            to_tourn = to_tourn.__dict__
+        if type(tournament_obj) is Tournament:
+            to_tourn = tournament_obj.__dict__
         cup_type = 'is_cup'
         if to_tourn['season_cup_tournament_id'] != 0:
-            gbo_data = gbouser['gbo_data_all']
+            #gbo_data = gbouser['gbo_data_all']
             cup_type = 'is_cup'
         elif to_tourn['season_cup_german_championship_id'] != 0:
-            gbo_data = gbouser['gbo_gc_data']
+            #gbo_data = gbouser['gbo_gc_data']
             cup_type = 'is_gc'
         elif to_tourn['sub_season_cup_tournament_id'] != 0:
-            gbo_data = gbouser['gbo_sub_data']
+            #gbo_data = gbouser['gbo_sub_data']
             cup_type = 'is_sub'
         else:
             print("No ID to any gbo tournament")
             return
-        if not gbo_data['isError']:
-            gbo_data = gbo_data['message']
-
+        if True: #not gbo_data['isError']:
             # Prefetch all categories for this tournament
-            category_ids = [cat['category']['id'] for gbot in gbo_data for cat in gbot['seasonTournament']['seasonTournamentCategories']]
+            category_ids = [cat['category']['id'] for cat in gbo_data['seasonTournament']['seasonTournamentCategories']]
             existing_cats = TournamentCategory.objects.filter(gbo_category_id__in=category_ids)
             cat_map = {(cat.gbo_category_id, cat.classification, cat.name, cat.category): cat for cat in existing_cats}
             new_cats = []
@@ -267,27 +271,26 @@ def update_user_tournament_events(gbouser, to_tourn):
 
             # Prefetch all events for this tournament
             event_filter = Q()
-            for gbot in gbo_data:
-                season_tourn = gbot['seasonTournament']
-                for cat in season_tourn['seasonTournamentCategories']:
-                    if cup_type == 'is_cup':
-                        event_filter |= Q(
-                            tournament_id=to_tourn['id'],
-                            category__gbo_category_id=cat['category']['id'],
-                            season_cup_tournament_id=gbot['id']
-                        )
-                    elif cup_type == 'is_gc':
-                        event_filter |= Q(
-                            tournament_id=to_tourn['id'],
-                            category__gbo_category_id=cat['category']['id'],
-                            season_cup_german_championship_id=gbot['id']
-                        )
-                    elif cup_type == 'is_sub':
-                        event_filter |= Q(
-                            tournament_id=to_tourn['id'],
-                            category__gbo_category_id=cat['category']['id'],
-                            sub_season_cup_tournament_id=gbot['id']
-                        )
+            season_tourn = gbo_data['seasonTournament']
+            for cat in season_tourn['seasonTournamentCategories']:
+                if cup_type == 'is_cup':
+                    event_filter |= Q(
+                        tournament_id=to_tourn['id'],
+                        category__gbo_category_id=cat['category']['id'],
+                        season_cup_tournament_id=gbo_data['id']
+                    )
+                elif cup_type == 'is_gc':
+                    event_filter |= Q(
+                        tournament_id=to_tourn['id'],
+                        category__gbo_category_id=cat['category']['id'],
+                        season_cup_german_championship_id=gbo_data['id']
+                    )
+                elif cup_type == 'is_sub':
+                    event_filter |= Q(
+                        tournament_id=to_tourn['id'],
+                        category__gbo_category_id=cat['category']['id'],
+                        sub_season_cup_tournament_id=gbo_data['id']
+                    )
             existing_events = TournamentEvent.objects.filter(event_filter)
             event_map = {}
             for ev in existing_events:
@@ -295,15 +298,16 @@ def update_user_tournament_events(gbouser, to_tourn):
                 event_map[key] = ev
             new_events = []
 
-            for gbot in gbo_data:
-                season_tourn = gbot['seasonTournament']
-                if cup_type == 'is_cup' and season_tourn['id'] != to_tourn['season_tournament_id']:
-                    continue
-                elif cup_type == 'is_gc' and season_tourn['id'] != to_tourn['season_german_championship_id']:
-                    continue
-                elif cup_type == 'is_sub':
-                    continue
 
+            season_tourn = gbo_data['seasonTournament']
+            doNewCategory = True
+            if cup_type == 'is_cup' and season_tourn['id'] != to_tourn['season_tournament_id']:
+                doNewCategory = False
+            elif cup_type == 'is_gc' and season_tourn['id'] != to_tourn['season_german_championship_id']:
+                doNewCategory = False
+            elif cup_type == 'is_sub':
+                doNewCategory = False
+            if doNewCategory:
                 # read dates
                 if not season_tourn['seasonTournamentWeeks']:
                     print("Not weeks defined")
@@ -337,15 +341,15 @@ def update_user_tournament_events(gbouser, to_tourn):
                     cat_map[cat_key] = c
 
             # Now process events
-            for gbot in gbo_data:
-                season_tourn = gbot['seasonTournament']
-                if cup_type == 'is_cup' and season_tourn['id'] != to_tourn['season_tournament_id']:
-                    continue
-                elif cup_type == 'is_gc' and season_tourn['id'] != to_tourn['season_german_championship_id']:
-                    continue
-                elif cup_type == 'is_sub':
-                    continue
-
+            season_tourn = gbo_data['seasonTournament']
+            doNewEvents = True
+            if cup_type == 'is_cup' and season_tourn['id'] != to_tourn['season_tournament_id']:
+                doNewEvents = False
+            elif cup_type == 'is_gc' and season_tourn['id'] != to_tourn['season_german_championship_id']:
+                doNewEvents = False
+            elif cup_type == 'is_sub':
+                doNewEvents = False
+            if doNewEvents:
                 start_ts = int(season_tourn['seasonTournamentWeeks'][0]['seasonWeek']['start_at_ts'])/1000
                 end_ts = int(season_tourn['seasonTournamentWeeks'][0]['seasonWeek']['end_at_ts'])/1000
 
@@ -353,13 +357,13 @@ def update_user_tournament_events(gbouser, to_tourn):
                     cat_key = (cat['category']['id'], cat['category']['name'], cat['category']['gender']['name'], cat['category']['gender']['name'])
                     tcat = cat_map[cat_key]
                     if cup_type == 'is_cup':
-                        event_key = (tcat.gbo_category_id, gbot['id'], 0, 0)
+                        event_key = (tcat.gbo_category_id, gbo_data['id'], 0, 0)
                         tevents = [event_map.get(event_key)]
                     elif cup_type == 'is_gc':
-                        event_key = (tcat.gbo_category_id, 0, gbot['id'], 0)
+                        event_key = (tcat.gbo_category_id, 0, gbo_data['id'], 0)
                         tevents = [event_map.get(event_key)]
                     elif cup_type == 'is_sub':
-                        event_key = (tcat.gbo_category_id, 0, 0, gbot['id'])
+                        event_key = (tcat.gbo_category_id, 0, 0, gbo_data['id'])
                         tevents = [event_map.get(event_key)]
                     else:
                         tevents = [None]
@@ -367,9 +371,9 @@ def update_user_tournament_events(gbouser, to_tourn):
                     if not tevents[0]:
                         if cup_type == 'is_cup':
                             te = TournamentEvent(
-                                tournament_id=to_tourn['id'],
+                                tournament=tournament_obj,
                                 season_tournament_category_id=cat['id'],
-                                season_cup_tournament_id=gbot['id'],
+                                season_cup_tournament_id=gbo_data['id'],
                                 season_tournament_id=season_tourn['id'],
                                 name=to_tourn['name'],
                                 category=tcat,
@@ -380,9 +384,9 @@ def update_user_tournament_events(gbouser, to_tourn):
                             )
                         elif cup_type == 'is_gc':
                             te = TournamentEvent(
-                                tournament_id=to_tourn['id'],
+                                tournament=tournament_obj,
                                 season_tournament_category_id=cat['id'],
-                                season_cup_german_championship_id=gbot['id'],
+                                season_cup_german_championship_id=gbo_data['id'],
                                 season_tournament_id=season_tourn['id'],
                                 name=to_tourn['name'],
                                 category=tcat,
@@ -393,9 +397,9 @@ def update_user_tournament_events(gbouser, to_tourn):
                             )
                         elif cup_type == 'is_sub':
                             te = TournamentEvent(
-                                tournament_id=to_tourn['id'],
+                                tournament=tournament_obj,
                                 season_tournament_category_id=cat['id'],
-                                sub_season_cup_tournament_id=gbot['id'],
+                                sub_season_cup_tournament_id=gbo_data['id'],
                                 season_tournament_id=season_tourn['id'],
                                 name=to_tourn['name'],
                                 category=tcat,
@@ -405,10 +409,12 @@ def update_user_tournament_events(gbouser, to_tourn):
                                 last_sync_at=datetime.now()
                             )
                         if te:
+                            te.save()
+                            te.related_tournaments.set([tournament_obj])
                             new_events.append(te)
                     else:
                         te = tevents[0]
-                        te.tournament_id = to_tourn['id']
+                        te.tournament = tournament_obj
                         te.name = to_tourn['name']
                         te.category = tcat
                         te.start_ts = datetime.fromtimestamp(start_ts)
@@ -416,9 +422,12 @@ def update_user_tournament_events(gbouser, to_tourn):
                         te.max_number_teams = 16
                         te.last_sync_at = datetime.now()
                         te.save()
+                        if not te.related_tournaments.filter(id=tournament_obj.id).exists():
+                            te.related_tournaments.add(tournament_obj)
+                        te.save()
 
                     # team sync
-                    data = gbot['seasonTeamCupTournamentRankings']
+                    data = gbo_data['seasonTeamCupTournamentRankings']
                     if te:
                         sync_only_teams(gbouser, te, data, cup_type)
 
@@ -428,15 +437,12 @@ def update_user_tournament_events(gbouser, to_tourn):
                 # Optionally, sync teams for new events (if needed)
                 for te in new_events:
                     data = None
-                    for gbot in gbo_data:
-                        if cup_type == 'is_cup' and te.season_cup_tournament_id == gbot['id']:
-                            data = gbot['seasonTeamCupTournamentRankings']
-                        elif cup_type == 'is_gc' and te.season_cup_german_championship_id == gbot['id']:
-                            data = gbot['seasonTeamCupTournamentRankings']
-                        elif cup_type == 'is_sub' and te.sub_season_cup_tournament_id == gbot['id']:
-                            data = gbot['seasonTeamCupTournamentRankings']
-                        if data is not None:
-                            break
+                    if cup_type == 'is_cup' and te.season_cup_tournament_id == gbo_data['id']:
+                        data = gbo_data['seasonTeamCupTournamentRankings']
+                    elif cup_type == 'is_gc' and te.season_cup_german_championship_id == gbo_data['id']:
+                        data = gbo_data['seasonTeamCupTournamentRankings']
+                    elif cup_type == 'is_sub' and te.sub_season_cup_tournament_id == gbo_data['id']:
+                        data = gbo_data['seasonTeamCupTournamentRankings']
                     if data is not None:
                         sync_only_teams(gbouser, te, data, cup_type)
 

@@ -146,9 +146,20 @@ def tournament_setup(request):
     season_tournaments = []
     for season in seasons:
         tournaments = Tournament.objects.filter(
-            organizer_orm=guser,
-            season=season
-        )
+        organizer_orm=guser,
+        season=season
+            ).prefetch_related(
+                Prefetch(
+                    'tournamentevent_set',
+                    queryset=TournamentEvent.objects.select_related('category'),
+                    to_attr='parental_events'
+                ),
+                Prefetch(
+                    'related_events',
+                    queryset=TournamentEvent.objects.select_related('category'),
+                    to_attr='related_events_list'
+                )
+            )
         season_tournaments.append({
             'season': season,
             'tournaments': tournaments

@@ -40,6 +40,11 @@ class Tournament(models.Model):
     sub_season_cup_tournament_id = models.IntegerField(default=0)
 
     @property
+    def related_events(self):
+        """TournamentEvents where this tournament is in related_tournaments (ManyToMany)."""
+        return TournamentEvent.objects.filter(related_tournaments=self)
+
+    @property
     def name_short(self):
         return '{}'.format(self.name)
 
@@ -105,6 +110,14 @@ class TournamentEvent(models.Model):
     created_at = UnixDateTimeField(editable=False, default=timezone.now)
 
     tournament = models.ForeignKey('Tournament', null=True, on_delete=models.CASCADE)
+
+    related_tournaments = models.ManyToManyField(
+        'Tournament',
+        related_name='related_events',
+        blank=True,
+        help_text="Additional tournaments this event is related to."
+    )
+
     #season = models.ForeignKey('Season', null=True, related_name='+', on_delete=models.SET_NULL)
     category = models.ForeignKey('TournamentCategory', blank=True, null=True, on_delete=models.SET_NULL)
 
