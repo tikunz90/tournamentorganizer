@@ -17,6 +17,28 @@ from django.conf import settings
 def create_pregame_report_excel(game):
     print('ENTER create_report_excel')
     print('game_report DIR: ' + settings.GAME_REPORT_DIR)
+
+    game = (
+        Game.objects
+        .select_related(
+            "tournament",
+            "tournament_event__category",
+            "tournament_state__tournament_stage",
+            "court",
+            "team_st_a__team",
+            "team_st_b__team",
+            "ref_a",
+            "ref_b"
+        )
+        .prefetch_related(
+            Prefetch("team_st_a__team__player_set", queryset=Player.objects.order_by('number'), to_attr="players_a"),
+            Prefetch("team_st_b__team__player_set", queryset=Player.objects.order_by('number'), to_attr="players_b"),
+            Prefetch("team_st_a__team__coach_set", to_attr="coaches_a"),
+            Prefetch("team_st_b__team__coach_set", to_attr="coaches_b"),
+        )
+        .get(pk=game.pk)
+    )
+
     tsettings = TournamentSettings.objects.get(tournament=game.tournament)
     if not tsettings.game_report_template:
         return ('', '')
