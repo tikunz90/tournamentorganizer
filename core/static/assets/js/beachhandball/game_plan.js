@@ -160,6 +160,15 @@ function renderCourtView() {
         courts.forEach(court => {
             let game = grouped[timeStr][court.id];
             if (game) {
+                // --- Team name rendering with Material icon ---
+                let teamA = game.teamA.startsWith("emoji_events")
+                    ? `<span class="material-icons" style="vertical-align:middle;">emoji_events</span> ${game.teamA.replace(/^emoji_events/, '').trim()}`
+                    : `<b>${game.teamA}</b>`;
+                let teamB = game.teamB.startsWith("emoji_events")
+                    ? `<span class="material-icons" style="vertical-align:middle;">emoji_events</span> ${game.teamB.replace(/^emoji_events/, '').trim()}`
+                    : `<b>${game.teamB}</b>`;
+                // ---------------------------------------------
+
                 html += `<td>
         <table style="width:100%; border: none;">
             <tr>
@@ -168,7 +177,7 @@ function renderCourtView() {
                         ${game.stateAbbr}
                     </div>
                     <div style="color:black;">
-                        <b>${game.teamA}</b> vs. <b>${game.teamB}</b>
+                        ${teamA} vs. ${teamB}
                     </div>
                     <div style="color:black;">
                         ${game.gamestate}
