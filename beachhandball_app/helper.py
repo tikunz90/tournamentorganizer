@@ -1879,73 +1879,69 @@ def calculate_tstate(tstate):
     try:
         #ts = TournamentState.objects.get(id=tstate)
 
-        tstats = TeamStats.objects.filter(tournamentstate=tstate).all()
-
-        for tst in tstats:
-            tst.number_of_played_games = 0
-            tst.game_points = 0
-            tst.game_points_bonus = 0
-            tst.ranking_points = 0
-            tst.sets_win = 0
-            tst.sets_loose = 0
-            tst.points_made = 0
-            tst.points_received = 0
-            #tst.save()
-        TeamStats.objects.bulk_update(tstats, ("number_of_played_games","game_points", "game_points_bonus", "ranking_points", "sets_win", "sets_loose", "points_made", "points_received"))
-
+        tstats = list(TeamStats.objects.filter(tournamentstate=tstate))
+        tstats_map = {ts.id: ts for ts in tstats}
+        for ts in tstats:
+            ts.number_of_played_games = 0
+            ts.game_points = 0
+            ts.game_points_bonus = 0
+            ts.ranking_points = 0
+            ts.sets_win = 0
+            ts.sets_loose = 0
+            ts.points_made = 0
+            ts.points_received = 0
+        TeamStats.objects.bulk_update(
+            tstats,
+            [
+                "number_of_played_games", "game_points", "game_points_bonus",
+                "ranking_points", "sets_win", "sets_loose", "points_made", "points_received"
+            ]
+        )
         #games = Game.objects.all().filter(tournament_event=ts.tournament_event,
         #                                  tournament_state=ts,
         #                                  gamestate='FINISHED')
         
-        # Update Team Ids if stat is changed
-        games_bulk_list = []
-        games_app = Game.objects.select_related("team_st_a__team", "team_st_b__team").filter(tournament_event=tstate.tournament_event,
-                                                                                    tournament_state=tstate,
-                                                                                    gamestate='APPENDING').all()
+        # Update APPENDING games' team_a/team_b in bulk
+        games_app = list(Game.objects.select_related("team_st_a__team", "team_st_b__team")
+                         .filter(tournament_event=tstate.tournament_event,
+                                 tournament_state=tstate,
+                                 gamestate='APPENDING'))
         for g in games_app:
-            g.team_a = g.team_st_a.team 
+            g.team_a = g.team_st_a.team
             g.team_b = g.team_st_b.team
-            games_bulk_list.append(g)
-        Game.objects.bulk_update(games_bulk_list,("team_a", "team_b"))
-        
-        games = Game.objects.select_related("team_st_a__team", "team_st_b__team").filter(tournament_event=tstate.tournament_event,
-                                                                                    tournament_state=tstate,
-                                                                                    gamestate='FINISHED').all()
+        Game.objects.bulk_update(games_app, ("team_a", "team_b"))
+
+        # Fetch all FINISHED games and related TeamStats in one go
+        games = list(Game.objects.select_related("team_st_a", "team_st_b")
+                     .filter(tournament_event=tstate.tournament_event,
+                             tournament_state=tstate,
+                             gamestate='FINISHED'))
+
+        # Prepare in-memory stats update
+        team_stats_updates = {}
         games_bulk_list = []
-        team_st_a_bulk_list = []
-        team_st_b_bulk_list = []
-        team_st_bulk_list = []
         num_finished_games = 0
+
         for g in games:
-            #team_a_stats = TeamStats.objects.filter(tournament_event=g.tournament,
-            #                                       tournamentstate=g.tournament_state,
-            #                                       team=g.team_a)[:1].get()
-            #team_b_stats = TeamStats.objects.filter(tournament_event=g.tournament,
-            #                                       tournamentstate=g.tournament_state,
-            #                                       team=g.team_b)[:1].get()
             team_a_stats = g.team_st_a
             team_b_stats = g.team_st_b
             iSetH = 0
             iSetA = 0
-            if getIntVal(g.score_team_a_halftime_1) > getIntVal(
-                   g.score_team_b_halftime_1):
+
+            # Calculate set wins
+            if getIntVal(g.score_team_a_halftime_1) > getIntVal(g.score_team_b_halftime_1):
                 iSetH += 1
-            elif getIntVal(g.score_team_a_halftime_1) < getIntVal(
-                    g.score_team_b_halftime_1):
+            elif getIntVal(g.score_team_a_halftime_1) < getIntVal(g.score_team_b_halftime_1):
                 iSetA += 1
 
-            if getIntVal(g.score_team_a_halftime_2) > getIntVal(
-                    g.score_team_b_halftime_2):
+            if getIntVal(g.score_team_a_halftime_2) > getIntVal(g.score_team_b_halftime_2):
                 iSetH += 1
-            elif getIntVal(g.score_team_a_halftime_2) < getIntVal(
-                    g.score_team_b_halftime_2):
+            elif getIntVal(g.score_team_a_halftime_2) < getIntVal(g.score_team_b_halftime_2):
                 iSetA += 1
 
-            if getIntVal(g.score_team_a_penalty) > getIntVal(
-                    g.score_team_b_penalty):
+            if getIntVal(g.score_team_a_penalty) > getIntVal(g.score_team_b_penalty):
                 iSetH += 1
-            elif getIntVal(g.score_team_a_penalty) < getIntVal(
-                    g.score_team_b_penalty):
+            elif getIntVal(g.score_team_a_penalty) < getIntVal(g.score_team_b_penalty):
                 iSetA += 1
 
             if iSetH == 0 and iSetA == 0:
@@ -1953,111 +1949,89 @@ def calculate_tstate(tstate):
                 games_bulk_list.append(g)
                 continue
 
-            actGamesWinA = getIntVal(team_a_stats.game_points)
-            nPlayedGamesA = getIntVal(team_a_stats.number_of_played_games)
-            actGamesWinB = getIntVal(team_b_stats.game_points)
-            nPlayedGamesB = getIntVal(team_b_stats.number_of_played_games)
+            # Update stats in memory
+            for ts, sets_win, sets_loose, points_made, points_received, is_winner in [
+                (team_a_stats, iSetH, iSetA,
+                 getIntVal(g.score_team_a_halftime_1) + getIntVal(g.score_team_a_halftime_2) + getIntVal(g.score_team_a_penalty),
+                 getIntVal(g.score_team_b_halftime_1) + getIntVal(g.score_team_b_halftime_2) + getIntVal(g.score_team_b_penalty),
+                 iSetH > iSetA),
+                (team_b_stats, iSetA, iSetH,
+                 getIntVal(g.score_team_b_halftime_1) + getIntVal(g.score_team_b_halftime_2) + getIntVal(g.score_team_b_penalty),
+                 getIntVal(g.score_team_a_halftime_1) + getIntVal(g.score_team_a_halftime_2) + getIntVal(g.score_team_a_penalty),
+                 iSetA > iSetH)
+            ]:
+                if ts.id not in team_stats_updates:
+                    team_stats_updates[ts.id] = {
+                        "number_of_played_games": 0,
+                        "game_points": 0,
+                        "ranking_points": 0,
+                        "sets_win": 0,
+                        "sets_loose": 0,
+                        "points_made": 0,
+                        "points_received": 0,
+                    }
+                upd = team_stats_updates[ts.id]
+                upd["number_of_played_games"] += 1
+                if is_winner:
+                    upd["game_points"] += 2
+                    upd["ranking_points"] += 2
+                upd["sets_win"] += sets_win
+                upd["sets_loose"] += sets_loose
+                upd["points_made"] += points_made
+                upd["points_received"] += points_received
 
-            team_a_stats.number_of_played_games = nPlayedGamesA + 1
-            team_b_stats.number_of_played_games = nPlayedGamesB + 1
-
-            if iSetH > iSetA:
-                team_a_stats.game_points = actGamesWinA + 2
-                team_a_stats.ranking_points = actGamesWinA + 2
-            else:
-                team_b_stats.game_points = actGamesWinB + 2
-                team_b_stats.ranking_points = actGamesWinB + 2
-
-            actSetsWinA = getIntVal(team_a_stats.sets_win)
-            actSetsLooseA = getIntVal(team_a_stats.sets_loose)
-            actPointsMadeA = getIntVal(team_a_stats.points_made)
-            actPointsRecA = getIntVal(team_a_stats.points_received)
-
-            pointsMa = getIntVal(g.score_team_a_halftime_1) + \
-                       getIntVal(g.score_team_a_halftime_2) + \
-                       getIntVal(g.score_team_a_penalty)
-
-            pointsMb = getIntVal(g.score_team_b_halftime_1) + \
-                       getIntVal(g.score_team_b_halftime_2) + \
-                       getIntVal(g.score_team_b_penalty)
-
-            team_a_stats.sets_win = actSetsWinA + iSetH
-            team_a_stats.sets_loose = actSetsLooseA + iSetA
-            team_a_stats.points_made = actPointsMadeA + pointsMa
-            team_a_stats.points_received = actPointsRecA + pointsMb
-
-            actSetsWinB = getIntVal(team_b_stats.sets_win)
-            actSetsLooseB = getIntVal(team_b_stats.sets_loose)
-            actPointsMadeB = getIntVal(team_b_stats.points_made)
-            actPointsRecB = getIntVal(team_b_stats.points_received)
-
-            team_b_stats.sets_win = actSetsWinB + iSetA
-            team_b_stats.sets_loose = actSetsLooseB + iSetH
-            team_b_stats.points_made = actPointsMadeB + pointsMb
-            team_b_stats.points_received = actPointsRecB + pointsMa
-
-            ts_a_found = False
-            ts_b_found = False
-            for ts in team_st_bulk_list:
-                if ts.id == team_a_stats.id:
-                    ts.number_of_played_games += team_a_stats.number_of_played_games
-                    ts.game_points += team_a_stats.game_points
-                    ts.ranking_points += team_a_stats.ranking_points
-                    ts.sets_win        += team_a_stats.sets_win
-                    ts.sets_loose      += team_a_stats.sets_loose
-                    ts.points_made     += team_a_stats.points_made
-                    ts.points_received += team_a_stats.points_received
-                    ts_a_found = True
-                if ts.id == team_b_stats.id:
-                    ts.number_of_played_games += team_b_stats.number_of_played_games
-                    ts.game_points += team_b_stats.game_points
-                    ts.ranking_points += team_b_stats.ranking_points
-                    ts.sets_win        += team_b_stats.sets_win
-                    ts.sets_loose      += team_b_stats.sets_loose
-                    ts.points_made     += team_b_stats.points_made
-                    ts.points_received += team_b_stats.points_received
-                    ts_b_found = True
-            if not ts_a_found:
-                team_st_bulk_list.append(team_a_stats)
-            if not ts_b_found:
-                team_st_bulk_list.append(team_b_stats)
-            #team_a_stats.save()
-            #team_b_stats.save()
             g.gamingstate = 'Finished'
             g.calc_winner()
             games_bulk_list.append(g)
-            num_finished_games = num_finished_games + 1
-            #g.save()
-        TeamStats.objects.bulk_update(team_st_bulk_list,("sets_win", "sets_loose", "points_made", "points_received", "game_points", "ranking_points", "number_of_played_games"))
-        Game.objects.bulk_update(games_bulk_list,("gamingstate", "score_team_a_halftime_1", "score_team_a_halftime_2", "score_team_a_penalty", "score_team_b_halftime_1", "score_team_b_halftime_2", "score_team_b_penalty", "setpoints_team_a", "setpoints_team_b", "winner_halftime_1", "winner_halftime_2", "winner_penalty", "winner"))
-        
-        if not tstate.direct_compare and num_finished_games > 0:
-            teamstatsquery = _do_table_ordering(TeamStats.objects.filter(tournamentstate=tstate))
-            teamstats = teamstatsquery.all()
-            max_val = teamstats.count()
-            rank = 1
-            for tstat in teamstats:
-                tstat.ranking_points = tstat.ranking_points + max_val
-                tstat.rank = rank
-                rank = rank + 1
-                max_val = max_val - 1
-                #tstat.save()
-            TeamStats.objects.bulk_update(teamstats, ("ranking_points","rank"))
+            num_finished_games += 1
 
-        elif num_finished_games > 0:    
-            check_direct_compare(tstate)
-            teamstatsquery = _do_table_ordering(TeamStats.objects.filter(tournamentstate=tstate))
-            teamstats = teamstatsquery.all()
-            max_val = teamstats.count()
-            rank = 1
-            for tstat in teamstats:
-                tstat.ranking_points = tstat.ranking_points + max_val
+        # Apply in-memory updates to TeamStats objects
+        for ts in tstats:
+            upd = team_stats_updates.get(ts.id)
+            if upd:
+                ts.number_of_played_games = upd["number_of_played_games"]
+                ts.game_points = upd["game_points"]
+                ts.ranking_points = upd["ranking_points"]
+                ts.sets_win = upd["sets_win"]
+                ts.sets_loose = upd["sets_loose"]
+                ts.points_made = upd["points_made"]
+                ts.points_received = upd["points_received"]
+
+        TeamStats.objects.bulk_update(
+            tstats,
+            [
+                "number_of_played_games", "game_points", "ranking_points",
+                "sets_win", "sets_loose", "points_made", "points_received"
+            ]
+        )
+        Game.objects.bulk_update(
+            games_bulk_list,
+            (
+                "gamingstate", "score_team_a_halftime_1", "score_team_a_halftime_2", "score_team_a_penalty",
+                "score_team_b_halftime_1", "score_team_b_halftime_2", "score_team_b_penalty",
+                "setpoints_team_a", "setpoints_team_b", "winner_halftime_1", "winner_halftime_2", "winner"
+            )
+        )
+
+        # Ranking calculation
+        if not tstate.direct_compare and num_finished_games > 0:
+            teamstats = list(_do_table_ordering(TeamStats.objects.filter(tournamentstate=tstate)))
+            max_val = len(teamstats)
+            for rank, tstat in enumerate(teamstats, start=1):
+                tstat.ranking_points += max_val
                 tstat.rank = rank
-                rank = rank + 1
-                max_val = max_val - 1
-                #tstat.save()
-            TeamStats.objects.bulk_update(teamstats, ("ranking_points","rank"))
-        #check_tournamentstate_finished(ts.tournament_event, ts)
+                max_val -= 1
+            TeamStats.objects.bulk_update(teamstats, ("ranking_points", "rank"))
+        elif num_finished_games > 0:
+            check_direct_compare(tstate)
+            teamstats = list(_do_table_ordering(TeamStats.objects.filter(tournamentstate=tstate)))
+            max_val = len(teamstats)
+            for rank, tstat in enumerate(teamstats, start=1):
+                tstat.ranking_points += max_val
+                tstat.rank = rank
+                max_val -= 1
+            TeamStats.objects.bulk_update(teamstats, ("ranking_points", "rank"))
+
     except Exception as e:
         print(e)
     finally:
@@ -2066,11 +2040,30 @@ def calculate_tstate(tstate):
 def create_global_pstats(tevent_id):
     try:
         tevent = TournamentEvent.objects.get(id=tevent_id)
-        player = Player.objects.filter(tournament_event=tevent)
-        player_list = [p for p in player.all()]
-        for pl in player_list:
-            ps, cr = PlayerStats.objects.get_or_create(tournament_event=tevent,
-            player=pl, is_ranked=True)
+        # Fetch all players for the event
+        player_list = list(Player.objects.filter(tournament_event=tevent))
+        if not player_list:
+            return
+
+        # Fetch all existing PlayerStats for these players and this event
+        existing_stats = PlayerStats.objects.filter(
+            tournament_event=tevent,
+            player__in=player_list,
+            is_ranked=True
+        ).select_related('player')
+
+        # Build a set of (player_id) for which PlayerStats already exist
+        existing_player_ids = set(ps.player_id for ps in existing_stats)
+
+        # Prepare PlayerStats to create in bulk
+        to_create = [
+            PlayerStats(tournament_event=tevent, player=pl, is_ranked=True)
+            for pl in player_list if pl.id not in existing_player_ids
+        ]
+
+        if to_create:
+            PlayerStats.objects.bulk_create(to_create, batch_size=100)
+
     except Exception as e:
         print(e)
     finally:
@@ -2078,12 +2071,30 @@ def create_global_pstats(tevent_id):
 
 def create_global_pstats_of_game(game):
     try:
-        tevent = TournamentEvent.objects.get(id=0)
-        player = Player.objects.filter(tournament_event=tevent)
-        player_list = [p for p in player.all()]
-        for pl in player_list:
-            ps, cr = PlayerStats.objects.get_or_create(tournament_event=tevent,
-            player=pl, is_ranked=True)
+        tevent = game.tournament_event  # Use the event from the game
+        player_list = list(Player.objects.filter(tournament_event=tevent))
+        if not player_list:
+            return
+
+        # Fetch all existing PlayerStats for these players and this event
+        existing_stats = PlayerStats.objects.filter(
+            tournament_event=tevent,
+            player__in=player_list,
+            is_ranked=True
+        ).select_related('player')
+
+        # Build a set of player IDs for which PlayerStats already exist
+        existing_player_ids = set(ps.player_id for ps in existing_stats)
+
+        # Prepare PlayerStats to create in bulk
+        to_create = [
+            PlayerStats(tournament_event=tevent, player=pl, is_ranked=True)
+            for pl in player_list if pl.id not in existing_player_ids
+        ]
+
+        if to_create:
+            PlayerStats.objects.bulk_create(to_create, batch_size=100)
+
     except Exception as e:
         print(e)
     finally:
@@ -2093,21 +2104,41 @@ def recalc_global_pstats(tevent_id):
     print('recalc_global_pstats tevent_id=' + str(tevent_id))
     try:
         tevent = TournamentEvent.objects.get(id=tevent_id)
-        player = Player.objects.filter(tournament_event=tevent)
-        player_list = [p for p in player.all()]
-        global_pstats = PlayerStats.objects.select_related('player').filter(tournament_event=tevent, is_ranked=True)
-        gl_pstats = [p for p in global_pstats.all()]
-        pstats = PlayerStats.objects.select_related('player').filter(tournament_event=tevent, is_ranked=False)
-        pstats_list = [ps for ps in pstats.all()]
+        # Fetch all players for the event
+        player_list = list(Player.objects.filter(tournament_event=tevent))
+        if not player_list:
+            return
 
+        # Fetch all PlayerStats for this event
+        global_pstats = list(PlayerStats.objects.select_related('player').filter(
+            tournament_event=tevent, is_ranked=True
+        ))
+        pstats = list(PlayerStats.objects.select_related('player').filter(
+            tournament_event=tevent, is_ranked=False
+        ))
+
+        # Build lookup dictionaries
+        global_pstats_by_player = {ps.player_id: ps for ps in global_pstats}
+        pstats_by_player = defaultdict(list)
+        for ps in pstats:
+            pstats_by_player[ps.player_id].append(ps)
+
+        # Prepare fields to update
+        fields = [
+            'score', 'spin_success', 'spin_try', 'one_try', 'one_success',
+            'suspension', 'redcard', 'block_success', 'goal_keeper_success',
+            'season_cup_tournament_id', 'season_cup_german_championship_id',
+            'season_player_id', 'season_team_id', 'gbo_category_id', 'games_played',
+            'kempa_try', 'kempa_success', 'shooter_try', 'shooter_success',
+            'sixm_try', 'sixm_success'
+        ]
+
+        # Update global stats in memory
         for pl in player_list:
-            stats = []
-            gl_stat = next((gstat for gstat in global_pstats if gstat.player.id == pl.id), None)
-            if gl_stat is None:
+            gl_stat = global_pstats_by_player.get(pl.id)
+            if not gl_stat:
                 continue
-            for st in pstats:
-                if st.player.id == pl.id:
-                    stats.append(st)
+            stats = pstats_by_player.get(pl.id, [])
             gl_stat.score = sum(s.score for s in stats)
             gl_stat.spin_try = sum(s.spin_try for s in stats)
             gl_stat.spin_success = sum(s.spin_success for s in stats)
@@ -2130,14 +2161,13 @@ def recalc_global_pstats(tevent_id):
             gl_stat.gbo_category_id = tevent.category.gbo_category_id
             gl_stat.games_played = len(stats)
 
-        PlayerStats.objects.bulk_update(global_pstats, fields=['score','spin_success','spin_try', 'one_try', 'one_success','suspension','redcard', 'block_success', 'goal_keeper_success', 'season_cup_tournament_id', 'season_player_id','season_team_id', 'gbo_category_id', 'games_played'])   
-
+        # Bulk update all global stats
+        PlayerStats.objects.bulk_update(global_pstats, fields=fields)
 
     except Exception as e:
         print(e)
     finally:
         print('')
-
 def _do_table_ordering(queryset):
     return queryset.extra(
         select={'points_difference': 'points_made - points_received'}

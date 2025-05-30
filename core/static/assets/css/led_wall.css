@@ -93,7 +93,7 @@ img {
   text-overflow: ellipsis;
   white-space: nowrap;
   text-align: left;
-  padding-top: 0.5%;
+  padding-top: 3%;
   padding-bottom: 1%;
   padding-left: 3%;
 }
@@ -103,7 +103,7 @@ img {
   text-overflow: ellipsis;
   white-space: nowrap;
   text-align: right;
-  padding-top: 0.5%;
+  padding-top: 3%;
   padding-bottom: 1%;
   padding-right: 3%;
 }
@@ -120,7 +120,7 @@ img {
 .numbercol {
   width: 15%;
   width: 50px;
-  font-size: 21px;
+  font-size: 26px;
 }
 
 .namecol {
@@ -130,7 +130,7 @@ img {
   text-overflow: ellipsis;
   white-space: nowrap;
   text-align: left;
-  font-size: 21px;
+  font-size: 24px;
 }
 
 .row-full-width {
@@ -139,7 +139,7 @@ img {
 
 /* Clock styles */
 #clock {
-  font-size: 28px;
+  font-size: 32px;
   font-weight: bold;
   z-index: 9999;
 }

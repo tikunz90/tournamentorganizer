@@ -79,7 +79,7 @@ var images = [
     "/static/assets/img/advertise/dig.png",
     "/static/assets/img/advertise/gl.png",
     "/static/assets/img/advertise/ht.png",
-    "/static/assets/img/advertise/horn.jpg",
+    "/static/assets/img/advertise/Horn.jpg",
     "/static/assets/img/advertise/zelser.png",
 ];
 
@@ -216,7 +216,7 @@ function fillPlayersTable(tableId, jsonData) {
     var tableBody = document.querySelector(`#${tableId} tbody`);
     tableBody.innerHTML = ''; // Clear any existing rows
 
-    jsonData.forEach(player => {
+    jsonData.slice(0, 12).forEach(player => {
         var playerInfo = player.seasonPlayer.seasonSubject.subject.user;
         var number = player.seasonPlayer.number;
         var name = playerInfo.name;
