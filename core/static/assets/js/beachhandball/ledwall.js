@@ -53,6 +53,7 @@ setInterval(updateClock, 1000);
 updateClock(); // Initial call to set the clock immediately
 
 
+
 // attach an event listener to the "load" event of the window object
 window.addEventListener("load", function () {
     // your code here
@@ -69,6 +70,7 @@ window.addEventListener("load", function () {
         //document.querySelector('.content').classList.add('visible');
     }, 300000); // 5000 milliseconds = 5 seconds
 });
+
 
 var images = [
     "/static/assets/img/gbo_logo.png",
@@ -123,7 +125,7 @@ function displayRandomImage() {
 displayRandomImage();
 
 // Change the image every 2 seconds
-setInterval(displayRandomImage, 4000);
+setInterval(displayRandomImage, 8000);
 
 function onMessageArrived(message) {
     //console.log("onMessageArrived:" + message.payloadString);
