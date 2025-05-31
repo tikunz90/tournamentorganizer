@@ -759,6 +759,35 @@ def postUpdateGameResult(request, pk_tevent, pk_tstage, pk):
         game.score_team_b_halftime_1 = form.data['score_team_b_halftime_1']
         game.score_team_b_halftime_2 = form.data['score_team_b_halftime_2']
         game.score_team_b_penalty = form.data['score_team_b_penalty']
+        pstats_a = serialize_pstats(PlayerStats.objects.filter(
+            tournament_event=game.tournament_event,
+            game=game,
+            player__team=game.team_a,
+            is_ranked=False
+        ))
+        pstats_b = serialize_pstats(PlayerStats.objects.filter(
+            tournament_event=game.tournament_event,
+            game=game,
+            player__team=game.team_b,
+            is_ranked=False
+        ))
+
+        game_info = {
+            "id": game.id,
+            "score_team_a_halftime_1": game.score_team_a_halftime_1,
+            "score_team_a_halftime_2": game.score_team_a_halftime_2,
+            "score_team_a_penalty": game.score_team_a_penalty,
+            "score_team_b_halftime_1": game.score_team_b_halftime_1,
+            "score_team_b_halftime_2": game.score_team_b_halftime_2,
+            "score_team_b_penalty": game.score_team_b_penalty,
+            "gamestate": game.gamestate,
+        }
+        game.last_real_time_data = json.dumps({
+            "game": game_info,
+            "pstats_a": pstats_a,
+            "pstats_b": pstats_b,
+        }, default=str)
+
         game.save()
         calculate_tstate(game.tournament_state)
         helper.create_global_pstats(game.tournament_event.id)
@@ -769,6 +798,24 @@ def postUpdateGameResult(request, pk_tevent, pk_tstage, pk):
             helper_game_report.import_playerstats_game_report(game, upload_data)
         return JsonResponse({"success":True, "msg": "OK", "game_id": game.id}, status=200)
     return JsonResponse({"success":False, "msg": "Failed"}, status=400)
+
+def serialize_pstats(qs):
+    return [
+        {
+            #**{field.name: getattr(pstat, field.name) for field in pstat._meta.fields},
+            "id": getattr(pstat, "id", None),
+            "family_name": getattr(pstat.player, "name", None),
+            "first_name": getattr(pstat.player, "first_name", None),
+            "score": getattr(pstat, "score", None),
+            "suspension": getattr(pstat, "suspension", None),
+            "redcard": getattr(pstat, "redcard", None),
+            "season_player_id": getattr(pstat, "season_player_id", None),
+            "season_cup_tournament_id": getattr(pstat, "season_cup_tournament_id", None),
+            "season_cup_german_championship_id": getattr(pstat, "season_cup_german_championship_id", None),
+            "subject_data": getattr(pstat.player, "subject_data", None)
+        }
+        for pstat in qs.select_related("player")
+    ]
 
 class GameDeleteView(BSModalDeleteView):
     model = Game

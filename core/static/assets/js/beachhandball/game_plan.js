@@ -72,6 +72,14 @@ $(document).ready(function () {
         }
     });
 
+    $("#table-games tbody tr").each(function () {
+        var $gamestateTd = $(this).find('td[data-tag="gamestate"]');
+        if ($gamestateTd.length && $gamestateTd.text().trim() === "APPENDING") {
+            this.scrollIntoView({ behavior: "smooth", block: "center" });
+            return false; // Stop after the first match
+        }
+    });
+
 }); // Closing doc ready
 
 function renderCourtView() {
