@@ -2290,7 +2290,11 @@ def check_tournamentstate_finished(tevent, ts):
             ts.transitions_done = False
         else:
             ts.transitions_done = True
-        ts.save(update_fields=['transitions_done'])
+        ts.is_finished = True
+        ts.save(update_fields=['transitions_done', 'is_finished'])
+    else:
+        ts.is_finished = False
+        ts.save(update_fields=['is_finished'])
     post_save.connect(signals.ttt_changed, sender=TournamentTeamTransition)
 
 def get_tournament_info_json(tourn):
