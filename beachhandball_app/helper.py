@@ -1,3 +1,4 @@
+import json
 import traceback
 
 import unicodedata
@@ -2402,3 +2403,65 @@ def parse_time_from_picker(dt_str):
         return dt
     # If all fail, raise an error
     raise ValueError(f"Unknown date format: {dt_str}")
+
+def update_game_real_time_data(game_obj):
+    print('ENTER')
+    pstats_a = serialize_pstats(PlayerStats.objects.filter(
+            tournament_event=game_obj.tournament_event,
+            game=game_obj,
+            player__team=game_obj.team_a,
+            is_ranked=False
+        ))
+    pstats_b = serialize_pstats(PlayerStats.objects.filter(
+        tournament_event=game_obj.tournament_event,
+        game=game_obj,
+        player__team=game_obj.team_b,
+        is_ranked=False
+    ))
+
+    game_info = {
+        "id": game_obj.id,
+        "actualHalftimeSeconds": game_obj.act_time,
+        "maxHalfTimeSeconds": game_obj.duration_of_halftime,
+        "court": game_obj.court.name,
+        "startTs": int(game_obj.starttime.timestamp()) if game_obj.starttime else None,
+        "maxPenalty": game_obj.number_of_penalty_tries,
+        "isFirstHalf": False,
+        "isSecondHalf": False,
+        "isPenalty": False,
+        "teamA": {
+            "dataChanged": True,
+            "seasonTeamId": game_obj.team_a.season_team_id,
+            "scoreFirstHalf": game_obj.score_team_a_halftime_1,
+            "scoreSecondHalf": game_obj.score_team_a_halftime_2,
+            "scorePenalty": game_obj.score_team_a_penalty,
+            "penaltyCount": 0,#game_obj.penalty_count_team_a,
+            "playersScore": pstats_a,
+            },
+        "teamB": {
+            "dataChanged": True,
+            "seasonTeamId": game_obj.team_b.season_team_id,
+            "scoreFirstHalf": game_obj.score_team_b_halftime_1,
+            "scoreSecondHalf": game_obj.score_team_b_halftime_2,
+            "scorePenalty": game_obj.score_team_b_penalty,
+            "penaltyCount": 0,#game_obj.penalty_count_team_b,
+            "playersScore": pstats_b,
+            },
+        
+    }
+    return json.dumps(game_info, default=str)
+
+
+def serialize_pstats(qs):
+    return [
+        {
+            "score": getattr(pstat, "score", 0),
+            "seasonPlayer": {
+                "id": getattr(pstat, "season_player_id", 0),
+                "number": getattr(pstat.player, "number", 0),
+                "seasonSubject": getattr(pstat.player, "subject_data", {}),
+                }
+            #**{field.name: getattr(pstat, field.name) for field in pstat._meta.fields},
+        }
+        for pstat in qs.select_related("player")
+    ]
