@@ -190,7 +190,44 @@ def serialize_game2(game: Game) -> Dict[str, Any]:
         'tournament_state': serialize_tournament_state(game.tournament_state),
     }
 
+def serialize_game_no_players(game: Game) -> Dict[str, Any]:
+    ps_a = []
+    ps_b = []
+    if hasattr(game, 'player_stats'):
+        ps_a = [serialize_playerstat(ps) for ps in game.player_stats if ps.player.team_id == game.team_a.id]
+        ps_b = [serialize_playerstat(ps) for ps in game.player_stats if ps.player.team_id == game.team_b.id]
+
+    return {
+        'id': game.id,
+        'team_a': serialize_team(game.team_a),
+        'team_b': serialize_team(game.team_b),
+        'team_st_a': serialize_teamstat(game.team_st_a),
+        'team_st_b': serialize_teamstat(game.team_st_b),
+        'starttime': time.mktime(game.starttime.timetuple()),
+        'court': serialize_court_wo_tourns(game.court),
+        'duration_of_halftime': game.duration_of_halftime,
+        'score_team_a_halftime_1': game.score_team_a_halftime_1,
+        'score_team_a_halftime_2': game.score_team_a_halftime_2,
+        'score_team_a_penalty': game.score_team_a_penalty,
+        'score_team_b_halftime_1': game.score_team_b_halftime_1,
+        'score_team_b_halftime_2': game.score_team_b_halftime_2,
+        'score_team_b_penalty': game.score_team_b_penalty,
+        'gamestate': game.gamestate,
+        'gamingstate': game.gamingstate,
+        'player_stats_team_a': ps_a,
+        'player_stats_team_b': ps_b,
+        'tournament': serialize_tournament(game.tournament),
+        'tournament_event': serialize_tournament_event(game.tournament_event),
+        'tournament_state': serialize_tournament_state(game.tournament_state),
+    }
+
+
 def serialize_games(games) -> Dict[str, Any]:
+    return {
+        'games': [serialize_game(g) for g in games]
+    }
+
+def serialize_games_list(games) -> Dict[str, Any]:
     return {
         'games': [serialize_game(g) for g in games]
     }

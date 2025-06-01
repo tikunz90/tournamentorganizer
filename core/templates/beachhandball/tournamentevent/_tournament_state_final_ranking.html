@@ -14,7 +14,15 @@
                 {% for tstat in tstate.teamstats_set.all().order_by('rank') %}
                     <tr>
                     <td class="text-center">{{loop.index}}</td>
-                    <td>{{ tstat.name_table }}</td>
+                    <td class="d-flex justify-content-between align-items-center">
+                        <span>{{ tstat.name_table }}</span>
+                        <button type="button"
+                                class="btn btn-sm btn-outline-primary edit-team-btn"
+                                data-tstat-id="{{ tstat.id }}"
+                                data-tournament-event-id="{{ tstat.tournament_event.id }}">
+                            <i class="material-icons">edit</i>
+                        </button>
+                    </td>
                     </tr>
                 {% endfor %}
             </tbody>

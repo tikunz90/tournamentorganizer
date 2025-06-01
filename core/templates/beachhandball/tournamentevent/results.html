@@ -9,148 +9,176 @@
 <h2>Results</h2>
 <hr>
 <div class="col d-flex justify-content-center">
-<h2>Final Ranking 
-  <small class="description"></small>
-</h2>
+    <h2>
+        Final Ranking
+        <small class="description"></small>
+    </h2>
 </div>
 <div class="row">
-  {% for tstate in tevent.get_final_tstate.all() %}
+    {% for tstate in tevent.get_final_tstate.all() %}
     {% include "beachhandball/tournamentevent/_tournament_state_final_ranking.html" %}
-  {% else %}
-  {% endfor %}
+    {% else %}
+    {% endfor %}
 </div>
 <hr>
 <div class="row">
-  <div class="col-md-6">
-    <div class="card">
-        <div class="card-header card-header-success card-header-icon">
-          <div class="card-icon">
-            <i class="material-icons">sports_handball</i>
-          </div>
-          <h4 class="card-title">Best Offense Player:</h4>
-        </div>
-        <div class="card-body">
-          <div class="table-responsive">
-            <table class="table">
-              <thead>
-                <tr>
-                  <th>Rank</th>
-                  <th>Player</th>
-                  <th>Score</th>
-                  <th>#Games</th>
-                  <th>Spin</th>
-                  <th>Kempa</th>
-                  <th>Spec.</th>
-                  <th>One</th>
-                </tr>
-              </thead>
-              <tbody>
-              {% for pstat in playerstats_offense.all()[:100] %}
-                <tr>
-                  <td>{{ loop.index }}</td>
-                  <td>{{ pstat.player.name }}, {{ pstat.player.first_name }} ({{ pstat.player.team.name }})</td>
-                  <td>{{ pstat.score }}</td>
-                  <td>{{ pstat.games_played }}</td>
-                  <td>{{ pstat.spin_success }}/{{ pstat.spin_try }} {% if pstat.spin_try > 0 %}{{ (100 * pstat.spin_success / pstat.spin_try) | round(1, 'common')}}%{% endif %}</td>
-                  <td>{{ pstat.kempa_success }}/{{ pstat.kempa_try }} {% if pstat.kempa_try > 0 %}{{ (100 * pstat.kempa_success / pstat.kempa_try) | round(1, 'common')}}%{% endif %}</td>
-                  <td>{{ pstat.shooter_success }}/{{ pstat.shooter_try }} {% if pstat.shooter_try > 0 %}{{ (100 * pstat.shooter_success / pstat.shooter_try) | round(1, 'common')}}%{% endif %}</td>
-                  <td>{{ pstat.one_success }}/{{ pstat.one_try }} {% if pstat.one_try > 0 %}{{ (100 * pstat.one_success / pstat.one_try) | round(1, 'common')}}%{% endif %}</td>
-                </tr>
-              {% endfor %}
-              </tbody>
-            </table>
-          </div>
-          
-            
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header card-header-success card-header-icon">
+                <div class="card-icon">
+                    <i class="material-icons">sports_handball</i>
+                </div>
+                <h4 class="card-title">Best Offense Player:</h4>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Rank</th>
+                                <th>Player</th>
+                                <th>Score</th>
+                                <th>#Games</th>
+                                <th>Spin</th>
+                                <th>Kempa</th>
+                                <th>Spec.</th>
+                                <th>One</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for pstat in playerstats_offense %}
+                            <tr>
+                                <td>{{ loop.index }}</td>
+                                <td>{{ pstat.player.name }}, {{ pstat.player.first_name }} ({{ pstat.player.team.name }})</td>
+                                <td>{{ pstat.score }}</td>
+                                <td>{{ pstat.games_played }}</td>
+                                <td>{{ pstat.spin_success }}/{{ pstat.spin_try }} {% if pstat.spin_try > 0 %}{{ (100 * pstat.spin_success / pstat.spin_try) | round(1, 'common')}}%{% endif %}</td>
+                                <td>{{ pstat.kempa_success }}/{{ pstat.kempa_try }} {% if pstat.kempa_try > 0 %}{{ (100 * pstat.kempa_success / pstat.kempa_try) | round(1, 'common')}}%{% endif %}</td>
+                                <td>{{ pstat.shooter_success }}/{{ pstat.shooter_try }} {% if pstat.shooter_try > 0 %}{{ (100 * pstat.shooter_success / pstat.shooter_try) | round(1, 'common')}}%{% endif %}</td>
+                                <td>{{ pstat.one_success }}/{{ pstat.one_try }} {% if pstat.one_try > 0 %}{{ (100 * pstat.one_success / pstat.one_try) | round(1, 'common')}}%{% endif %}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+
+            </div>
         </div>
     </div>
-  </div>
 
 
-  <div class="col-md-6">
-    <div class="card">
-        <div class="card-header card-header-danger card-header-icon">
-          <div class="card-icon">
-            <i class="material-icons">block</i>
-          </div>
-          <h4 class="card-title">Best Defense Player:</h4>
-        </div>
-        <div class="card-body">
-          <div class="table-responsive">
-            <table class="table">
-              <thead>
-                <tr>
-                  <th>Rank</th>
-                  <th>Player</th>
-                  <th>#Games</th>
-                  <th>Blocks</th>
-                  <th>Suspension</th>
-                  <th>Red Card</th>
-                </tr>
-              </thead>
-              <tbody>
-              {% for pstat in playerstats_defense.all()[:100] %}
-                <tr>
-                  <td>{{ loop.index }}</td>
-                  <td>{{ pstat.player.name }}, {{ pstat.player.first_name }} ({{ pstat.player.team.name }})</td>
-                  <td>{{ pstat.games_played }}</td>
-                  <td>{{ pstat.block_success }}</td>
-                  <td>{{ pstat.suspension }}</td>
-                  <td>{{ pstat.redcard }}</td>
-                </tr>
-              {% endfor %}
-              </tbody>
-            </table>
-          </div>
-          
-            
-        </div>
-    </div>
-  </div>
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header card-header-danger card-header-icon">
+                <div class="card-icon">
+                    <i class="material-icons">block</i>
+                </div>
+                <h4 class="card-title">Best Defense Player:</h4>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Rank</th>
+                                <th>Player</th>
+                                <th>#Games</th>
+                                <th>Blocks</th>
+                                <th>Suspension</th>
+                                <th>Red Card</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for pstat in playerstats_defense %}
+                            <tr>
+                                <td>{{ loop.index }}</td>
+                                <td>{{ pstat.player.name }}, {{ pstat.player.first_name }} ({{ pstat.player.team.name }})</td>
+                                <td>{{ pstat.games_played }}</td>
+                                <td>{{ pstat.block_success }}</td>
+                                <td>{{ pstat.suspension }}</td>
+                                <td>{{ pstat.redcard }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
 
 
-  <div class="col-md-6">
-    <div class="card">
-        <div class="card-header card-header-info card-header-icon">
-          <div class="card-icon">
-            <i class="material-icons">accessibility</i>
-          </div>
-          <h4 class="card-title">Best Goalkeeper:</h4>
-        </div>
-        <div class="card-body">
-          <div class="table-responsive">
-            <table class="table">
-              <thead>
-                <tr>
-                  <th>Rank</th>
-                  <th>Player</th>
-                  <th>#Games</th>
-                  <th>Saves</th>
-                </tr>
-              </thead>
-              <tbody>
-              {% for pstat in playerstats_goalie.all()[:100] %}
-                <tr>
-                  <td>{{ loop.index }}</td>
-                  <td>{{ pstat.player.name }}, {{ pstat.player.first_name }} ({{ pstat.player.team.name }})</td>
-                  <td>{{ pstat.games_played }}</td>
-                  <td>{{ pstat.goal_keeper_success }}</td>
-                </tr>
-              {% endfor %}
-              </tbody>
-            </table>
-          </div>
-          
-            
+            </div>
         </div>
     </div>
-  </div>
+
+
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header card-header-info card-header-icon">
+                <div class="card-icon">
+                    <i class="material-icons">accessibility</i>
+                </div>
+                <h4 class="card-title">Best Goalkeeper:</h4>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Rank</th>
+                                <th>Player</th>
+                                <th>#Games</th>
+                                <th>Saves</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for pstat in playerstats_goalie %}
+                            <tr>
+                                <td>{{ loop.index }}</td>
+                                <td>{{ pstat.player.name }}, {{ pstat.player.first_name }} ({{ pstat.player.team.name }})</td>
+                                <td>{{ pstat.games_played }}</td>
+                                <td>{{ pstat.goal_keeper_success }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+
+            </div>
+        </div>
+    </div>
 </div>
 
 <div class="row">
-  <form action="{{ url('recalc_global_stats', args=[tevent.id]) }}" method='GET'>
-    <button type='submit' class="btn btn-primary">Recalc Stats</button>
-  </form>
+    <form action="{{ url('recalc_global_stats', args=[tevent.id]) }}" method='GET'>
+        <button type='submit' class="btn btn-primary">Recalc Stats</button>
+    </form>
+</div>
+
+<!-- Team Select Modal -->
+<div class="modal fade" id="editTeamModal" tabindex="-1" role="dialog" aria-labelledby="editTeamModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <form id="editTeamFormFinalRanking">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editTeamModalLabel">Select Team</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <input type="text" class="form-control mb-2" id="teamSearchInput" placeholder="Search team...">
+                    <select class="form-control" id="teamSelect" name="team_id" required>
+                        <!-- Options will be loaded dynamically -->
+                    </select>
+                    <input type="hidden" id="editTstatId" name="tstat_id" />
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary">Save</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                </div>
+            </div>
+        </form>
+    </div>
 </div>
 
 
@@ -159,8 +187,67 @@
 {% block javascripts %}
 
 <script>
-  $(document).ready(function() {
-  });
+    $(document).ready(function () {
+
+        var allTeams = [];
+        $(function () {
+            // When edit button is clicked
+            $('.edit-team-btn').on('click', function () {
+                var tstatId = $(this).data('tstat-id');
+                var teventId = $(this).data('tournament-event-id');
+                $('#editTstatId').val(tstatId);
+
+                // Load teams for the tournament_event via AJAX
+                $.getJSON('/api/teams/by_event/' + teventId + '/', function (data) {
+                    allTeams = data.teams;
+                    renderTeamOptions(allTeams);
+                    $('#teamSearchInput').val('');
+                    $('#editTeamModal').modal('show');
+                });
+            });
+
+            // Filter teams as user types
+            $('#teamSearchInput').on('input', function () {
+                var search = $(this).val().toLowerCase();
+                var filtered = allTeams.filter(function (team) {
+                    return team.name.toLowerCase().includes(search);
+                });
+                renderTeamOptions(filtered);
+            });
+
+            function renderTeamOptions(teams) {
+                var $select = $('#teamSelect');
+                $select.empty();
+                teams.forEach(function (team) {
+                    $select.append($('<option>', {
+                        value: team.id,
+                        text: team.name
+                    }));
+                });
+            }
+
+            // Handle form submit
+            $('#editTeamFormFinalRanking').on('submit', function (e) {
+                e.preventDefault();
+                var tstatId = $('#editTstatId').val();
+                var teamId = $('#teamSelect').val();
+                $.ajax({
+                    url: '/api/teamstats/' + tstatId + '/set_team/',
+                    method: 'POST',
+                    data: {
+                        team_id: teamId,
+                        csrfmiddlewaretoken: '{{ csrf_token }}'
+                    },
+                    success: function (response) {
+                        location.reload();
+                    },
+                    error: function () {
+                        alert('Failed to update team.');
+                    }
+                });
+            });
+        });
+    });
 </script>
 
 {% endblock javascripts %}
