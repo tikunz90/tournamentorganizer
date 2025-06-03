@@ -9,15 +9,15 @@
 
     <div class="imagecontainer" data-id="info">
         <div class="row">
-            <div class="col" style="text-align: center; padding: 1%">
-                <h2 id="gameTournamentState">{{ game.tournament_state }}</h2>
-            </div>
-        </div>
-
-        <div class="row">
             <div class="col tableheaderA">
                 <h3 id="gameTeamA_Name">{{ game.team_a.name }}</h3>
             </div>
+
+            <div class="col" style="text-align: center; padding: 1%">
+                <h2 id="gameTournamentState">{{ game.tournament_state }}</h2>
+            </div>
+
+
             <div class="col tableheaderB">
                 <h3 id="gameTeamB_Name">{{ game.team_b.name }}</h3>
             </div>
@@ -106,7 +106,7 @@
         </div>
     </div>
 
-    <div id="image-container" class="imagecontainer contains-img advertise"  data-id="advertise">
+    <div id="image-container" class="imagecontainer contains-img advertise" data-id="advertise">
     </div>
 
     <div class="imagecontainer weatherforecast"  data-id="weatherforecast">

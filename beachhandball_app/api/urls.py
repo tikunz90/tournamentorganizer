@@ -1,7 +1,7 @@
 from beachhandball_app.api.views.game_report.views import FileUploadView, UploadGameReportViewSet
 from beachhandball_app.api.views.team.views import Team2ViewSet
 from beachhandball_app.models.Team import TeamTournamentResult
-from beachhandball_app.api.views.game.views import game_update_api, game_modal_api
+from beachhandball_app.api.views.game.views import game_update_api, game_modal_api, game_update_gametime
 from django.conf.urls import url
 from django.urls import path, include
 from django.contrib import admin
@@ -9,7 +9,7 @@ from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from django.views.generic import TemplateView
 from .views import login_by_token
 from .views.game.views import Login, GameDeleteStatsViewSet, GameViewSet, GameActionViewSet, PlayerStatsSet, PlayerStatsViewSet, RunningGamesDM, ScoutingReportViewSet, RunningGames, TeamViewSet, GameList, StartGameScouting, hello_world, get_pstats_tevent
-from .views.tournament.views import get_games_gc_info, get_tournament_info, get_games_info, get_game_info, get_games_info_by_court, get_tournament_struct, get_tournament_struct_light
+from .views.tournament.views import teams_by_event, set_team_for_teamstat, get_games_gc_info, get_tournament_info, get_games_info, get_game_info, get_games_list_by_court, get_games_info_by_court, get_tournament_struct, get_tournament_struct_light
 from rest_framework import renderers
 from rest_framework.authtoken import views
 from rest_framework import routers
@@ -30,8 +30,10 @@ urlpatterns = [
     path('games/running/', RunningGames, name='get_running_games'),
     path('games/running/dm/', RunningGamesDM, name='get_running_games_dm'),
     path('games/<int:game_id>/info/', get_game_info, name='get_game_info'),
+    path('games/bycourt/<int:court_id>/', get_games_list_by_court, name='get_games_list_by_court'),
     path('games/<int:pk>/modal/', game_modal_api, name='game_modal_api'),
     path('games/<int:pk>/update/', game_update_api, name='game_update_api'),
+    path('games/<int:pk>/update_game_time/', game_update_gametime, name='game_update_gametime_api'),
 
     path('hello_world/<int:tevent_id>/<int:amount>/', hello_world, name='hello_world'),
 
@@ -53,6 +55,8 @@ urlpatterns = [
     path('teams/', TeamViewSet.as_view({'get': 'list'})),
     path('scouting/<int:game_id>/', ScoutingReportViewSet.as_view({'get': 'retrieve', 'post': 'create', 'patch': 'partial_update'})),
     path('scouting/<int:game_id>/start/', StartGameScouting, name='scouting_start'),
+    path('teams/by_event/<int:tevent_id>/', teams_by_event, name='teams_by_event'),
+    path('teamstats/<int:tstat_id>/set_team/', set_team_for_teamstat, name='set_team_for_teamstat'),
 
     path('', include(router.urls)),
     path('game_report/upload/<int:pk>/', FileUploadView.as_view()),

@@ -486,7 +486,8 @@ $(document).ready(function() {
 
     $('#btn_game_update_result').on('click', function(){
       var url = '{{ url("post_update_game_result", kwargs={"pk_tevent":game.tournament_event.id, "pk_tstage": game.tournament_state.tournament_stage.id, "pk":  object.id}) }}'
-      $.ajax({
+        $.LoadingOverlay("show");
+        $.ajax({
         url: url,
         type: 'post',
         dataType: 'json',
@@ -499,7 +500,11 @@ $(document).ready(function() {
             document.location.reload(true);
           }
           
-        }
+            },
+            complete: function () {
+                // Hide spinner in all cases
+                $.LoadingOverlay("hide");
+            }
       });
       
     });

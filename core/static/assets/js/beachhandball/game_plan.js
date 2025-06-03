@@ -18,7 +18,39 @@ $(document).ready(function () {
         dateFormat: "Y-m-d H:i:S",
         time_24hr: true,
         allowInput: true,
-        locale: "de" // Remove or change if you want a different locale
+        locale: "de", // Remove or change if you want a different locale
+        onOpen: function (selectedDates, dateStr, instance) {
+            instance._originalValue = instance.input.value;
+            instance._changedByUser = false;
+        },
+        onValueUpdate: function (selectedDates, dateStr, instance) {
+            // Only set changed if the update was from a calendar click, not just parsing
+            if (instance.isOpen && instance._flatpickr && instance._flatpickr.latestSelectedDateObj) {
+                // This is a real user selection
+                instance._changedByUser = true;
+            }
+        },
+        onClose: function (selectedDates, dateStr, instance) {
+            if (!instance._changedByUser) {
+                instance.input.value = instance._originalValue || '';
+            }
+            var $input = $(instance.input);
+            var $inputDiv = $input.closest('.game-list-datetime-input');
+            var $label = $inputDiv.siblings('.game-list-datetime-label');
+            $label.attr('hidden', false);
+            $input.attr('hidden', true);
+
+            if (dateStr) {
+                //var $td = $(instance.input).closest('td');
+                //$td.contents().filter(function () {
+                //    return this.nodeType === 3; // text node
+                //}).first().replaceWith(dateStr);
+                // Call updateGameTime with gameId and new time
+                var gameId = $(instance.input).data('game_id');
+                var data = postUpdateGameDateTime(gameId, dateStr);
+            }
+            
+        }
     });
   $.fn.dataTable.moment("HH:mm (DD.MM.YYYY)");
 
@@ -37,6 +69,14 @@ $(document).ready(function () {
             printCourtView();
         } else if (defaultView.style.display !== 'none') {
             printTableGames();
+        }
+    });
+
+    $("#table-games tbody tr").each(function () {
+        var $gamestateTd = $(this).find('td[data-tag="gamestate"]');
+        if ($gamestateTd.length && $gamestateTd.text().trim() === "APPENDING") {
+            this.scrollIntoView({ behavior: "smooth", block: "center" });
+            return false; // Stop after the first match
         }
     });
 
@@ -128,6 +168,15 @@ function renderCourtView() {
         courts.forEach(court => {
             let game = grouped[timeStr][court.id];
             if (game) {
+                // --- Team name rendering with Material icon ---
+                let teamA = game.teamA.startsWith("emoji_events")
+                    ? `<span class="material-icons" style="vertical-align:middle;">emoji_events</span> ${game.teamA.replace(/^emoji_events/, '').trim()}`
+                    : `<b>${game.teamA}</b>`;
+                let teamB = game.teamB.startsWith("emoji_events")
+                    ? `<span class="material-icons" style="vertical-align:middle;">emoji_events</span> ${game.teamB.replace(/^emoji_events/, '').trim()}`
+                    : `<b>${game.teamB}</b>`;
+                // ---------------------------------------------
+
                 html += `<td>
         <table style="width:100%; border: none;">
             <tr>
@@ -136,7 +185,7 @@ function renderCourtView() {
                         ${game.stateAbbr}
                     </div>
                     <div style="color:black;">
-                        <b>${game.teamA}</b> vs. <b>${game.teamB}</b>
+                        ${teamA} vs. ${teamB}
                     </div>
                     <div style="color:black;">
                         ${game.gamestate}
@@ -358,13 +407,13 @@ function setupRowClick() {
 
 function setupDatetime() {
   // Repair DateTime Form because datetimepicker.min.js deletes input value on load
-  $(".game-list-datetime").each(function (i, datetime_input) {
-    var userDate = datetime_input.attributes.value.value;
-    var date_string = moment(userDate, "YYYY-MM-DD HH:mm:ss").format(
-      "MM/DD/YYYY HH:mm"
-    );
-    $(datetime_input).val(date_string);
-  });
+  //$(".game-list-datetime").each(function (i, datetime_input) {
+  //  var userDate = datetime_input.attributes.value.value;
+  //  var date_string = moment(userDate, "YYYY-MM-DD HH:mm:ss").format(
+  //    "MM/DD/YYYY HH:mm"
+  //  );
+  //  $(datetime_input).val(date_string);
+  //});
   $(".game-list-datetime-init").each(function (i, datetime_input) {
     var userDate = datetime_input.attributes.value.value;
     var date_string = moment(userDate, "YYYY-MM-DD HH:mm:ss").format(
@@ -488,29 +537,183 @@ function changeGameTime(row) {
   var data = postUpdateGameDateTime(game_id, date_string);
 }
 
-$(".game-list-datetime-label").on("dblclick", function () {
-  $(this).attr("hidden", true);
-  var close = $(this).parent().children(".game-list-datetime-input");
-  $(close[0]).attr("hidden", false);
+// Initialize flatpickr for all gametime-picker inputs
+$('.gametime-picker').flatpickr({
+    enableTime: true,
+    noCalendar: true,
+    dateFormat: "H:i",
+    time_24hr: true,
+    allowInput: true,
+    onClose: function (selectedDates, dateStr, instance) {
+        // Hide the input after picking
+        $(instance.input).hide();
+        // Optionally update the <td> text
+        if (dateStr) {
+            var $td = $(instance.input).closest('td');
+            $td.contents().filter(function () {
+                return this.nodeType === 3; // text node
+            }).first().replaceWith(dateStr);
+            // Call updateGameTime with gameId and new time
+            var gameId = $(instance.input).data('game_id');
+            updateGameTime(gameId, dateStr);
+        }
+    }
 });
-$(".game-list-datetime").on("keyup", function (e) {
-  var code = e.key; // recommended to use e.key, it's normalized across devices and languages
-  if (code === "Enter") e.preventDefault();
-  if (code === " " || code === "Enter" || code === "," || code === ";") {
-    var game_id = $(this).data("game_id");
-    var date_string = moment(
-        $(this).val(),
-        ["YYYY-MM-DD HH:mm:ss", "YYYY-MM-DD HH:mm", "MM/DD/YYYY HH:mm"]
-    ).format("YYYY-MM-DD HH:mm:ss");
-    var data = postUpdateGameDateTime(game_id, date_string);
-    $(this).closest(".game-list-datetime-input").first().attr("hidden", true);
-    var close = $(this)
-      .closest(".game-list-datetime-td")
-      .first()
-      .children(".game-list-datetime-label");
-    $(close[0]).attr("hidden", false);
-  } // missing closing if brace
+
+// Show the time picker input when <td> is clicked
+$('.gametime-td').on('click', function () {
+    var $input = $(this).find('.gametime-picker');
+    $input.show().focus();
+    if ($input[0]._flatpickr) {
+        $input[0]._flatpickr.open();
+    }
 });
+
+const csrfToken = getCSRFToken();
+function updateGameTime(gameId, newTime) {
+    // newTime should be in "HH:mm" format
+    $.ajax({
+        url: `/api/games/${gameId}/update_game_time/`, 
+        type: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrfToken,
+            'X-Requested-With': 'XMLHttpRequest'
+        },
+        contentType: 'application/json',
+        dataType: 'json',
+        data: JSON.stringify({ starttime: newTime }),
+        success: function (response) {
+
+            // Update the visible time in the gametime-td
+            //$("#" + gameId + "_gametime").contents().filter(function () {
+            //    return this.nodeType === 3; // text node
+            //}).first().replaceWith(newTime);
+
+            var $tdGameTime = $("#" + response.game + "_gametime");
+            // Find the first text node and replace its value
+            $tdGameTime.contents().filter(function () {
+                return this.nodeType === 3; // text node
+            }).first().replaceWith(newTime + " ");
+            // Update the input value and flatpickr instance
+            var $picker = $tdGameTime.find('.gametime-picker');
+            $picker.val(newTime);
+            if ($picker[0] && $picker[0]._flatpickr) {
+                $picker[0]._flatpickr.setDate(newTime, true);
+            }
+
+            // Update the datetime inputs in the corresponding row
+            var $td = $("#game-list-td-id-" + gameId);
+            // If your backend returns the new full datetime string, use it; otherwise, reconstruct it
+            var newDatetime = response.new_datetime || response.starttime; // e.g. "2025-06-28 14:30:00"
+            if (newDatetime) {
+                var date_input = moment(
+                    newDatetime
+                ).format("YYYY-MM-DD HH:mm:ss");
+                // Update both inputs
+                $td.find('input.game-list-datetime').val(date_input);
+                $td.find('input.game-list-datetime-init').val(date_input);
+
+                // Also update flatpickr if present
+                var $input = $td.find('input.game-list-datetime');
+                if ($input[0] && $input[0]._flatpickr) {
+                    $input[0]._flatpickr.setDate(date_input, true);
+                }
+            }
+
+            var table = $("#table-games").DataTable();
+            var order = table.order([1, "asc"]);
+            $("#table-games").filterTable("#games-filter");
+            clearCssSelectedRow();
+            doRowColoring();
+
+
+            // --- Update court-view table ---
+            // Format new time and day
+            var newDate = moment(response.new_datetime, "YYYY-MM-DD HH:mm:ss");
+            var newTime = newDate.format("HH:mm");
+            var newDay = newDate.format("dddd DD.MM.");
+
+            // Find the court-view table
+            var $courtTable = $("#court-view table.body");
+            if ($courtTable.length) {
+                // Find the row for the new time (by first column text)
+                var $rows = $courtTable.find("tbody tr");
+                var foundRow = null;
+                $rows.each(function () {
+                    var $firstTd = $(this).find("td").first();
+                    if ($firstTd.text().trim() === newTime) {
+                        foundRow = $(this);
+                        return false; // break
+                    }
+                });
+
+                // If not found, optionally create a new row (not shown here)
+                if (foundRow) {
+                    // Find the correct court column
+                    var courtIdx = $courtTable.find("thead th").filter(function () {
+                        return $(this).text().includes(response.court_name || response.court_id);
+                    }).index();
+
+                    // If you know the court index (e.g. court_id is 2nd court), you can use it directly:
+                    // courtIdx = ... (calculate based on your courts order)
+
+                    // Update the cell content
+                    var $td = foundRow.find("td").eq(courtIdx);
+                    // You may want to update with new info, e.g. teams, state, etc.
+                    $td.html(
+                        '<div class="btn btn-small" style="background: ' + (response.state_color || "#ccc") + '">' +
+                        (response.state_abbr ? response.state_abbr : "") +
+                        '</div>' +
+                        '<div style="color:black;">' +
+                        (response.team_a || "") + ' vs ' + (response.team_b || "") +
+                        '</div>'
+                    );
+                }
+            }
+            console.log('Game time updated:', response);
+        },
+        error: function (xhr) {
+            alert('Failed to update game time');
+        }
+    });
+}
+
+//$(".game-list-datetime-label").on("dblclick", function () {
+//  $(this).attr("hidden", true);
+//  var close = $(this).parent().children(".game-list-datetime-input");
+//  $(close[0]).attr("hidden", false);
+//});
+$(".game-list-datetime-label").on("click", function () {
+    $(this).attr("hidden", true);
+    var $inputDiv = $(this).parent().children(".game-list-datetime-input");
+    $inputDiv.attr("hidden", false);
+    var $input = $inputDiv.find(".game-list-datetime");
+    $input.focus();
+
+    // If using flatpickr, open the picker immediately
+    if ($input[0] && $input[0]._flatpickr) {
+        $input[0]._flatpickr.open();
+    }
+});
+//$(".game-list-datetime").on("keyup", function (e) {
+//  var code = e.key; // recommended to use e.key, it's normalized across devices and languages
+//  if (code === "Enter") e.preventDefault();
+//  if (code === " " || code === "Enter" || code === "," || code === ";") {
+//    var game_id = $(this).data("game_id");
+//    var date_string = moment(
+//        $(this).val(),
+//        ["YYYY-MM-DD HH:mm:ss", "YYYY-MM-DD HH:mm", "MM/DD/YYYY HH:mm"]
+//    ).format("YYYY-MM-DD HH:mm:ss");
+//    var data = postUpdateGameDateTime(game_id, date_string);
+//    $(this).closest(".game-list-datetime-input").first().attr("hidden", true);
+//    var close = $(this)
+//      .closest(".game-list-datetime-td")
+//      .first()
+//      .children(".game-list-datetime-label");
+//    $(close[0]).attr("hidden", false);
+//  } // missing closing if brace
+//});
 
 $(".game-list-court-label").on("dblclick", function () {
   $(this).attr("hidden", true);
@@ -617,19 +820,33 @@ function postUpdateGameDateTime(game_id, new_datetime) {
         "YYYY-MM-DD HH:mm:ss"
       ).format("MM/DD/YYYY HH:mm");
 
-      $("#" + response.game + "_gametime").text(time_label);
+        var $td = $("#" + response.game + "_gametime");
+        // Find the first text node and replace its value
+        $td.contents().filter(function () {
+            return this.nodeType === 3; // text node
+        }).first().replaceWith(time_label + " ");
+        // Update the input value and flatpickr instance
+        var $picker = $td.find('.gametime-picker');
+        $picker.val(time_label);
+        if ($picker[0] && $picker[0]._flatpickr) {
+            $picker[0]._flatpickr.setDate(time_label, true);
+        }
+
       var game_td = $("#game-list-td-id-" + response.game);
       $(game_td).children(".game-list-datetime-label").first().text(date_label);
+        $(game_td)
+            .children(".game-list-datetime-input")
+            .find("input.game-list-datetime")
+            .each(function (i, input) {
+                if (input._flatpickr) {
+                    input._flatpickr.setDate(date_input, true);
+                } else {
+                    $(input).val(date_input);
+                }
+            });
       $(game_td)
         .children(".game-list-datetime-input")
-        .first()
-        .children()
-        .each(function (i, input) {
-          $(input).val(date_input);
-        });
-      $(game_td)
-        .children(".game-list-datetime-input")
-        .find("#initial-id_starttime")[0].value = response.new_datetime;
+          .find("#initial-id_starttime")[0].value = time_label;
       //$(game_td)
       //  .children(".game-list-datetime-input")
       //  .find("#id_starttime")[0].value = date_input;

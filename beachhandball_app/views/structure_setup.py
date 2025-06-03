@@ -759,6 +759,10 @@ def postUpdateGameResult(request, pk_tevent, pk_tstage, pk):
         game.score_team_b_halftime_1 = form.data['score_team_b_halftime_1']
         game.score_team_b_halftime_2 = form.data['score_team_b_halftime_2']
         game.score_team_b_penalty = form.data['score_team_b_penalty']
+
+        
+        game.last_real_time_data = helper.update_game_real_time_data(game)
+
         game.save()
         calculate_tstate(game.tournament_state)
         helper.create_global_pstats(game.tournament_event.id)
@@ -769,6 +773,8 @@ def postUpdateGameResult(request, pk_tevent, pk_tstage, pk):
             helper_game_report.import_playerstats_game_report(game, upload_data)
         return JsonResponse({"success":True, "msg": "OK", "game_id": game.id}, status=200)
     return JsonResponse({"success":False, "msg": "Failed"}, status=400)
+
+
 
 class GameDeleteView(BSModalDeleteView):
     model = Game

@@ -39,6 +39,7 @@ class ResultsDetail(DetailView):
         if not static_views.checkLoginIsValid(context['gbo_user']):
             return RedirectView('login')
         self.kwargs['context_data'] = context
+        
         return super(ResultsDetail, self).dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
@@ -50,6 +51,7 @@ class ResultsDetail(DetailView):
         #else:
         context = self.kwargs['context_data']
         t = context['tourn']
+        kwargs['events'] = context['events']
         #tevent = TournamentEvent.objects.filter(tournament=t).prefetch_related('TournamentStages')
         context = {}
         kwargs['tourn'] = t
@@ -58,9 +60,10 @@ class ResultsDetail(DetailView):
         kwargs['tournaments_active'] = 'active_detail'
         kwargs['segment'] = 'results'
         kwargs['segment_title'] = 'Results \ ' + tevent.name_short + ' ' + tevent.category.name + ' ' +tevent.category.classification
-        kwargs['playerstats_offense'] = tevent.playerstats_set.filter(is_ranked=True).order_by('-score')
-        kwargs['playerstats_defense'] = tevent.playerstats_set.filter(is_ranked=True).order_by('-block_success')
-        kwargs['playerstats_goalie'] = tevent.playerstats_set.filter(is_ranked=True).order_by('-goal_keeper_success')
+        kwargs['playerstats_offense'] = tevent.playerstats_set.filter(is_ranked=True).select_related('player__team').order_by('-score')[:50]
+        kwargs['playerstats_defense'] = tevent.playerstats_set.filter(is_ranked=True).select_related('player__team').order_by('-block_success')[:50]
+        kwargs['playerstats_goalie'] = tevent.playerstats_set.filter(is_ranked=True).select_related('player__team').order_by('-goal_keeper_success')[:50]
+        
         #tstate = TournamentState.objects.get(id=6)
        # kwargs['form_tstate'] = TournamentStateUpdateForm(instance=tstate)
 

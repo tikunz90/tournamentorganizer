@@ -53,6 +53,7 @@ setInterval(updateClock, 1000);
 updateClock(); // Initial call to set the clock immediately
 
 
+
 // attach an event listener to the "load" event of the window object
 window.addEventListener("load", function () {
     // your code here
@@ -70,6 +71,7 @@ window.addEventListener("load", function () {
     }, 300000); // 5000 milliseconds = 5 seconds
 });
 
+
 var images = [
     "/static/assets/img/gbo_logo.png",
     "/static/assets/img/beachandthegang.png",
@@ -79,7 +81,7 @@ var images = [
     "/static/assets/img/advertise/dig.png",
     "/static/assets/img/advertise/gl.png",
     "/static/assets/img/advertise/ht.png",
-    "/static/assets/img/advertise/horn.jpg",
+    "/static/assets/img/advertise/Horn.jpg",
     "/static/assets/img/advertise/zelser.png",
 ];
 
@@ -123,7 +125,7 @@ function displayRandomImage() {
 displayRandomImage();
 
 // Change the image every 2 seconds
-setInterval(displayRandomImage, 4000);
+setInterval(displayRandomImage, 8000);
 
 function onMessageArrived(message) {
     //console.log("onMessageArrived:" + message.payloadString);
@@ -216,7 +218,7 @@ function fillPlayersTable(tableId, jsonData) {
     var tableBody = document.querySelector(`#${tableId} tbody`);
     tableBody.innerHTML = ''; // Clear any existing rows
 
-    jsonData.forEach(player => {
+    jsonData.slice(0, 12).forEach(player => {
         var playerInfo = player.seasonPlayer.seasonSubject.subject.user;
         var number = player.seasonPlayer.number;
         var name = playerInfo.name;

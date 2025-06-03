@@ -21,7 +21,7 @@ from beachhandball_app.api.serializers.game.serializer import GameRunningSeriali
 from beachhandball_app.models.Player import Player, PlayerStats
 from beachhandball_app.models.Team import Team, TeamStats
 from beachhandball_app.models.Game import Game, GameAction
-from beachhandball_app.api.serializers.game import GameSerializer, GameActionSerializer
+from beachhandball_app.api.serializers.game import GameSerializer, GameEditSerializer, GameActionSerializer
 from beachhandball_app.api.drf_optimize import OptimizeRelatedModelViewSetMetaclass
 from beachhandball_app.models.Tournaments import TournamentEvent, Court, Referee
 from beachhandball_app.api.serializers.player.serializer import PlayerSerializer
@@ -249,6 +249,32 @@ def game_update_api(request, pk):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+@api_view(['PUT'])
+@authentication_classes([SessionAuthentication, BasicAuthentication])
+@permission_classes([IsAuthenticated])
+def game_update_gametime(request, pk):
+    try:
+        game = Game.objects.get(pk=pk)
+    except Game.DoesNotExist:
+        return Response({"error": "Game not found"}, status=status.HTTP_404_NOT_FOUND)
+
+    # Only update time if 'starttime' is in "HH:mm" format
+    new_time = request.data.get('starttime')
+    if new_time and len(new_time) == 5 and ':' in new_time:
+        try:
+            hour, minute = map(int, new_time.split(':'))
+            # Keep the original date, update only time
+            new_starttime = game.starttime.replace(hour=hour, minute=minute, second=0, microsecond=0)
+            game.starttime = new_starttime
+            game.save(update_fields=['starttime'])
+            return Response({'starttime': game.starttime})
+        except Exception as ex:
+            return Response({'error': f'Invalid time format: {ex}'}, status=400)
+
+    # ... handle other fields as needed ...
+    return Response({'error': 'No valid time provided'}, status=400)
+
+
 @api_view(['GET', 'PATCH'])
 @authentication_classes([SessionAuthentication, BasicAuthentication])
 @permission_classes([IsAuthenticated])
@@ -301,11 +327,13 @@ def game_modal_api(request, pk):
     
     elif request.method == 'PATCH':
 
+        data = request.data.copy()
         starttime = request.data.get('starttime')
         if starttime is not None:
             try:
                 # Convert Unix timestamp to datetime
                 game.starttime = datetime.fromtimestamp(int(starttime))
+                data['starttime'] = datetime.fromtimestamp(int(starttime))
             except Exception as ex:
                 return Response({'error': f'Invalid starttime: {ex}'}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -318,7 +346,7 @@ def game_modal_api(request, pk):
                 return Response({'error': 'Court not found'}, status=status.HTTP_400_BAD_REQUEST)
 
         # Update the game with the provided data
-        serializer = GameSerializer(game, data=request.data, partial=True)
+        serializer = GameEditSerializer(game, data=data, partial=True)
         
         if serializer.is_valid():
             # Auto-assign teams from team_stats if needed
@@ -335,13 +363,31 @@ def game_modal_api(request, pk):
                 serializer.validated_data['team_b'] = game.team_st_b.team
             
             # Store referee subject IDs
-            if 'ref_a' in request.data and game.ref_a:
-                serializer.validated_data['gbo_ref_a_subject_id'] = game.ref_a.gbo_subject_id
-                
-            if 'ref_b' in request.data and game.ref_b:
-                serializer.validated_data['gbo_ref_b_subject_id'] = game.ref_b.gbo_subject_id
+            if 'ref_a' in request.data:
+                if request.data['ref_a'] is None:
+                    game.ref_a = None
+                    serializer.validated_data['gbo_ref_a_subject_id'] = 0
+                else:
+                    try:
+                        ref_a_obj = Referee.objects.get(id=request.data['ref_a'])
+                        game.ref_a = ref_a_obj
+                        serializer.validated_data['gbo_ref_a_subject_id'] = ref_a_obj.gbo_subject_id
+                    except Referee.DoesNotExist:
+                        return Response({'error': 'Referee A not found'}, status=status.HTTP_400_BAD_REQUEST)
+
+            if 'ref_b' in request.data:
+                if request.data['ref_b'] is None:
+                    game.ref_b = None
+                    serializer.validated_data['gbo_ref_a_subject_id'] = 0
+                else:
+                    try:
+                        ref_b_obj = Referee.objects.get(id=request.data['ref_b'])
+                        game.ref_b = ref_b_obj
+                        serializer.validated_data['gbo_ref_b_subject_id'] = ref_b_obj.gbo_subject_id
+                    except Referee.DoesNotExist:
+                        return Response({'error': 'Referee B not found'}, status=status.HTTP_400_BAD_REQUEST)
             
-            game.save(update_fields=['starttime', 'court'])
+            game.save(update_fields=['starttime', 'court', 'ref_a', 'ref_b'])
             # Save and return the updated game
             serializer.save()
             return Response(serializer.data)

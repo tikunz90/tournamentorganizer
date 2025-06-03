@@ -17,7 +17,7 @@ from rest_framework.renderers import JSONRenderer
 from beachhandball_app import helper
 from beachhandball_app.models.Tournaments import Tournament, TournamentEvent, TournamentSettings, TournamentStage, TournamentState, Court, Referee
 from beachhandball_app.models.Game import Game
-from beachhandball_app.models.Team import TeamStats
+from beachhandball_app.models.Team import TeamStats, Team
 from beachhandball_app.models.Player import PlayerStats, Player
 from beachhandball_app.api.serializers.tournament import TournamentSerializer, serialize_tournament, serialize_games, serialize_game2, serialize_tournament_full, serialize_tournament_event_stats
 
@@ -212,7 +212,32 @@ def get_game_info(request, game_id):
     t_as_dict = serialize_game2(game)
     return Response({"isError": isError, "errorCode": errorCode, "message": t_as_dict})
 
+@api_view(['GET'])
+#@authentication_classes([SessionAuthentication, BasicAuthentication])
+#@permission_classes([IsAuthenticated])
+@cache_page(10)
+@renderer_classes([JSONRenderer])
+def get_games_list_by_court(request, court_id):
+    print( 'ENTER get_games_list_by_court ' + str(court_id))
+    isError = False
+    errorCode = 200
+    
+    games = Game.objects.filter(court_id=court_id).select_related(
+        "tournament",
+        "tournament_event__category",
+        "team_a",
+        "team_b",
+        "team_st_a__team",
+        "team_st_b__team",
+        "ref_a",
+        "ref_b",
+        "tournament_state__tournament_stage",
+        "court"
+    )
 
+
+    t_as_dict = serialize_games(games)
+    return Response({"isError": isError, "errorCode": errorCode, "message": t_as_dict})
 
 @api_view(['GET'])
 #@authentication_classes([SessionAuthentication, BasicAuthentication])
@@ -233,3 +258,24 @@ def get_games_gc_info(request, season_cup_gc_id):
 
     t_as_dict = serialize_games(tourn_data.all_games)
     return Response({"isError": isError, "errorCode": errorCode, "message": t_as_dict})
+
+@api_view(['GET'])
+#@authentication_classes([SessionAuthentication, BasicAuthentication])
+#@permission_classes([IsAuthenticated])
+@cache_page(1)
+@renderer_classes([JSONRenderer])
+def teams_by_event(request, tevent_id):
+    teams = Team.objects.filter(tournament_event_id=tevent_id, is_dummy=False)
+    return JsonResponse({'teams': [{'id': t.id, 'name': t.name} for t in teams]})
+
+from django.views.decorators.csrf import csrf_exempt
+@csrf_exempt
+def set_team_for_teamstat(request, tstat_id):
+    if request.method == 'POST':
+        team_id = request.POST.get('team_id')
+        tstat = TeamStats.objects.get(id=tstat_id)
+        tstat.name_table = Team.objects.get(id=team_id).name
+        tstat.team_id = team_id
+        tstat.save()
+        return JsonResponse({'success': True})
+    return JsonResponse({'success': False}, status=400)
