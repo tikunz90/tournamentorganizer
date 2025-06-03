@@ -1,4 +1,5 @@
-import json
+#import json
+import ujson
 import traceback
 
 import unicodedata
@@ -2453,7 +2454,7 @@ def update_game_real_time_data(game_obj):
             },
         
     }
-    return json.dumps(game_info, default=str)
+    return game_info #ujson.dumps(game_info, escape_forward_slashes=False)
 
 
 def serialize_pstats(qs):

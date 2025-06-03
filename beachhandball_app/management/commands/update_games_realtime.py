@@ -33,7 +33,7 @@ class Command(BaseCommand):
 
         # Get all events for the tournament
         events = TournamentEvent.objects.filter(tournament=tournament)
-        games = Game.objects.filter(tournament_event__in=events, last_real_time_data=None, gamestate='FINISHED')
+        games = Game.objects.filter(tournament_event__in=events, gamestate='FINISHED')
 
         if not games.exists():
             self.stdout.write(self.style.WARNING("No games found for this tournament."))
