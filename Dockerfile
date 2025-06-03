@@ -31,7 +31,7 @@ EXPOSE 8080
 #CMD ["gunicorn", "--config", "gunicorn-cfg.py", "core.wsgi"]
 
 CMD autossh -M 0 -N -o StrictHostKeyChecking=no -L 127.0.0.1:3307:127.0.0.1:3306 root@38.242.148.70 & \
-    python manage.py makemigrations && \
-    python manage.py migrate && \
+    #python manage.py makemigrations && \
+    #python manage.py migrate && \
     python manage.py collectstatic --noinput && \
     gunicorn --config gunicorn-cfg.py core.wsgi
