@@ -136,7 +136,7 @@ def tournament_setup(request):
                 tourn.save()
                 season_id = tourn.season.gbo_season_id
                 guser.season_active['id']
-                helper.update_user_tournament_events(guser, tourn)
+                helper.update_user_tournament_events(guser, tourn, guser.gbo_data_all)
             return redirect('/')
         else:
             return redirect('tournament_setup')

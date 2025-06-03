@@ -106,7 +106,7 @@ class StructureSetupDetail(LoginRequiredMixin, UserPassesTestMixin, DetailView):
         teams = Team.objects.filter(tournament_event=tevent, is_dummy=False)
         TeamStatFormSet = modelformset_factory(TeamStats, TeamStatsUpdateInitialTeamForm, extra=0)
         tstat_forms = {
-            state.id: TeamStatFormSet(form_kwargs={'teams': teams}, queryset=TeamStats.objects.filter(tournamentstate=state).select_related('team'))
+            state.id: TeamStatFormSet(form_kwargs={'teams': teams}, queryset=TeamStats.objects.filter(tournament_event=tevent, tournamentstate=state).select_related('team'))
             for state in tstates_pre
         }
 

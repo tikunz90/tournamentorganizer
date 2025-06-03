@@ -161,7 +161,12 @@ class TeamStatsUpdateInitialTeamForm(forms.ModelForm):
         model = TeamStats
         fields = ['id', 'rank_initial', 'team']
         widgets = {
-            'team': forms.widgets.Select(attrs={'class': "form-control selectpicker", 'data-style':"btn btn-info btn-round"}),
+            'team': forms.widgets.Select(attrs={
+                'class': "form-control selectpicker",
+                'data-style': "btn btn-info btn-round",
+                'data-live-search': "true",
+                'data-container': "body",
+            }),
         }
 
     def __init__(self, *args, tevent=None, teams=None, **kwargs):
