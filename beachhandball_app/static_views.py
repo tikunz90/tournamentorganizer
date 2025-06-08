@@ -22,6 +22,7 @@ from beachhandball_app import helper, wizard
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_POST
 from django.shortcuts import render, get_object_or_404, redirect
 from django.template import loader
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
@@ -52,7 +53,8 @@ def getContext(request):
         context['season_active'] = guser.season_active['name'] #SWS.getSeasonActive(guser)
         context['token'] = guser.token
     
-    t = Tournament.objects.prefetch_related(
+    # Get all active tournaments for this user in the current season
+    tournaments = Tournament.objects.prefetch_related(
         Prefetch(
             "tournamentsettings_set",
             queryset=TournamentSettings.objects.all(),
@@ -63,14 +65,22 @@ def getContext(request):
             queryset=TournamentEvent.objects.select_related("category").all(),
             to_attr="events"
         )
-    ).get(
+    ).filter(
         organizer_orm=guser,
         is_active=True,
         season__is_actual=True
     )
-    context['tourn'] = t
-    context['tourn_settings'] = t.settings[0] #TournamentSettings.objects.get(tournament=t)
-    context['events'] = t.events #TournamentEvent.objects.filter(tournament=t)
+
+    context['tournaments'] = tournaments  # <-- Pass tournaments to context
+
+    t = tournaments.first()
+    context['tourn'] = t if t else None
+    context['tourn_settings'] = t.settings[0] if t and t.settings else None
+    # Collect all events from all active tournaments
+    all_events = []
+    for tourn in tournaments:
+        all_events.extend(getattr(tourn, 'events', []))
+    context['events'] = all_events
     print('Exit getContext', datetime.now())
     return context
 
@@ -121,22 +131,13 @@ def tournament_setup(request):
 
     # Handle POST: set selected tournament and redirect
     if request.method == 'POST':
-        tournament_id = request.POST.get('tournament_id')
-        if tournament_id:
-            # Get all tournaments for this user in the current season
-            all_tourns = Tournament.objects.filter(
-                organizer_orm=guser
-            )
-            # Set all to inactive
-            all_tourns.update(is_active=False)
-            # Set selected to active
-            tourn = all_tourns.filter(id=tournament_id).first()
-            if tourn:
-                tourn.is_active = True
-                tourn.save()
-                season_id = tourn.season.gbo_season_id
-                guser.season_active['id']
-                helper.update_user_tournament_events(guser, tourn, guser.gbo_data_all)
+        selected_ids = request.POST.getlist('tournament_ids')
+        all_tourns = Tournament.objects.filter(organizer_orm=guser)
+        all_tourns.update(is_active=False)
+        if selected_ids:
+            all_tourns.filter(id__in=selected_ids).update(is_active=True)
+            # for tourn in all_tourns.filter(id__in=selected_ids):
+            #     helper.update_user_tournament_events(guser, tourn, guser.gbo_data_all)
             return redirect('/')
         else:
             return redirect('tournament_setup')
@@ -268,6 +269,27 @@ def index(request):
 
     html_template = loader.get_template( 'index.html' )
     return HttpResponse(html_template.render(context, request))
+
+@login_required(login_url="/login/")
+@user_passes_test(lambda u: u.groups.filter(name='tournament_organizer').exists(), login_url="/login/", redirect_field_name='next')
+@require_POST
+def delete_all_events(request):
+    context = getContext(request)
+    if not checkLoginIsValid(context['gbo_user']):
+        return redirect('login')
+
+    # Get all events for the user's active tournaments
+    tournaments = context.get('tournaments')
+    if tournaments:
+        for tourn in tournaments:
+            # Delete related objects if needed
+            TournamentState.objects.filter(tournament_event__tournament=tourn).delete()
+            TournamentStage.objects.filter(tournament_event__tournament=tourn).delete()
+            Game.objects.filter(tournament_event__tournament=tourn).delete()
+            TournamentEvent.objects.filter(tournament=tourn).delete()
+
+    messages.success(request, "All events have been deleted.")
+    return redirect('index')
 
 @login_required(login_url="/login/")
 @user_passes_test(lambda u: u.groups.filter(name='tournament_organizer').exists(),

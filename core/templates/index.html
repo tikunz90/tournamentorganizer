@@ -3,116 +3,169 @@
 {% block title %} Dashboard {% endblock title %}
 
 <!-- Specific Page CSS goes HERE  -->
-{% block stylesheets %}{% endblock stylesheets %}
+{% block stylesheets %}
+<style>
+    .btn-crop {
+        max-width: 120px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        padding-left: 12px;
+        padding-right: 12px;
+        min-width: 0;
+        margin-right: 0.5rem; /* Space to the right */
+        margin-bottom: 0; /* Default: no bottom margin */
+    }
+
+        .btn-crop:last-child {
+            margin-right: 0; /* Remove right margin for last button */
+        }
+
+    @media (max-width: 575.98px) {
+        .card-footer .d-flex .btn-crop {
+            max-width: 100%;
+            width: 100%;
+            margin-bottom: 0.5rem; /* Space below each button when stacked */
+            margin-right: 0; /* Remove right margin on small screens */
+        }
+
+            .card-footer .d-flex .btn-crop:last-child {
+                margin-bottom: 0; /* No margin after last button */
+            }
+    }
+</style>
+</style>
+{% endblock stylesheets %}
 
 {% block content %}
 
-{% if not tourn %}
-  <h2>Welcome</h2>
-{% else %}
-  <h2>Welcome to {{ tourn.name_short }} in Season {{ tourn.season.name }}</h2>
-  {% if tourn.season_cup_tournament_id > 0 %}
-    <h4>SeasonCupTournamentId: {{ tourn.season_cup_tournament_id }}</h4>
-  {% else %}
-    <h4>SeasonGerman Championship id: {{ tourn.season_german_championship_id }}</h4>
-  {% endif %}
-{% endif %}
-
-<form action="{{ url('sync_tournament_data') }}" method='GET'>
-<button type='submit' class="btn btn-primary" hidden>Sync Tournament Data</button>
-</form>
-
-  <br>
-  <h4>Events</h4>
-  <div class="row">
-  {% if events %}
-  {% for tevent in events %}
-    <div class="col-md-3">
-      <div class="card card-product">
-        <div class="card-header card-header-image" data-header-animation="true">
-          <a href="{{ url('structure_setup.detail', kwargs={'pk': tevent.id }) }}">
-            <img class="img" src="/static/assets/img/trophy/{{ tevent.logo }}.png">
-          </a>
-        </div>
-        <div class="card-body">
-          <div class="card-actions text-center">
-            <button type="button" class="btn btn-default btn-link" rel="tooltip" data-placement="bottom" title="Edit Teams">
-              <a href="{{ url('teams_setup.detail', kwargs={'pk': tevent.id }) }}"><i class="material-icons">edit</i></a>
-            </button>
-            <button type="button" class="btn btn-success btn-link" rel="tooltip" data-placement="bottom" title="Edit Structure">
-              <a href="{{ url('structure_setup.detail', kwargs={'pk': tevent.id }) }}"><i class="material-icons">edit</i></a>
-            </button>
-          </div>
-          <h4 class="card-title">
-            <a href="{{ url('structure_setup.detail', kwargs={'pk': tevent.id }) }}">{{ tevent.name }} ({{ tevent.id }})</a>
-          </h4>
-          <div>
-            <h6 class="card-subtitle">{{ tevent.category }} ({{ tevent.category.classification}})</h6>
-          </div>
-          
-          {% if tevent.is_in_configuration %}
-          <div>
-          <h6 class="card-subtitle"><i class="material-icons">engineering</i>Event is under construction!!</h6>
-          </div>
-          {% endif%}
-          <div class="card-description">
-            <div>
-              {{ tevent.start_ts.strftime('%d.%m.') }} till {{ tevent.end_ts.strftime('%d.%m.%Y') }}
-            </div>
-            <div>Stages {{ tevent.tournamentstage_set.count() }}</div>
-            <div>States {{ tevent.tournamentstate_set.count() }}</div>
-            <div class="progress-wrapper">
-              <div class="progress-info">
-                <div class="progress-percentage">
-                  {% set finished_games_count = tevent.game_set.filter(gamestate='FINISHED').count() %}
-                  {% set total_games_count = tevent.game_set.count() %}
-                  {% if total_games_count > 0 %}
-                    <span class="text-sm font-weight-normal">Games played: {{ finished_games_count }} / {{ total_games_count }}</span>
-                  {% else %}
-                    <span class="text-sm font-weight-normal">No games played yet</span>
-                  {% endif %}
-                </div>
-              </div>
-              {% if total_games_count > 0 %}
-                <div class="progress">
-                  <div class="progress-bar bg-primary" role="progressbar" aria-valuenow="{{ finished_games_count }}" aria-valuemin="0" aria-valuemax="{{ total_games_count }}" style="width: {{ (finished_games_count / total_games_count) * 100 }}%;"></div>
-                </div>
-              {% endif %}
-            </div>
-          </div>
-        </div>
-        <div class="card-footer">
-          <div>
-            <p>#Teams: {{ tevent.max_number_teams }}</p>
-          </div>
-          <div class="justify-content-center">
-            <button class="btn btn-outline-info" rel="tooltip" data-placement="bottom" title="last sync with GBO" hidden><i class="material-icons">sync</i>{{ tevent.last_sync_at.strftime('%H:%M:%S (%d.%m.%Y)') }}</button>
-          </div>
-          <div class="stats">
-            <h4 class="card-category"><i class="material-icons" style="font-size: 24px;">
-              {% if 'woman' in tevent.category.category %}
-              woman
-              {% else %}
-              man
-              {% endif %}
-            </i>{{ tevent.category }} {{ tevent.category.classification }}</h4>
-          </div>
-        </div>
-      </div>
+<div class="row mb-4">
+    <div class="col-md-8">
+        {% if not tournaments or tournaments|length == 0 %}
+        <h2>Welcome</h2>
+        {% else %}
+        <h2>Active tournaments:</h2>
+        <ul>
+            {% for tourn in tournaments %}
+            <li>
+                <strong>{{ tourn.name_short }}</strong>
+                {% if tourn.season_cup_tournament_id > 0 %}
+                <span>SeasonCupTournamentId: {{ tourn.season_cup_tournament_id }}</span>
+                {% else %}
+                <span>SeasonGerman Championship id: {{ tourn.season_german_championship_id }}</span>
+                {% endif %}
+            </li>
+            {% endfor %}
+        </ul>
+        {% endif %}
     </div>
-  
-  {% endfor %}
-  {% else %}
-  <p>No events</p>
-  {% endif %}
-  </div>
+    <div class="col-md-4 d-flex flex-column align-items-end">
+        <a href="{{ url('tournament_setup') }}" class="btn btn-primary mb-2">
+            <i class="material-icons" style="vertical-align: middle;">settings</i>
+            <span class="ml-1">Tournament Setup</span>
+        </a>
+        <form action="{{ url('delete_all_events') }}" method="post" onsubmit="return confirm('Are you sure you want to delete all events?');">
+            <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+            <button type="submit" class="btn btn-danger">
+                <i class="material-icons" style="vertical-align: middle;">delete_forever</i>
+                <span class="ml-1">Delete All Events</span>
+            </button>
+        </form>
+    </div>
+</div>
+
+<br>
+<div class="row">
+    {% if events %}
+    {% set current_tourn_id = None %}
+    {% set bg_toggle = 0 %}
+    {% for tevent in events %}
+        {% if current_tourn_id != tevent.tournament.id %}
+            {% set current_tourn_id = tevent.tournament.id %}
+            {% set bg_toggle = 1 - bg_toggle %}
+        {% endif %}
+    <div class="col-md-3">
+        <div class="card card-product">
+            <div class="card-header">
+                <h4 class="card-title">
+                    <a href="{{ url('structure_setup.detail', kwargs={'pk': tevent.id }) }}">
+                        <i class="material-icons" style="font-size: 24px;">
+                            {% if 'woman' in tevent.category.category %}
+                            woman
+                            {% else %}
+                            man
+                            {% endif %}
+                        </i>{{ tevent.category }} ({{ tevent.category.classification}})
+                    </a>
+                </h4>
+            </div>
+            <div class="card-body">
+                <div>
+                    <p>#Teams: {{ tevent.max_number_teams }}</p>
+                </div>
+
+                {% if tevent.is_in_configuration %}
+                <div>
+                    <h6 class="card-subtitle"><i class="material-icons">engineering</i>Event is under construction!!</h6>
+                </div>
+                {% endif%}
+                <div class="card-description">
+                    <div>
+                        {{ tevent.start_ts.strftime('%d.%m.') }} till {{ tevent.end_ts.strftime('%d.%m.%Y') }}
+                    </div>
+                    <div>Stages {{ tevent.tournamentstage_set.count() }}</div>
+                    <div>States {{ tevent.tournamentstate_set.count() }}</div>
+                    <div class="progress-wrapper">
+                        <div class="progress-info">
+                            <div class="progress-percentage">
+                                {% set finished_games_count = tevent.game_set.filter(gamestate='FINISHED').count() %}
+                                {% set total_games_count = tevent.game_set.count() %}
+                                {% if total_games_count > 0 %}
+                                <span class="text-sm font-weight-normal">Games played: {{ finished_games_count }} / {{ total_games_count }}</span>
+                                {% else %}
+                                <span class="text-sm font-weight-normal">No games played yet</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% if total_games_count > 0 %}
+                        <div class="progress">
+                            <div class="progress-bar bg-primary" role="progressbar" aria-valuenow="{{ finished_games_count }}" aria-valuemin="0" aria-valuemax="{{ total_games_count }}" style="width: {{ (finished_games_count / total_games_count) * 100 }}%;"></div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer">
+                <div class="d-flex justify-content-center gap-3 flex-wrap mt-2">
+                    <a href="{{ url('teams_setup.detail', kwargs={'pk': tevent.id }) }}"
+                       class="btn btn-primary btn-crop flex-grow-1 flex-shrink-1"
+                       title="Edit Teams">
+                        <i class="material-icons" style="vertical-align: middle;">groups</i>
+                        <span class="ml-1">Teams</span>
+                    </a>
+                    <a href="{{ url('structure_setup.detail', kwargs={'pk': tevent.id }) }}"
+                       class="btn btn-outline-primary btn-crop flex-grow-1 flex-shrink-1"
+                       title="Edit Structure">
+                        <i class="material-icons" style="vertical-align: middle;">line_style</i>
+                        <span class="ml-1">Structure</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% endfor %}
+    {% else %}
+    <p>No events</p>
+    {% endif %}
+</div>
 
 {% endblock content %}
 
 <!-- Specific Page JS goes HERE  -->
 {% block javascripts %}
-  
-  <script>
+
+<script>
     $(document).ready(function() {
       {% if messages %}
         console.log("Has messages...");
@@ -121,6 +174,6 @@
         {% endfor %}
       {% endif %}
     });
-  </script>
+</script>
 
 {% endblock javascripts %}

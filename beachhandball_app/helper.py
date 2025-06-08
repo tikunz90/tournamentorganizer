@@ -57,6 +57,18 @@ def update_active_seasons(active_seasons):
             s.is_actual = False
             s.save()
 
+def update_user_with_gbo(gbouser):
+    seasons = Season.objects.filter(is_actual=True)
+    gbo_data = {}
+    gbo_gc_data = {}
+    for season in seasons:
+        data, execution_time = SWS.syncTournamentData(gbouser, season.gbo_season_id)
+        datagc, execution_time = SWS.syncTournamentGCData(gbouser, season.gbo_season_id)
+        gbo_data[season.gbo_season_id] = data.get('message', [])
+        gbo_gc_data[season.gbo_season_id] = datagc.get('message', [])
+    gbouser.gbo_data_all = gbo_data
+    gbouser.gbo_gc_data = gbo_gc_data
+
 def update_user_tournament(gbouser, seasons):
     begin = time.time()
     print("ENTER update_user_tournament")
@@ -112,6 +124,7 @@ def update_user_tournament(gbouser, seasons):
                 ts, cr = TournamentSettings.objects.get_or_create(tournament=t)
                 ts.save()
                 update_user_tournament_events(gbouser, t, gbot)
+                sync_referees_of_tournament(gbo_data, t)
         if not tourn_found and len(tourns_by_season_cup_id) == 0:
             #create tournament
             new_t = Tournament(organizer=gbouser.subject_id,
@@ -265,6 +278,7 @@ def update_user_tournament_events(gbouser, tournament_obj, gbo_data):
         if True: #not gbo_data['isError']:
             # Prefetch all categories for this tournament
             category_ids = [cat['category']['id'] for cat in gbo_data['seasonTournament']['seasonTournamentCategories']]
+            #category_ids = [cat['category']['id'] for gbot in gbo_data for cat in gbot['seasonTournament']['seasonTournamentCategories']]
             existing_cats = TournamentCategory.objects.filter(gbo_category_id__in=category_ids)
             cat_map = {(cat.gbo_category_id, cat.classification, cat.name, cat.category): cat for cat in existing_cats}
             new_cats = []
@@ -410,8 +424,8 @@ def update_user_tournament_events(gbouser, tournament_obj, gbo_data):
                                 last_sync_at=datetime.now()
                             )
                         if te:
-                            te.save()
-                            te.related_tournaments.set([tournament_obj])
+                            #te.save()
+                            #te.related_tournaments.set([tournament_obj])
                             new_events.append(te)
                     else:
                         te = tevents[0]
@@ -435,8 +449,13 @@ def update_user_tournament_events(gbouser, tournament_obj, gbo_data):
             # Bulk create new events
             if new_events:
                 TournamentEvent.objects.bulk_create(new_events)
+                created_events = list(TournamentEvent.objects.filter(
+                    tournament=tournament_obj,
+                    # add other unique filters if needed
+                ).order_by('id'))
                 # Optionally, sync teams for new events (if needed)
-                for te in new_events:
+                for te in created_events:
+                    te.related_tournaments.set([tournament_obj])
                     data = None
                     if cup_type == 'is_cup' and te.season_cup_tournament_id == gbo_data['id']:
                         data = gbo_data['seasonTeamCupTournamentRankings']
