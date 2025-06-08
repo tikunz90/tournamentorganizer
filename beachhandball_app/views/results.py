@@ -25,7 +25,7 @@ from ..models.Team import Team, TeamStats
 
 from beachhandball_app.forms.structure_setup.forms import GameUpdateForm, GameUpdateResultForm, TTTUpdateForm, TournamentStageForm, TournamentStateForm, TournamentStateUpdateForm, TeamStatsUpdateTeamForm, GameForm
 
-from beachhandball_app import static_views
+from beachhandball_app import helper
 
 #class StructureSetupDetail(LoginRequiredMixin, DetailView):
 class ResultsDetail(DetailView):
@@ -35,8 +35,8 @@ class ResultsDetail(DetailView):
     redirect_field_name = 'results'
 
     def dispatch(self, request, *args, **kwargs):
-        context = static_views.getContext(self.request)
-        if not static_views.checkLoginIsValid(context['gbo_user']):
+        context = helper.getContext(self.request)
+        if not helper.checkLoginIsValid(context['gbo_user']):
             return RedirectView('login')
         self.kwargs['context_data'] = context
         

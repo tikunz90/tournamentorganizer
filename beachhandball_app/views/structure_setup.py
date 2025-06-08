@@ -29,10 +29,9 @@ from django.forms import modelformset_factory
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 
-from beachhandball_app.helper import reverse_querystring, calculate_tstate
 from beachhandball_app.game_report import helper_game_report
 
-from beachhandball_app.static_views import checkLoginIsValid, getContext
+from beachhandball_app import helper
 
 from bootstrap_modal_forms.generic import BSModalCreateView, BSModalDeleteView, BSModalUpdateView
 
@@ -54,8 +53,8 @@ class StructureSetupDetail(LoginRequiredMixin, UserPassesTestMixin, DetailView):
     redirect_field_name = 'structure_setup'
 
     def dispatch(self, request, *args, **kwargs):
-        context = getContext(self.request)
-        if not checkLoginIsValid(context['gbo_user']):
+        context = helper.getContext(self.request)
+        if not helper.checkLoginIsValid(context['gbo_user']):
             return redirect('login')
         self.kwargs['context_data'] = context
 
@@ -138,8 +137,8 @@ class TournamentEventDetail(LoginRequiredMixin, UserPassesTestMixin, DetailView)
     redirect_field_name = 'structure_setup'
 
     def dispatch(self, request, *args, **kwargs):
-        context = getContext(self.request)
-        if not checkLoginIsValid(context['gbo_user']):
+        context = helper.getContext(self.request)
+        if not helper.checkLoginIsValid(context['gbo_user']):
             return redirect('login')
         self.kwargs['context_data'] = context
         return super(TournamentEventDetail, self).dispatch(request, *args, **kwargs)
@@ -215,8 +214,8 @@ class TournamentStageDetail(LoginRequiredMixin, UserPassesTestMixin, DetailView)
     redirect_field_name = 'structure_setup'
 
     def dispatch(self, request, *args, **kwargs):
-        context = getContext(self.request)
-        if not checkLoginIsValid(context['gbo_user']):
+        context = helper.getContext(self.request)
+        if not helper.checkLoginIsValid(context['gbo_user']):
             return redirect('login')
         self.kwargs['context_data'] = context
         return super(TournamentStageDetail, self).dispatch(request, *args, **kwargs)
@@ -325,7 +324,7 @@ class StateCreateView(BSModalCreateView):
 
     def get_success_url(self):
            pk = self.kwargs["pk_tevent"]
-           return reverse_querystring("structure_setup.detail", kwargs={"pk": pk}, query_kwargs={'tab': self.kwargs["pk_tstage"], 'tab_tstate': 0})
+           return helper.reverse_querystring("structure_setup.detail", kwargs={"pk": pk}, query_kwargs={'tab': self.kwargs["pk_tstage"], 'tab_tstate': 0})
 
 class StateDeleteView(BSModalDeleteView):
     model = TournamentState
@@ -506,10 +505,10 @@ class GameUpGameView(BSModalUpdateView):
         ).select_related('team'))
         
         # 2. Get all courts for this tournament in one query
-        courts = list(Court.objects.filter(tournament=tournament))
+        courts = list(Court.objects.filter(tournament=game.tournament_shared))
         
         # 3. Get all referees for this tournament in one query
-        referees = list(Referee.objects.filter(tournament=tournament))
+        referees = list(Referee.objects.filter(tournament=game.tournament_shared))
         
         # Store in context for direct template access
         context['all_team_stats'] = team_stats
@@ -590,11 +589,11 @@ class GameUpGameViewOld(BSModalUpdateView):
         tstate = game.tournament_state
         qTeamStats = TeamStats.objects.filter(tournamentstate=tstate)
         qTeams = Team.objects.filter(is_dummy=False)
-        context['form'].fields['court'].queryset = Court.objects.filter(tournament=game.tournament)
+        context['form'].fields['court'].queryset = Court.objects.filter(tournament=game.tournament_shared)
         context['form'].fields['team_st_a'].queryset = qTeamStats
         context['form'].fields['team_st_b'].queryset = qTeamStats
-        context['form'].fields['ref_a'].queryset = Referee.objects.filter(tournament=game.tournament)
-        context['form'].fields['ref_b'].queryset = Referee.objects.filter(tournament=game.tournament)
+        context['form'].fields['ref_a'].queryset = Referee.objects.filter(tournament=game.tournament_shared)
+        context['form'].fields['ref_b'].queryset = Referee.objects.filter(tournament=game.tournament_shared)
         #context['form'].fields['team_a'].queryset = qTeams
         #context['form'].fields['team_b'].queryset = qTeams
         return context
@@ -764,7 +763,7 @@ def postUpdateGameResult(request, pk_tevent, pk_tstage, pk):
         game.last_real_time_data = helper.update_game_real_time_data(game)
 
         game.save()
-        calculate_tstate(game.tournament_state)
+        helper.calculate_tstate(game.tournament_state)
         helper.create_global_pstats(game.tournament_event.id)
         helper.recalc_global_pstats(game.tournament_event.id)
         helper.check_tournamentstate_finished(tevent, game.tournament_state)
@@ -804,10 +803,10 @@ class GameCreateView(BSModalCreateView):
         context['form'].fields['team_b'].queryset = Team.objects.filter(tournament_event=tevent, is_dummy=False)
         context['form'].fields['team_st_a'].queryset = TeamStats.objects.filter(tournamentstate=tstate)
         context['form'].fields['team_st_b'].queryset = TeamStats.objects.filter(tournamentstate=tstate)
-        context['form'].fields['ref_a'].queryset = Referee.objects.filter(tournament=tevent.tournament)
-        context['form'].fields['ref_b'].queryset = Referee.objects.filter(tournament=tevent.tournament)
+        context['form'].fields['ref_a'].queryset = Referee.objects.filter(tournament=tevent.tournament_shared)
+        context['form'].fields['ref_b'].queryset = Referee.objects.filter(tournament=tevent.tournament_shared)
         context['form'].fields['tournament_state'].queryset = TournamentState.objects.filter(id=tstate.id)
-        context['form'].fields['court'].queryset = Court.objects.filter(tournament=tevent.tournament)
+        context['form'].fields['court'].queryset = Court.objects.filter(tournament=tevent.tournament_shared)
         return context
 
     def get_initial(self):
@@ -842,14 +841,14 @@ class GameCreateView(BSModalCreateView):
 
     def get_success_url(self):
         pk = self.kwargs["pk_tevent"]
-        return reverse_querystring("structure_setup.detail", kwargs={"pk": pk}, query_kwargs={'tab': self.kwargs["pk_tstage"], 'tab_tstate': 0})
+        return helper.reverse_querystring("structure_setup.detail", kwargs={"pk": pk}, query_kwargs={'tab': self.kwargs["pk_tstage"], 'tab_tstate': 0})
 
 @login_required(login_url="/login/")
 @user_passes_test(lambda u: u.groups.filter(name='tournament_organizer').exists(),
 login_url="/login/", redirect_field_name='next')
 def update_teamsetup(request, pk_tevent, pk_tstage, pk_tstate):
-    context = getContext(request)
-    if not checkLoginIsValid(context['gbo_user']):
+    context = helper.getContext(request)
+    if not helper.checkLoginIsValid(context['gbo_user']):
         return redirect('login')
 
     tevent = TournamentEvent.objects.get(id=pk_tevent)

@@ -75,7 +75,7 @@ def create_new_tournamentstate(sender, instance, created, **kwargs):
         if not instance.is_final:
             # Create dummy games
             tstat = TeamStats.objects.all().filter(tournamentstate=instance)
-            court = Court.objects.filter(tournament=instance.tournament_event.tournament).first()
+            court = Court.objects.filter(tournament=instance.tournament_event.tournament_shared).first()
             teams = []
             for ts_tmp in tstat:
                 teams.append(ts_tmp)
@@ -109,6 +109,7 @@ def create_new_tournamentstate(sender, instance, created, **kwargs):
                     act_game_slot = first_game_slot + time_delta
                     te_settings.game_slot_counter = te_settings.game_slot_counter + 1
                     g, cr = Game.objects.get_or_create( tournament=instance.tournament_event.tournament,
+                                                        tournament_shared=instance.tournament_event.tournament_shared,
                                                         tournament_event=instance.tournament_event,
                                                         team_a=team_a,
                                                         team_st_a=act_team_stat,

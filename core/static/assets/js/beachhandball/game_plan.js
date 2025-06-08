@@ -61,6 +61,9 @@ $(document).ready(function () {
     setupRowClick();
     renderCourtView();
 
+    setInterval(refreshTableGames, 5000);
+    //setInterval(updateRunningGames, 5000);
+
     $('#print-court-view').on('click', function () {
         // Check which view is visible
         const courtView = document.getElementById('court-view');
@@ -79,6 +82,89 @@ $(document).ready(function () {
             return false; // Stop after the first match
         }
     });
+
+    function refreshTableGames() {
+        $.ajax({
+            url: '/api/games/table/',
+            type: 'GET',
+            dataType: 'json',
+            success: function (games) {
+                games.forEach(function (game) {
+                    var $row = $('#table-games tbody').find(`tr.game-row[data-content="${game.id}"]`);
+                    if ($row.length) {
+                        // Update each <td> by index or data-tag as needed
+                        //$row.find('td[data-tag="gamedate"] .game-list-datetime-label').text(
+                        //    moment(game.starttime).format('DD.MM.')
+                        //);
+                        //$row.find('td[data-tag="gametime"]').contents().filter(function () {
+                        //    return this.nodeType === 3;
+                        //}).first().replaceWith(
+                        //    moment(game.starttime).format('HH:mm') + ' '
+                        //);
+                        //$row.find('td[data-tag="cat"]').text(game.tournament_event?.category?.classification || '');
+                        //$row.find('td[data-tag="tstate_id"] .btn-small').css('background', game.tournament_state?.color || '');
+                        //$row.find('td[data-tag="tstate_id"] .btn-small a b').text(
+                        //    (game.tournament_event?.category?.abbreviation || '') + ' ' +
+                        //    (game.tournament_state?.abbreviation || '')
+                        //);
+                        //$row.find('td[data-tag="team_a"]').text(game.team_st_a?.team?.name || '');
+                        //$row.find('td[data-tag="team_b"]').text(game.team_st_b?.team?.name || '');
+                        //$row.find('.game-list-court-label').text(
+                        //    (game.court?.name || '') + ' (' + (game.court?.number || '') + ')'
+                        //);
+                        $row.find(`#${game.id}_result_ht1`).text(`${game.score_team_a_halftime_1}:${game.score_team_b_halftime_1}`);
+                        $row.find(`#${game.id}_result_ht2`).text(`${game.score_team_a_halftime_2}:${game.score_team_b_halftime_2}`);
+                        $row.find(`#${game.id}_result_p`).text(`${game.score_team_a_penalty}:${game.score_team_b_penalty}`);
+                        $row.find('td[data-tag="sets"]').text(`${game.setpoints_team_a}:${game.setpoints_team_b}`);
+                        //$row.find(`#${game.id}_refs`).text(
+                        //    (game.ref_a?.abbreviation || '-') + ' / ' + (game.ref_b?.abbreviation || '-')
+                        //);
+                        $row.find(`#${game.id}_gamestate`).text(game.gamestate);
+                        $row.find('td[data-tag="gamestate"]').text(game.gamestate);
+                    }
+                    // Optionally: handle new games (not present in DOM) if needed
+                });
+            },
+            error: function (xhr, status, error) {
+                console.error('Failed to refresh table-games:', status, error);
+            }
+        });
+    }
+    function updateRunningGames() {
+        $("#table-games tbody tr").each(function () {
+            var $row = $(this);
+            var $gamestateTd = $row.find('td[data-tag="gamestate"]');
+            var gamestate = $gamestateTd.text().trim();
+            if (gamestate === "RUNNING") {
+                var gameId = $row.data("content");
+                $.ajax({
+                    url: `/api/games/${gameId}/?depth=0`, // Adjust endpoint as needed
+                    type: 'GET',
+                    dataType: 'json',
+                    success: function (data) {
+                        // Example: update score and gamestate columns
+                        if (data) {
+                            // Update results
+                            $row.find(`#${gameId}_result_ht1`).text(`${data.score_team_a_halftime_1}:${data.score_team_b_halftime_1}`);
+                            $row.find(`#${gameId}_result_ht2`).text(`${data.score_team_a_halftime_2}:${data.score_team_b_halftime_2}`);
+                            $row.find(`#${gameId}_result_p`).text(`${data.score_team_a_penalty}:${data.score_team_b_penalty}`);
+                            // Update sets
+                            $row.find('td[data-tag="sets"]').text(`${data.setpoints_team_a}:${data.setpoints_team_b}`);
+                            $row.find(`#${gameId}_gamestate`).text(`${data.gamestate}`);
+                            // Update gamestate
+                            $gamestateTd.text(data.gamestate);
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        // Handle the error here
+                        console.error(`Failed to update game ${gameId}:`, status, error);
+                        // Optionally, show a message in the UI:
+                        // $row.find('td[data-tag="gamestate"]').text("Error");
+                    }
+                });
+            }
+        });
+    }
 
 }); // Closing doc ready
 
@@ -114,9 +200,10 @@ function renderCourtView() {
         let stateAbbr = $row.find(".btn-small").text().trim();
         let category = $row.find("td[data-tag='cat']").text().trim();
         let gameId = $row.data("content");
-        let res_halftime1 = $row.find("td[data-tag='res_ht1']").text().trim();
-        let res_halftime2 = $row.find("td[data-tag='res_ht2']").text().trim();
-        let res_halftimepenalty = $row.find("td[data-tag='res_p']").text().trim();
+        //let res_halftime1 = $row.find("td[data-tag='res_ht1']").text().trim();
+        //let res_halftime2 = $row.find("td[data-tag='res_ht2']").text().trim();
+        //let res_halftimepenalty = $row.find("td[data-tag='res_p']").text().trim();
+        let results = $row.find("td[data-tag='results']").text().trim();
         let sets = $row.find("td[data-tag='sets']").text().trim();
         let gamestate = $row.find("td[data-tag='gamestate']").text().trim();
 
@@ -129,9 +216,7 @@ function renderCourtView() {
             stateColor: stateColor,
             stateAbbr: stateAbbr,
             category: category,
-            res_halftime1: res_halftime1,
-            res_halftime2: res_halftime2,
-            res_halftimepenalty: res_halftimepenalty,
+            results: results,
             sets: sets,
             gamestate: gamestate
         });
@@ -182,7 +267,7 @@ function renderCourtView() {
             <tr>
                 <td style="vertical-align:top; border:none; padding:0 4px 0 0; text-align:left;">
                     <div class="btn btn-small" style="background: ${game.stateColor}; margin-bottom:2px;">
-                        ${game.stateAbbr}
+                        ${game.category}   ${game.stateAbbr}
                     </div>
                     <div style="color:black;">
                         ${teamA} vs. ${teamB}
@@ -193,9 +278,7 @@ function renderCourtView() {
                 </td>
                 <td style="vertical-align:top; border:none; padding:0;">
                     <div style="font-size:90%; color:#333;">
-                        <div>1. ${game.res_halftime1 || ""}</div>
-                        <div>2. ${game.res_halftime2 || ""}</div>
-                        <div>P. ${game.res_halftimepenalty || ""}</div>
+                        <div>${game.results || ""}</div>
                         <div>Sets ${game.sets || ""}</div>
                     </div>
                 </td>

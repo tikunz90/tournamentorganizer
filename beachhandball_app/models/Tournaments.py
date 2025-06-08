@@ -110,6 +110,7 @@ class TournamentEvent(models.Model):
     created_at = UnixDateTimeField(editable=False, default=timezone.now)
 
     tournament = models.ForeignKey('Tournament', null=True, on_delete=models.CASCADE)
+    tournament_shared = models.ForeignKey('Tournament', null=True, on_delete=models.DO_NOTHING, related_name='tournament_shared')
 
     related_tournaments = models.ManyToManyField(
         'Tournament',

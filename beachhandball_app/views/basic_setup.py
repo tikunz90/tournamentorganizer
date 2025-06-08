@@ -4,11 +4,11 @@ from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.urls import reverse_lazy
 
-from beachhandball_app.static_views import getContext
 from bootstrap_modal_forms.generic import BSModalCreateView, BSModalDeleteView, BSModalUpdateView
 
 from ..models.Tournaments import Court, Tournament, TournamentEvent
 from beachhandball_app.forms.basic_setup.forms import CourtForm, CourtUpdateForm
+from beachhandball_app import helper
 
 
 class CourtCreateView(BSModalCreateView):
@@ -18,7 +18,7 @@ class CourtCreateView(BSModalCreateView):
 
     def get_context_data(self, **kwargs):
         context = super(CourtCreateView, self).get_context_data(**kwargs)
-        user_context = getContext(self.request)
+        user_context = helper.getContext(self.request)
         context['form'].fields['tournament'].queryset = Tournament.objects.filter(organizer=user_context['gbo_user'].subject_id)
         return context
     

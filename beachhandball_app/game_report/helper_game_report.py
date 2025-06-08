@@ -39,7 +39,7 @@ def create_pregame_report_excel(game):
         .get(pk=game.pk)
     )
 
-    tsettings = TournamentSettings.objects.get(tournament=game.tournament)
+    tsettings = TournamentSettings.objects.get(tournament=game.tournament_shared)
     if not tsettings.game_report_template:
         return ('', '')
 
@@ -60,7 +60,7 @@ def create_pregame_report_excel(game):
         #ws_copy = wb.copy_worksheet(ws)
         #ws.add_image(img, 'T1')
         # game id
-        tsettings = TournamentSettings.objects.get(tournament=game.tournament_event.tournament)
+        tsettings = TournamentSettings.objects.get(tournament=game.tournament_shared)
         tstage = game.tournament_state.tournament_stage
         ws[gr_template.cell_game_id] = game.tournament_event.category.abbreviation + str(game.id_counter)
         

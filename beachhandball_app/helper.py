@@ -26,6 +26,58 @@ from django.utils.dateparse import parse_datetime
 
 from beachhandball_app.services.services import SWS
 
+def getContext(request):
+    print('Enter getContext' , datetime.now())
+    context = {}
+
+    guser = GBOUser.objects.filter(user=request.user).first()
+    
+    if guser is None:
+        return context
+    else:
+        context['gbo_user'] = guser
+        context['season_active'] = guser.season_active['name'] #SWS.getSeasonActive(guser)
+        context['token'] = guser.token
+    
+    # Get all active tournaments for this user in the current season
+    tournaments = Tournament.objects.prefetch_related(
+        Prefetch(
+            "tournamentsettings_set",
+            queryset=TournamentSettings.objects.all(),
+            to_attr="settings"
+        ),
+        Prefetch(
+            "tournamentevent_set",
+            queryset=TournamentEvent.objects.select_related("category").all(),
+            to_attr="events"
+        )
+    ).filter(
+        organizer_orm=guser,
+        is_active=True,
+        season__is_actual=True
+    )
+
+    context['tournaments'] = tournaments  # <-- Pass tournaments to context
+
+    t = next((t for t in tournaments if t.id == guser.tournament_id), None)
+    context['tourn'] = guser.tournament
+    context['tourn_settings'] = t.settings[0] if t and t.settings else None
+    # Collect all events from all active tournaments
+    all_events = []
+    for tourn in tournaments:
+        all_events.extend(getattr(tourn, 'events', []))
+    context['events'] = all_events
+    print('Exit getContext', datetime.now())
+    return context
+
+def checkLoginIsValid(gbouser):
+    if not gbouser.is_online:
+        return True
+    if int(time.time()) > time.mktime(gbouser.validUntil.timetuple()):
+        return False
+    else:
+        return True
+
 def update_active_seasons(active_seasons):
     #get existing seasons
     seasons = Season.objects.all()
@@ -387,6 +439,7 @@ def update_user_tournament_events(gbouser, tournament_obj, gbo_data):
                         if cup_type == 'is_cup':
                             te = TournamentEvent(
                                 tournament=tournament_obj,
+                                tournament_shared=tournament_obj,
                                 season_tournament_category_id=cat['id'],
                                 season_cup_tournament_id=gbo_data['id'],
                                 season_tournament_id=season_tourn['id'],
@@ -400,6 +453,7 @@ def update_user_tournament_events(gbouser, tournament_obj, gbo_data):
                         elif cup_type == 'is_gc':
                             te = TournamentEvent(
                                 tournament=tournament_obj,
+                                tournament_shared=tournament_obj,
                                 season_tournament_category_id=cat['id'],
                                 season_cup_german_championship_id=gbo_data['id'],
                                 season_tournament_id=season_tourn['id'],
@@ -413,6 +467,7 @@ def update_user_tournament_events(gbouser, tournament_obj, gbo_data):
                         elif cup_type == 'is_sub':
                             te = TournamentEvent(
                                 tournament=tournament_obj,
+                                tournament_shared=tournament_obj,
                                 season_tournament_category_id=cat['id'],
                                 sub_season_cup_tournament_id=gbo_data['id'],
                                 season_tournament_id=season_tourn['id'],

@@ -7,7 +7,7 @@ from ..models.Tournaments import Tournament, TournamentEvent
 from ..models.Series import Season
 from ..models.Team import Coach, Team
 
-from beachhandball_app import helper, static_views
+from beachhandball_app import helper
 
 
 class TeamsSetupDetail(LoginRequiredMixin, DetailView):
@@ -19,7 +19,7 @@ class TeamsSetupDetail(LoginRequiredMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         tevent = kwargs["object"]
-        kwargs = static_views.getContext(self.request)
+        kwargs = helper.getContext(self.request)
 
         result = helper.sync_teams_of_tevent(self.request.user.gbouser, tevent)
 

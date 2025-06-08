@@ -8,6 +8,7 @@ from django.contrib.auth import authenticate
 from django.db.models.query import Prefetch
 from django.http.response import JsonResponse
 from django.shortcuts import get_object_or_404
+from django.template import context
 from django.utils import six
 from django.views.decorators.cache import cache_page
 from django.db.models import Q
@@ -214,9 +215,9 @@ def game_update_api(request, pk):
         serializer = GameSerializer(game)
         
         # Get related data for dropdowns
-        courts = Court.objects.filter(tournament=game.tournament)
+        courts = Court.objects.filter(tournament=game.tournament_shared)
         team_stats = TeamStats.objects.filter(tournamentstate=game.tournament_state)
-        referees = Referee.objects.filter(tournament=game.tournament)
+        referees = Referee.objects.filter(tournament=game.tournament_shared)
         
         # Serialize the related data
         return Response({
@@ -297,14 +298,15 @@ def game_modal_api(request, pk):
         return Response({"error": "Game not found"}, status=status.HTTP_404_NOT_FOUND)
     
     if request.method == 'GET':
+        
         # Get additional data needed for the form
         tournament = game.tournament
         tournament_state = game.tournament_state
         
         # Fetch all necessary related data in bulk queries
-        courts = list(Court.objects.filter(tournament=tournament))
+        courts = list(Court.objects.filter(tournament=game.tournament_shared))
         team_stats = list(TeamStats.objects.filter(tournamentstate=tournament_state).select_related('team'))
-        referees = list(Referee.objects.filter(tournament=tournament))
+        referees = list(Referee.objects.filter(tournament=game.tournament_shared))
         
         # Format response data
         serializer = GameSerializer(game)
@@ -394,10 +396,33 @@ def game_modal_api(request, pk):
             
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+@api_view(['GET'])
+@authentication_classes([SessionAuthentication, BasicAuthentication])
+@permission_classes([IsAuthenticated])
+def games_table_api(request):
+    # You can filter for running games if needed: Game.objects.filter(gamestate='RUNNING')
+    games = Game.objects.all()
+    serializer = GameSerializer(games, many=True, depth=0)
+    return Response(serializer.data)
+
 @six.add_metaclass(OptimizeRelatedModelViewSetMetaclass)
 class GameViewSet(viewsets.ModelViewSet):
     queryset = Game.objects.all()
     serializer_class  = GameSerializer
+
+    def get_serializer(self, *args, **kwargs):
+        # You can get depth from query params or set it statically
+        depth = self.request.query_params.get('depth')
+        if depth is not None:
+            try:
+                depth = int(depth)
+            except ValueError:
+                depth = 2
+        else:
+            depth = 2  # default depth
+
+        kwargs['depth'] = depth
+        return self.serializer_class(*args, **kwargs)
 
     @action(detail=True, renderer_classes=[renderers.StaticHTMLRenderer])
     def highlight(self, request, *args, **kwargs):

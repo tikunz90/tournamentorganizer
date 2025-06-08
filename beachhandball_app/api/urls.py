@@ -8,7 +8,7 @@ from django.contrib import admin
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from django.views.generic import TemplateView
 from .views import login_by_token
-from .views.game.views import Login, GameDeleteStatsViewSet, GameViewSet, GameActionViewSet, PlayerStatsSet, PlayerStatsViewSet, RunningGamesDM, ScoutingReportViewSet, RunningGames, TeamViewSet, GameList, StartGameScouting, hello_world, get_pstats_tevent
+from .views.game.views import Login, games_table_api, GameDeleteStatsViewSet, GameViewSet, GameActionViewSet, PlayerStatsSet, PlayerStatsViewSet, RunningGamesDM, ScoutingReportViewSet, RunningGames, TeamViewSet, GameList, StartGameScouting, hello_world, get_pstats_tevent
 from .views.tournament.views import teams_by_event, set_team_for_teamstat, get_games_gc_info, get_tournament_info, get_games_info, get_game_info, get_games_list_by_court, get_games_info_by_court, get_tournament_struct, get_tournament_struct_light
 from rest_framework import renderers
 from rest_framework.authtoken import views
@@ -34,6 +34,7 @@ urlpatterns = [
     path('games/<int:pk>/modal/', game_modal_api, name='game_modal_api'),
     path('games/<int:pk>/update/', game_update_api, name='game_update_api'),
     path('games/<int:pk>/update_game_time/', game_update_gametime, name='game_update_gametime_api'),
+    path('games/table/', games_table_api, name='games_table_api'),
 
     path('hello_world/<int:tevent_id>/<int:amount>/', hello_world, name='hello_world'),
 

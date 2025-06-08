@@ -40,58 +40,6 @@ from beachhandball_app.api.serializers.game import GameSerializer,GameRunningSer
 from beachhandball_app.game_report import helper_game_report
 from .services.services import SWS
 
-def getContext(request):
-    print('Enter getContext' , datetime.now())
-    context = {}
-
-    guser = GBOUser.objects.filter(user=request.user).first()
-    
-    if guser is None:
-        return context
-    else:
-        context['gbo_user'] = guser
-        context['season_active'] = guser.season_active['name'] #SWS.getSeasonActive(guser)
-        context['token'] = guser.token
-    
-    # Get all active tournaments for this user in the current season
-    tournaments = Tournament.objects.prefetch_related(
-        Prefetch(
-            "tournamentsettings_set",
-            queryset=TournamentSettings.objects.all(),
-            to_attr="settings"
-        ),
-        Prefetch(
-            "tournamentevent_set",
-            queryset=TournamentEvent.objects.select_related("category").all(),
-            to_attr="events"
-        )
-    ).filter(
-        organizer_orm=guser,
-        is_active=True,
-        season__is_actual=True
-    )
-
-    context['tournaments'] = tournaments  # <-- Pass tournaments to context
-
-    t = tournaments.first()
-    context['tourn'] = t if t else None
-    context['tourn_settings'] = t.settings[0] if t and t.settings else None
-    # Collect all events from all active tournaments
-    all_events = []
-    for tourn in tournaments:
-        all_events.extend(getattr(tourn, 'events', []))
-    context['events'] = all_events
-    print('Exit getContext', datetime.now())
-    return context
-
-def checkLoginIsValid(gbouser):
-    if not gbouser.is_online:
-        return True
-    if int(time.time()) > time.mktime(gbouser.validUntil.timetuple()):
-        return False
-    else:
-        return True
-
 def getData(request):
     t = Tournament.objects.get(id=1)
     tevent = TournamentEvent.objects.filter(tournament=t).first();
@@ -126,7 +74,7 @@ def tournament_setup(request):
         context['season_active'] = guser.season_active['name'] #SWS.getSeasonActive(guser)
         context['token'] = guser.token
 
-    if not checkLoginIsValid(context['gbo_user']):
+    if not helper.checkLoginIsValid(context['gbo_user']):
         return redirect('login')
 
     # Handle POST: set selected tournament and redirect
@@ -135,8 +83,12 @@ def tournament_setup(request):
         all_tourns = Tournament.objects.filter(organizer_orm=guser)
         all_tourns.update(is_active=False)
         if selected_ids:
+            
+            guser.tournament = all_tourns.filter(id__in=selected_ids).first()
+            guser.save()
             all_tourns.filter(id__in=selected_ids).update(is_active=True)
-            # for tourn in all_tourns.filter(id__in=selected_ids):
+            for tourn in all_tourns.filter(id__in=selected_ids):
+                tourn.tournamentevent_set.update(tournament_shared=guser.tournament)
             #     helper.update_user_tournament_events(guser, tourn, guser.gbo_data_all)
             return redirect('/')
         else:
@@ -260,8 +212,8 @@ def not_in_student_group(user):
 @user_passes_test(lambda u: u.groups.filter(name='tournament_organizer').exists(),
 login_url="/login/", redirect_field_name='next')
 def index(request):
-    context = getContext(request)
-    if not checkLoginIsValid(context['gbo_user']):
+    context = helper.getContext(request)
+    if not helper.checkLoginIsValid(context['gbo_user']):
         return redirect('login')
     
     context['segment'] = 'index'
@@ -274,8 +226,8 @@ def index(request):
 @user_passes_test(lambda u: u.groups.filter(name='tournament_organizer').exists(), login_url="/login/", redirect_field_name='next')
 @require_POST
 def delete_all_events(request):
-    context = getContext(request)
-    if not checkLoginIsValid(context['gbo_user']):
+    context = helper.getContext(request)
+    if not helper.checkLoginIsValid(context['gbo_user']):
         return redirect('login')
 
     # Get all events for the user's active tournaments
@@ -295,8 +247,8 @@ def delete_all_events(request):
 @user_passes_test(lambda u: u.groups.filter(name='tournament_organizer').exists(),
 login_url="/login/", redirect_field_name='next')
 def setup_wizard(request, pk_tevent):
-    context = getContext(request)
-    if not checkLoginIsValid(context['gbo_user']):
+    context = helper.getContext(request)
+    if not helper.checkLoginIsValid(context['gbo_user']):
         return redirect('login')
     for te in context['events']:
         if te.id == pk_tevent:
@@ -324,8 +276,8 @@ def setup_wizard(request, pk_tevent):
 @user_passes_test(lambda u: u.groups.filter(name='tournament_organizer').exists(),
 login_url="/login/", redirect_field_name='structure_setup')
 def delete_structure(request, pk_tevent):
-    context = getContext(request)
-    if not checkLoginIsValid(context['gbo_user']):
+    context = helper.getContext(request)
+    if not helper.checkLoginIsValid(context['gbo_user']):
         return redirect('login')
     for te in context['events']:
         if te.id == pk_tevent:
@@ -347,8 +299,8 @@ def delete_structure(request, pk_tevent):
 @user_passes_test(lambda u: u.groups.filter(name='tournament_organizer').exists(),
 login_url="/login/", redirect_field_name='next')
 def setup_wizard_gameplan(request):
-    context = getContext(request)
-    if not checkLoginIsValid(context['gbo_user']):
+    context = helper.getContext(request)
+    if not helper.checkLoginIsValid(context['gbo_user']):
         return redirect('login')
 
     context['segment'] = 'game_plan'
@@ -380,8 +332,8 @@ def setup_wizard_gameplan(request):
 @user_passes_test(lambda u: u.groups.filter(name='tournament_organizer').exists(),
 login_url="/login/", redirect_field_name='structure_setup')
 def delete_gameplan(request):
-    context = getContext(request)
-    if not checkLoginIsValid(context['gbo_user']):
+    context = helper.getContext(request)
+    if not helper.checkLoginIsValid(context['gbo_user']):
         return redirect('login')
 
     context['segment'] = 'structure_setup'
@@ -400,8 +352,8 @@ def delete_gameplan(request):
 login_url="/login/", redirect_field_name='next')
 def basic_setup(request):
     
-    context = getContext(request)
-    if not checkLoginIsValid(context['gbo_user']):
+    context = helper.getContext(request)
+    if not helper.checkLoginIsValid(context['gbo_user']):
         return redirect('login')
     context['form_refs'] = RefereeForm(initial={'referees_list': 'Enter referees: name, first_name'})
     formCourt = None
@@ -500,8 +452,8 @@ def basic_setup_delete_referee(request, pk_tourn, referee_id):
 login_url="/login/", redirect_field_name='next')
 def teams_setup(request):
     
-    context = getContext(request)
-    if not checkLoginIsValid(context['gbo_user']):
+    context = helper.getContext(request)
+    if not helper.checkLoginIsValid(context['gbo_user']):
         return redirect('login')
 
     context['segment'] = 'teams_setup'
@@ -515,8 +467,8 @@ def teams_setup(request):
 login_url="/login/", redirect_field_name='next')
 def structure_setup(request):
     
-    context = getContext(request)
-    if not checkLoginIsValid(context['gbo_user']):
+    context = helper.getContext(request)
+    if not helper.checkLoginIsValid(context['gbo_user']):
         return redirect('login')
 
     context['segment'] = 'structure_setup'
@@ -530,8 +482,8 @@ def structure_setup(request):
 login_url="/login/", redirect_field_name='next')
 def game_plan(request):
     
-    context = getContext(request)
-    if not checkLoginIsValid(context['gbo_user']):
+    context = helper.getContext(request)
+    if not helper.checkLoginIsValid(context['gbo_user']):
         return redirect('login')
 
     tourn = context['tourn']
@@ -581,8 +533,8 @@ def game_plan(request):
 @user_passes_test(lambda u: u.groups.filter(name='tournament_organizer').exists(),
 login_url="/login/", redirect_field_name='next')
 def game_plan_v3(request):
-    context = getContext(request)
-    if not checkLoginIsValid(context['gbo_user']):
+    context = helper.getContext(request)
+    if not helper.checkLoginIsValid(context['gbo_user']):
         return redirect('login')
 
     tourn = context['tourn']
@@ -615,8 +567,8 @@ def game_plan_v3(request):
 login_url="/login/", redirect_field_name='next')
 def results(request):
     
-    context = getContext(request)
-    if not checkLoginIsValid(context['gbo_user']):
+    context = helper.getContext(request)
+    if not helper.checkLoginIsValid(context['gbo_user']):
         return redirect('login')
 
     context['segment'] = 'results'
@@ -656,8 +608,8 @@ def pages(request):
 @user_passes_test(lambda u: u.groups.filter(name='tournament_organizer').exists(),
 login_url="/login/", redirect_field_name='next')
 def sync_tournament_data(request):
-    context = getContext(request)
-    if not checkLoginIsValid(context['gbo_user']):
+    context = helper.getContext(request)
+    if not helper.checkLoginIsValid(context['gbo_user']):
         return redirect('login')
 
     context['gbo_user'].gbo_data_all, execution_time = SWS.syncTournamentData(context['gbo_user'], context['tourn'].season.gbo_season_id)
@@ -672,8 +624,8 @@ def sync_tournament_data(request):
     return HttpResponse(html_template.render(context, request))
 
 def create_teamtestdata(request, pk_tevent):
-    context = getContext(request)
-    if not checkLoginIsValid(context['gbo_user']):
+    context = helper.getContext(request)
+    if not helper.checkLoginIsValid(context['gbo_user']):
         return redirect('login')
 
     #helper.create_teams_testdata(pk_tevent)
@@ -696,8 +648,8 @@ def create_teamtestdata(request, pk_tevent):
     return HttpResponse(html_template.render(context, request))
 
 def running_game(request, pk_tourn, courtid):
-    #context = getContext(request)
-    #if not checkLoginIsValid(context['gbo_user']):
+    #context = helper.getContext(request)
+    #if not helper.checkLoginIsValid(context['gbo_user']):
     #    return redirect('login')
     context = {}
     games = Game.objects.select_related("team_st_a__team", "team_st_b__team").filter(tournament=pk_tourn,
@@ -712,8 +664,8 @@ def running_game(request, pk_tourn, courtid):
 @user_passes_test(lambda u: u.groups.filter(name='tournament_organizer').exists(),
 login_url="/login/", redirect_field_name='next')
 def recalc_global_stats(request, pk_tevent):
-    context = getContext(request)
-    if not checkLoginIsValid(context['gbo_user']):
+    context = helper.getContext(request)
+    if not helper.checkLoginIsValid(context['gbo_user']):
         return redirect('login')
     for te in context['events']:
         if te.id == pk_tevent:

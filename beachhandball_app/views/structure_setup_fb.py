@@ -9,7 +9,7 @@ from django.contrib import messages
 
 from authentication.models import GBOUser
 from beachhandball_app import helper_structure
-from beachhandball_app.static_views import checkLoginIsValid, getContext
+from beachhandball_app import helper
 from ..models.Tournaments import Tournament, TournamentEvent, TournamentState
 from ..models.Team import Team, TeamStats
 from ..models.Series import Season
@@ -39,8 +39,8 @@ def games_list(request, pk_tstate):
 @user_passes_test(lambda u: u.groups.filter(name='tournament_organizer').exists(),
 login_url="/login/", redirect_field_name='structure_setup')
 def tstate_add_team(request, pk_tstage, pk_tevent, pk):
-    context = getContext(request)
-    if not checkLoginIsValid(context['gbo_user']):
+    context = helper.getContext(request)
+    if not helper.checkLoginIsValid(context['gbo_user']):
         return redirect('login')
     for te in context['events']:
         if te.id == pk_tevent:
@@ -69,8 +69,8 @@ def tstate_add_team(request, pk_tstage, pk_tevent, pk):
 @user_passes_test(lambda u: u.groups.filter(name='tournament_organizer').exists(),
 login_url="/login/", redirect_field_name='structure_setup')
 def tstate_delete_team(request, pk_tstage, pk_tevent, pk):
-    context = getContext(request)
-    if not checkLoginIsValid(context['gbo_user']):
+    context = helper.getContext(request)
+    if not helper.checkLoginIsValid(context['gbo_user']):
         return redirect('login')
     for te in context['events']:
         if te.id == pk_tevent:
@@ -98,8 +98,8 @@ def tstate_delete_team(request, pk_tstage, pk_tevent, pk):
 @user_passes_test(lambda u: u.groups.filter(name='tournament_organizer').exists(),
 login_url="/login/", redirect_field_name='structure_setup')
 def delete_structure(request, pk_tevent):
-    context = getContext(request)
-    if not checkLoginIsValid(context['gbo_user']):
+    context = helper.getContext(request)
+    if not helper.checkLoginIsValid(context['gbo_user']):
         return redirect('login')
     for te in context['events']:
         if te.id == pk_tevent:

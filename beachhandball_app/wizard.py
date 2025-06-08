@@ -969,20 +969,21 @@ def wizard_create_gameplan(tourn, gameplan_data, num_courts):
     for g in gameplan_data:
         actCourt = courts[int(g['court'][1:])]
         game_obj = Game(tournament=tourn,
-            tournament_event_id=g['tournament_event_id'],
-            tournament_state_id=g['tournament_state_id'],
-            starttime=datetime.fromtimestamp(g['starttime']),
-            team_a_id=g['team_a_id'],
-            team_b_id=g['team_b_id'],
-            team_st_a_id=g['team_st_a_id'],
-            team_st_b_id=g['team_st_b_id'],
-            court=actCourt,
-            gamestate='APPENDING',
-            scouting_state='APPENDING',
-            gamingstate='Ready',
-            id_counter=game_counter,
-            gbo_ref_a_subject_id=0,
-            gbo_ref_b_subject_id=0)
+                        tournament_shared=tourn,
+                        tournament_event_id=g['tournament_event_id'],
+                        tournament_state_id=g['tournament_state_id'],
+                        starttime=datetime.fromtimestamp(g['starttime']),
+                        team_a_id=g['team_a_id'],
+                        team_b_id=g['team_b_id'],
+                        team_st_a_id=g['team_st_a_id'],
+                        team_st_b_id=g['team_st_b_id'],
+                        court=actCourt,
+                        gamestate='APPENDING',
+                        scouting_state='APPENDING',
+                        gamingstate='Ready',
+                        id_counter=game_counter,
+                        gbo_ref_a_subject_id=0,
+                        gbo_ref_b_subject_id=0)
         game_counter += 1
         games.append(game_obj)
     Game.objects.bulk_create(games)

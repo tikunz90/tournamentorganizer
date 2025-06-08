@@ -38,6 +38,7 @@ class Game(models.Model):
     )
 
     tournament = models.ForeignKey('Tournament', null=True, on_delete=models.CASCADE)
+    tournament_shared = models.ForeignKey('Tournament', null=True, on_delete=models.DO_NOTHING, related_name='game_tournament_shared')
     tournament_event = models.ForeignKey('TournamentEvent', null=True, on_delete=models.CASCADE)
     team_a = models.ForeignKey('Team',related_name='TeamA', null=True, blank=True, on_delete=models.SET_NULL)
     team_b = models.ForeignKey('Team',related_name='TeamB', null=True, blank=True, on_delete=models.SET_NULL)

@@ -25,6 +25,8 @@ class GBOUser(models.Model):
     subject_id = models.IntegerField(null=True)
     is_online = models.BooleanField(default=True)
     season_active = jsonfield.JSONField()
+    tournament = models.ForeignKey(Tournament, null=True, blank=True, on_delete=models.SET_NULL, related_name='gbo_users')
+
 
     def __str__(self):
         return '{} {}, {} {}'.format(self.user.id, self.user.last_name, self.user.first_name, self.user.email)

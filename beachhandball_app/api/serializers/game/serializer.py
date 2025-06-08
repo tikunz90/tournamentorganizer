@@ -10,6 +10,12 @@ from django.utils import six
 
 # Serializers define the API representation.
 class GameSerializer(serializers.ModelSerializer):
+    def __init__(self, *args, **kwargs):
+        depth = kwargs.pop('depth', None)
+        super().__init__(*args, **kwargs)
+        if depth is not None:
+            self.Meta.depth = depth
+
     class Meta:
         model = Game
         fields = ('id','court','tournament','tournament_event','tournament_state', 'starttime','team_a', 'team_b','team_st_a', 'team_st_b', 'ref_a', 'ref_b', 'score_team_a_halftime_1', 'score_team_a_halftime_2', 'score_team_a_penalty', 'score_team_b_halftime_1', 'score_team_b_halftime_2', 'score_team_b_penalty', 'setpoints_team_a', 'setpoints_team_b', 'gamestate', 'gamingstate', 'scouting_state')
