@@ -10,7 +10,7 @@ from django.db import transaction
 from django.db.models.query import Prefetch
 from django.db.models.signals import post_save
 from authentication.models import GBOUser, GBOUserSerializer
-from beachhandball_app.api.serializers.tournament.serializer import serialize_tournament_full, serialize_tournament_light
+from beachhandball_app.api.serializers.tournament.serializer import serialize_tournament_full, serialize_tournament_light, serialize_tournament_multi_full
 from beachhandball_app.models.Player import Player, PlayerStats
 from django.db.models.query_utils import Q, check_rel_lookup_compatibility
 from beachhandball_app import signals
@@ -2366,6 +2366,37 @@ def get_tournament_info_json(tourn):
     if tourn_data is None:
         return '{}'
     return serialize_tournament_full(tourn_data)
+
+def get_tournament_multi_info_json(tourns):
+    # Ensure tourns is a list of Tournament objects or IDs
+    tourn_ids = [t.id if hasattr(t, 'id') else t for t in tourns]
+    tournaments = list(Tournament.objects.prefetch_related(
+        Prefetch(
+            "tournamentevent_set",
+            queryset=TournamentEvent.objects.select_related("tournament", "category").prefetch_related(
+                Prefetch("tournamentstage_set", queryset=TournamentStage.objects.select_related("tournament_event__category").prefetch_related(
+                    Prefetch("tournamentstate_set", queryset=TournamentState.objects.select_related("tournament_event__category", "tournament_stage").prefetch_related(
+                        Prefetch("teamstats_set", queryset=TeamStats.objects.select_related("team").order_by("rank"), to_attr="all_team_stats"))
+                            , to_attr="all_tstates"))
+                                , to_attr="all_tstages"),
+            ),
+            to_attr="all_tevents"
+        ),
+        Prefetch("game_set", queryset=Game.objects.select_related("tournament", "tournament_event__category", "team_a", "team_b", "team_st_a__team", "team_st_b__team", "ref_a", "ref_b", "tournament_state__tournament_stage", "court"), to_attr="all_games"),
+        Prefetch("court_set", queryset=Court.objects.select_related("tournament"), to_attr="all_courts"),
+        Prefetch("referee_set", queryset=Referee.objects.select_related("tournament"), to_attr="all_refs")
+    ).filter(id__in=tourn_ids))
+
+    # Collect all events from all tournaments
+    all_events = []
+    for t in tournaments:
+        all_events.extend(getattr(t, "all_tevents", []))
+    # Optionally, attach all_events to each tournament for downstream use
+    for t in tournaments:
+        t.all_tevents = all_events
+
+    # Return serialized data for all tournaments (or just the events, as needed)
+    return serialize_tournament_full(t)
 
 def get_tournament_info_light_json(tourn):
     tourn_data = Tournament.objects.prefetch_related(

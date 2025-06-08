@@ -26,6 +26,17 @@ def serialize_tournament_full(tournament: Tournament) -> Dict[str, Any]:
         'events': [serialize_tournament_event_and_games(event, tournament.all_games) for event in tournament.all_tevents]
     }
 
+def serialize_tournament_multi_full(tournament: Tournament) -> Dict[str, Any]:
+    return {
+        'id': tournament.id,
+        'created_at': tournament.created_at,#tournament.starttime.strftime('%H:%M (%d.%m.%Y)'),
+        'is_active': tournament.is_active,
+        'last_sync_at': tournament.last_sync_at,
+        'season_tournament_id': tournament.season_tournament_id,
+        'season_cup_tournament_id': tournament.season_cup_tournament_id,
+        'events': [serialize_tournament_event_and_games(event, tournament.all_games) for event in tournament.all_tevents]
+    }
+
 def serialize_tournament_light(tournament: Tournament) -> Dict[str, Any]:
     return {
         'id': tournament.id,
@@ -40,6 +51,7 @@ def serialize_tournament_light(tournament: Tournament) -> Dict[str, Any]:
 def serialize_tournament_event_and_games(tournamentEvent: TournamentEvent, games) -> Dict[str, Any]:
     data = {
         'id': tournamentEvent.id,
+        'tournamentId': tournamentEvent.tournament.id,
         'name': tournamentEvent.name,
         'category': serialize_tournament_category(tournamentEvent.category),
         'stages': [serialize_tournament_stage(stage, [g for g in games if g.tournament_event_id == tournamentEvent.id]) for stage in tournamentEvent.all_tstages]
@@ -88,6 +100,7 @@ def serialize_tournament_category(category: TournamentCategory) -> Dict[str, Any
         'id': category.id,
         'name': category.name,
         'category': category.category,
+        'classification': category.classification,
         'gbo_category_id': category.gbo_category_id,
         'season_tournament_category_id': category.season_tournament_category_id,
     }

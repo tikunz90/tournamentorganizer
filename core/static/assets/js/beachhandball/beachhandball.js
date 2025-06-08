@@ -240,7 +240,7 @@ bh = {
             teams.shift();
             teams.forEach((t) => {
               var game = {
-                tournament_id: bh.tournamentData.id,
+                  tournament_id: event.tournamentId,
                 tournament_event_id: event.id,
                 tournament_stage_id: stage.id,
                 tournament_state_id: state.id,
@@ -264,8 +264,9 @@ bh = {
                 game.team_b_id = actTeam.team.id;
               }
               var cat_name = event.category.name;
+              var cat_class = event.category.classification;
               game.slot_name =
-                cat_name.charAt(0).toUpperCase() + "-" + state.abbreviation;
+                  cat_name.charAt(0).toUpperCase() + " (" + cat_class + ") -" + state.abbreviation;
               state["wz-games"].push(game);
               actTeamCounter += 1;
               bh.num_games_total++;

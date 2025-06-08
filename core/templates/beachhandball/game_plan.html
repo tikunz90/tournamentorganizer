@@ -284,7 +284,7 @@
                                                style="display:none; width:80px;" />
                                     </td>
                                     <td id="game_id_counter" class="text-center" data-tag="game_counter" data-content="{{ game.id }}">{{ game.id_counter }}</td>
-                                    <td class="text-center" data-tag="cat" data-content="{{ game.tournament_event.category }}">{{ game.tournament_event.category }}</td>
+                                    <td class="text-center" data-tag="cat" data-content="{{ game.tournament_event.category }}">{{ game.tournament_event.category.classification }}</td>
                                     <td class="text-center" data-tag="tstate_id" data-content="{{ game.tournament_state.id }}">
                                         <div class="btn btn-small" style="background: {{ game.tournament_state.color }}">
                                             <a href="{{ url('structure_setup.detail', kwargs={'pk': game.tournament_event.id }) }}" style="color:white;"><b>{{ game.tournament_event.category.abbreviation }} {{ game.tournament_state.abbreviation }}</b>
@@ -325,7 +325,14 @@
                                                 <i class="material-icons">file_download</i>
                                             </a>
                                         </button>
-                                        <button type="button" rel="tooltip" class="update-game-result btn btn-info btn-link" rel="tooltip" title="Enter Result" data-form-url='{{ url("update_game_result", kwargs={"pk_tevent":game.tournament_event.id, "pk_tstage": game.tournament_state.tournament_stage.id, "pk":  game.id, "from_gameplan": 1}) }}' data-list-url="{{ url('game_plan') }}" onclick="modalShowSpinner();">
+                                        <button type="button"
+                                                rel="tooltip"
+                                                class="update-game-result btn btn-info btn-link {% if game.gamestate == 'FINISHED' and game.setpoints_team_a == 0 and game.setpoints_team_b == 0 %}btn-warning{% endif %}"
+                                                rel="tooltip"
+                                                title="Enter Result"
+                                                data-form-url='{{ url("update_game_result", kwargs={"pk_tevent":game.tournament_event.id, "pk_tstage": game.tournament_state.tournament_stage.id, "pk":  game.id, "from_gameplan": 1}) }}'
+                                                data-list-url="{{ url('game_plan') }}"
+                                                onclick="modalShowSpinner();">
                                             <i class="material-icons">assignment</i>
                                         </button>
                                         <!--button type="button" rel="tooltip" class="delete-game btn btn-danger btn-link" rel="tooltip" title="Delete Game"  data-form-url='{{ url("structure_setup.delete_game", kwargs={"pk_tevent":game.tournament_event.id, "pk_tstage": game.tournament_state.tournament_stage.id, "pk":  game.id}) }}' onclick="modalShowSpinner();" >

@@ -369,7 +369,7 @@ def setup_wizard_gameplan(request):
         context['tournament_settings'].save()
         return HttpResponseRedirect(reverse("game_plan"))
 
-    context['tournament_data'] = json.dumps(helper.get_tournament_info_json(context['tourn']), default=str, separators=(',', ':'), indent=None)
+    context['tournament_data'] = json.dumps(helper.get_tournament_multi_info_json(context['tournaments']), default=str, separators=(',', ':'), indent=None)
 
     html_template = loader.get_template( 'forms-setup-wizard-gameplan.html' )
     return HttpResponse(html_template.render(context, request))
