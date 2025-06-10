@@ -9,7 +9,7 @@ from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from django.views.generic import TemplateView
 from .views import login_by_token
 from .views.game.views import Login, games_table_api, GameDeleteStatsViewSet, GameViewSet, GameActionViewSet, PlayerStatsSet, PlayerStatsViewSet, RunningGamesDM, ScoutingReportViewSet, RunningGames, TeamViewSet, GameList, StartGameScouting, hello_world, get_pstats_tevent
-from .views.tournament.views import teams_by_event, set_team_for_teamstat, get_games_gc_info, get_tournament_info, get_games_info, get_game_info, get_games_list_by_court, get_games_info_by_court, get_tournament_struct, get_tournament_struct_light
+from .views.tournament.views import tournament_states_by_event, teams_by_event, set_team_for_teamstat, get_games_gc_info, get_tournament_info, get_games_info, get_game_info, get_games_list_by_court, get_games_info_by_court, get_tournament_struct, get_tournament_struct_light, ttt_detail_api
 from rest_framework import renderers
 from rest_framework.authtoken import views
 from rest_framework import routers
@@ -43,7 +43,9 @@ urlpatterns = [
     path('tournament/<int:season_tournament_id>/struct_light/', get_tournament_struct_light, name='get_tournament_struct_light'),
     path('tournament/<int:season_tournament_id>/info/games', get_games_info, name='get_games_info'),
     path('tournament/<int:season_tournament_id>/info/games/<int:court_id>', get_games_info_by_court, name='get_games_info_by_court'),
-    path('tournament_gc/<int:season_cup_gc_id>/info/games', get_games_gc_info, name='get_games_info'), 
+    path('tournament_gc/<int:season_cup_gc_id>/info/games', get_games_gc_info, name='get_games_info'),
+    path('tournament/tournamentstates/', tournament_states_by_event, name='tournament_states_by_event'),
+    path('tournament/ttt/<int:pk>/', ttt_detail_api, name='ttt-detail-api'),
 
     path('player_stats/<int:pk>/', PlayerStatsSet.as_view({'get': 'retrieve', 'put': 'update', 'patch': 'partial_update'})),
     path('player_stats_by_tevent/<int:tevent_id>/<int:amount>/', get_pstats_tevent, name='get_pstats_tevent'),

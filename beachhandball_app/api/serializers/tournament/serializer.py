@@ -4,7 +4,7 @@ from typing import Dict, Any
 from rest_framework import routers, serializers, viewsets
 from beachhandball_app.models.Game import Game
 
-from beachhandball_app.models.Tournaments import Court, Tournament, TournamentEvent, TournamentStage, TournamentState
+from beachhandball_app.models.Tournaments import Court, Tournament, TournamentEvent, TournamentStage, TournamentState, TournamentTeamTransition
 from beachhandball_app.models.General import TournamentCategory
 from beachhandball_app.models.Team import Team, TeamStats
 from beachhandball_app.models.Player import Player, PlayerStats
@@ -372,3 +372,10 @@ def serialize_player(player: Player) -> Dict[str, Any]:
         'gbo_position': player.gbo_position,
         'is_active': player.is_active
     }
+
+
+
+class TournamentTeamTransitionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TournamentTeamTransition
+        fields = ['id', 'tournament_event', 'origin_rank', 'target_ts_id', 'target_rank', 'comment']

@@ -11,15 +11,16 @@ from rest_framework.authentication import SessionAuthentication, BasicAuthentica
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import generics, viewsets, renderers
 from rest_framework.decorators import action, api_view, authentication_classes, permission_classes, renderer_classes
+from django.views.decorators.csrf import csrf_exempt, ensure_csrf_cookie
 from rest_framework.response import Response
 from rest_framework.renderers import JSONRenderer
 
 from beachhandball_app import helper
-from beachhandball_app.models.Tournaments import Tournament, TournamentEvent, TournamentSettings, TournamentStage, TournamentState, Court, Referee
+from beachhandball_app.models.Tournaments import Tournament, TournamentEvent, TournamentSettings, TournamentStage, TournamentState, Court, Referee, TournamentTeamTransition
 from beachhandball_app.models.Game import Game
 from beachhandball_app.models.Team import TeamStats, Team
 from beachhandball_app.models.Player import PlayerStats, Player
-from beachhandball_app.api.serializers.tournament import TournamentSerializer, serialize_tournament, serialize_games, serialize_game2, serialize_tournament_full, serialize_tournament_event_stats
+from beachhandball_app.api.serializers.tournament import TournamentSerializer, TournamentTeamTransitionSerializer, serialize_tournament, serialize_games, serialize_game2, serialize_tournament_full, serialize_tournament_event_stats
 
 @api_view(['GET'])
 #@authentication_classes([SessionAuthentication, BasicAuthentication])
@@ -279,3 +280,40 @@ def set_team_for_teamstat(request, tstat_id):
         tstat.save()
         return JsonResponse({'success': True})
     return JsonResponse({'success': False}, status=400)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def tournament_states_by_event(request):
+    tevent_id = request.GET.get('tournament_event')
+    if not tevent_id:
+        return Response([], status=400)
+    states = TournamentState.objects.filter(tournament_event_id=tevent_id)
+    data = [
+        {'id': s.id, 'name': s.name, 'abbreviation': s.abbreviation}
+        for s in states
+    ]
+    return Response(data)
+
+@api_view(['GET', 'PATCH'])
+@authentication_classes([SessionAuthentication, BasicAuthentication])
+@permission_classes([IsAuthenticated])
+@ensure_csrf_cookie
+def ttt_detail_api(request, pk):
+    try:
+        ttt = TournamentTeamTransition.objects.get(pk=pk)
+    except TournamentTeamTransition.DoesNotExist:
+        return Response({'error': 'Not found'}, status=status.HTTP_404_NOT_FOUND)
+
+    if request.method == 'GET':
+        serializer = TournamentTeamTransitionSerializer(ttt)
+        return Response(serializer.data)
+
+    if request.method == 'PATCH':
+        data = request.data
+        data['tournament_event'] = ttt.tournament_event.id
+
+        serializer = TournamentTeamTransitionSerializer(ttt, data=data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

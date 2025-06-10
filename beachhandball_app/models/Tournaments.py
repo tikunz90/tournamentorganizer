@@ -287,7 +287,7 @@ class TournamentTeamTransition(models.Model):
     target_rank = models.SmallIntegerField(default=0)
     keep_stats = models.BooleanField(default=False)
     is_executed = models.BooleanField(default=False)
-    comment = models.CharField( max_length=50)
+    comment = models.CharField(blank=True, max_length=50)
 
     def __unicode__(self):
         return "Rank {} from {} goes to {}".format(self.origin_rank, self.origin_ts_id,

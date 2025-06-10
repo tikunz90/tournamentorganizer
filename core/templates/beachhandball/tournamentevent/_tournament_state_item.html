@@ -108,30 +108,39 @@
                                 </p>
                             </div>
                             <div class="card-body">
-                                <div class="table-responsive">
-                                    <table class="table table-striped">
-                                        <thead>
+                                <form id="ttt-table-form-{{ tstate.id }}" class="ttt-table-form" data-tstate-id="{{ tstate.id }}">
+                                    <div class="table-responsive">
+                                        <table class="table table-striped">
+                                            <thead>
                                             <th class="text-center">Rank</th>
                                             <th>State</th>
                                             <th>Place</th>
-                                            <th></th>
-                                        </thead>
-                                        <tbody>
-                                            {% for ttt in tstate.ttt_origin_pre %}
-                                                <tr>
-                                                    <td class="text-center">{{ ttt.origin_rank }}</td>
-                                                    <td>{{ ttt.target_ts_id.name }}</td>
-                                                    <td>{{ ttt.target_rank }}</td>
-                                                    <td>
-                                                        <button type="button" class="update_tttransition btn btn-sm btn-primary" data-form-url="{{ url('structure_setup.update_tttransition', kwargs={'pk_tevent':tevent.id, 'pk_tstage':stage.id, 'pk':ttt.id}) }}" onclick="modalShowSpinner();">
-                                                            <span class="fa fa-pencil"></span>
-                                                        </button>
+                                            </thead>
+                                            <tbody>
+                                                {% for ttt in tstate.ttt_origin_pre %}
+                                                <tr data-ttt-id="{{ ttt.id }}">
+                                                    <td class="text-center align-middle">{{ ttt.origin_rank }}</td>
+                                                    <td class="align-middle">
+                                                        <select class="form-control selectpicker ttt-target-ts-id"
+                                                                data-live-search="true"
+                                                                name="target_ts_id_{{ ttt.id }}"
+                                                                data-ttt-id="{{ ttt.id }}"
+                                                                required>
+                                                            <!-- Options will be populated by JS -->
+                                                        </select>
+                                                    </td>
+                                                    <td class="align-middle">
+                                                        <input type="number" class="form-control ttt-target-rank"
+                                                               name="target_rank_{{ ttt.id }}"
+                                                               value="{{ ttt.target_rank }}" required>
                                                     </td>
                                                 </tr>
-                                            {% endfor %}
-                                        </tbody>
-                                    </table>
-                                </div>
+                                                {% endfor %}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary mt-2">Save All Transitions</button>
+                                </form>
                             </div>
                         </div>
                     </div>

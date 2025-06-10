@@ -205,22 +205,119 @@
     //    bh.addTournamentStateHTML(item, result.teams);
     //  });
       //});
-      $('.selectpicker').selectpicker();
+      
 
     {% if messages %}
     console.log("Has messages...");
     {% for message in messages %}
     md.showNotification('top','center', '{{ message }}', 'info');
     {% endfor %}
-    {% endif %}
+      {% endif %}
+
+      populateTTTSelects();
 
     $('.btn_teamsetup_delete').on('click', function(){
       console.log("TeamSetup add tstate=" + $(this).data('tournamentstate'));
       md.showNotification('top','center', 'Hello', 'info');
     });
+
+      $('.ttt-table-form').on('submit', function (e) {
+          e.preventDefault();
+          var $form = $(this);
+          var updates = [];
+          $form.find('tr[data-ttt-id]').each(function () {
+              var $row = $(this);
+              var tttId = $row.data('ttt-id');
+              var target_ts_id = $row.find('.ttt-target-ts-id').val();
+              var target_rank = $row.find('.ttt-target-rank').val();
+              updates.push({
+                  id: tttId,
+                  target_ts_id: target_ts_id,
+                  target_rank: target_rank
+              });
+          });
+
+          // Send all updates in parallel (or you can batch in backend if you want)
+          var requests = updates.map(function (item) {
+              return $.ajax({
+                  url: '/api/tournament/ttt/' + item.id + '/',
+                  type: 'PATCH',
+                  data: JSON.stringify({
+                      target_ts_id: item.target_ts_id,
+                      target_rank: item.target_rank
+                  }),
+                  contentType: 'application/json',
+                  headers: { 'X-CSRFToken': getCSRFToken() }
+              });
+          });
+
+          $.when.apply($, requests).done(function () {
+              md.showNotification('top', 'center', 'All transitions updated', 'success');
+          }).fail(function () {
+              alert('Failed to update one or more transitions');
+          });
+      });
+
+
+
+      $('.selectpicker').selectpicker();
+
     });
 
-      $(function () {
+
+
+            function populateTTTSelects() {
+                // Now populate each select
+                $('.ttt-table-form tr[data-ttt-id]').each(function () {
+                    var $row = $(this);
+                    var tttId = $row.data('ttt-id');
+                    var $tdSelect = $row.find('.ttt-target-ts-id').closest('td');
+
+                    // Show loading indicator
+                    $tdSelect.html('<div class="text-center"><div class="spinner-border spinner-border-sm" role="status"></div></div>');
+
+                    // Fetch TTT details
+                    $.get('/api/tournament/ttt/' + tttId + '/', function (tttData) {
+                        var tournamentEventId = tttData.tournament_event;
+                        var selectedTarget = tttData.target_ts_id;
+
+                        $.get('/api/tournament/tournamentstates/?tournament_event=' + tournamentEventId, function (states) {
+                            // Create a completely new select
+                            var $newSelect = $(
+                                '<select class="form-control select2-select ttt-target-ts-id" ' +
+                                'name="target_ts_id_' + tttId + '" ' +
+                                'data-ttt-id="' + tttId + '" required></select>'
+                            );
+
+                            // Add options
+                            states.forEach(function (state) {
+                                $newSelect.append(
+                                    $('<option>', {
+                                        value: state.id,
+                                        text: state.name + (state.abbreviation ? ' (' + state.abbreviation + ')' : '')
+                                    })
+                                );
+                            });
+
+                            // Replace loading indicator with new select
+                            $tdSelect.html('');
+                            $tdSelect.append($newSelect);
+
+                            // Initialize Select2
+                            $newSelect.select2({
+                                width: '100%',
+                                placeholder: 'Select a state',
+                                allowClear: false
+                            });
+
+                            // Set the value
+                            $newSelect.val(selectedTarget).trigger('change');
+                        });
+                    });
+                });
+            }
+
+            $(function () {
 
           // Create tstage synchronous
           function createStageSyncModalForm() {
