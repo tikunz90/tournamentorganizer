@@ -59,7 +59,7 @@
                             <div class="card-body">
                                 <form method="post" action="{{ url('structure_setup.update_teamsetup', kwargs={'pk_tevent':tevent.id, 'pk_tstage':stage.id, 'pk_tstate':tstate.id}) }}">
                                     <input type="hidden" name="csrfmiddlewaretoken" value="{{csrf_token}}">
-                                    <div class="table-responsive">
+                                    <div class="table-responsive" style="overflow-x: auto; max-width: 100%;">
                                         <table id="{{tstate.id}}-teamsetup-table" class="table table-striped">
                                             <thead>
                                                 <tr>
@@ -109,12 +109,15 @@
                             </div>
                             <div class="card-body">
                                 <form id="ttt-table-form-{{ tstate.id }}" class="ttt-table-form" data-tstate-id="{{ tstate.id }}">
-                                    <div class="table-responsive">
-                                        <table class="table table-striped">
+                                    <!-- This div controls horizontal scrolling and keeps table responsive -->
+                                    <div class="table-responsive" style="overflow-x: auto; max-width: 100%;">
+                                        <table class="table table-striped table-sm">
                                             <thead>
-                                            <th class="text-center">Rank</th>
-                                            <th>State</th>
-                                            <th>Place</th>
+                                                <tr>
+                                                    <th class="text-center" style="min-width: 60px; width: 20%;">Rank</th>
+                                                    <th style="min-width: 150px; width: 50%;">State</th>
+                                                    <th style="min-width: 60px; width: 30%;">Place</th>
+                                                </tr>
                                             </thead>
                                             <tbody>
                                                 {% for ttt in tstate.ttt_origin_pre %}
@@ -125,21 +128,28 @@
                                                                 data-live-search="true"
                                                                 name="target_ts_id_{{ ttt.id }}"
                                                                 data-ttt-id="{{ ttt.id }}"
+                                                                data-width="100%"
                                                                 required>
                                                             <!-- Options will be populated by JS -->
                                                         </select>
                                                     </td>
                                                     <td class="align-middle">
-                                                        <input type="number" class="form-control ttt-target-rank"
+                                                        <input type="number"
+                                                               class="form-control ttt-target-rank"
                                                                name="target_rank_{{ ttt.id }}"
-                                                               value="{{ ttt.target_rank }}" required>
+                                                               value="{{ ttt.target_rank }}"
+                                                               min="1"
+                                                               max="500"
+                                                               required>
                                                     </td>
                                                 </tr>
                                                 {% endfor %}
                                             </tbody>
                                         </table>
                                     </div>
-                                    <button type="submit" class="btn btn-primary mt-2">Save All Transitions</button>
+                                    <div class="d-flex justify-content-center mt-3">
+                                        <button type="submit" class="btn btn-primary">Save All Transitions</button>
+                                    </div>
                                 </form>
                             </div>
                         </div>

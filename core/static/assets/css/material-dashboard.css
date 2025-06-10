@@ -11247,7 +11247,7 @@ thead.thead-inverse th,
       text-align: center;
       line-height: 33px; }
     .card .card-header.card-header-icon .card-title, .card .card-header.card-header-text .card-title {
-      margin-top: 15px;
+      margin-top: 20px;
       color: #3C4858; }
     .card .card-header.card-header-icon h4, .card .card-header.card-header-text h4 {
       font-weight: 300; }
@@ -11260,7 +11260,7 @@ thead.thead-inverse th,
       line-height: 24px; }
   .card.card-plain .card-header.card-header-icon + .card-body .card-title,
   .card.card-plain .card-header.card-header-icon + .card-body .card-category {
-    margin-top: -20px; }
+    margin-top: 0px; }
   .card .card-actions {
     position: absolute;
     z-index: 1;
@@ -11310,7 +11310,7 @@ thead.thead-inverse th,
         top: 4px;
         font-size: 16px; }
   .card [class*="card-header-"] {
-    margin: 0px 15px 0;
+    margin: 25px 15px 0;
     padding: 0;
     position: relative; }
     .card [class*="card-header-"] .card-title + .card-category {
@@ -11319,7 +11319,7 @@ thead.thead-inverse th,
         color: #ffffff; }
     .card [class*="card-header-"]:not(.card-header-icon):not(.card-header-text):not(.card-header-image) {
       border-radius: 3px;
-      margin-top: -20px;
+      margin-top: 0px;
       padding: 15px; }
     .card [class*="card-header-"] .card-icon,
     .card [class*="card-header-"] .card-text {
@@ -11374,8 +11374,10 @@ thead.thead-inverse th,
       height: 420px; }
   .card .card-body.table-full-width {
     padding: 0; }
-  .card .card-plain .card-header-icon {
-    margin-right: 15px !important; }
+    .card .card-plain .card-header-icon {
+        margin-top: 20px;
+        margin-right: 15px !important;
+    }
 
 .table-sales {
   margin-top: 40px; }

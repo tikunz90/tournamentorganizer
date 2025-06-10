@@ -3,199 +3,263 @@
 {% block title %} Structure {% endblock title %}
 
 <!-- Specific Page CSS goes HERE  -->
-{% block stylesheets %}{% endblock stylesheets %}
+{% block stylesheets %}
+{{ super() }}
+<style>
+
+
+    /* Make sure tab panes don't overflow their container */
+    .tab-pane {
+        max-width: 100%;
+        overflow-x: hidden;
+    }
+
+    /* Make tables more responsive */
+    .table-responsive {
+        margin-bottom: 0;
+        border: none;
+    }
+
+    /* Ensure the card doesn't expand too much */
+    .card {
+        overflow: hidden;
+    }
+
+    /* Responsive form elements */
+    .selectpicker, .form-control {
+        max-width: 100%;
+    }
+
+    /* Responsive handling for very small screens */
+    @media (max-width: 576px) {
+        .table-sm td, .table-sm th {
+            padding: 0.3rem;
+        }
+    }
+    /* Always show scrollbar when content overflows horizontally */
+    .table-responsive {
+        overflow-x: auto !important;
+        overflow-y: hidden !important;
+    }
+
+        /* Ensure the scrollbar is visible on Windows browsers */
+        .table-responsive::-webkit-scrollbar {
+            height: 8px;
+        }
+
+        .table-responsive::-webkit-scrollbar-thumb {
+            background: #cccccc;
+            border-radius: 4px;
+        }
+
+        .table-responsive::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+    /* Force minimum widths on table cells in very small screens */
+    @media (max-width: 575px) {
+        .table th, .table td {
+            white-space: nowrap;
+        }
+    }
+
+
+
+</style>
+{% endblock stylesheets %}
 
 {% block content %}
 
 {% include "beachhandball/templates/_modal.html" %}
 
-<h2>Structure Setup - 
-  <small class="description">create Structure with Tournament Stages and States...</small>
+<h2>
+    Structure Setup -
+    <small class="description">create Structure with Tournament Stages and States...</small>
 </h2>
 
 <div class="row">
-  <div class="col-md-12 ml-auto mr-auto">
-    <div class="page-categories">
-      <div class="row">
-        <div class="col-lg-3 col-md-3 col-sm-3 offset-4">
-            <h3 class="title text-center">Stage Setup</h3>
-          </div>
-          <div class="col-lg-2 col-md-2 col-sm-2 align-self-center">
-            <div class="dropdown">
-              <button class="dropdown-toggle btn btn-default btn-round btn-block" type="button" id="multiDropdownMenu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                <i class="material-icons">settings</i>
-              </button>
-              <div class="dropdown-menu" aria-labelledby="multiDropdownMenu">
-                <a class="dropdown-item dropdown-toggle" href=""><i class="material-icons">line_style</i> Stage</a>
-                <div class="dropdown-menu" id="Stage-Menu">
-                  <a id="create-stage-sync" class="dropdown-item">
-                    <i class="material-icons">add_circle</i> Create Stage
-                  </a>
-                  <a id="" class="dropdown-item">
-                    <i class="material-icons">swap_horiz</i> Change Order
-                  </a>
+    <div class="col-md-12 ml-auto mr-auto">
+        <div class="page-categories">
+            <div class="row">
+                <div class="col-lg-3 col-md-3 col-sm-3 offset-4">
+                    <h3 class="title text-center">Stage Setup</h3>
                 </div>
-                <a class="dropdown-item dropdown-toggle" href=""><i class="material-icons">format_list_numbered</i> State</a>
-                <div class="dropdown-menu" id="Stage-Menu">
-                  <a id="create-state-sync" class="dropdown-item">
-                    <i class="material-icons">add_circle</i> Create State
-                  </a>
-                  <a id="" class="dropdown-item">
-                    <i class="material-icons">swap_horiz</i> Change Order
-                  </a>
-                </div>
+                <div class="col-lg-2 col-md-2 col-sm-2 align-self-center">
+                    <div class="dropdown">
+                        <button class="dropdown-toggle btn btn-default btn-round btn-block" type="button" id="multiDropdownMenu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <i class="material-icons">settings</i>
+                        </button>
+                        <div class="dropdown-menu" aria-labelledby="multiDropdownMenu">
+                            <a class="dropdown-item dropdown-toggle" href=""><i class="material-icons">line_style</i> Stage</a>
+                            <div class="dropdown-menu" id="Stage-Menu">
+                                <a id="create-stage-sync" class="dropdown-item">
+                                    <i class="material-icons">add_circle</i> Create Stage
+                                </a>
+                                <a id="" class="dropdown-item">
+                                    <i class="material-icons">swap_horiz</i> Change Order
+                                </a>
+                            </div>
+                            <a class="dropdown-item dropdown-toggle" href=""><i class="material-icons">format_list_numbered</i> State</a>
+                            <div class="dropdown-menu" id="Stage-Menu">
+                                <a id="create-state-sync" class="dropdown-item">
+                                    <i class="material-icons">add_circle</i> Create State
+                                </a>
+                                <a id="" class="dropdown-item">
+                                    <i class="material-icons">swap_horiz</i> Change Order
+                                </a>
+                            </div>
 
-                <a id="delete-structure" class="dropdown-item" href="{{ url('structure_setup.delete_all', kwargs={'pk_tevent': tevent.id}) }}">
-                  <i class="material-icons">delete</i> Delete Structure
-                </a>
-                
-                
-              </div>
+                            <a id="delete-structure" class="dropdown-item" href="{{ url('structure_setup.delete_all', kwargs={'pk_tevent': tevent.id}) }}">
+                                <i class="material-icons">delete</i> Delete Structure
+                            </a>
+
+
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-2 col-md-2 col-sm-2 align-self-center">
+                    <form action="{{ url('structure_setup.tevent_printview', kwargs={'pk': tevent.id}) }}" method='GET'>
+                        <button type='submit' class="btn btn-sm btn-primary"><span class="fa fa-print"></span> Open Print View</button>
+                    </form>
+                </div>
             </div>
-          </div>
-          <div class="col-lg-2 col-md-2 col-sm-2 align-self-center">
-            <form action="{{ url('structure_setup.tevent_printview', kwargs={'pk': tevent.id}) }}" method='GET'>
-              <button type='submit' class="btn btn-sm btn-primary"><span class="fa fa-print"></span> Open Print View</button>
-            </form>
-          </div>
-      </div>
-      <hr />
-    </div>
-    <p>
-    
-    </p>
-    <ul class="nav nav-pills nav-pills-warning nav-pills-icons justify-content-center" role="tablist">
-        {% for stage in tstages_pre %}
-        {% with link_name=stage.id %}
-        <li class="nav-item">
+            <hr />
+        </div>
+        <p>
+
+        </p>
+        <ul class="nav nav-pills nav-pills-warning nav-pills-icons justify-content-center" role="tablist">
+            {% for stage in tstages_pre %}
+            {% with link_name=stage.id %}
+            <li class="nav-item">
+                {% if request.GET.tab %}
+                {% if request.GET.tab == stage.id|string %}
+                <a class="nav-link active" data-toggle="tab" href="{{ ['#', link_name]|join('')  }}" role="tablist">
+                    {% else %}
+                    <a class="nav-link" data-toggle="tab" href="{{ ['#', link_name]|join('')  }}" role="tablist">
+                        {% endif %}
+                        {% else %}
+                        {% if loop.first %}
+                        <a class="nav-link active" data-toggle="tab" href="{{ ['#', link_name]|join('') }}" role="tablist">
+                            {% else %}
+                            <a class="nav-link" data-toggle="tab" href="{{ ['#', link_name]|join('')  }}" role="tablist">
+                                {% endif %}
+                                {% endif %}
+
+                                {% if stage.tournament_stage == "GROUP_STAGE" %}
+                                <i class="material-icons">groups</i> {{stage.name}}
+                                {% elif stage.tournament_stage == "MAIN_ROUND" %}
+                                <i class="material-icons">shuffle</i> {{stage.name}}
+                                {% elif stage.tournament_stage == "KNOCKOUT_STAGE" %}
+                                <i class="material-icons">sports_mma</i> {{stage.name}}
+                                {% elif stage.tournament_stage == "PLAYOFF_STAGE" %}
+                                <i class="material-icons">thumb_down</i> {{stage.name}}
+                                {% elif stage.tournament_stage == "FINAL" %}
+                                <i class="material-icons">emoji_events</i> {{stage.name}}
+                                {% else %}
+                                <i class="material-icons">groups</i> {{stage.name}}
+                                {% endif %}
+                            </a>
+            </li>
+            {% endwith %}
+            {% else %}
+            <li>No Stages defined. Please add or run wizard</li>
+            {% if tstages_pre|length == 0 %}
+            <a class="btn btn-primary w-100" href="{{ url('setup_wizard', kwargs={'pk_tevent': tevent.id }) }}">Structure Wizard</a>
+            {% endif %}
+            {% endfor %}
+        </ul>
+        <div class="tab-content tab-space tab-subcategories">
+
+            {% for stage in tstages_pre %}
+            {% with link_name = stage.id %}
             {% if request.GET.tab %}
             {% if request.GET.tab == stage.id|string %}
-            <a class="nav-link active" data-toggle="tab" href="{{ ['#', link_name]|join('')  }}" role="tablist">
+            <div class="tab-pane active" id={{link_name}}>
                 {% else %}
-                <a class="nav-link" data-toggle="tab" href="{{ ['#', link_name]|join('')  }}" role="tablist">
+                <div class="tab-pane" id={{link_name}}>
                     {% endif %}
                     {% else %}
                     {% if loop.first %}
-                    <a class="nav-link active" data-toggle="tab" href="{{ ['#', link_name]|join('') }}" role="tablist">
+                    <div class="tab-pane active" id={{link_name}}>
                         {% else %}
-                        <a class="nav-link" data-toggle="tab" href="{{ ['#', link_name]|join('')  }}" role="tablist">
+                        <div class="tab-pane" id={{link_name}}>
                             {% endif %}
                             {% endif %}
+                            <div class="card">
+                                <div class="card-body">
+                                    <div class="row">
 
-                            {% if stage.tournament_stage == "GROUP_STAGE" %}
-                            <i class="material-icons">groups</i> {{stage.name}}
-                            {% elif stage.tournament_stage == "MAIN_ROUND" %}
-                            <i class="material-icons">shuffle</i> {{stage.name}}
-                            {% elif stage.tournament_stage == "KNOCKOUT_STAGE" %}
-                            <i class="material-icons">sports_mma</i> {{stage.name}}
-                            {% elif stage.tournament_stage == "PLAYOFF_STAGE" %}
-                            <i class="material-icons">thumb_down</i> {{stage.name}}
-                            {% elif stage.tournament_stage == "FINAL" %}
-                            <i class="material-icons">emoji_events</i> {{stage.name}}
-                            {% else %}
-                            <i class="material-icons">groups</i> {{stage.name}}
-                            {% endif %}
-                        </a>
-        </li>
-        {% endwith %}
-        {% else %}
-        <li>No Stages defined. Please add or run wizard</li>
-        {% if tstages_pre|length == 0 %}
-        <a class="btn btn-primary w-100" href="{{ url('setup_wizard', kwargs={'pk_tevent': tevent.id }) }}">Structure Wizard</a>
-        {% endif %}
-        {% endfor %}
-    </ul>
-    <div class="tab-content tab-space tab-subcategories">
+                                        {% for tstate in stage.tstates_wo_final %}
+                                        {% include "beachhandball/tournamentevent/_tournament_state_item.html" %}
+                                        {% else %}
+                                        <h3>{{ stage.name }}No states exists!</h3>
+                                        {% endfor %}
 
-        {% for stage in tstages_pre %}
-        {% with link_name = stage.id %}
-        {% if request.GET.tab %}
-        {% if request.GET.tab == stage.id|string %}
-        <div class="tab-pane active" id={{link_name}}>
-            {% else %}
-            <div class="tab-pane" id={{link_name}}>
-                {% endif %}
-                {% else %}
-                {% if loop.first %}
-                <div class="tab-pane active" id={{link_name}}>
-                    {% else %}
-                    <div class="tab-pane" id={{link_name}}>
-                        {% endif %}
-                        {% endif %}
-                        <div class="card">
-                            <div class="card-body">
-                                <div class="row">
-
-                                    {% for tstate in stage.tstates_wo_final %}
-                                    {% include "beachhandball/tournamentevent/_tournament_state_item.html" %}
-                                    {% else %}
-                                    <h3>{{ stage.name }}No states exists!</h3>
-                                    {% endfor %}
-
+                                    </div>
+                                </div>
+                                <div class="card-footer">
+                                    <button type="button" class="create-tstate btn btn-sm btn-primary" rel="tooltip" title="Create new TournamentState" data-form-url="{{ url('structure_setup.create_tstate', kwargs={'pk_tevent': tevent.id, 'pk_tstage': stage.id}) }}">
+                                        <span class="fa fa-plus mr-2"></span> Create State
+                                    </button>
+                                    <form action="{{ url('structure_setup.tstage_printview', kwargs={'pk_tevent': tevent.id, 'pk': stage.id}) }}" method='GET'>
+                                        <button type='submit' class="btn btn-sm btn-primary"><span class="fa fa-print"></span> Open Print View</button>
+                                    </form>
+                                    <button type="button" class="delete-tstage btn btn-sm btn-danger" rel="tooltip" title="Delete Stage" data-form-url="{{ url('structure_setup.delete_tstage', kwargs={'pk_tevent': tevent.id, 'pk': stage.id}) }}">
+                                        <span class="fa fa-trash"></span>
+                                    </button>
                                 </div>
                             </div>
-                            <div class="card-footer">
-                                <button type="button" class="create-tstate btn btn-sm btn-primary" rel="tooltip" title="Create new TournamentState" data-form-url="{{ url('structure_setup.create_tstate', kwargs={'pk_tevent': tevent.id, 'pk_tstage': stage.id}) }}">
-                                    <span class="fa fa-plus mr-2"></span> Create State
-                                </button>
-                                <form action="{{ url('structure_setup.tstage_printview', kwargs={'pk_tevent': tevent.id, 'pk': stage.id}) }}" method='GET'>
-                                    <button type='submit' class="btn btn-sm btn-primary"><span class="fa fa-print"></span> Open Print View</button>
-                                </form>
-                                <button type="button" class="delete-tstage btn btn-sm btn-danger" rel="tooltip" title="Delete Stage" data-form-url="{{ url('structure_setup.delete_tstage', kwargs={'pk_tevent': tevent.id, 'pk': stage.id}) }}">
-                                    <span class="fa fa-trash"></span>
-                                </button>
-                            </div>
                         </div>
-                    </div>
-                    {% endwith %}
-                    {% else %}
-                    {% endfor %}
+                        {% endwith %}
+                        {% else %}
+                        {% endfor %}
 
+                    </div>
                 </div>
             </div>
-        </div>
-        <hr>
+            <hr>
 
-        <form action="{{ url('team_testdata', kwargs={'pk_tevent': tevent.id}) }}" method='GET'>
-            <button type='submit' hidden>Create TestData</button>
-        </form>
+            <form action="{{ url('team_testdata', kwargs={'pk_tevent': tevent.id}) }}" method='GET'>
+                <button type='submit' hidden>Create TestData</button>
+            </form>
 
-        <div class="modal fade" id="editTeamModal" tabindex="-1" role="dialog" aria-labelledby="editTeamModalLabel" aria-hidden="true">
-            <div class="modal-dialog" role="document">
-                <form id="editTeamForm">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title" id="editTeamModalLabel">Edit Team</h5>
-                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                <span aria-hidden="true">&times;</span>
-                            </button>
-                        </div>
-                        <div class="modal-body">
-                            <input type="hidden" id="editTeamId" name="team_id">
-                            <div class="form-group">
-                                <label for="editTeamName">Name</label>
-                                <input type="text" class="form-control" id="editTeamName" name="name" required>
+            <div class="modal fade" id="editTeamModal" tabindex="-1" role="dialog" aria-labelledby="editTeamModalLabel" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <form id="editTeamForm">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="editTeamModalLabel">Edit Team</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
                             </div>
-                            <div class="form-group">
-                                <label for="editTeamAbbr">Abbreviation</label>
-                                <input type="text" class="form-control" id="editTeamAbbr" name="abbreviation" required>
+                            <div class="modal-body">
+                                <input type="hidden" id="editTeamId" name="team_id">
+                                <div class="form-group">
+                                    <label for="editTeamName">Name</label>
+                                    <input type="text" class="form-control" id="editTeamName" name="name" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="editTeamAbbr">Abbreviation</label>
+                                    <input type="text" class="form-control" id="editTeamAbbr" name="abbreviation" required>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                                <button type="submit" class="btn btn-primary">Save</button>
                             </div>
                         </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                            <button type="submit" class="btn btn-primary">Save</button>
-                        </div>
-                    </div>
-                </form>
+                    </form>
+                </div>
             </div>
-        </div>
 
-        {% endblock content %}
+            {% endblock content %}
 
 
-        {% block javascripts %}
+            {% block javascripts %}
 
-        <script>
+            <script>
   $(document).ready(function() {
     $("#main-content").LoadingOverlay("hide");
     //var tdata = tournament_service.getData();
@@ -205,7 +269,7 @@
     //    bh.addTournamentStateHTML(item, result.teams);
     //  });
       //});
-      
+
 
     {% if messages %}
     console.log("Has messages...");
@@ -560,6 +624,6 @@
             $('.page-categories .nav-link').on('shown.bs.tab', setTabPaneSize);
             $(window).on('resize', setTabPaneSize);
 
-        </script>
+            </script>
 
-        {% endblock javascripts %}
+            {% endblock javascripts %}
