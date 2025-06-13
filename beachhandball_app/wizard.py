@@ -7,7 +7,7 @@ from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 from beachhandball_app import signals
 from beachhandball_app.models.Game import Game
 from beachhandball_app.models.Team import Team, TeamStats
-from beachhandball_app.models.Tournaments import Court, TournamentStage, TournamentState, TournamentTeamTransition
+from beachhandball_app.models.Tournaments import Court, TournamentEvent, TournamentStage, TournamentState, TournamentTeamTransition
 from beachhandball_app.models.choices import COLOR_CHOICES, COLOR_CHOICES_DICT, COLOR_CHOICES_GROUP_MEN, COLOR_CHOICES_GROUP_MEN_DICT, COLOR_CHOICES_GROUP_WOMEN, COLOR_CHOICES_GROUP_WOMEN_DICT, COLORS_PLACEMENT_GROUP_MEN, COLORS_PLACEMENT_GROUP_WOMEN, KNOCKOUT_NAMES, ROUND_TYPES, TOURNAMENT_STAGE_TYPE_CHOICES, TOURNAMENT_STATE_CHOICES
 
 
@@ -964,12 +964,14 @@ def wizard_create_gameplan(tourn, gameplan_data, num_courts):
         if all(court.id != c.id for c in courtList):
             court.delete()
         
+    tevent = TournamentEvent.objects.get(id=g['tournament_event_id'])
+
     games = []
     game_counter = 1
     for g in gameplan_data:
         actCourt = courts[int(g['court'][1:])]
-        game_obj = Game(tournament=tourn,
-                        tournament_shared=tourn,
+        game_obj = Game(tournament=tevent.tournament,
+                        tournament_shared=tevent.tournament_shared,
                         tournament_event_id=g['tournament_event_id'],
                         tournament_state_id=g['tournament_state_id'],
                         starttime=datetime.fromtimestamp(g['starttime']),

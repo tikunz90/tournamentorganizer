@@ -309,6 +309,44 @@ def update_games_tournament_shared(request):
     return redirect(return_url)
 
 @login_required(login_url="/login/")
+@user_passes_test(lambda u: u.groups.filter(name='tournament_organizer').exists(), 
+                  login_url="/login/", redirect_field_name='next')
+def update_games_tournament_id(request):
+    context = helper.getContext(request)
+    if not helper.checkLoginIsValid(context['gbo_user']):
+        return redirect('login')
+    
+    guser = context['gbo_user']
+    active_tournament = guser.tournament
+    
+    if not active_tournament:
+        messages.error(request, "No active tournament selected.")
+        return redirect('index')
+    
+    updated_count = 0
+    
+    # Get all games for all user's tournaments
+    for tournament in context.get('tournaments', []):
+        # Get games associated with this tournament
+        games = Game.objects.filter(tournament=tournament)
+        
+        # Print debug info
+        print(f"Tournament {tournament.id} - {tournament.name}")
+        print(f"Found {games.count()} games")
+
+            # Update each game with proper tournament_shared
+        for game in games.all():
+            if game.tournament != game.tournament_event.tournament:
+                game.tournament = game.tournament_event.tournament
+                game.save()
+    
+    messages.info(request, "All games already have the correct tournament_shared field.")
+    
+    # Redirect back to the referring page or to index
+    return_url = request.META.get('HTTP_REFERER', reverse('index'))
+    return redirect(return_url)
+
+@login_required(login_url="/login/")
 @user_passes_test(lambda u: u.groups.filter(name='tournament_organizer').exists(),
 login_url="/login/", redirect_field_name='next')
 def setup_wizard(request, pk_tevent):
