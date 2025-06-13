@@ -394,9 +394,9 @@ function connectMqtt() {
     var useSSL = false;
     var portNumber = 8082;
     if (location.protocol == 'https:') {
-        console.log("https: ");
-        useSSL = true;
-        portNumber = 8083;
+        //console.log("https: ");
+        //useSSL = true;
+        //portNumber = 8083;
     }
 
     console.log("Mqtt: " + headerMqttBroker.textContent + ":" + portNumber);
