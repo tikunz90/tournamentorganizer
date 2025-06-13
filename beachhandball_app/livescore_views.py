@@ -186,7 +186,7 @@ def livescore_display_livestream(request, pk_tourn, pk_court):
     # Pick out the html file name from the url. And load that template.
     try:
 
-        t = Tournament.objects.get(season_cup_tournament_id=pk_tourn)
+        t = Tournament.objects.filter(season_cup_tournament_id=pk_tourn).first()
         game = Game.objects.filter(tournament = t, court_id=pk_court).first()
         context['tournament_id'] = pk_tourn
         context['court_id'] = pk_court
@@ -221,7 +221,7 @@ def livescore_display_livestream_teaminfo(request, pk_tourn, pk_court):
     # Pick out the html file name from the url. And load that template.
     try:
 
-        t = Tournament.objects.get(season_cup_tournament_id=pk_tourn)
+        t = Tournament.objects.filter(season_cup_tournament_id=pk_tourn).first()
         #game = Game.objects.filter(tournament = t, court_id=pk_court).first()
         #game = Game.objects.prefetch_related("team_a__player_set",
         #    "team_b__player_set").filter(tournament = t, court_id=pk_court, gamestate='RUNNING').first()
@@ -284,7 +284,7 @@ def livescore_display_big_scoreboard(request, pk_tourn, pk_court):
     # All resource paths end in .html.
     # Pick out the html file name from the url. And load that template.
     try:
-        t = Tournament.objects.get(season_cup_tournament_id=pk_tourn)
+        t = Tournament.objects.filter(season_cup_tournament_id=pk_tourn).first()
         game = Game.objects.filter(tournament = t, court_id=pk_court).first()
         context['tournament_id'] = pk_tourn
         context['court_id'] = pk_court
@@ -319,7 +319,7 @@ def livescore_ledwall(request, pk_tourn, pk_court):
     # Pick out the html file name from the url. And load that template.
     try:
 
-        t = Tournament.objects.get(season_cup_tournament_id=pk_tourn)
+        t = Tournament.objects.filter(season_cup_tournament_id=pk_tourn).first()
         #game = Game.objects.filter(tournament = t, court_id=pk_court).first()
         #game = Game.objects.prefetch_related("team_a__player_set",
         #    "team_b__player_set").filter(tournament = t, court_id=pk_court, gamestate='RUNNING').first()
@@ -380,7 +380,7 @@ def livescore_ledwall_control(request, pk_tourn, pk_court):
     # Pick out the html file name from the url. And load that template.
     try:
 
-        t = Tournament.objects.get(season_cup_tournament_id=pk_tourn)
+        t = Tournament.objects.filter(season_cup_tournament_id=pk_tourn).first()
         #game = Game.objects.filter(tournament = t, court_id=pk_court).first()
         game = Game.objects.prefetch_related("team_a__player_set",
             "team_b__player_set").filter(tournament = t, court_id=pk_court, gamestate='RUNNING').first()

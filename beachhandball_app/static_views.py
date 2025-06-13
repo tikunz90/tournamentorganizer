@@ -244,6 +244,71 @@ def delete_all_events(request):
     return redirect('index')
 
 @login_required(login_url="/login/")
+@user_passes_test(lambda u: u.groups.filter(name='tournament_organizer').exists(), 
+                  login_url="/login/", redirect_field_name='next')
+def update_games_tournament_shared(request):
+    """
+    Check all games belonging to the user's tournaments and ensure the tournament_shared field is properly set.
+    If tournament_shared is not set or is different from the user's active tournament, update it.
+    """
+    context = helper.getContext(request)
+    if not helper.checkLoginIsValid(context['gbo_user']):
+        return redirect('login')
+    
+    guser = context['gbo_user']
+    active_tournament = guser.tournament
+    
+    if not active_tournament:
+        messages.error(request, "No active tournament selected.")
+        return redirect('index')
+    
+    updated_count = 0
+    
+    # Get all games for all user's tournaments
+    for tournament in context.get('tournaments', []):
+        # Get games associated with this tournament
+        games = Game.objects.filter(tournament=tournament)
+        
+        # Print debug info
+        print(f"Tournament {tournament.id} - {tournament.name}")
+        print(f"Found {games.count()} games")
+        
+        # Check if any game has tournament_shared == None
+        null_shared_count = games.filter(tournament_shared__isnull=True).count()
+        print(f"Games with NULL tournament_shared: {null_shared_count}")
+        
+        # Check if any game has wrong tournament_shared
+        wrong_shared_count = games.exclude(tournament_shared=active_tournament).count()
+        print(f"Games with wrong tournament_shared: {wrong_shared_count}")
+        
+        # Update games where tournament_shared is not set or different
+        games_to_update = games.filter(
+            Q(tournament_shared__isnull=True) | 
+            ~Q(tournament_shared=active_tournament)
+        )
+        
+        if games_to_update.exists():
+            count_before_update = games_to_update.count()
+            print(f"Updating {count_before_update} games")
+            
+            # Update each game with proper tournament_shared
+            for game in games_to_update:
+                print(f"Game {game.id}: tournament_shared was {game.tournament_shared_id}, setting to {active_tournament.id}")
+                game.tournament_shared = active_tournament
+                game.save()
+            
+            updated_count += count_before_update
+    
+    if updated_count > 0:
+        messages.success(request, f"Updated tournament_shared field for {updated_count} games.")
+    else:
+        messages.info(request, "All games already have the correct tournament_shared field.")
+    
+    # Redirect back to the referring page or to index
+    return_url = request.META.get('HTTP_REFERER', reverse('index'))
+    return redirect(return_url)
+
+@login_required(login_url="/login/")
 @user_passes_test(lambda u: u.groups.filter(name='tournament_organizer').exists(),
 login_url="/login/", redirect_field_name='next')
 def setup_wizard(request, pk_tevent):

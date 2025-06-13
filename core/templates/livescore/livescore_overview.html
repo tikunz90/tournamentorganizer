@@ -75,13 +75,13 @@
                                       </tr>
                                   </thead>
                                   <tbody>
-                                      {% for player in game.team_a.player_set.all() %}
-                                          <tr>
-                                              <td>{{ player.number }}</td>
-                                              <td>{{ player.name }}, {{ player.first_name }}</td>
-                                              <td>{{ player.gbo_position }}</td>
-                                              <td><input type="checkbox" {% if player.is_active %}checked{% endif %} disabled></td>
-                                          </tr>
+                                      {% for player in game.team_a.player_set.all() if game.team_a.player_set %}
+                                      <tr>
+                                          <td>{{ player.number }}</td>
+                                          <td>{{ player.name }}, {{ player.first_name }}</td>
+                                          <td>{{ player.gbo_position }}</td>
+                                          <td><input type="checkbox" {% if player.is_active %}checked{% endif %} disabled></td>
+                                      </tr>
                                       {% endfor %}
                                   </tbody>
                               </table>
@@ -97,16 +97,16 @@
                                       <th>Is Active</th>
                                   </tr>
                               </thead>
-                              <tbody>
-                                  {% for player in game.team_b.player_set.all() %}
-                                      <tr>
-                                          <td>{{ player.number }}</td>
-                                          <td>{{ player.name }}, {{ player.first_name }}</td>
-                                          <td>{{ player.gbo_position }}</td>
-                                          <td><input type="checkbox" {% if player.is_active %}checked{% endif %} disabled></td>
-                                      </tr>
-                                  {% endfor %}
-                              </tbody>
+                                <tbody>
+                                    {% for player in game.team_b.player_set.all() if game.team_b.player_set %}
+                                    <tr>
+                                        <td>{{ player.number }}</td>
+                                        <td>{{ player.name }}, {{ player.first_name }}</td>
+                                        <td>{{ player.gbo_position }}</td>
+                                        <td><input type="checkbox" {% if player.is_active %}checked{% endif %} disabled></td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
                           </table>
                         </div>
                             </div>

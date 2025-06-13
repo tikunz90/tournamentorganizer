@@ -26,7 +26,7 @@ class Command(BaseCommand):
             return
 
         try:
-            tournament = Tournament.objects.get(id=selected_id)
+            tournament = Tournament.objects.filter(id=selected_id).first()
         except Tournament.DoesNotExist:
             self.stdout.write(self.style.ERROR(f"Tournament with ID {selected_id} does not exist."))
             return
