@@ -111,7 +111,7 @@ def livescore_overview(request, pk_tourn):
                 , to_attr="all_courts"),
             Prefetch("referee_set", queryset=Referee.objects.select_related("tournament")
                 , to_attr="all_refs")
-                ).get(id=pk_tourn)
+                ).get(season_cup_tournament_id=pk_tourn)
     context['tourn'] = t
     #context['tourn_settings'] = t.settings[0] #TournamentSettings.objects.get(tournament=t)
     context['events'] = t.all_tevents #TournamentEvent.objects.filter(tournament=t)
@@ -185,10 +185,10 @@ def livescore_display_livestream(request, pk_tourn, pk_court):
     # All resource paths end in .html.
     # Pick out the html file name from the url. And load that template.
     try:
-
-        t = Tournament.objects.filter(season_cup_tournament_id=pk_tourn).first()
-        game = Game.objects.filter(tournament = t, court_id=pk_court).first()
-        context['tournament_id'] = pk_tourn
+        #t = Tournament.objects.filter(season_cup_tournament_id=pk_tourn).first()
+        court = Court.objects.filter(id=pk_court).first()
+        game = Game.objects.filter(tournament = court.tournament, court_id=pk_court).first()
+        context['tournament_id'] = court.tournament.id
         context['court_id'] = pk_court
         context['game'] = game
         
@@ -221,7 +221,7 @@ def livescore_display_livestream_teaminfo(request, pk_tourn, pk_court):
     # Pick out the html file name from the url. And load that template.
     try:
 
-        t = Tournament.objects.filter(season_cup_tournament_id=pk_tourn).first()
+       # t = Tournament.objects.filter(season_cup_tournament_id=pk_tourn).first()
         #game = Game.objects.filter(tournament = t, court_id=pk_court).first()
         #game = Game.objects.prefetch_related("team_a__player_set",
         #    "team_b__player_set").filter(tournament = t, court_id=pk_court, gamestate='RUNNING').first()
@@ -233,19 +233,17 @@ def livescore_display_livestream_teaminfo(request, pk_tourn, pk_court):
                 Prefetch('team_a__player_set', queryset=Player.objects.filter(is_active=True), to_attr='active_players'),
                 Prefetch('team_b__player_set', queryset=Player.objects.filter(is_active=True), to_attr='active_players')
             ).filter(
-                tournament=t,
                 court_id=pk_court,
                 gamestate='RUNNING'
             ).first()
         
         if game is None:
             game = Game.objects.prefetch_related("team_a__player_set",
-            "team_b__player_set").filter(tournament = t, court_id=pk_court, gamestate='APPENDING').first()
+            "team_b__player_set").filter(court_id=pk_court, gamestate='APPENDING').first()
             game = Game.objects.prefetch_related(
                     Prefetch('team_a__player_set', queryset=Player.objects.filter(is_active=True), to_attr='active_players'),
                     Prefetch('team_b__player_set', queryset=Player.objects.filter(is_active=True), to_attr='active_players')
                 ).filter(
-                    tournament=t,
                     court_id=pk_court,
                     gamestate='APPENDING'
                 ).first()
@@ -284,8 +282,8 @@ def livescore_display_big_scoreboard(request, pk_tourn, pk_court):
     # All resource paths end in .html.
     # Pick out the html file name from the url. And load that template.
     try:
-        t = Tournament.objects.filter(season_cup_tournament_id=pk_tourn).first()
-        game = Game.objects.filter(tournament = t, court_id=pk_court).first()
+        #t = Tournament.objects.filter(season_cup_tournament_id=pk_tourn).first()
+        game = Game.objects.filter(court_id=pk_court).first()
         context['tournament_id'] = pk_tourn
         context['court_id'] = pk_court
         context['game'] = game
@@ -319,7 +317,7 @@ def livescore_ledwall(request, pk_tourn, pk_court):
     # Pick out the html file name from the url. And load that template.
     try:
 
-        t = Tournament.objects.filter(season_cup_tournament_id=pk_tourn).first()
+        #t = Tournament.objects.filter(season_cup_tournament_id=pk_tourn).first()
         #game = Game.objects.filter(tournament = t, court_id=pk_court).first()
         #game = Game.objects.prefetch_related("team_a__player_set",
         #    "team_b__player_set").filter(tournament = t, court_id=pk_court, gamestate='RUNNING').first()
@@ -328,19 +326,17 @@ def livescore_ledwall(request, pk_tourn, pk_court):
                 Prefetch('team_a__player_set', queryset=Player.objects.filter(is_active=True), to_attr='active_players'),
                 Prefetch('team_b__player_set', queryset=Player.objects.filter(is_active=True), to_attr='active_players')
             ).filter(
-                tournament=t,
                 court_id=pk_court,
                 gamestate='RUNNING'
             ).first()
         
         if game is None:
             game = Game.objects.prefetch_related("team_a__player_set",
-            "team_b__player_set").filter(tournament = t, court_id=pk_court, gamestate='APPENDING').first()
+            "team_b__player_set").filter(court_id=pk_court, gamestate='APPENDING').first()
             game = Game.objects.prefetch_related(
                     Prefetch('team_a__player_set', queryset=Player.objects.filter(is_active=True), to_attr='active_players'),
                     Prefetch('team_b__player_set', queryset=Player.objects.filter(is_active=True), to_attr='active_players')
                 ).filter(
-                    tournament=t,
                     court_id=pk_court,
                     gamestate='APPENDING'
                 ).first()
@@ -380,13 +376,13 @@ def livescore_ledwall_control(request, pk_tourn, pk_court):
     # Pick out the html file name from the url. And load that template.
     try:
 
-        t = Tournament.objects.filter(season_cup_tournament_id=pk_tourn).first()
+        #t = Tournament.objects.filter(season_cup_tournament_id=pk_tourn).first()
         #game = Game.objects.filter(tournament = t, court_id=pk_court).first()
         game = Game.objects.prefetch_related("team_a__player_set",
-            "team_b__player_set").filter(tournament = t, court_id=pk_court, gamestate='RUNNING').first()
+            "team_b__player_set").filter(court_id=pk_court, gamestate='RUNNING').first()
         if game is None:
             game = Game.objects.prefetch_related("team_a__player_set",
-            "team_b__player_set").filter(tournament = t, court_id=pk_court, gamestate='APPENDING').first()
+            "team_b__player_set").filter(court_id=pk_court, gamestate='APPENDING').first()
         context['tournament_id'] = pk_tourn
         context['court_id'] = pk_court
         context['game'] = game

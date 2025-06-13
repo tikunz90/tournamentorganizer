@@ -54,8 +54,10 @@ function connectMqtt() {
     var headerTournId = document.getElementById('tournament_id');
     var headerCourtId = document.getElementById('court_id');
     var headerGameId = document.getElementById('game_id');
-    topicName = topicNameBase + "/tournament_" + headerTournId.textContent + "/court_" + headerCourtId.textContent + "/";
-    topicLedWallName = topicLedWallNameBase + "/tournament_" + headerTournId.textContent + "/court_" + headerCourtId.textContent + "/";
+    //topicName = topicNameBase + "/tournament_" + headerTournId.textContent + "/court_" + headerCourtId.textContent + "/";
+    topicName = topicNameBase + "/court_" + headerCourtId.textContent + "/";
+   // topicLedWallName = topicLedWallNameBase + "/tournament_" + headerTournId.textContent + "/court_" + headerCourtId.textContent + "/";
+    topicLedWallName = topicLedWallNameBase + "/court_" + headerCourtId.textContent + "/";
     topicLedWallError = topicLedWallNameBase + "/error/";
     
     var urlParams = new URLSearchParams(window.location.search);
@@ -81,7 +83,7 @@ function connectMqtt() {
 
     console.log("Mqtt: " + headerMqttBroker.textContent + ":" + portNumber);
     let uniqueId = Date.now().toString(36) + Math.random().toString(36).substring(2);
-    clientMqtt = new Paho.MQTT.Client(headerMqttBroker.textContent, portNumber, "led_control_" + uniqueId); 
+    clientMqtt = new Paho.MQTT.Client(headerMqttBroker.textContent, portNumber, "/ws", "led_control_" + uniqueId); 
     
     var options = {
         useSSL: useSSL,

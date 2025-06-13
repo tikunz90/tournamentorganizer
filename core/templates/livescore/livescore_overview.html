@@ -75,7 +75,7 @@
                                       </tr>
                                   </thead>
                                   <tbody>
-                                      {% for player in game.team_a.player_set.all() if game.team_a.player_set %}
+                                      {% for player in game.team_a.player_set.all() if game.team_a %}
                                       <tr>
                                           <td>{{ player.number }}</td>
                                           <td>{{ player.name }}, {{ player.first_name }}</td>
@@ -98,7 +98,7 @@
                                   </tr>
                               </thead>
                                 <tbody>
-                                    {% for player in game.team_b.player_set.all() if game.team_b.player_set %}
+                                    {% for player in game.team_b.player_set.all() if game.team_b %}
                                     <tr>
                                         <td>{{ player.number }}</td>
                                         <td>{{ player.name }}, {{ player.first_name }}</td>

@@ -61,7 +61,7 @@ function connectMqtt() {
 
     console.log("Mqtt: " + headerMqttBroker.textContent + ":" + portNumber);
     let uniqueId = Date.now().toString(36) + Math.random().toString(36).substring(2);
-    clientMqtt = new Paho.MQTT.Client(headerMqttBroker.textContent, portNumber, "livescore_display_beach_" + uniqueId); 
+    clientMqtt = new Paho.MQTT.Client(headerMqttBroker.textContent, portNumber, "/ws", "livescore_display_beach_" + uniqueId); 
     
     var options = {
         useSSL: useSSL,

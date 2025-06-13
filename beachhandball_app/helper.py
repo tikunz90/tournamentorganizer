@@ -737,6 +737,7 @@ def sync_teams_of_tevent(gbouser, tevent):
                     name=ranking['seasonTeam']['team']['name'],
                     abbreviation=ranking['seasonTeam']['team']['name_abbreviated'],
                     gbo_team=ranking['seasonTeam']['team']['id'],
+                    season_team_id=ranking['seasonTeam']['id'],
                     category=tevent.category,
                     is_dummy=False
                 )
@@ -751,6 +752,7 @@ def sync_teams_of_tevent(gbouser, tevent):
                 team.name = ranking['seasonTeam']['team']['name']
                 team.abbreviation = ranking['seasonTeam']['team']['name_abbreviated']
                 team.gbo_team = ranking['seasonTeam']['team']['id']
+                team.season_team_id = ranking['seasonTeam']['id']
                 team.category = tevent.category
                 team.is_dummy = False
                 setattr(team, ranking_field, ranking['id'])
@@ -773,7 +775,7 @@ def sync_teams_of_tevent(gbouser, tevent):
             Team.objects.bulk_update(
                 teams_to_update,
                 fields=[
-                    "name", "abbreviation", "gbo_team", "category", "is_dummy",
+                    "name", "abbreviation", "gbo_team", "season_team_id", "category", "is_dummy",
                     "season_team_cup_tournament_ranking_id", "season_cup_tournament_id",
                     "season_team_cup_championship_ranking_id", "season_cup_german_championship_id",
                     "season_team_sub_cup_tournament_ranking_id"
@@ -1222,6 +1224,7 @@ def sync_single_team_by_ranking(ranking, tevent, team_data_django, cup_type, gbo
         'name': ranking['seasonTeam']['team']['name'],
         'abbreviation': ranking['seasonTeam']['team']['name_abbreviated'],
         'gbo_team': ranking['seasonTeam']['team']['id'],
+        'season_team_id': ranking['seasonTeam']['id'],
         'category': category,
         'is_dummy': False,
         ranking_field: ranking['id']

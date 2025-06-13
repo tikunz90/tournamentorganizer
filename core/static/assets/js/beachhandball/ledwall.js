@@ -62,7 +62,7 @@ window.addEventListener("load", function () {
 
     showPage("info");
     //showPage("weatherforecast");
-
+    fetchWeather();
     setTimeout(() => {
         fetchWeather();
         //document.querySelector('.logo-container').classList.add('hidden');
@@ -273,6 +273,7 @@ function fetchWeather() {
 
 
     try {
+        console.log("Check weather")
         fetch(`https://api.openweathermap.org/data/2.5/forecast?lat=50.136181&lon=8.450800&appid=cb4b76afff33313fc2d263c5b83c82b6`)
         .then(response => response.json())
         .then(data => {
@@ -372,8 +373,10 @@ function connectMqtt() {
     var headerTournId = document.getElementById('tournament_id');
     var headerCourtId = document.getElementById('court_id');
     var headerGameId = document.getElementById('game_id');
-    topicName = topicNameBase + "/tournament_" + headerTournId.textContent + "/court_" + headerCourtId.textContent + "/";
-    topicLedWallName = topicLedWallNameBase + "/tournament_" + headerTournId.textContent + "/court_" + headerCourtId.textContent + "/";
+    //topicName = topicNameBase + "/tournament_" + headerTournId.textContent + "/court_" + headerCourtId.textContent + "/";
+    topicName = topicNameBase + "/court_" + headerCourtId.textContent + "/";
+    //topicLedWallName = topicLedWallNameBase + "/tournament_" + headerTournId.textContent + "/court_" + headerCourtId.textContent + "/";
+    topicLedWallName = topicLedWallNameBase + "/court_" + headerCourtId.textContent + "/";
     topicLedWallError = topicLedWallNameBase + "/error/";
 
     var urlParams = new URLSearchParams(window.location.search);
@@ -398,7 +401,7 @@ function connectMqtt() {
 
     console.log("Mqtt: " + headerMqttBroker.textContent + ":" + portNumber);
     let uniqueId = Date.now().toString(36) + Math.random().toString(36).substring(2);
-    clientMqtt = new Paho.MQTT.Client(headerMqttBroker.textContent, portNumber, "livescore_display_beach_" + uniqueId);
+    clientMqtt = new Paho.MQTT.Client(headerMqttBroker.textContent, portNumber, "/ws", "livescore_display_beach_" + uniqueId);
 
     var options = {
         useSSL: useSSL,

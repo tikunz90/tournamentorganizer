@@ -52,7 +52,8 @@ function connectMqtt() {
     var headerTournId = document.getElementById('tournament_id');
     var headerCourtId = document.getElementById('court_id');
     var headerGameId = document.getElementById('game_id');
-    topicName = topicNameBase + "/tournament_" + headerTournId.textContent + "/court_" + headerCourtId.textContent + "/";
+    //topicName = topicNameBase + "/tournament_" + headerTournId.textContent + "/court_" + headerCourtId.textContent + "/";
+    topicName = topicNameBase + "/court_" + headerCourtId.textContent + "/";
     
     var urlParams = new URLSearchParams(window.location.search);
     // Get the value of the "myparam" parameter
@@ -77,7 +78,7 @@ function connectMqtt() {
 
     console.log("Mqtt: " + headerMqttBroker.textContent + ":" + portNumber);
     let uniqueId = Date.now().toString(36) + Math.random().toString(36).substring(2);
-    clientMqtt = new Paho.MQTT.Client(headerMqttBroker.textContent, portNumber, "livescore_display_beach_" + uniqueId); 
+    clientMqtt = new Paho.MQTT.Client(headerMqttBroker.textContent, portNumber, "/ws", "livescore_display_beach_" + uniqueId); 
     
     var options = {
         useSSL: useSSL,
@@ -293,47 +294,64 @@ function update_score_display() {
 
     var lblMoment = document.getElementById("moment");
     var lblHeader = document.getElementById("header");
-    lblHeader.style.visibility = "hidden";
     var lblHalftime = document.getElementById("halftime");
 
+    // Check if all required elements exist before proceeding
+    if (!lblHalftime || !lblMoment) {
+        console.warn("Some required DOM elements are missing. Skipping score display update.");
+        return; // Exit the function early if essential elements are missing
+    }
+
+    if (lblHeader) {
+        lblHeader.style.visibility = "hidden";
+    }
+
     lblMoment.textContent = active_halftime;
-    if(gameMode == 1 && active_halftime == 3) {
+    if (gameMode == 1 && active_halftime == 3) {
         lblMoment.textContent = "P";
-        lblHeader.textContent = "SHOOTOUT";
-        lblHeader.style.visibility = "visible";
 
-        lblScoreA_Shootout.style.visibility = "visible";
-        lblScoreB_Shootout.style.visibility = "visible";
-        if( score_teama_num_so > 0) {
-            lblScoreA_Shootout.textContent = score_teama_num_so;
-        }
-        if( score_teamb_num_so > 0) {
-            lblScoreB_Shootout.textContent = score_teamb_num_so;
+        if (lblHeader) {
+            lblHeader.textContent = "SHOOTOUT";
+            lblHeader.style.visibility = "visible";
         }
 
-        if (lblHalftime.classList.contains('boxovertimeoff')) {
+        if (lblScoreA_Shootout) {
+            lblScoreA_Shootout.style.visibility = "visible";
+            if (score_teama_num_so > 0) {
+                lblScoreA_Shootout.textContent = score_teama_num_so;
+            }
+        }
+
+        if (lblScoreB_Shootout) {
+            lblScoreB_Shootout.style.visibility = "visible";
+            if (score_teamb_num_so > 0) {
+                lblScoreB_Shootout.textContent = score_teamb_num_so;
+            }
+        }
+
+        if (lblHalftime.classList && lblHalftime.classList.contains('boxovertimeoff')) {
             lblHalftime.classList.remove('boxovertimeoff');
             lblHalftime.classList.add('boxovertimeon');
         }
     }
-    else if(gameMode == 1 && active_halftime < 3) {
-        lblScoreA_Shootout.style.visibility = "hidden";
-        lblScoreB_Shootout.style.visibility = "hidden";
-        if (lblHalftime.classList.contains('boxovertimeon')) {
+    else if (gameMode == 1 && active_halftime < 3) {
+        if (lblScoreA_Shootout) lblScoreA_Shootout.style.visibility = "hidden";
+        if (lblScoreB_Shootout) lblScoreB_Shootout.style.visibility = "hidden";
+
+        if (lblHalftime.classList && lblHalftime.classList.contains('boxovertimeon')) {
             lblHalftime.classList.remove('boxovertimeon');
             lblHalftime.classList.add('boxovertimeoff');
         }
     }
 
+    // Update scores only if elements exist
+    if (lblScoreA_H1) lblScoreA_H1.textContent = score_teama_ht1;
+    if (lblScoreA_H2) lblScoreA_H2.textContent = score_teama_ht2;
+    if (lblScoreA_P) lblScoreA_P.textContent = score_teama_p;
+    if (lblScoreA_TOT) lblScoreA_TOT.textContent = score_teama_total;
 
-    lblScoreA_H1.textContent = score_teama_ht1;
-    lblScoreA_H2.textContent = score_teama_ht2;
-    lblScoreA_P.textContent = score_teama_p;
-    lblScoreA_TOT.textContent = score_teama_total;
-
-    lblScoreB_H1.textContent = score_teamb_ht1;
-    lblScoreB_H2.textContent = score_teamb_ht2;
-    lblScoreB_P.textContent = score_teamb_p;
-    lblScoreB_TOT.textContent = score_teamb_total;
-
+    if (lblScoreB_H1) lblScoreB_H1.textContent = score_teamb_ht1;
+    if (lblScoreB_H2) lblScoreB_H2.textContent = score_teamb_ht2;
+    if (lblScoreB_P) lblScoreB_P.textContent = score_teamb_p;
+    if (lblScoreB_TOT) lblScoreB_TOT.textContent = score_teamb_total;
 }
