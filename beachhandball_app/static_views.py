@@ -590,25 +590,99 @@ def game_plan(request):
         return redirect('login')
 
     tourn = context['tourn']
+    tournaments = context.get('tournaments', [])
+    if not tournaments:
+        messages.warning(request, "No tournaments available.")
+        return redirect('index')
     tevents = context['events']
     orderbyList  = ['starttime','court__name']
+
+    all_games = []
+    all_courts = []
+    all_refs = []
+    all_states = []
+
     #games = Game.objects.filter(tournament=tevent.tournament).all().order_by(*orderbyList)
-    tourn_data = Tournament.objects.prefetch_related(
-            Prefetch("game_set", queryset=Game.objects.select_related("tournament", "tournament_event__category", "team_a", "team_b", "team_st_a__team", "team_st_b__team", "ref_a", "ref_b", "tournament_state__tournament_stage", "court").order_by(*orderbyList)
-                , to_attr="all_games"),
-            Prefetch("tournamentevent_set", queryset=TournamentEvent.objects.select_related("tournament", "category").prefetch_related(
-                Prefetch("tournamentstate_set", queryset=TournamentState.objects.select_related("tournament_event__category", "tournament_stage")
-                , to_attr="all_tstates")
-            )
-                , to_attr="all_tevents"),
-            Prefetch("court_set", queryset=Court.objects.select_related("tournament")
-                , to_attr="all_courts"),
-            Prefetch("referee_set", queryset=Referee.objects.select_related("tournament")
-                , to_attr="all_refs")
-                ).get(id=tourn.id)
+    # tourn_data = Tournament.objects.prefetch_related(
+    #         Prefetch("game_set", queryset=Game.objects.select_related("tournament", "tournament_event__category", "team_a", "team_b", "team_st_a__team", "team_st_b__team", "ref_a", "ref_b", "tournament_state__tournament_stage", "court").order_by(*orderbyList)
+    #             , to_attr="all_games"),
+    #         Prefetch("tournamentevent_set", queryset=TournamentEvent.objects.select_related("tournament", "category").prefetch_related(
+    #             Prefetch("tournamentstate_set", queryset=TournamentState.objects.select_related("tournament_event__category", "tournament_stage")
+    #             , to_attr="all_tstates")
+    #         )
+    #             , to_attr="all_tevents"),
+    #         Prefetch("court_set", queryset=Court.objects.select_related("tournament")
+    #             , to_attr="all_courts"),
+    #         Prefetch("referee_set", queryset=Referee.objects.select_related("tournament")
+    #             , to_attr="all_refs")
+    #             ).get(id=tourn.id)
     #all_tstates_qs = Q()
     #for event in tevents:
     #    all_tstates_qs = all_tstates_qs | Q(tournament_event=event, is_final=False)
+    
+
+    # Get data for each tournament
+    for tournament in tournaments:
+        try:
+            tourn_data = Tournament.objects.prefetch_related(
+                Prefetch(
+                    "game_set", 
+                    queryset=Game.objects.select_related(
+                        "tournament", 
+                        "tournament_event__category", 
+                        "team_a", 
+                        "team_b", 
+                        "team_st_a__team", 
+                        "team_st_b__team", 
+                        "ref_a", 
+                        "ref_b", 
+                        "tournament_state__tournament_stage", 
+                        "court"
+                    ).order_by(*orderbyList),
+                    to_attr="all_games"
+                ),
+                Prefetch(
+                    "tournamentevent_set", 
+                    queryset=TournamentEvent.objects.select_related("tournament", "category").prefetch_related(
+                        Prefetch(
+                            "tournamentstate_set", 
+                            queryset=TournamentState.objects.select_related("tournament_event__category", "tournament_stage"),
+                            to_attr="all_tstates"
+                        )
+                    ),
+                    to_attr="all_tevents"
+                ),
+                Prefetch(
+                    "court_set", 
+                    queryset=Court.objects.select_related("tournament"),
+                    to_attr="all_courts"
+                ),
+                Prefetch(
+                    "referee_set", 
+                    queryset=Referee.objects.select_related("tournament"),
+                    to_attr="all_refs"
+                )
+            ).get(id=tournament.id)
+            
+            # Collect games
+            all_games.extend(tourn_data.all_games)
+            
+            # Collect courts
+            all_courts.extend(tourn_data.all_courts)
+            
+            # Collect referees
+            all_refs.extend(tourn_data.all_refs)
+            
+            # Collect tournament states that are not final
+            for te in tourn_data.all_tevents:
+                for ts in te.all_tstates:
+                    if ts.is_final is False:
+                        all_states.append(ts)
+                        
+        except Tournament.DoesNotExist:
+            print(f"Tournament with ID {tournament.id} not found")
+            continue
+        
     tstates = []
     for te in tourn_data.all_tevents:
         #print(te.category)
@@ -616,15 +690,20 @@ def game_plan(request):
             #print(ts.tournament_event.category)
             if ts.is_final is False:
                 tstates.append(ts)
-    context['tstates'] = tstates #TournamentState.objects.filter(all_tstates_qs)
+    # Sort all items by appropriate fields
+    all_games.sort(key=lambda x: (x.starttime, x.court.name if x.court else ""))
+    all_courts.sort(key=lambda x: x.name)
+    all_refs.sort(key=lambda x: x.name)
+
+    context['tstates'] = all_states #TournamentState.objects.filter(all_tstates_qs)
     context['segment'] = 'game_plan'
     context['segment_title'] = 'Game Plan'
 
-    context['courts'] = tourn_data.all_courts #Court.objects.filter(tournament=tourn)
-    context['referees'] = tourn_data.all_refs #Referee.objects.filter(tournament=tourn)
+    context['courts'] = all_courts #Court.objects.filter(tournament=tourn)
+    context['referees'] = all_refs #Referee.objects.filter(tournament=tourn)
 
     #data_list = str(JSONRenderer().render(GameSerializer(tourn.game_set.all(), many=True).data), 'utf-8')
-    context['games'] = tourn_data.all_games
+    context['games'] = all_games
     #for g in tourn_data.all_games:
     #    print(str(g.tournament_event.category))
     #JSONRenderer().render(GameRunningSerializer(tourn.game_set.all(), many=True).data)
