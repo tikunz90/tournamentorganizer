@@ -66,12 +66,14 @@ def tournament_setup(request):
     context = {}
 
     guser = GBOUser.objects.filter(user=request.user).first()
+
+    #seasons = Season.objects.filter(is_actual=True)
     
     if guser is None:
         return redirect('login')
     else:
         context['gbo_user'] = guser
-        context['season_active'] = guser.season_active['name'] #SWS.getSeasonActive(guser)
+        #context['season_active'] = seasons# guser.season_active['name'] #SWS.getSeasonActive(guser)
         context['token'] = guser.token
 
     if not helper.checkLoginIsValid(context['gbo_user']):

@@ -30,13 +30,15 @@ def getContext(request):
     print('Enter getContext' , datetime.now())
     context = {}
 
+    seasons = Season.objects.filter(is_actual=True)
+
     guser = GBOUser.objects.filter(user=request.user).first()
     
     if guser is None:
         return context
     else:
         context['gbo_user'] = guser
-        context['season_active'] = guser.season_active['name'] #SWS.getSeasonActive(guser)
+        context['season_active'] = seasons# guser.season_active['name'] #SWS.getSeasonActive(guser)
         context['token'] = guser.token
     
     # Get all active tournaments for this user in the current season

@@ -39,12 +39,13 @@ def getContext(request):
     context = {}
 
     guser = GBOUser.objects.filter(user=request.user).first()
+    seasons = Season.objects.filter(is_actual=True)
     
     if guser is None:
         return context
     else:
         context['gbo_user'] = guser
-        context['season_active'] = guser.season_active['name'] #SWS.getSeasonActive(guser)
+        context['season_active'] = seasons # guser.season_active['name'] #SWS.getSeasonActive(guser)
         context['token'] = guser.token
     
     t = Tournament.objects.prefetch_related(

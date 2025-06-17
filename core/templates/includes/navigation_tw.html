@@ -19,7 +19,7 @@
                 {{ tourn }} ({{ tourn.id }})
                 {% endif %}
             </div>
-            <div id='SeasonActive' class="text-sm text-gray-700">
+            <div id='AdminUser' class="text-sm text-gray-700">
                 {% if request.user.is_superuser %}
                 <span class="inline-flex items-center gap-1 text-red-600 font-bold">
                     <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -30,10 +30,14 @@
                 </span>
                 {% endif %}
             </div>
-            <div id='SeasonActive' class="text-sm text-gray-700">
-                {% if season_active %}
-                {{ season_active }}
-                {% endif %}
+            <div id='SeasonActive' class="col">
+                <span class="small text-muted" style="font-size: 0.75rem;">
+                    {% if season_active %}
+                    {% for season in season_active %}
+                    {{ season.name }}{% if not loop.last %}, {% endif %}
+                    {% endfor %}
+                    {% endif %}
+                </span>
             </div>
         </div>
         <!-- Right: Navigation -->
