@@ -290,7 +290,7 @@ def update_user_tournament(gbouser, seasons):
                     t.save()
                     ts, cr = TournamentSettings.objects.get_or_create(tournament=t)
                     ts.save()
-                    update_user_tournament_events(gbouser, t)
+                    update_user_tournament_events(gbouser, t, gbot)
             if not tourn_found and tourns_by_season_cup_id.count() == 0:
                 #create tournament
                 new_t = Tournament(organizer=gbouser.subject_id,
@@ -304,7 +304,7 @@ def update_user_tournament(gbouser, seasons):
                 ts, cr = TournamentSettings.objects.get_or_create(tournament=new_t)
                 ts.save()
                 to_tourn = new_t
-                update_user_tournament_events(gbouser, new_t)
+                update_user_tournament_events(gbouser, new_t, gbot)
             else:
                 print("Tournament exists but is assigned to other user")
 
