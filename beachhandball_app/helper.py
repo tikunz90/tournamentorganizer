@@ -191,7 +191,7 @@ def update_user_tournament(gbouser, seasons):
             new_t.save()
             ts, cr = TournamentSettings.objects.get_or_create(tournament=new_t)
             ts.save()
-            update_user_tournament_events(gbouser, new_t)
+            update_user_tournament_events(gbouser, new_t, gbot)
             to_tourn = new_t
             tourns.append(new_t)
         else:
