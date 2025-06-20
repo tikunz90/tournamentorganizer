@@ -20,7 +20,7 @@ from beachhandball_app.models.Tournaments import Tournament, TournamentEvent, To
 from beachhandball_app.models.Game import Game
 from beachhandball_app.models.Team import TeamStats, Team
 from beachhandball_app.models.Player import PlayerStats, Player
-from beachhandball_app.api.serializers.tournament import TournamentSerializer, TournamentTeamTransitionSerializer, serialize_tournament, serialize_games, serialize_game2, serialize_tournament_full, serialize_tournament_event_stats
+from beachhandball_app.api.serializers.tournament import TournamentSerializer, TournamentTeamTransitionSerializer, serialize_tournament, serialize_games, serialize_game2, serialize_tournament_full, serialize_tournament_event_stats, serialize_games_with_depth
 
 @api_view(['GET'])
 #@authentication_classes([SessionAuthentication, BasicAuthentication])
@@ -178,38 +178,103 @@ def get_games_info(request, season_tournament_id):
 @api_view(['GET'])
 #@authentication_classes([SessionAuthentication, BasicAuthentication])
 #@permission_classes([IsAuthenticated])
-@cache_page(10)
+@cache_page(3)
 @renderer_classes([JSONRenderer])
 def get_games_info_by_court(request, season_tournament_id, court_id):
     print( 'ENTER get_games_info_by_court season_tournament_id=' + str(season_tournament_id) + ' court_id=' + str(court_id))
     isError = False
     errorCode = 200
-    games = Game.objects.filter(
-        court_id=court_id
-    ).select_related(
-        "tournament", 
-        "tournament_event__category", 
+
+    fetch_depth = request.query_params.get('depth', 'full').lower()
+
+    # Base query to filter games by court
+    games_query = Game.objects.filter(court_id=court_id)
+
+    # Apply common select_related for all depth levels
+    common_select = [
+        "tournament",
+        "tournament_event",
+        "tournament_event__category",
+        "tournament_state",
         "team_a", 
         "team_b", 
-        "team_st_a__team", 
-        "team_st_b__team", 
-        "ref_a", 
-        "ref_b", 
-        "tournament_state__tournament_stage", 
         "court"
-    ).prefetch_related(
-        Prefetch(
-            "playerstats_set", 
-            queryset=PlayerStats.objects.select_related("player__team")
-                                        .filter(is_ranked=False)
-                                        .order_by("-score"), 
-            to_attr="player_stats"
+    ]
+
+    if fetch_depth == 'minimal':
+        # Minimal data - just essential fields
+        games = games_query.select_related(
+            *common_select,
+            "team_st_a",
+            "team_st_b",
+            "team_st_a__team",
+            "team_st_b__team"
         )
-    )
+    elif fetch_depth == 'medium':
+        # Medium data - include team stats and refs, but no player data
+        games = games_query.select_related(
+            *common_select,
+            "team_st_a",
+            "team_st_b", 
+            "team_st_a__team", 
+            "team_st_b__team",
+            "ref_a", 
+            "ref_b", 
+            "tournament_state__tournament_stage"
+        )
+    else:  # full depth by default
+        # Full data - include all related data including player stats
+        games = games_query.select_related(
+            *common_select,
+            "team_st_a",
+            "team_st_b", 
+            "team_st_a__team", 
+            "team_st_b__team",
+            "ref_a", 
+            "ref_b", 
+            "tournament_state__tournament_stage"
+        ).prefetch_related(
+            # Prefetch player stats with player and team relationships
+            Prefetch(
+                "playerstats_set", 
+                queryset=PlayerStats.objects.select_related(
+                    "player", 
+                    "player__team"
+                ).filter(is_ranked=False).order_by("-score"), 
+                to_attr="player_stats"
+            ),
+            # Prefetch team_a players
+            Prefetch(
+                "team_a__player_set",
+                queryset=Player.objects.select_related("team"),
+                to_attr="team_a_players"
+            ),
+            # Prefetch team_b players
+            Prefetch(
+                "team_b__player_set",
+                queryset=Player.objects.select_related("team"),
+                to_attr="team_b_players"
+            )
+        )
 
 
-    t_as_dict = serialize_games(games)
-    return Response({"isError": isError, "errorCode": errorCode, "message": t_as_dict})
+    # Include additional metrics in response
+    game_count = games.count()
+    
+    # Convert to dictionary for the response
+    games_data = serialize_games_with_depth(games, fetch_depth)
+    
+    return Response({
+        "isError": isError, 
+        "errorCode": errorCode, 
+        "message": games_data,
+        "metadata": {
+            "fetch_depth": fetch_depth,
+            "game_count": game_count,
+            "court_id": court_id,
+            "season_tournament_id": season_tournament_id
+        }
+    })
 
 
 @api_view(['GET'])

@@ -824,6 +824,7 @@ class GameCreateView(BSModalCreateView):
         tstage = get_object_or_404(TournamentStage, id=self.kwargs.get('pk_tstage'))
         form.instance.tournament_event = tevent
         form.instance.tournament_stage = tstage
+        form.instance.tournament_shared = tevent.tournament_shared
 
         form.instance.act_time = 0
         if form.instance.gamestate is None:

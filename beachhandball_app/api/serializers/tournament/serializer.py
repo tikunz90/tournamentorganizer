@@ -234,6 +234,289 @@ def serialize_game_no_players(game: Game) -> Dict[str, Any]:
         'tournament_state': serialize_tournament_state(game.tournament_state),
     }
 
+def serialize_games_with_depth(games, depth='full'):
+    """
+    Serialize games with different depth levels to optimize database queries
+    """
+    if depth == 'minimal':
+        return {
+            'games': [
+                {
+                    'id': game.id,
+                    'starttime': time.mktime(game.starttime.timetuple()) if game.starttime else None,
+                    'gamestate': game.gamestate,
+                    'gamingstate': game.gamingstate,
+                    'duration_of_halftime': game.duration_of_halftime,
+                    'team_a': {
+                        'id': game.team_a.id if game.team_a else None,
+                        'name': game.team_a.name if game.team_a else 'Unknown',
+                        'abbreviation': game.team_a.abbreviation if game.team_a else '',
+                        'is_dummy': game.team_a.is_dummy if game.team_a else False,
+                        'gbo_team': game.team_a.gbo_team if game.team_a else 0,
+                        'season_team_id': game.team_a.season_team_id if game.team_a else -1,
+                        'season_team_cup_tournament_ranking_id': game.team_a.season_team_cup_tournament_ranking_id if game.team_a else -1,
+                        'season_team_cup_championship_ranking_id': game.team_a.season_team_cup_championship_ranking_id if game.team_a else -1,
+                        'season_team_sub_cup_tournament_ranking_id': game.team_a.season_team_sub_cup_tournament_ranking_id if game.team_a else -1,
+                        'season_cup_tournament_id': game.team_a.season_cup_tournament_id if game.team_a else -1,
+                    },
+                    'team_b': {
+                        'id': game.team_b.id if game.team_b else None,
+                        'name': game.team_b.name if game.team_b else 'Unknown',
+                        'abbreviation': game.team_b.abbreviation if game.team_b else '',
+                        'is_dummy': game.team_b.is_dummy if game.team_b else False,
+                        'gbo_team': game.team_b.gbo_team if game.team_b else 0,
+                        'season_team_id': game.team_b.season_team_id if game.team_b else -1,
+                        'season_team_cup_tournament_ranking_id': game.team_b.season_team_cup_tournament_ranking_id if game.team_b else -1,
+                        'season_team_cup_championship_ranking_id': game.team_b.season_team_cup_championship_ranking_id if game.team_b else -1,
+                        'season_team_sub_cup_tournament_ranking_id': game.team_b.season_team_sub_cup_tournament_ranking_id if game.team_b else -1,
+                        'season_cup_tournament_id': game.team_b.season_cup_tournament_id if game.team_b else -1,
+                    },
+                    'team_st_a': {
+                        'id': game.team_st_a.id if game.team_st_a else -1,
+                        'rank': game.team_st_a.rank if game.team_st_a else 0,
+                        'team': {
+                            'id': game.team_st_a.team.id if game.team_st_a and game.team_st_a.team else -1,
+                            'name': game.team_st_a.team.name if game.team_st_a and game.team_st_a.team else 'Unknown',
+                            'abbreviation': game.team_st_a.team.abbreviation if game.team_st_a and game.team_st_a.team else '',
+                            'is_dummy': game.team_st_a.team.is_dummy if game.team_st_a and game.team_st_a.team else False,
+                            'gbo_team': game.team_a.gbo_team if game.team_a else 0,
+                            'season_team_id': game.team_a.season_team_id if game.team_a else -1,
+                            'season_team_cup_tournament_ranking_id': game.team_a.season_team_cup_tournament_ranking_id if game.team_a else -1,
+                            'season_team_cup_championship_ranking_id': game.team_a.season_team_cup_championship_ranking_id if game.team_a else -1,
+                            'season_team_sub_cup_tournament_ranking_id': game.team_a.season_team_sub_cup_tournament_ranking_id if game.team_a else -1,
+                            'season_cup_tournament_id': game.team_a.season_cup_tournament_id if game.team_a else -1,
+                        },
+                        'number_of_played_games': game.team_st_a.number_of_played_games if game.team_st_a else 0,
+                        'game_points': game.team_st_a.game_points if game.team_st_a else 0,
+                        'game_points_bonus': game.team_st_a.game_points_bonus if game.team_st_a else 0,
+                        'ranking_points': game.team_st_a.ranking_points if game.team_st_a else 0,
+                        'sets_win': game.team_st_a.sets_win if game.team_st_a else 0,
+                        'sets_loose': game.team_st_a.sets_loose if game.team_st_a else 0,
+                        'points_made': game.team_st_a.points_made if game.team_st_a else 0,
+                        'points_received': game.team_st_a.points_received if game.team_st_a else 0,
+                        'rank_initial': game.team_st_a.rank_initial if game.team_st_a else 0,
+                    },
+                    'team_st_b': {
+                        'id': game.team_st_b.id if game.team_st_b else -1,
+                        'rank': game.team_st_b.rank if game.team_st_b else 0,
+                        'team': {
+                            'id': game.team_st_b.team.id if game.team_st_b and game.team_st_b.team else -1,
+                            'name': game.team_st_b.team.name if game.team_st_b and game.team_st_b.team else 'Unknown',
+                            'abbreviation': game.team_st_b.team.abbreviation if game.team_st_b and game.team_st_b.team else '',
+                            'is_dummy': game.team_st_b.team.is_dummy if game.team_st_b and game.team_st_b.team else False,
+                            'gbo_team': game.team_b.gbo_team if game.team_b else 0,
+                            'season_team_id': game.team_b.season_team_id if game.team_b else -1,
+                            'season_team_cup_tournament_ranking_id': game.team_b.season_team_cup_tournament_ranking_id if game.team_b else -1,
+                            'season_team_cup_championship_ranking_id': game.team_b.season_team_cup_championship_ranking_id if game.team_b else -1,
+                            'season_team_sub_cup_tournament_ranking_id': game.team_b.season_team_sub_cup_tournament_ranking_id if game.team_b else -1,
+                            'season_cup_tournament_id': game.team_b.season_cup_tournament_id if game.team_b else -1,
+                        },
+                        'number_of_played_games': game.team_st_b.number_of_played_games if game.team_st_b else 0,
+                        'game_points': game.team_st_b.game_points if game.team_st_b else 0,
+                        'game_points_bonus': game.team_st_b.game_points_bonus if game.team_st_b else 0,
+                        'ranking_points': game.team_st_b.ranking_points if game.team_st_b else 0,
+                        'sets_win': game.team_st_b.sets_win if game.team_st_b else 0,
+                        'sets_loose': game.team_st_b.sets_loose if game.team_st_b else 0,
+                        'points_made': game.team_st_b.points_made if game.team_st_b else 0,
+                        'points_received': game.team_st_b.points_received if game.team_st_b else 0,
+                        'rank_initial': game.team_st_b.rank_initial if game.team_st_b else 0,
+                    },
+                    'score_team_a_halftime_1': game.score_team_a_halftime_1,
+                    'score_team_a_halftime_2': game.score_team_a_halftime_2,
+                    'score_team_a_penalty': game.score_team_a_penalty,
+                    'score_team_b_halftime_1': game.score_team_b_halftime_1,
+                    'score_team_b_halftime_2': game.score_team_b_halftime_2,
+                    'score_team_b_penalty': game.score_team_b_penalty,
+                    'court': {
+                        'id': game.court.id if game.court else 0,
+                        'name': game.court.name if game.court else 'No Court',
+                        'number': game.court.number if game.court else 0,
+                    },
+                    'tournament': {
+                        'id': game.tournament.id if game.tournament else -1,
+                        'name': game.tournament.name if game.tournament else 'No Tournament',
+                        'season_cup_tournament_id': game.tournament.season_cup_tournament_id if game.tournament else -1,
+                        'season_cup_german_championship_id': game.tournament.season_cup_german_championship_id if game.tournament else -1,
+                    },
+                    'tournament_event': serialize_tournament_event(game.tournament_event),
+                    'tournament_state': serialize_tournament_state(game.tournament_state),
+                } 
+                for game in games
+            ]
+        }
+    elif depth == 'medium':
+        return {
+            'games': [
+                {
+                    'id': game.id,
+                    'starttime': time.mktime(game.starttime.timetuple()) if game.starttime else None,
+                    'gamestate': game.gamestate,
+                    'gamingstate': game.gamingstate,
+                    'team_a': {
+                        'id': game.team_a.id if game.team_a else None,
+                        'name': game.team_a.name if game.team_a else 'Unknown',
+                        'abbreviation': game.team_a.abbreviation if game.team_a else '',
+                        'is_dummy': game.team_a.is_dummy if game.team_a else True,
+                    },
+                    'team_b': {
+                        'id': game.team_b.id if game.team_b else None,
+                        'name': game.team_b.name if game.team_b else 'Unknown',
+                        'abbreviation': game.team_b.abbreviation if game.team_b else '',
+                        'is_dummy': game.team_b.is_dummy if game.team_b else True,
+                    },
+                    'team_st_a': {
+                        'id': game.team_st_a.id if game.team_st_a else None,
+                        'rank': game.team_st_a.rank if game.team_st_a else 0,
+                    },
+                    'team_st_b': {
+                        'id': game.team_st_b.id if game.team_st_b else None,
+                        'rank': game.team_st_b.rank if game.team_st_b else 0,
+                    },
+                    'score_team_a_halftime_1': game.score_team_a_halftime_1,
+                    'score_team_a_halftime_2': game.score_team_a_halftime_2,
+                    'score_team_a_penalty': game.score_team_a_penalty,
+                    'score_team_b_halftime_1': game.score_team_b_halftime_1,
+                    'score_team_b_halftime_2': game.score_team_b_halftime_2,
+                    'score_team_b_penalty': game.score_team_b_penalty,
+                    'court': {
+                        'id': game.court.id if game.court else None,
+                        'name': game.court.name if game.court else 'No Court',
+                        'number': game.court.number if game.court else 0,
+                    },
+                    'duration_of_halftime': game.duration_of_halftime,
+                    'tournament_event': {
+                        'id': game.tournament_event.id,
+                        'name': game.tournament_event.name,
+                    } if game.tournament_event else None,
+                    'tournament_state': {
+                        'id': game.tournament_state.id,
+                        'name': game.tournament_state.name,
+                        'abbreviation': game.tournament_state.abbreviation,
+                    } if game.tournament_state else None,
+                } 
+                for game in games
+            ]
+        }
+    
+    else:  # full depth
+        # For full depth, we'll still optimize compared to the original by 
+        # manually constructing the dictionary with only needed fields
+        return {
+            'games': [
+                {
+                    'id': game.id,
+                    'starttime': time.mktime(game.starttime.timetuple()) if game.starttime else None,
+                    'gamestate': game.gamestate,
+                    'gamingstate': game.gamingstate,
+                    'duration_of_halftime': game.duration_of_halftime,
+                    'team_a': {
+                        'id': game.team_a.id if game.team_a else None,
+                        'name': game.team_a.name if game.team_a else 'Unknown',
+                        'abbreviation': game.team_a.abbreviation if game.team_a else '',
+                        'is_dummy': game.team_a.is_dummy if game.team_a else False,
+                        'gbo_team': game.team_a.gbo_team if game.team_a else 0,
+                        'season_team_id': game.team_a.season_team_id if game.team_a else -1,
+                        'season_team_cup_tournament_ranking_id': game.team_a.season_team_cup_tournament_ranking_id if game.team_a else -1,
+                        'season_team_cup_championship_ranking_id': game.team_a.season_team_cup_championship_ranking_id if game.team_a else -1,
+                        'season_team_sub_cup_tournament_ranking_id': game.team_a.season_team_sub_cup_tournament_ranking_id if game.team_a else -1,
+                        'season_cup_tournament_id': game.team_a.season_cup_tournament_id if game.team_a else -1,
+                    },
+                    'team_b': {
+                        'id': game.team_b.id if game.team_b else None,
+                        'name': game.team_b.name if game.team_b else 'Unknown',
+                        'abbreviation': game.team_b.abbreviation if game.team_b else '',
+                        'is_dummy': game.team_b.is_dummy if game.team_b else False,
+                        'gbo_team': game.team_b.gbo_team if game.team_b else 0,
+                        'season_team_id': game.team_b.season_team_id if game.team_b else -1,
+                        'season_team_cup_tournament_ranking_id': game.team_b.season_team_cup_tournament_ranking_id if game.team_b else -1,
+                        'season_team_cup_championship_ranking_id': game.team_b.season_team_cup_championship_ranking_id if game.team_b else -1,
+                        'season_team_sub_cup_tournament_ranking_id': game.team_b.season_team_sub_cup_tournament_ranking_id if game.team_b else -1,
+                        'season_cup_tournament_id': game.team_b.season_cup_tournament_id if game.team_b else -1,
+                    },
+                    'team_st_a': {
+                        'id': game.team_st_a.id if game.team_st_a else -1,
+                        'rank': game.team_st_a.rank if game.team_st_a else 0,
+                        'team': {
+                            'id': game.team_st_a.team.id if game.team_st_a and game.team_st_a.team else -1,
+                            'name': game.team_st_a.team.name if game.team_st_a and game.team_st_a.team else 'Unknown',
+                            'abbreviation': game.team_st_a.team.abbreviation if game.team_st_a and game.team_st_a.team else '',
+                            'is_dummy': game.team_st_a.team.is_dummy if game.team_st_a and game.team_st_a.team else False,
+                            'gbo_team': game.team_a.gbo_team if game.team_a else 0,
+                            'season_team_id': game.team_a.season_team_id if game.team_a else -1,
+                            'season_team_cup_tournament_ranking_id': game.team_a.season_team_cup_tournament_ranking_id if game.team_a else -1,
+                            'season_team_cup_championship_ranking_id': game.team_a.season_team_cup_championship_ranking_id if game.team_a else -1,
+                            'season_team_sub_cup_tournament_ranking_id': game.team_a.season_team_sub_cup_tournament_ranking_id if game.team_a else -1,
+                            'season_cup_tournament_id': game.team_a.season_cup_tournament_id if game.team_a else -1,
+                        },
+                        'number_of_played_games': game.team_st_a.number_of_played_games if game.team_st_a else 0,
+                        'game_points': game.team_st_a.game_points if game.team_st_a else 0,
+                        'game_points_bonus': game.team_st_a.game_points_bonus if game.team_st_a else 0,
+                        'ranking_points': game.team_st_a.ranking_points if game.team_st_a else 0,
+                        'sets_win': game.team_st_a.sets_win if game.team_st_a else 0,
+                        'sets_loose': game.team_st_a.sets_loose if game.team_st_a else 0,
+                        'points_made': game.team_st_a.points_made if game.team_st_a else 0,
+                        'points_received': game.team_st_a.points_received if game.team_st_a else 0,
+                        'rank_initial': game.team_st_a.rank_initial if game.team_st_a else 0,
+                    },
+                    'team_st_b': {
+                        'id': game.team_st_b.id if game.team_st_b else -1,
+                        'rank': game.team_st_b.rank if game.team_st_b else 0,
+                        'team': {
+                            'id': game.team_st_b.team.id if game.team_st_b and game.team_st_b.team else -1,
+                            'name': game.team_st_b.team.name if game.team_st_b and game.team_st_b.team else 'Unknown',
+                            'abbreviation': game.team_st_b.team.abbreviation if game.team_st_b and game.team_st_b.team else '',
+                            'is_dummy': game.team_st_b.team.is_dummy if game.team_st_b and game.team_st_b.team else False,
+                            'gbo_team': game.team_b.gbo_team if game.team_b else 0,
+                            'season_team_id': game.team_b.season_team_id if game.team_b else -1,
+                            'season_team_cup_tournament_ranking_id': game.team_b.season_team_cup_tournament_ranking_id if game.team_b else -1,
+                            'season_team_cup_championship_ranking_id': game.team_b.season_team_cup_championship_ranking_id if game.team_b else -1,
+                            'season_team_sub_cup_tournament_ranking_id': game.team_b.season_team_sub_cup_tournament_ranking_id if game.team_b else -1,
+                            'season_cup_tournament_id': game.team_b.season_cup_tournament_id if game.team_b else -1,
+                        },
+                        'number_of_played_games': game.team_st_b.number_of_played_games if game.team_st_b else 0,
+                        'game_points': game.team_st_b.game_points if game.team_st_b else 0,
+                        'game_points_bonus': game.team_st_b.game_points_bonus if game.team_st_b else 0,
+                        'ranking_points': game.team_st_b.ranking_points if game.team_st_b else 0,
+                        'sets_win': game.team_st_b.sets_win if game.team_st_b else 0,
+                        'sets_loose': game.team_st_b.sets_loose if game.team_st_b else 0,
+                        'points_made': game.team_st_b.points_made if game.team_st_b else 0,
+                        'points_received': game.team_st_b.points_received if game.team_st_b else 0,
+                        'rank_initial': game.team_st_b.rank_initial if game.team_st_b else 0,
+                    },
+                    'score_team_a_halftime_1': game.score_team_a_halftime_1,
+                    'score_team_a_halftime_2': game.score_team_a_halftime_2,
+                    'score_team_a_penalty': game.score_team_a_penalty,
+                    'score_team_b_halftime_1': game.score_team_b_halftime_1,
+                    'score_team_b_halftime_2': game.score_team_b_halftime_2,
+                    'score_team_b_penalty': game.score_team_b_penalty,
+                    'court': {
+                        'id': game.court.id if game.court else 0,
+                        'name': game.court.name if game.court else 'No Court',
+                        'number': game.court.number if game.court else 0,
+                    },
+                    'tournament': {
+                        'id': game.tournament.id if game.tournament else -1,
+                        'name': game.tournament.name if game.tournament else 'No Tournament',
+                        'season_cup_tournament_id': game.tournament.season_cup_tournament_id if game.tournament else -1,
+                        'season_cup_german_championship_id': game.tournament.season_cup_german_championship_id if game.tournament else -1,
+                    },
+                    'tournament_event': serialize_tournament_event(game.tournament_event),
+                    'tournament_state': serialize_tournament_state(game.tournament_state),
+                    'player_stats_team_a': [
+                        serialize_playerstat(ps) 
+                        for ps in getattr(game, 'player_stats', []) 
+                        if game.team_a and ps.player.team_id == game.team_a.id
+                    ],
+                    'player_stats_team_b': [
+                        serialize_playerstat(ps) 
+                        for ps in getattr(game, 'player_stats', []) 
+                        if game.team_b and ps.player.team_id == game.team_b.id
+                    ],
+                } 
+                for game in games
+            ]
+        }
+
 
 def serialize_games(games) -> Dict[str, Any]:
     return {
