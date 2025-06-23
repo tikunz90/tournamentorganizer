@@ -1,6 +1,8 @@
+from encodings.punycode import T
 from django.db.models.query import Prefetch
 from openpyxl.cell.cell import TYPE_STRING
 from beachhandball_app import helper
+from beachhandball_app.api.serializers import tournament
 from beachhandball_app.models.Tournaments import Tournament, TournamentSettings
 from beachhandball_app.models.choices import CATEGORY_CHOICES
 from beachhandball_app.models.Game import Game
@@ -22,6 +24,7 @@ def create_pregame_report_excel(game):
         Game.objects
         .select_related(
             "tournament",
+            "tournament_shared",
             "tournament_event__category",
             "tournament_state__tournament_stage",
             "court",
@@ -38,8 +41,11 @@ def create_pregame_report_excel(game):
         )
         .get(pk=game.pk)
     )
+    tournament = game.tournament_shared
+    if tournament is None:
+        tournament = game.tournament
 
-    tsettings = TournamentSettings.objects.get(tournament=game.tournament_shared)
+    tsettings = TournamentSettings.objects.get(tournament=tournament)
     if not tsettings.game_report_template:
         return ('', '')
 

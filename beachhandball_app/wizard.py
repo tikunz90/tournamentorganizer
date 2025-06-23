@@ -964,12 +964,13 @@ def wizard_create_gameplan(tourn, gameplan_data, num_courts):
         if all(court.id != c.id for c in courtList):
             court.delete()
         
-    tevent = TournamentEvent.objects.get(id=g['tournament_event_id'])
+    
 
     games = []
     game_counter = 1
     for g in gameplan_data:
         actCourt = courts[int(g['court'][1:])]
+        tevent = TournamentEvent.objects.get(id=g['tournament_event_id'])
         game_obj = Game(tournament=tevent.tournament,
                         tournament_shared=tevent.tournament_shared,
                         tournament_event_id=g['tournament_event_id'],
