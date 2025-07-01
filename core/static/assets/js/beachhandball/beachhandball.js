@@ -1208,7 +1208,8 @@ function wzCalcGroups(idRow) {
       actTeam = {
         idx: teams_per_group,
         name: teams_per_group + 1 + ". TeamDummy",
-        rank: 0,
+          rank: 0,
+        isWinning: 0,
         transition: {
           origin_rank: teams_per_group + 1,
           origin_group_id: i,
@@ -1394,7 +1395,8 @@ function wzCalcKnockout(idRow) {
         actTeam = {
           idx: iTeam,
           name: iTeam + 1 + ". TeamDummy",
-          rank: 0,
+            rank: 0,
+          isWinning: 0,
           transition: {
             origin_rank: iTeam + 1,
             origin_group_id: j - 1,
@@ -1688,7 +1690,8 @@ function wzCalcPlacement(idRow) {
         actTeam = {
           idx: iTeam,
           name: iTeam + 1 + ". TeamDummy",
-          rank: 0,
+            rank: 0,
+            isWinning: 0,
           transition: {
             origin_rank: iTeam + 1,
             origin_group_id: j - 1,
@@ -1837,7 +1840,8 @@ function wzCalcPlacementLevel(
       actTeam = {
         idx: iTeam,
         name: iTeam + 1 + ". TeamDummy",
-        rank: iTeam + 1,
+          rank: iTeam + 1,
+          isWinning: 0,
         transition: {
           origin_rank: iTeam + 1,
           origin_group_id: j - 1,
@@ -1966,7 +1970,8 @@ function wzCalcPlacementLevel(
       actTeam = {
         idx: iTeam,
         name: iTeam + 1 + ". TeamDummy",
-        rank: iTeam + 1,
+          rank: iTeam + 1,
+          isWinning: 0,
         transition: {
           origin_rank: iTeam + 1,
           origin_group_id: j - 1,
@@ -2093,6 +2098,7 @@ function wzCalcPlacementOneGroup(best_rank_placement, remainingTeamsForPL) {
           idx: j,
           name: teamName,
           rank: j + 1,
+          isWinning: 0,
           transition: {
             origin_rank: j + 1,
             origin_group_id: i,
@@ -2199,7 +2205,8 @@ function wzCalcPlacementMultiGroup(best_rank_placement, remainingTeamsForPL) {
         actTeam = {
           idx: j,
           name: teamName,
-          rank: j + 1,
+            rank: j + 1,
+            isWinning: 0,
           transition: {
             origin_rank: j + 1,
             origin_group_id: i,
@@ -2284,7 +2291,8 @@ function wzCalcFinals(idRow) {
     actTeam = {
       idx: iTeam,
       name: iTeam + 1 + ". TeamDummy",
-      rank: 0,
+        rank: 0,
+      isWinning: 0,
       transition: {
         origin_rank: iTeam + 1,
         origin_group_id: 0,

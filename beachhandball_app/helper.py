@@ -1975,7 +1975,7 @@ def update_games_after_tstat_chg(tstat):
             if g.team_st_a.id == tstat.id:
                 g.team_a = tstat.team
                 game_update = True
-            if g.team_st_b.id == tstat.id:
+            elif g.team_st_b.id == tstat.id:
                 g.team_b = tstat.team
                 game_update = True
             if game_update:

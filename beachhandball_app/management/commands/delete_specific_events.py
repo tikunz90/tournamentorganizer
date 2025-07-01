@@ -5,7 +5,7 @@ class Command(BaseCommand):
     help = "Deletes TournamentEvent objects with IDs 138 and 139 if they exist."
 
     def handle(self, *args, **options):
-        ids_to_delete = [138, 139]
+        ids_to_delete = [136, 137]
         events = TournamentEvent.objects.filter(id__in=ids_to_delete)
         count = events.count()
         if count == 0:

@@ -362,7 +362,7 @@ class StateUpdateView(BSModalUpdateView):
 
     def get_success_url(self):
            pk = self.kwargs["pk_tevent"]
-           return reverse_querystring("structure_setup.detail", kwargs={"pk": pk}, query_kwargs={'tab': self.kwargs["pk_tstage"]})
+           return helper.reverse_querystring("structure_setup.detail", kwargs={"pk": pk}, query_kwargs={'tab': self.kwargs["pk_tstage"]})
 
 
 class StateFinishView(BSModalUpdateView):
@@ -394,7 +394,7 @@ class StateFinishView(BSModalUpdateView):
 
     def get_success_url(self):
            pk = self.kwargs["pk_tevent"]
-           return reverse_querystring("structure_setup.detail", kwargs={"pk": pk}, query_kwargs={'tab': self.kwargs["pk_tstage"]})
+           return helper.reverse_querystring("structure_setup.detail", kwargs={"pk": pk}, query_kwargs={'tab': self.kwargs["pk_tstage"]})
 
 
 
@@ -423,7 +423,7 @@ class TeamStatsUpdateTeamView(BSModalUpdateView):
 
     def get_success_url(self):
            pk = self.kwargs["pk_tevent"]
-           return reverse_querystring("structure_setup.detail", kwargs={"pk": pk}, query_kwargs={'tab': self.kwargs["pk_tstage"], 'tab_tstate': 1})
+           return helper.reverse_querystring("structure_setup.detail", kwargs={"pk": pk}, query_kwargs={'tab': self.kwargs["pk_tstage"], 'tab_tstate': 1})
 
 
 class TTTUpdateView(BSModalUpdateView):
@@ -452,7 +452,7 @@ class TTTUpdateView(BSModalUpdateView):
 
     def get_success_url(self):
            pk = self.kwargs["pk_tevent"]
-           return reverse_querystring("structure_setup.detail", kwargs={"pk": pk}, query_kwargs={'tab': self.kwargs["pk_tstage"], 'tab_tstate': 2})
+           return helper.reverse_querystring("structure_setup.detail", kwargs={"pk": pk}, query_kwargs={'tab': self.kwargs["pk_tstage"], 'tab_tstate': 2})
 
 
 class GameUpGameView(BSModalUpdateView):
@@ -560,7 +560,7 @@ class GameUpGameView(BSModalUpdateView):
         from_gameplan = self.kwargs["from_gameplan"]
         if from_gameplan == 1:
             return reverse_lazy('game_plan')
-        return reverse_querystring("structure_setup.detail", kwargs={"pk": pk}, 
+        return helper.reverse_querystring("structure_setup.detail", kwargs={"pk": pk}, 
                                  query_kwargs={'tab': self.kwargs["pk_tstage"], 'tab_tstate': 0})
 
 
@@ -622,7 +622,7 @@ class GameUpGameViewOld(BSModalUpdateView):
            from_gameplan = self.kwargs["from_gameplan"]
            if from_gameplan == 1:
                return reverse_lazy('game_plan')
-           return reverse_querystring("structure_setup.detail", kwargs={"pk": pk}, query_kwargs={'tab': self.kwargs["pk_tstage"], 'tab_tstate': 0})
+           return helper.reverse_querystring("structure_setup.detail", kwargs={"pk": pk}, query_kwargs={'tab': self.kwargs["pk_tstage"], 'tab_tstate': 0})
 
 
 class DownloadPreGameView(View):
@@ -667,7 +667,7 @@ class DownloadPreGameView(View):
 
     def get_success_url(self):
            pk = self.kwargs["pk_tevent"]
-           return reverse_querystring("structure_setup.detail", kwargs={"pk": pk}, query_kwargs={'tab': self.kwargs["pk_tstage"], 'tab_tstate': 0})
+           return helper.reverse_querystring("structure_setup.detail", kwargs={"pk": pk}, query_kwargs={'tab': self.kwargs["pk_tstage"], 'tab_tstate': 0})
 
 class DownloadPreGameAllView(View):
     # Set the content type value
@@ -705,7 +705,7 @@ class DownloadPreGameAllView(View):
 
     def get_success_url(self):
            pk = self.kwargs["pk_tevent"]
-           return reverse_querystring("structure_setup.detail", kwargs={"pk": pk}, query_kwargs={'tab': self.kwargs["pk_tstage"], 'tab_tstate': 0})
+           return helper.reverse_querystring("structure_setup.detail", kwargs={"pk": pk}, query_kwargs={'tab': self.kwargs["pk_tstage"], 'tab_tstate': 0})
 
 class GameResultGameView(BSModalUpdateView):
     model = Game
@@ -741,7 +741,7 @@ class GameResultGameView(BSModalUpdateView):
            from_gameplan = self.kwargs["from_gameplan"]
            if from_gameplan == 1:
                return reverse_lazy('game_plan')
-           return reverse_querystring("structure_setup.detail", kwargs={"pk": pk}, query_kwargs={'tab': self.kwargs["pk_tstage"], 'tab_tstate': 0})
+           return helper.reverse_querystring("structure_setup.detail", kwargs={"pk": pk}, query_kwargs={'tab': self.kwargs["pk_tstage"], 'tab_tstate': 0})
 
 def postUpdateGameResult(request, pk_tevent, pk_tstage, pk):
     if request.method == "POST" and request.is_ajax():
@@ -782,7 +782,7 @@ class GameDeleteView(BSModalDeleteView):
 
     def get_success_url(self):
            pk = self.kwargs["pk_tevent"]
-           return reverse_querystring("structure_setup.detail", kwargs={"pk": pk}, query_kwargs={'tab': self.kwargs["pk_tstage"], 'tab_tstate': 0})
+           return helper.reverse_querystring("structure_setup.detail", kwargs={"pk": pk}, query_kwargs={'tab': self.kwargs["pk_tstage"], 'tab_tstate': 0})
 
 
 class GameCreateView(BSModalCreateView):
