@@ -180,8 +180,13 @@
                 </div>
                 <div class="row d-flex justify-content-center">
                     <div class="col-md-3">
-                        <button type="button" class="create-game btn btn-primary w-100" rel="tooltip" title="Add Game" data-form-url="{{ url('structure_setup.create_game', kwargs={'pk_tevent':tevent.id, 'pk_tstage':stage.id, 'pk_tstate':tstate.id}) }}" {% if tstate.is_finished and tstate.transitions_done %} disabled {% else %} onclick="modalShowSpinner();"{% endif %} style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                        <button type="button" class="create-game btn btn-primary w-100" rel="tooltip" title="Add Game" data-form-url="{{ url('structure_setup.create_game', kwargs={'pk_tevent':tevent.id, 'pk_tstage':stage.id, 'pk_tstate':tstate.id}) }}" {% if tstate.is_finished and tstate.transitions_done %} disabled {% else %} onclick="modalShowSpinner();" {% endif %} style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
                             <i class="material-icons">note_add</i>Add Game
+                        </button>
+                    </div>
+                    <div class="col-md-3">
+                        <button type="button" class="create-round-robin-games btn btn-success w-100" rel="tooltip" title="Generate Round Robin Games" data-form-url="{{ url('structure_setup.create_round_robin', kwargs={'pk_tevent':tevent.id, 'pk_tstage':stage.id, 'pk_tstate':tstate.id}) }}" {% if tstate.is_finished and tstate.transitions_done %} disabled {% else %} onclick="modalShowSpinner();" {% endif %} style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                            <i class="material-icons">schema</i>Create Games
                         </button>
                     </div>
                     <div class="col-md-3">

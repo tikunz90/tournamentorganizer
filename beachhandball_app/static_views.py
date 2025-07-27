@@ -701,7 +701,8 @@ def game_plan(request):
     context['segment'] = 'game_plan'
     context['segment_title'] = 'Game Plan'
 
-    context['courts'] = all_courts #Court.objects.filter(tournament=tourn)
+    context['courts'] = list(Court.objects.filter(tournament=tourn).select_related("tournament"))
+     #Court.objects.filter(tournament=tourn)
     context['referees'] = all_refs #Referee.objects.filter(tournament=tourn)
 
     #data_list = str(JSONRenderer().render(GameSerializer(tourn.game_set.all(), many=True).data), 'utf-8')

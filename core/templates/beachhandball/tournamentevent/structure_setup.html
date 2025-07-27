@@ -619,7 +619,130 @@
                 });
             }
 
-            // Run on page load, when a tab is shown, and on window resize
+
+                $('.create-round-robin-games').click(function () {
+                    var url = $(this).data('form-url');
+
+                    // Show confirmation dialog with second half option
+                    Swal.fire({
+                        title: 'Create Round Robin Games',
+                        html: `
+             <p>This will create games where each team plays against every other team.</p>
+             <div class="form-check mt-3">
+                 <input class="form-check-input" type="checkbox" id="swal-include-second-half">
+                 <label class="form-check-label" for="swal-include-second-half">
+                     Include second half games (each team plays home and away)
+                 </label>
+             </div>
+         `,
+                        icon: 'question',
+                        showCancelButton: true,
+                        confirmButtonColor: '#3085d6',
+                        cancelButtonColor: '#d33',
+                        confirmButtonText: 'Yes, create games!',
+                        preConfirm: () => {
+                            // Get checkbox value inside preConfirm to ensure element exists
+                            return {
+                                includeSecondHalf: document.getElementById('swal-include-second-half').checked
+                            };
+                        }
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            // Get the checkbox value from result
+                            var includeSecondHalf = result.value.includeSecondHalf;
+
+                            // Show loading overlay
+                            $.LoadingOverlay("show");
+
+                            // Send AJAX request to create games
+                            $.ajax({
+                                url: url,
+                                type: 'POST',
+                                data: {
+                                    'include_second_half': includeSecondHalf
+                                },
+                                success: function (response) {
+                                    $.LoadingOverlay("hide");
+
+                                    if (response.success) {
+                                        // Success: Show notification and reload
+                                        md.showNotification('top', 'center', response.msg, 'success');
+                                        setTimeout(function () {
+                                            window.location.reload();
+                                        }, 1500);
+                                    } else if (response.needs_confirmation) {
+                                        // Need confirmation for existing games
+                                        Swal.fire({
+                                            title: 'Existing Games Found',
+                                            html: `
+                                 <p>There are already ${response.existing_games} games in this tournament state.</p>
+                                 <p>Delete them and create new round-robin games?</p>
+                                 <div class="form-check mt-3">
+                                     <input class="form-check-input" type="checkbox" id="swal-include-second-half-confirm" ${includeSecondHalf ? 'checked' : ''}>
+                                     <label class="form-check-label" for="swal-include-second-half-confirm">
+                                         Include second half games (each team plays home and away)
+                                     </label>
+                                 </div>
+                             `,
+                                            icon: 'warning',
+                                            showCancelButton: true,
+                                            confirmButtonColor: '#3085d6',
+                                            cancelButtonColor: '#d33',
+                                            confirmButtonText: 'Yes, delete and recreate!',
+                                            preConfirm: () => {
+                                                // Get checkbox value inside preConfirm
+                                                return {
+                                                    includeSecondHalf: document.getElementById('swal-include-second-half-confirm').checked
+                                                };
+                                            }
+                                        }).then((result) => {
+                                            if (result.isConfirmed) {
+                                                // Get the checkbox value from result
+                                                var includeSecondHalfConfirm = result.value.includeSecondHalf;
+
+                                                // User confirmed, send request with confirmation
+                                                $.LoadingOverlay("show");
+                                                $.ajax({
+                                                    url: url,
+                                                    type: 'POST',
+                                                    data: {
+                                                        'confirm': true,
+                                                        'include_second_half': includeSecondHalfConfirm
+                                                    },
+                                                    success: function (response) {
+                                                        $.LoadingOverlay("hide");
+                                                        if (response.success) {
+                                                            md.showNotification('top', 'center', response.msg, 'success');
+                                                            setTimeout(function () {
+                                                                window.location.reload();
+                                                            }, 1500);
+                                                        } else {
+                                                            md.showNotification('top', 'center', response.msg || 'Error creating round-robin games', 'danger');
+                                                        }
+                                                    },
+                                                    error: function () {
+                                                        $.LoadingOverlay("hide");
+                                                        md.showNotification('top', 'center', 'Server error occurred', 'danger');
+                                                    }
+                                                });
+                                            }
+                                        });
+                                    } else {
+                                        // Other error
+                                        md.showNotification('top', 'center', response.msg || 'Error creating round-robin games', 'danger');
+                                    }
+                                },
+                                error: function () {
+                                    $.LoadingOverlay("hide");
+                                    md.showNotification('top', 'center', 'Server error occurred', 'danger');
+                                }
+                            });
+                        }
+                    });
+                });
+
+
+                // Run on page load, when a tab is shown, and on window resize
             setTabPaneSize();
             $('.page-categories .nav-link').on('shown.bs.tab', setTabPaneSize);
             $(window).on('resize', setTabPaneSize);

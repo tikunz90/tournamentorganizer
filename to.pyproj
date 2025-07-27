@@ -86,6 +86,7 @@
     <Compile Include="beachhandball_app\livescore_views.py" />
     <Compile Include="beachhandball_app\management\commands\delete_specific_events.py" />
     <Compile Include="beachhandball_app\management\commands\migrate_organizer_orm.py" />
+    <Compile Include="beachhandball_app\management\commands\update_games_id_counter.py" />
     <Compile Include="beachhandball_app\management\commands\update_games_realtime.py" />
     <Compile Include="beachhandball_app\management\commands\__init__.py" />
     <Compile Include="beachhandball_app\management\__init__.py" />

@@ -1,6 +1,7 @@
 import json
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.db.models.query import Prefetch
+from django.utils import timezone
 from beachhandball_app.models.choices import GAMESTATE_CHOICES
 import os
 import mimetypes
@@ -10,7 +11,7 @@ from django.views.decorators.clickjacking import xframe_options_exempt
 from django.views.generic.base import View
 from django.contrib import messages
 from beachhandball_app import helper
-from beachhandball_app.models.Tournaments import Referee
+from beachhandball_app.models.Tournaments import Referee, TournamentSettings
 from beachhandball_app.models.Player import PlayerStats
 from datetime import datetime
 from beachhandball_app.models.Game import Game, GameAction
@@ -873,3 +874,235 @@ def update_teamsetup(request, pk_tevent, pk_tstage, pk_tstate):
             for obj in objs:
                 print(obj)
     return redirect(reverse("structure_setup.detail", kwargs={"pk": pk_tevent}))
+
+
+@login_required(login_url="/login/")
+@user_passes_test(lambda u: u.groups.filter(name='tournament_organizer').exists(),
+login_url="/login/", redirect_field_name='next')
+@csrf_exempt
+def create_round_robin_games(request, pk_tevent, pk_tstage, pk_tstate):
+    """
+    Creates games in a round-robin format for all teams in a tournament state.
+    Each team plays against every other team once or twice (home and away).
+    """
+    if request.method == 'POST':
+        try:
+            tstate = get_object_or_404(TournamentState, pk=pk_tstate)
+            tevent = get_object_or_404(TournamentEvent, pk=pk_tevent)
+            
+            # Get user choice for second half games
+            include_second_half = request.POST.get('include_second_half') == 'true'
+            
+            # Get tournament settings to determine game slot duration
+            tsettings = get_object_or_404(TournamentSettings, tournament=tevent.tournament)
+            game_slot_mins = getattr(tsettings, 'game_slot_mins', 60)  # Default to 60 minutes if not set
+            
+            # Get all team stats for this tournament state
+            team_stats = list(TeamStats.objects.filter(
+                tournamentstate=tstate,
+                team__is_dummy=False  # Exclude dummy teams
+            ).select_related('team').order_by('rank'))
+            
+            # Need at least 2 teams for round-robin
+            if len(team_stats) < 2:
+                return JsonResponse({
+                    'success': False, 
+                    'msg': 'Need at least 2 teams for round-robin scheduling.'
+                })
+            
+            # Check if there are existing games
+            existing_games = Game.objects.filter(tournament_state=tstate).count()
+            if existing_games > 0 and not request.POST.get('confirm', False):
+                # If there are games, ask confirmation via front-end dialog
+                return JsonResponse({
+                    'success': False,
+                    'msg': 'There are existing games. Delete them first or use confirmation dialog.',
+                    'existing_games': existing_games,
+                    'needs_confirmation': True
+                })
+            elif existing_games > 0 and request.POST.get('confirm', False):
+                # Delete existing games if confirmation provided
+                Game.objects.filter(tournament_state=tstate).delete()
+            
+            # Find all available courts for this tournament
+            courts = list(Court.objects.filter(tournament=tevent.tournament_shared).order_by('name'))
+            if not courts:
+                return JsonResponse({
+                    'success': False, 
+                    'msg': 'No courts available for this tournament. Please create at least one court first.'
+                })
+            
+            # Use tournament start date if available, otherwise current date
+            start_date = tevent.start_ts if tevent.start_ts else datetime.now()
+            
+            # Create games with round-robin algorithm
+            games_created = 0
+            games_to_create = []
+            
+            # Calculate total number of games
+            team_count = len(team_stats)
+            total_games = (team_count * (team_count - 1)) 
+            if include_second_half:
+                total_games = total_games  # Each team plays every other team twice (home and away)
+            else:
+                total_games = total_games // 2  # Each team plays every other team once
+            
+            # Calculate scheduling parameters
+            games_per_court_per_day = 1440 // game_slot_mins  # Minutes in a day / minutes per game slot
+            days_needed = total_games // (len(courts) * games_per_court_per_day)
+            if total_games % (len(courts) * games_per_court_per_day) > 0:
+                days_needed += 1
+            
+            # Schedule games using round-robin algorithm
+            current_date = start_date
+            current_time_slot = 0
+            current_court_index = 0
+            
+            # First half - each team plays against every other team once
+            for i in range(len(team_stats)):
+                for j in range(i + 1, len(team_stats)):
+                    team_stat_a = team_stats[i]
+                    team_stat_b = team_stats[j]
+                    
+                    # Calculate start time for this game
+                    game_time = current_date.replace(
+                        hour=9,  # Start games at 9 AM
+                        minute=0,
+                        second=0,
+                        microsecond=0
+                    ) + timezone.timedelta(
+                        minutes=game_slot_mins * current_time_slot
+                    )
+                    
+                    # Assign court for this game
+                    court = courts[current_court_index]
+                    
+                    # Create game
+                    game = Game(
+                        tournament=tevent.tournament,
+                        tournament_shared=tevent.tournament_shared,
+                        tournament_event=tevent,
+                        tournament_state=tstate,
+                        team_st_a=team_stat_a,
+                        team_st_b=team_stat_b,
+                        team_a=team_stat_a.team if not team_stat_a.team.is_dummy else None,
+                        team_b=team_stat_b.team if not team_stat_b.team.is_dummy else None,
+                        starttime=game_time,
+                        court=court,
+                        act_time=0,
+                        gamestate='APPENDING',
+                        gamingstate='Ready',
+                        scouting_state='APPENDING',
+                        duration_of_halftime=getattr(tsettings, 'duration_of_halftime', 600)  # Default to 600 seconds if not set
+                    )
+                    games_to_create.append(game)
+                    games_created += 1
+                    
+                    # Update scheduling parameters
+                    current_court_index = (current_court_index + 1) % len(courts)
+                    if current_court_index == 0:
+                        current_time_slot += 1
+                        
+                    # Move to next day if needed
+                    if current_time_slot >= games_per_court_per_day:
+                        current_date += timezone.timedelta(days=1)
+                        current_time_slot = 0
+            
+            # Second half - create games with teams reversed (away games)
+            if include_second_half:
+                # Add a gap between first half and second half games
+                current_date += timezone.timedelta(days=1)
+                current_time_slot = 0
+                
+                for i in range(len(team_stats)):
+                    for j in range(i + 1, len(team_stats)):
+                        team_stat_a = team_stats[j]  # Reversed!
+                        team_stat_b = team_stats[i]  # Reversed!
+                        
+                        # Calculate start time for this game
+                        game_time = current_date.replace(
+                            hour=9,  # Start games at 9 AM
+                            minute=0,
+                            second=0,
+                            microsecond=0
+                        ) + timezone.timedelta(
+                            minutes=game_slot_mins * current_time_slot
+                        )
+                        
+                        # Assign court for this game
+                        court = courts[current_court_index]
+                        
+                        # Create game
+                        game = Game(
+                            tournament=tevent.tournament,
+                            tournament_shared=tevent.tournament_shared,
+                            tournament_event=tevent,
+                            tournament_state=tstate,
+                            team_st_a=team_stat_a,
+                            team_st_b=team_stat_b,
+                            team_a=team_stat_a.team if not team_stat_a.team.is_dummy else None,
+                            team_b=team_stat_b.team if not team_stat_b.team.is_dummy else None,
+                            starttime=game_time,
+                            court=court,
+                            act_time=0,
+                            gamestate='APPENDING',
+                            gamingstate='Ready',
+                            scouting_state='APPENDING',
+                            duration_of_halftime=getattr(tsettings, 'duration_of_halftime', 600)
+                        )
+                        games_to_create.append(game)
+                        games_created += 1
+                        
+                        # Update scheduling parameters
+                        current_court_index = (current_court_index + 1) % len(courts)
+                        if current_court_index == 0:
+                            current_time_slot += 1
+                            
+                        # Move to next day if needed
+                        if current_time_slot >= games_per_court_per_day:
+                            current_date += timezone.timedelta(days=1)
+                            current_time_slot = 0
+            
+            # Bulk create all games at once
+            Game.objects.bulk_create(games_to_create)
+            
+            # Success message varies based on whether second half games were included
+            message = f'Successfully created {games_created} round-robin games over {days_needed} day(s).'
+            if include_second_half:
+                message = f'Successfully created {games_created} round-robin games (including second half/return matches) over {days_needed} day(s).'
+            
+            return JsonResponse({
+                'success': True, 
+                'msg': message,
+                'games_created': games_created
+            })
+            
+        except Exception as e:
+            import traceback
+            print(traceback.format_exc())
+            return JsonResponse({'success': False, 'msg': str(e)})
+            
+    return JsonResponse({'error': 'Invalid request method'}, status=400)
+
+
+# For handling confirmation when games already exist
+@login_required(login_url="/login/")
+@user_passes_test(lambda u: u.groups.filter(name='tournament_organizer').exists(),
+login_url="/login/", redirect_field_name='next')
+@csrf_exempt
+def create_round_robin_confirmed(request, pk_tevent, pk_tstage, pk_tstate):
+    """Handle confirmed creation of round-robin games after deleting existing ones"""
+    if request.method == 'POST':
+        try:
+            tstate = get_object_or_404(TournamentState, pk=pk_tstate)
+            
+            # First delete all existing games
+            Game.objects.filter(tournament_state=tstate).delete()
+            
+            # Then forward to the regular create_round_robin_games
+            return create_round_robin_games(request, pk_tevent, pk_tstage, pk_tstate)
+            
+        except Exception as e:
+            return JsonResponse({'success': False, 'msg': str(e)})
+            
+    return JsonResponse({'error': 'Invalid request method'}, status=400)

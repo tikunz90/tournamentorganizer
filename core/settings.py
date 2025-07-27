@@ -131,6 +131,7 @@ DATABASES = {
             "init_command": "SET foreign_key_checks = 0;",
         },
         'CONN_MAX_AGE ': 30,
+        'CONN_HEALTH_CHECKS': True,
 
     }
 }

@@ -129,6 +129,42 @@ class Game(models.Model):
         finally:
             return True
 
+    @staticmethod
+    def renumber_game_counters(tournament_id):
+        """
+        Renumber id_counter values for all games in a tournament.
+        
+        This function:
+        1. Retrieves all games for a given tournament
+        2. Sorts them first by starttime, then by court_id
+        3. Sets incremental id_counter values starting from 1
+        4. Saves each game
+        
+        Args:
+            tournament_id: ID of the tournament whose games should be renumbered
+            
+        Returns:
+            int: Number of games processed/updated
+        """
+        from django.db import transaction
+        
+        # Use transaction to ensure all updates succeed or none do
+        with transaction.atomic():
+            # Get all games for the tournament and order them properly
+            games = Game.objects.filter(tournament_id=tournament_id).order_by('starttime', 'court__id')
+            
+            counter = 1
+            updated_count = 0
+            
+            # Set new counter values
+            for game in games:
+                game.id_counter = counter
+                game.save(update_fields=['id_counter'])
+                counter += 1
+                updated_count += 1
+                
+            return updated_count
+
     class Meta:
         db_table = 'bh_game'
         ordering = ['starttime']
